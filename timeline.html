@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edo Japan in Global Context — Comparison Timeline (1600–1868)</title>
+<style>
+  body { margin: 0; padding: 40px 20px; background: #ffffff; }
+  .sr-only { position:absolute; width:1px; height:1px; overflow:hidden; }
+</style>
+</head>
+<body>
+<h2 class="sr-only">Interactive comparison timeline: Japan's Edo period alongside a selectable region (Dutch, American, British, European, Korean, or Chinese history), 1600 to 1868, with trade and idea/medicine/translation events color-coded.</h2>
+<div id="app" style="font-family:-apple-system,sans-serif; max-width:1050px; margin:0 auto;">
+  <div style="text-align:center; margin-bottom:6px;">
+    <h1 style="font-family:Georgia,serif; font-size:26px; font-weight:700; color:#2b2620; margin:0 0 4px;">Edo Japan in Global Context</h1>
+    <p style="font-size:13.5px; color:#6b6459; margin:0 0 14px;">1600–1868 · compare Japan's Edo period with another region</p>
+  </div>
+  <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap;">
+    <label for="regionSelect" style="font-size:13.5px; color:#2b2620; font-weight:600;">Compare with:</label>
+    <select id="regionSelect" style="font-size:14px; padding:6px 10px; border-radius:6px; border:1px solid #d8d3cb; background:#fff; color:#2b2620; font-family:inherit;">
+      <option value="dutch" selected>Dutch Republic (VOC)</option>
+      <option value="american">American Colonies / USA</option>
+      <option value="british">Britain</option>
+      <option value="european">Continental Europe</option>
+      <option value="korean">Joseon Korea</option>
+      <option value="chinese">Qing China</option>
+    </select>
+  </div>
+  <div style="display:flex; justify-content:center; gap:18px; margin-bottom:10px; font-size:12px; color:#6b6459; flex-wrap:wrap;">
+    <span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#c9932e;margin-right:5px;"></span>Trade &amp; exchange</span>
+    <span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#2a8577;margin-right:5px;"></span>Idea, medicine &amp; translation</span>
+    <span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#8a8577;margin-right:5px;"></span>Political / other</span>
+  </div>
+  <div id="colHeads" style="display:flex; justify-content:space-between; max-width:960px; margin:0 auto 4px;">
+    <span style="font-size:13px; font-weight:700; letter-spacing:0.4px; color:#b5432a;">JAPAN — EDO PERIOD</span>
+    <span id="rightHead" style="font-size:13px; font-weight:700; letter-spacing:0.4px; color:#2b5c8a;">DUTCH REPUBLIC / VOC</span>
+  </div>
+  <div id="canvas" style="position:relative; margin:0 auto; width:1000px;"></div>
+</div>
+<script>
+(function(){
+  var data = {
+    japan: [
+      [1600,"Battle of Sekigahara","Ieyasu defeats rivals, secures control","political"],
+      [1603,"Tokugawa shogunate founded","Edo becomes the seat of power","political"],
+      [1609,"Trade post opens at Hirado","Dutch VOC granted trading rights","trade"],
+      [1615,"Siege of Osaka","Toyotomi clan destroyed","political"],
+      [1637,"Shimabara Rebellion","Christian revolt crushed; Christianity banned","political"],
+      [1639,"Sakoku declared","Japan closes to nearly all foreign contact","political"],
+      [1641,"Dutch post moves to Dejima","Nagasaki island becomes sole window to the West","trade"],
+      [1720,"Ban on Dutch books eased","Yoshimune's reform opens the door to Rangaku","idea"],
+      [1774,"Kaitai Shinsho published","First Japanese translation of a Western anatomy text","idea"],
+      [1823,"Siebold teaches at Dejima","Western medicine taught to Japanese students","idea"],
+      [1841,"Tenpo Reforms","Austerity measures fail to fix economic strain","political"],
+      [1853,"Perry's Black Ships arrive","US fleet forces Japan to open to trade","trade"],
+      [1854,"Convention of Kanagawa","Ends 215 years of sakoku","trade"],
+      [1858,"Ansei Treaties signed","Unequal treaties open more ports","trade"],
+      [1868,"Meiji Restoration","Edo period ends; imperial rule restored","political"]
+    ],
+    dutch: {
+      label: "DUTCH REPUBLIC / VOC",
+      events: [
+        [1600,"Liefde shipwrecks in Japan","William Adams becomes first Dutch contact with Japan","trade"],
+        [1602,"VOC founded","Dutch East India Company will run all Dutch-Asia trade","trade"],
+        [1609,"Hirado trading post opens","VOC granted trading rights by the shogunate","trade"],
+        [1628,"Batavia becomes VOC hub","Jakarta base anchors Dutch trade across Asia","trade"],
+        [1639,"Dutch become sole Western traders","Portuguese expelled from Japan","trade"],
+        [1641,"Post moved to Dejima","Dutch exclusivity begins, lasting 218 years","trade"],
+        [1720,"Rangaku begins","Japanese scholars study Dutch science via Dejima","idea"],
+        [1774,"Kaitai Shinsho","Dutch anatomy text translated into Japanese","idea"],
+        [1823,"Siebold at Dejima","Dutch-employed physician teaches Western medicine","idea"],
+        [1854,"Dutch monopoly ends","Other Western powers gain access to Japan","trade"],
+        [1858,"Dutch-Japan Treaty","Netherlands signs its own Treaty of Amity and Commerce","trade"]
+      ]
+    },
+    american: {
+      label: "AMERICAN COLONIES / USA",
+      events: [
+        [1607,"Jamestown founded","First permanent English colony in North America","political"],
+        [1636,"Harvard College founded","First institution of higher learning in the colonies","idea"],
+        [1751,"Franklin's electrical experiments","Early scientific society and Academy of Philadelphia","idea"],
+        [1776,"Declaration of Independence","Colonies declare independence from Britain","political"],
+        [1787,"US Constitution signed","Federal framework of government established","political"],
+        [1803,"Louisiana Purchase","US territory roughly doubles","political"],
+        [1846,"Ether anesthesia demonstrated","First public surgery under anesthesia, Boston","idea"],
+        [1848,"Seneca Falls Convention","First US women's rights convention","idea"],
+        [1853,"Perry's expedition to Japan","US Navy forces open trade with Japan","trade"],
+        [1861,"Civil War begins","Conflict over slavery tears the country apart","political"],
+        [1865,"Slavery abolished","13th Amendment ratified","political"]
+      ]
+    },
+    british: {
+      label: "BRITAIN",
+      events: [
+        [1600,"East India Company chartered","Royal charter grants trading monopoly in Asia","trade"],
+        [1628,"Harvey describes circulation","'De Motu Cordis' explains how blood circulates","idea"],
+        [1660,"Royal Society founded","Learned society promotes experimental science","idea"],
+        [1687,"Newton's Principia published","Laws of motion and universal gravitation","idea"],
+        [1721,"Smallpox inoculation introduced","Lady Mary Wortley Montagu popularizes variolation","idea"],
+        [1776,"Wealth of Nations published","Adam Smith lays groundwork for modern economics","idea"],
+        [1798,"Jenner develops smallpox vaccine","First successful vaccine, a landmark in medicine","idea"],
+        [1833,"Slavery Abolition Act","Slavery abolished across most of the Empire","political"],
+        [1842,"Treaty of Nanking","Ends First Opium War; Hong Kong ceded, China's ports opened","trade"],
+        [1859,"Origin of Species published","Darwin's theory of evolution by natural selection","idea"]
+      ]
+    },
+    european: {
+      label: "CONTINENTAL EUROPE",
+      events: [
+        [1618,"Thirty Years' War begins","Devastating conflict reshapes central Europe","political"],
+        [1637,"Descartes' Discourse on Method","Birth of modern philosophy: 'I think, therefore I am'","idea"],
+        [1648,"Peace of Westphalia","Ends the Thirty Years' War, redraws Europe","political"],
+        [1666,"French Academy of Sciences founded","State-sponsored scientific research institution","idea"],
+        [1751,"Encyclopédie begins publication","Diderot and d'Alembert compile all human knowledge","idea"],
+        [1789,"French Revolution begins","Monarchy overthrown; Enlightenment ideals take power","political"],
+        [1799,"Rosetta Stone discovered","Key to eventually translating Egyptian hieroglyphs","idea"],
+        [1804,"Napoleonic Code enacted","Influential unified legal code across Europe","idea"],
+        [1822,"Hieroglyphs deciphered","Champollion translates the Rosetta Stone's text","idea"],
+        [1848,"Revolutions of 1848","Wave of uprisings across the continent","political"],
+        [1866,"Mendel publishes genetics laws","Foundational discovery from pea-plant experiments","idea"]
+      ]
+    },
+    korean: {
+      label: "JOSEON KOREA",
+      events: [
+        [1609,"Treaty of Kiyu","Trade normalized between Joseon Korea and Japan via Tsushima","trade"],
+        [1636,"Qing invasion of Korea","Joseon becomes a tributary of the Qing dynasty","political"],
+        [1653,"Hamel shipwrecked in Korea","First major Dutch contact; his account later informs Europe","trade"],
+        [1725,"Reign of Yeongjo begins","Era of reform and rise of Silhak ('Practical Learning')","idea"],
+        [1776,"Gyujanggak library founded","Royal research institute under King Jeongjo","idea"],
+        [1785,"Early Catholic community forms","Translated Catholic texts begin circulating in Korea","idea"],
+        [1811,"Hong Gyeong-nae Rebellion","Major uprising against Joseon rule","political"],
+        [1866,"French campaign against Korea","Persecution of Catholics sparks foreign intervention","political"],
+        [1866,"General Sherman incident","US ship burned, foreshadowing later conflict","trade"]
+      ]
+    },
+    chinese: {
+      label: "QING CHINA",
+      events: [
+        [1616,"Later Jin founded","Nurhaci unites Manchu tribes, precursor to the Qing","political"],
+        [1644,"Qing dynasty founded","Ming dynasty falls; Manchu rule begins","political"],
+        [1673,"Jesuits build Qing observatory","Verbiest aids Kangxi court with Western astronomy","idea"],
+        [1690,"Euclid translated into Chinese","Jesuit-assisted translation spreads Western mathematics","idea"],
+        [1757,"Canton System established","Foreign trade restricted to one port, like Japan's sakoku","trade"],
+        [1793,"Macartney Mission","British bid to open trade with Qing China is rebuffed","trade"],
+        [1839,"First Opium War begins","Conflict over the opium trade and trade restrictions","trade"],
+        [1842,"Treaty of Nanking","Hong Kong ceded; five ports opened to foreign trade","trade"],
+        [1851,"Taiping Rebellion begins","Massive civil war, among the deadliest in history","political"],
+        [1862,"Tongwen Guan founded","School for translating Western texts; reform movement begins","idea"]
+      ]
+    }
+  };
+
+  var tagColor = { trade:"#c9932e", idea:"#2a8577", political:"#8a8577" };
+  var START = 1600, END = 1868, PXY = 5.6, TOP = 40, MINGAP = 74;
+
+  function yRaw(year){ return TOP + (year-START)*PXY; }
+
+  function layout(events){
+    var sorted = events.slice().sort(function(a,b){ return a[0]-b[0]; });
+    var out = []; var prevY = -9999;
+    sorted.forEach(function(e){
+      var y = Math.max(yRaw(e[0]), prevY + MINGAP);
+      prevY = y;
+      out.push({year:e[0], title:e[1], desc:e[2], tag:e[3], y:y});
+    });
+    return out;
+  }
+
+  function render(regionKey){
+    var region = data[regionKey];
+    document.getElementById('rightHead').textContent = region.label;
+    var left = layout(data.japan);
+    var right = layout(region.events);
+    var maxY = Math.max.apply(null, left.concat(right).map(function(e){return e.y;})) + 70;
+
+    var html = '';
+    html += '<div style="position:absolute; left:499px; top:0px; width:2px; height:'+maxY+'px; background:#d8d3cb;"></div>';
+
+    for (var yr = START; yr <= END; yr += 20){
+      var gy = yRaw(yr);
+      html += '<div style="position:absolute; left:0; top:'+(gy-6)+'px; width:1000px; height:1px; background:#eee;"></div>';
+      html += '<div style="position:absolute; left:470px; top:'+(gy-14)+'px; font-size:10.5px; color:#b0aa9f; font-family:Georgia,serif;">'+yr+'</div>';
+    }
+
+    function node(e, side){
+      var color = tagColor[e.tag];
+      var cx = side==='left' ? 470 : 530;
+      var box;
+      if (side==='left'){
+        box = '<div style="position:absolute; right:550px; top:'+(e.y-16)+'px; width:420px; text-align:right;">'
+          + '<div style="font-family:Georgia,serif; font-weight:700; font-size:12.5px; color:#b5432a;">'+e.year+'</div>'
+          + '<div style="font-size:14.5px; font-weight:600; color:#2b2620; line-height:1.3;">'+e.title+'</div>'
+          + '<div style="font-size:12px; color:#6b6459; line-height:1.3;">'+e.desc+'</div>'
+          + '</div>';
+      } else {
+        box = '<div style="position:absolute; left:550px; top:'+(e.y-16)+'px; width:420px; text-align:left;">'
+          + '<div style="font-family:Georgia,serif; font-weight:700; font-size:12.5px; color:#2b5c8a;">'+e.year+'</div>'
+          + '<div style="font-size:14.5px; font-weight:600; color:#2b2620; line-height:1.3;">'+e.title+'</div>'
+          + '<div style="font-size:12px; color:#6b6459; line-height:1.3;">'+e.desc+'</div>'
+          + '</div>';
+      }
+      var dot = '<div style="position:absolute; left:'+(cx-6)+'px; top:'+(e.y-6)+'px; width:12px; height:12px; border-radius:50%; background:'+color+'; border:2px solid #fff; box-shadow:0 0 0 1px '+color+';"></div>';
+      return dot + box;
+    }
+
+    left.forEach(function(e){ html += node(e,'left'); });
+    right.forEach(function(e){ html += node(e,'right'); });
+
+    var canvas = document.getElementById('canvas');
+    canvas.style.height = maxY + 'px';
+    canvas.innerHTML = html;
+  }
+
+  document.getElementById('regionSelect').addEventListener('change', function(e){
+    render(e.target.value);
+  });
+  render('dutch');
+})();
+</script>
+</body>
+</html>

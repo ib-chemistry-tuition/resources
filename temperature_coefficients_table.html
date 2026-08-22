@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Temperature Coefficients (dE&deg;/dT)</title>
+<style>
+  :root {
+    --surface-2: #ffffff;
+    --surface-1: #f1efe8;
+    --surface-0: #f7f6f2;
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-muted: #888780;
+    --text-accent: #185fa5;
+    --text-danger: #a32d2d;
+    --border: #e3e1d9;
+    --border-strong: #b4b2a9;
+    --bg-accent: #e6f1fb;
+    --radius: 8px;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  html, body { margin:0; padding:0; background:var(--surface-0); font-family:var(--font-sans); color:var(--text-primary); }
+  .wrap { max-width: 780px; margin:0 auto; padding:2rem 1.25rem 4rem; box-sizing:border-box; }
+  h1 { font-size:22px; margin:0 0 0.25rem; }
+  h2 { font-size:16px; margin:2rem 0 0.6rem; }
+  p { line-height:1.6; }
+  .subtitle { color:var(--text-secondary); font-size:13.5px; margin-top:0; }
+  .card { background:var(--surface-2); border:0.5px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.25rem; margin-bottom:1.25rem; }
+  .note { font-size:12.5px; color:var(--text-secondary); margin:0.5rem 0; }
+  table { width:100%; border-collapse:collapse; font-size:13px; margin:0.5rem 0 0.5rem; }
+  th, td { border:1px solid var(--border); padding:7px 10px; text-align:left; vertical-align:top; }
+  th { background:var(--surface-1); font-weight:600; color:var(--text-secondary); font-size:11px; text-transform:uppercase; letter-spacing:0.02em; }
+  td.rank { text-align:center; font-variant-numeric:tabular-nums; color:var(--text-muted); width:34px; }
+  td.symbol { font-weight:700; font-size:15px; }
+  td.eval { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  tr.group-row td { background:var(--bg-accent); font-weight:600; color:var(--text-accent); font-size:11px; text-transform:uppercase; letter-spacing:0.04em; }
+  tr.hazard-row { background:#fdf2f2; }
+  .haz { color:var(--text-danger); font-weight:600; font-size:11px; }
+  .footnotes { font-size:11.5px; color:var(--text-secondary); line-height:1.7; margin-top:10px; }
+  .footnotes sup { margin-right:3px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Temperature Coefficients (dE&deg;/dT)</h1>
+<p class="subtitle">Every standard electrode temperature coefficient we gathered data for while building the galvanic cell simulation &mdash; the same values used internally to shift each half-cell's standard potential as its beaker temperature slider is moved.</p>
+<a href="zn_cu_galvanic_cell_experiment.html" target="_blank" rel="noopener" style="display:inline-block; margin-bottom:1rem; font-size:13px; padding:7px 12px; border-radius:8px; border:0.5px solid var(--border-strong); background:var(--surface-2); color:var(--text-primary); text-decoration:none;">Try out the experiment!</a>
+
+<div class="card">
+  <h2 style="margin-top:0;">What is a temperature coefficient?</h2>
+  <p class="note">The temperature coefficient dE&deg;/dT describes how much a half-cell's standard electrode potential changes for every 1 K (1&deg;C) rise in temperature, in millivolts per kelvin (mV/K). It is applied as: E&deg;(T) = E&deg;(298 K) + (dE&deg;/dT &divide; 1000) &times; (T &minus; 298), and is what links a half-cell's temperature dependence back to its standard entropy change (&Delta;S&deg;) via the van 't Hoff / Nernst relationship &mdash; see the <a href="Supporting_Ideas_Free_Energy_and_vant_hoff_entropy_change.html" target="_blank" rel="noopener" style="color:var(--text-accent);">supporting ideas page</a> for the derivation.</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0;">Core metals (used by default in the simulation)</h2>
+  <table>
+    <thead>
+      <tr><th>Metal</th><th>Couple</th><th style="width:30px;">n</th><th style="width:70px;">E&deg; / V</th><th style="width:90px; text-transform:none;">dE&deg;/dT / mV&middot;K&#8315;&sup1;</th><th style="width:55px;">Source</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="symbol">Mg</td><td>Mg&sup2;&#8314;/Mg</td><td>2</td><td class="eval">&minus;2.360</td><td class="eval">+0.199</td><td><sup>[1]</sup></td></tr>
+      <tr><td class="symbol">Al</td><td>Al&sup3;&#8314;/Al</td><td>3</td><td class="eval">&minus;1.677</td><td class="eval">+0.533</td><td><sup>[1]</sup></td></tr>
+      <tr><td class="symbol">Zn</td><td>Zn&sup2;&#8314;/Zn</td><td>2</td><td class="eval">&minus;0.762</td><td class="eval">+0.119</td><td><sup>[1]</sup></td></tr>
+      <tr><td class="symbol">Fe</td><td>Fe&sup2;&#8314;/Fe</td><td>2</td><td class="eval">&minus;0.44</td><td class="eval">+0.07</td><td><sup>[1]</sup></td></tr>
+      <tr><td class="symbol">Pb</td><td>Pb&sup2;&#8314;/Pb</td><td>2</td><td class="eval">&minus;0.126</td><td class="eval">&minus;0.395</td><td><sup>[1]</sup></td></tr>
+      <tr><td class="symbol">Cu</td><td>Cu&sup2;&#8314;/Cu</td><td>2</td><td class="eval">+0.339</td><td class="eval">+0.011</td><td><sup>[1]</sup></td></tr>
+      <tr><td class="symbol">Ag</td><td>Ag&#8314;/Ag</td><td>1</td><td class="eval">+0.7993</td><td class="eval">&minus;0.989</td><td><sup>[1]</sup></td></tr>
+      <tr><td class="symbol">Au</td><td>Au&sup3;&#8314;/Au</td><td>3</td><td class="eval">+1.503 <sup>[2]</sup></td><td class="eval">+1.10</td><td><sup>[3]</sup></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0;">Exotic / hazardous metals (behind the &ldquo;more exotic metals&rdquo; toggle)</h2>
+  <table>
+    <thead>
+      <tr><th>Metal</th><th>Couple</th><th style="width:30px;">n</th><th style="width:70px;">E&deg; / V</th><th style="width:90px; text-transform:none;">dE&deg;/dT / mV&middot;K&#8315;&sup1;</th><th style="width:55px;">Source</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="symbol">Bi</td><td>Bi&sup3;&#8314;/Bi</td><td>3</td><td class="eval">+0.308</td><td class="eval">+0.18 <sup>&dagger;</sup></td><td><sup>[1]</sup></td></tr>
+      <tr><td class="symbol">Sn</td><td>Sn&sup2;&#8314;/Sn</td><td>2</td><td class="eval">&minus;0.141</td><td class="eval">&minus;0.32</td><td><sup>[1]</sup></td></tr>
+      <tr><td class="symbol">Sc</td><td>Sc&sup3;&#8314;/Sc</td><td>3</td><td class="eval">&minus;2.09</td><td class="eval">+0.41</td><td><sup>[1]</sup></td></tr>
+      <tr><td class="symbol">V</td><td>V&sup2;&#8314;/V</td><td>2</td><td class="eval">&minus;1.125</td><td class="eval">&minus;0.11 <sup>&dagger;</sup></td><td><sup>[1]</sup></td></tr>
+      <tr><td class="symbol">Cr</td><td>Cr&sup3;&#8314;/Cr</td><td>3</td><td class="eval">&minus;0.74</td><td class="eval">+0.44</td><td><sup>[1]</sup></td></tr>
+      <tr><td class="symbol">Mn</td><td>Mn&sup2;&#8314;/Mn</td><td>2</td><td class="eval">&minus;1.182</td><td class="eval">&minus;0.129</td><td><sup>[1]</sup></td></tr>
+      <tr><td class="symbol">Ni</td><td>Ni&sup2;&#8314;/Ni</td><td>2</td><td class="eval">&minus;0.236</td><td class="eval">+0.146</td><td><sup>[1]</sup></td></tr>
+      <tr class="hazard-row"><td class="symbol">U <span class="haz">&#9762; radioactive</span></td><td>U&sup3;&#8314;/U</td><td>3</td><td class="eval">&minus;1.642</td><td class="eval">+0.16</td><td><sup>[1]</sup></td></tr>
+      <tr class="hazard-row"><td class="symbol">Pu <span class="haz">&#9762; radioactive/fissile</span></td><td>Pu&sup3;&#8314;/Pu</td><td>3</td><td class="eval">&minus;1.978</td><td class="eval">+0.23</td><td><sup>[1]</sup></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0;">Sources &amp; notes</h2>
+  <div class="footnotes">
+    <div><sup>[1]</sup> E&deg; and dE&deg;/dT from Bratsch, S. G. (1989). Standard electrode potentials and temperature coefficients in water at 298.15&nbsp;K. <em>Journal of Physical and Chemical Reference Data</em>, <em>18</em>, 1 (values as supplied by the user from a scanned excerpt of the table).</div>
+    <div><sup>[2]</sup> Au<sup>3+</sup>/Au: E&deg; derived via Hess&rsquo;s law from two Bratsch (1989) table entries &mdash; Au<sup>3+</sup>/Au<sup>+</sup> (E&deg; = +1.41&nbsp;V) and Au<sup>+</sup>/Au (E&deg; = +1.69&nbsp;V), both flagged as less-certain values in the original table: E&deg;(Au<sup>3+</sup>/Au) = [2&nbsp;&times;&nbsp;1.41 + 1&nbsp;&times;&nbsp;1.69] / 3 = +1.503&nbsp;V.</div>
+    <div><sup>[3]</sup> Au<sup>3+</sup>/Au: dE&deg;/dT. Bratsch&rsquo;s table gives no temperature coefficient for the Au<sup>3+</sup>/Au<sup>+</sup> couple, so the Hess&rsquo;s-law route used for E&deg; above cannot be completed for dE&deg;/dT. The value shown is instead this tool&rsquo;s own approximation derived from standard third-law entropies, dE&deg;/dT = &Delta;S&deg;<sub>rxn</sub>/(nF). Treat this figure as indicative only.</div>
+    <div><sup>&dagger;</sup> Shown in parentheses in the original scanned table, meaning Bratsch himself rated this value as less certain (e.g. because the metal is rare, radioactive, or the couple is poorly studied experimentally).</div>
+    <div>&#9762; Radioactive or fissile element &mdash; included for completeness only; see the simulator&rsquo;s built-in safety note when selected.</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0;">Related pages</h2>
+  <p class="note">
+    <a href="zn_cu_galvanic_cell_experiment.html" target="_blank" rel="noopener" style="color:var(--text-accent);">Galvanic cell simulation</a> &middot;
+    <a href="reduction_potentials_table.html" target="_blank" rel="noopener" style="color:var(--text-accent);">Full combined standard reduction potentials table</a> &middot;
+    <a href="reactivity_series.html" target="_blank" rel="noopener" style="color:var(--text-accent);">Simplified reactivity series</a> &middot;
+    <a href="Supporting_Ideas_Free_Energy_and_vant_hoff_entropy_change.html" target="_blank" rel="noopener" style="color:var(--text-accent);">Supporting ideas about K, &Delta;H and &Delta;S</a> &middot;
+    <a href="galvanic_cell_cheat_sheet.html" target="_blank" rel="noopener" style="color:var(--text-accent);">Vocabulary / ideas sheet</a>
+  </p>
+</div>
+
+</div>
+</body>
+</html>

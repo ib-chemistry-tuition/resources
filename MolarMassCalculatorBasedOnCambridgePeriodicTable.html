@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Molar Mass Calculator - Cambridge Periodic Table</title>
+<style>
+  :root{
+    --accent:#1e93c6;
+    --line:#000;
+    --glow:#ffcc33;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#ffffff;
+    color:#111;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:18px;
+  }
+  #header{
+    width:100%;
+    max-width:1500px;
+    display:flex;
+    justify-content:space-between;
+    align-items:stretch;
+    background:#fff;
+    color:#111;
+    border:none;
+    border-bottom:2px solid var(--line);
+    border-radius:0;
+    padding:14px 26px 20px;
+    margin-bottom:16px;
+    gap:20px;
+    flex-wrap:wrap;
+  }
+  #massBlock{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+  #massLabel, #formulaLabel{
+    font-size:13px;
+    color:#555;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+    font-weight:bold;
+  }
+  #massValue{
+    font-size:58px;
+    font-weight:700;
+    line-height:1.1;
+    color:#111;
+  }
+  #massValue span.unit{
+    font-size:22px;
+    font-weight:400;
+    color:#444;
+    margin-left:8px;
+  }
+  #massNote{
+    font-size:12px;
+    color:#b33;
+    max-width:340px;
+    margin-top:4px;
+  }
+  #formulaBlock{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:flex-end;
+    text-align:right;
+  }
+  #formulaValue{
+    font-size:44px;
+    font-weight:700;
+    min-height:52px;
+    color:#111;
+  }
+  #formulaValue sub{
+    font-size:0.6em;
+  }
+  #controls{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  button#clearBtn{
+    font-size:15px;
+    padding:10px 20px;
+    border:2px solid var(--line);
+    border-radius:4px;
+    background:#fff;
+    color:#111;
+    cursor:pointer;
+    font-weight:700;
+  }
+  button#clearBtn:hover{background:#f0f0f0;}
+  #hint{
+    font-size:12px;
+    color:#666;
+    max-width:170px;
+  }
+  h1{
+    width:100%;
+    max-width:1500px;
+    font-size:22px;
+    font-weight:400;
+    color:#888;
+    margin:0 0 10px 4px;
+  }
+  #tableWrap{
+    width:100%;
+    max-width:1500px;
+    overflow-x:auto;
+    position:relative;
+    border-right:3px solid var(--accent);
+    padding-right:14px;
+  }
+  #ptable{
+    display:grid;
+    grid-template-columns: 34px repeat(18, minmax(52px,1fr));
+    grid-auto-rows:minmax(72px,1fr);
+    gap:3px;
+    min-width:1080px;
+  }
+  .glabel{
+    grid-row:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    font-size:15px;
+    color:#111;
+  }
+  .plabel{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    font-size:15px;
+    color:#111;
+  }
+  .dagger{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:16px;
+    color:#111;
+  }
+  .fgap{ grid-column:1/-1; height:10px; }
+  .elem{
+    position:relative;
+    border:1.4px solid var(--line);
+    border-radius:2px;
+    padding:2px 3px 4px;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    user-select:none;
+    color:#111;
+    background:#fff;
+    transition:transform .08s ease, box-shadow .15s ease, background .15s ease;
+    font-size:11px;
+    text-align:center;
+  }
+  .elem:hover{ transform:translateY(-1px); background:#f7f7f7; }
+  .elem .num{ font-size:10px; align-self:flex-start; color:#111; }
+  .elem .sym{ font-size:18px; font-weight:700; line-height:1.15; margin-top:1px; }
+  .elem .mass{ font-size:18px; font-weight:700; color:#111; margin-top:2px; }
+  .elem .mass.fallback{ font-size:14px; }
+  .elem.selected{
+    background:#fff8de;
+    box-shadow:0 0 0 3px #fff, 0 0 16px 5px var(--glow), 0 0 28px 9px #ff9900;
+    z-index:2;
+    transform:translateY(-1px) scale(1.05);
+  }
+  .elem .count{
+    position:absolute;
+    top:-8px;
+    right:-8px;
+    background:#111;
+    color:#fff;
+    border-radius:50%;
+    width:19px;
+    height:19px;
+    font-size:11px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    border:2px solid var(--glow);
+  }
+  #key{
+    grid-column:8/13;
+    grid-row:1/3;
+    border:1.4px solid var(--line);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:space-around;
+    padding:6px;
+    font-size:11px;
+    color:#333;
+    text-align:center;
+  }
+  #key .keySym{ font-size:16px; font-weight:700; color:#111; margin:2px 0; }
+  #footnote{
+    width:100%;
+    max-width:1500px;
+    font-size:11px;
+    color:#777;
+    margin-top:8px;
+    text-align:right;
+  }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div id="massBlock">
+    <div id="massLabel">Molar Mass</div>
+    <div id="massValue">0<span class="unit">g/mol</span></div>
+    <div id="massNote"></div>
+  </div>
+  <div id="controls">
+    <div id="hint">Click an element to add it. Right‑click (or shift‑click) to remove one.</div>
+    <button id="clearBtn">Clear</button>
+  </div>
+  <div id="formulaBlock">
+    <div id="formulaLabel">Formula</div>
+    <div id="formulaValue">—</div>
+  </div>
+</div>
+
+<h1>The Periodic Table of Elements</h1>
+
+<div id="tableWrap">
+  <div id="ptable"></div>
+</div>
+
+<div id="footnote">Relative atomic masses as given in the Cambridge (CIE) periodic table. Values shown in brackets are elements for which the Cambridge table quotes no mass (–); the mass number of the most stable isotope, taken from the IB data booklet, is used instead.</div>
+
+<script>
+// [atomicNumber, symbol, name, relativeAtomicMass, group(1-18), period(1-7), isFallback]
+// isFallback = true means the Cambridge table shows "-" for this element (no mass quoted);
+// the value used here is the mass number of the most stable isotope, taken from the IB data booklet.
+const elements = [
+ [1,"H","hydrogen",1,1,1],
+ [2,"He","helium",4,18,1],
+ [3,"Li","lithium",7,1,2],
+ [4,"Be","beryllium",9,2,2],
+ [5,"B","boron",11,13,2],
+ [6,"C","carbon",12,14,2],
+ [7,"N","nitrogen",14,15,2],
+ [8,"O","oxygen",16,16,2],
+ [9,"F","fluorine",19,17,2],
+ [10,"Ne","neon",20,18,2],
+ [11,"Na","sodium",23,1,3],
+ [12,"Mg","magnesium",24,2,3],
+ [13,"Al","aluminium",27,13,3],
+ [14,"Si","silicon",28,14,3],
+ [15,"P","phosphorus",31,15,3],
+ [16,"S","sulfur",32,16,3],
+ [17,"Cl","chlorine",35.5,17,3],
+ [18,"Ar","argon",40,18,3],
+ [19,"K","potassium",39,1,4],
+ [20,"Ca","calcium",40,2,4],
+ [21,"Sc","scandium",45,3,4],
+ [22,"Ti","titanium",48,4,4],
+ [23,"V","vanadium",51,5,4],
+ [24,"Cr","chromium",52,6,4],
+ [25,"Mn","manganese",55,7,4],
+ [26,"Fe","iron",56,8,4],
+ [27,"Co","cobalt",59,9,4],
+ [28,"Ni","nickel",59,10,4],
+ [29,"Cu","copper",64,11,4],
+ [30,"Zn","zinc",65,12,4],
+ [31,"Ga","gallium",70,13,4],
+ [32,"Ge","germanium",73,14,4],
+ [33,"As","arsenic",75,15,4],
+ [34,"Se","selenium",79,16,4],
+ [35,"Br","bromine",80,17,4],
+ [36,"Kr","krypton",84,18,4],
+ [37,"Rb","rubidium",85,1,5],
+ [38,"Sr","strontium",88,2,5],
+ [39,"Y","yttrium",89,3,5],
+ [40,"Zr","zirconium",91,4,5],
+ [41,"Nb","niobium",93,5,5],
+ [42,"Mo","molybdenum",96,6,5],
+ [43,"Tc","technetium",98,7,5,true],
+ [44,"Ru","ruthenium",101,8,5],
+ [45,"Rh","rhodium",103,9,5],
+ [46,"Pd","palladium",106,10,5],
+ [47,"Ag","silver",108,11,5],
+ [48,"Cd","cadmium",112,12,5],
+ [49,"In","indium",115,13,5],
+ [50,"Sn","tin",119,14,5],
+ [51,"Sb","antimony",122,15,5],
+ [52,"Te","tellurium",128,16,5],
+ [53,"I","iodine",127,17,5],
+ [54,"Xe","xenon",131,18,5],
+ [55,"Cs","caesium",133,1,6],
+ [56,"Ba","barium",137,2,6],
+ [57,"La","lanthanum",139,3,6],
+ [72,"Hf","hafnium",178,4,6],
+ [73,"Ta","tantalum",181,5,6],
+ [74,"W","tungsten",184,6,6],
+ [75,"Re","rhenium",186,7,6],
+ [76,"Os","osmium",190,8,6],
+ [77,"Ir","iridium",192,9,6],
+ [78,"Pt","platinum",195,10,6],
+ [79,"Au","gold",197,11,6],
+ [80,"Hg","mercury",201,12,6],
+ [81,"Tl","thallium",204,13,6],
+ [82,"Pb","lead",207,14,6],
+ [83,"Bi","bismuth",209,15,6],
+ [84,"Po","polonium",209,16,6,true],
+ [85,"At","astatine",210,17,6,true],
+ [86,"Rn","radon",222,18,6,true],
+ [87,"Fr","francium",223,1,7,true],
+ [88,"Ra","radium",226,2,7,true],
+ [89,"Ac","actinium",227,3,7,true],
+ [104,"Rf","rutherfordium",267,4,7,true],
+ [105,"Db","dubnium",268,5,7,true],
+ [106,"Sg","seaborgium",269,6,7,true],
+ [107,"Bh","bohrium",270,7,7,true],
+ [108,"Hs","hassium",269,8,7,true],
+ [109,"Mt","meitnerium",278,9,7,true],
+ [110,"Ds","darmstadtium",281,10,7,true],
+ [111,"Rg","roentgenium",281,11,7,true],
+ [112,"Cn","copernicium",285,12,7,true],
+ [113,"Nh","nihonium",286,13,7,true],
+ [114,"Fl","flerovium",289,14,7,true],
+ [115,"Mc","moscovium",288,15,7,true],
+ [116,"Lv","livermorium",293,16,7,true],
+ [117,"Ts","tennessine",294,17,7,true],
+ [118,"Og","oganesson",294,18,7,true],
+ // Lanthanoids (f-block row, dagger)
+ [58,"Ce","cerium",140,4,9],
+ [59,"Pr","praseodymium",141,5,9],
+ [60,"Nd","neodymium",144,6,9],
+ [61,"Pm","promethium",145,7,9,true],
+ [62,"Sm","samarium",150,8,9],
+ [63,"Eu","europium",152,9,9],
+ [64,"Gd","gadolinium",157,10,9],
+ [65,"Tb","terbium",159,11,9],
+ [66,"Dy","dysprosium",163,12,9],
+ [67,"Ho","holmium",165,13,9],
+ [68,"Er","erbium",167,14,9],
+ [69,"Tm","thulium",169,15,9],
+ [70,"Yb","ytterbium",173,16,9],
+ [71,"Lu","lutetium",175,17,9],
+ // Actinoids (f-block row, double-dagger)
+ [90,"Th","thorium",232,4,10],
+ [91,"Pa","protactinium",231,5,10],
+ [92,"U","uranium",238,6,10],
+ [93,"Np","neptunium",237,7,10,true],
+ [94,"Pu","plutonium",244,8,10,true],
+ [95,"Am","americium",243,9,10,true],
+ [96,"Cm","curium",247,10,10,true],
+ [97,"Bk","berkelium",247,11,10,true],
+ [98,"Cf","californium",251,12,10,true],
+ [99,"Es","einsteinium",252,13,10,true],
+ [100,"Fm","fermium",257,14,10,true],
+ [101,"Md","mendelevium",258,15,10,true],
+ [102,"No","nobelium",259,16,10,true],
+ [103,"Lr","lawrencium",262,17,10,true],
+];
+
+const ptable = document.getElementById('ptable');
+const massValue = document.getElementById('massValue');
+const massNote = document.getElementById('massNote');
+const formulaValue = document.getElementById('formulaValue');
+
+// Group number header row (row 1)
+for (let g = 1; g <= 18; g++) {
+  const lab = document.createElement('div');
+  lab.className = 'glabel';
+  lab.style.gridColumn = g + 1;
+  lab.textContent = g;
+  ptable.appendChild(lab);
+}
+// Period number labels (rows 2-8 => periods 1-7)
+for (let p = 1; p <= 7; p++) {
+  const lab = document.createElement('div');
+  lab.className = 'plabel';
+  lab.style.gridColumn = 1;
+  lab.style.gridRow = p + 1;
+  lab.textContent = p;
+  ptable.appendChild(lab);
+}
+// Gap row spacer (row 9)
+const gap = document.createElement('div');
+gap.className = 'fgap';
+gap.style.gridRow = 9;
+ptable.appendChild(gap);
+
+// Dagger / double-dagger markers aligned with La / Ac column (group 3 -> col 4)
+const dagger = document.createElement('div');
+dagger.className = 'dagger';
+dagger.style.gridColumn = 4;
+dagger.style.gridRow = 10;
+dagger.textContent = '†';
+ptable.appendChild(dagger);
+
+const ddagger = document.createElement('div');
+ddagger.className = 'dagger';
+ddagger.style.gridColumn = 4;
+ddagger.style.gridRow = 11;
+ddagger.textContent = '‡';
+ptable.appendChild(ddagger);
+
+let counts = {};   // symbol -> count
+let order = [];    // insertion order of symbols
+let massBySymbol = {};
+let elementFallback = {};
+
+elements.forEach(([num, sym, name, mass, group, period, isFallback]) => {
+  massBySymbol[sym] = mass;
+  elementFallback[sym] = !!isFallback;
+  const el = document.createElement('div');
+  el.className = 'elem';
+  // main table rows are periods 1-7 => grid rows 2-8; f-block rows 9/10 => grid rows 10/11
+  const gridRow = period <= 7 ? period + 1 : (period === 9 ? 10 : 11);
+  el.style.gridColumn = group + 1;
+  el.style.gridRow = gridRow;
+  el.dataset.sym = sym;
+  const massLabel = isFallback ? `(${mass})` : mass;
+  const massClass = isFallback ? 'mass fallback' : 'mass';
+  const daggerMark = (sym === 'La') ? '†' : (sym === 'Ac') ? '‡' : '';
+  el.innerHTML = `<span class="num">${num}</span>
+                  <span class="sym">${sym}${daggerMark}</span>
+                  <span class="${massClass}">${massLabel}</span>`;
+  el.addEventListener('click', (e) => {
+    if (e.shiftKey) { removeOne(sym); } else { addOne(sym); }
+    render();
+  });
+  el.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    removeOne(sym);
+    render();
+  });
+  ptable.appendChild(el);
+});
+
+// Key box (Atomic number / Element / Relative atomic mass), placed in empty space of periods 1-2
+const key = document.createElement('div');
+key.id = 'key';
+key.innerHTML = `<div>Atomic number</div><div class="keySym">Element</div><div>Relative atomic mass</div>`;
+ptable.appendChild(key);
+
+function addOne(sym){
+  if (!counts[sym]) { counts[sym] = 0; order.push(sym); }
+  counts[sym]++;
+}
+function removeOne(sym){
+  if (!counts[sym]) return;
+  counts[sym]--;
+  if (counts[sym] <= 0) {
+    delete counts[sym];
+    order = order.filter(s => s !== sym);
+  }
+}
+function clearAll(){
+  counts = {};
+  order = [];
+  render();
+}
+document.getElementById('clearBtn').addEventListener('click', clearAll);
+
+function render(){
+  document.querySelectorAll('.elem').forEach(el => {
+    const sym = el.dataset.sym;
+    const existingBadge = el.querySelector('.count');
+    if (existingBadge) existingBadge.remove();
+    if (counts[sym]) {
+      el.classList.add('selected');
+      if (counts[sym] > 1) {
+        const badge = document.createElement('div');
+        badge.className = 'count';
+        badge.textContent = counts[sym];
+        el.appendChild(badge);
+      }
+    } else {
+      el.classList.remove('selected');
+    }
+  });
+
+  let total = 0;
+  let fallbackUsed = [];
+  order.forEach(sym => {
+    total += massBySymbol[sym] * counts[sym];
+    if (elementFallback[sym]) fallbackUsed.push(sym);
+  });
+
+  massValue.innerHTML = (order.length === 0 ? '0' : (Math.round(total * 100) / 100)) + '<span class="unit">g/mol</span>';
+  massNote.textContent = fallbackUsed.length > 0
+    ? `Note: ${fallbackUsed.join(', ')} ${fallbackUsed.length > 1 ? 'have' : 'has'} no relative atomic mass in the Cambridge table — the mass number shown in brackets (from the IB data booklet) was used instead.`
+    : '';
+
+  if (order.length === 0) {
+    formulaValue.innerHTML = '—';
+  } else {
+    formulaValue.innerHTML = order.map(sym => {
+      const c = counts[sym];
+      return c > 1 ? `${sym}<sub>${c}</sub>` : sym;
+    }).join('');
+  }
+}
+
+render();
+</script>
+</body>
+</html>

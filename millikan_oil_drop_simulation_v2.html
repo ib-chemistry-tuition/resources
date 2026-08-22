@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Millikan Oil Drop Experiment Simulator</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --border:#30363d; --text:#c9d1d9;
+    --accent:#58a6ff; --accent2:#f0883e; --good:#3fb950; --bad:#f85149;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    padding:20px;
+  }
+  h1{font-size:20px; margin:0 0 4px 0;}
+  .sub{color:#8b949e; font-size:13px; margin-bottom:16px;}
+  .layout{display:flex; gap:18px; flex-wrap:wrap; align-items:flex-start;}
+  .panel{
+    background:var(--panel); border:1px solid var(--border); border-radius:10px;
+    padding:16px;
+  }
+  .controls{width:320px; display:flex; flex-direction:column; gap:14px;}
+  .controls h3{margin:0 0 4px 0; font-size:13px; color:var(--accent); text-transform:uppercase; letter-spacing:.05em;}
+  label{font-size:13px; display:flex; justify-content:space-between;}
+  input[type=range]{width:100%;}
+  button{
+    background:#21262d; color:var(--text); border:1px solid var(--border);
+    border-radius:6px; padding:8px 10px; cursor:pointer; font-size:13px;
+  }
+  button:hover{background:#30363d;}
+  button.primary{background:var(--accent); color:#04121f; border:none; font-weight:600;}
+  button.primary:hover{filter:brightness(1.1);}
+  button.warn{background:var(--accent2); color:#2b1400; border:none; font-weight:600;}
+  button.warn:hover{filter:brightness(1.1);}
+  button:disabled{opacity:.4; cursor:not-allowed;}
+  .row{display:flex; gap:8px;}
+  .row button{flex:1;}
+  canvas{background:#f5f5f0; border-radius:6px; display:block;}
+  .readout{font-size:13px; line-height:1.7;}
+  .readout b{color:var(--accent2);}
+  table{border-collapse:collapse; width:100%; font-size:12px; margin-top:10px;}
+  th,td{border:1px solid var(--border); padding:5px 6px; text-align:right;}
+  th{background:#21262d; position:sticky; top:0;}
+  td:first-child, th:first-child{text-align:left;}
+  .note{font-size:12px; color:#8b949e; margin-top:8px; line-height:1.5;}
+  .badge{display:inline-block; padding:1px 7px; border-radius:10px; font-size:11px; font-weight:600;}
+  .badge.on{background:rgba(63,185,80,.15); color:var(--good);}
+  .badge.off{background:rgba(248,81,73,.15); color:var(--bad);}
+  .badge.pol{background:rgba(88,166,255,.15); color:var(--accent);}
+  .history{max-height:200px; overflow:auto; margin-top:8px;}
+  .divider{border-top:1px solid var(--border); margin:4px 0;}
+</style>
+</head>
+<body>
+
+<h1>Millikan Oil-Drop Experiment</h1>
+<div class="sub">Determine the elementary charge <i>e</i> the way Millikan &amp; Fletcher's actual 1909&ndash;1913 apparatus allowed: a reversible high-voltage field, an ionizing (X-ray) source to re-charge a single drop mid-flight, and thermostat/barometer controls over the air in the chamber.</div>
+
+<div class="layout">
+
+  <div class="panel">
+    <canvas id="stage" width="480" height="420"></canvas>
+    <div class="row" style="margin-top:10px;">
+      <button id="btnSpray" class="primary">Spray new droplet (atomizer)</button>
+      <button id="btnField">Field: <span id="fieldState" class="badge off">OFF</span></button>
+      <button id="btnPolarity">Top plate: <span id="polState" class="badge pol">+</span></button>
+    </div>
+    <div class="row" style="margin-top:8px;">
+      <button id="btnIonize" class="warn" disabled>&#9889; Ionize with X-ray source</button>
+    </div>
+    <div class="note" id="hint">Spray a droplet, time its free fall with the field OFF, then switch the field ON. If you guessed the wrong plate polarity the drop will fall <i>faster</i>; the right polarity makes it rise or fall more slowly. Time the field-on motion either way &mdash; the sign is measured automatically.</div>
+  </div>
+
+  <div class="panel controls">
+    <div>
+      <h3>Apparatus</h3>
+      <label>Plate voltage V <span id="vLabel">300 V</span></label>
+      <input id="voltage" type="range" min="0" max="600" step="10" value="300">
+      <label>Plate separation d <span id="dLabel">16.0 mm</span></label>
+      <input id="dsep" type="range" min="8" max="25" step="0.5" value="16">
+      <label>Time acceleration <span id="taLabel">6x</span></label>
+      <input id="taccel" type="range" min="1" max="20" step="1" value="6">
+      <label><input type="checkbox" id="slip" checked style="width:auto; margin-right:6px;">Cunningham slip correction</label>
+    </div>
+
+    <div class="divider"></div>
+
+    <div>
+      <h3>Chamber conditions (thermostat &amp; manometer)</h3>
+      <label>Temperature <span id="tempLabel">20.0 &deg;C</span></label>
+      <input id="temperature" type="range" min="10" max="40" step="0.5" value="20">
+      <label>Air pressure <span id="pressLabel">1.00 atm</span></label>
+      <input id="pressure" type="range" min="0.5" max="1.5" step="0.01" value="1">
+      <div class="note">Millikan's chamber sat in a temperature-controlled oil bath with a thermometer and manometer, since the air's viscosity (and hence the whole calculation) depends on both.</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div>
+      <h3>Timing</h3>
+      <div class="row">
+        <button id="btnTimeFall">Time fall (field off)</button>
+      </div>
+      <div class="row">
+        <button id="btnTimeRise">Time field-on motion</button>
+      </div>
+      <div class="readout" id="timingReadout" style="margin-top:6px;">
+        v_fall: <b>&mdash;</b><br>
+        v_field: <b>&mdash;</b>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div>
+      <h3>Result</h3>
+      <button id="btnCalc">Calculate charge q</button>
+      <div class="readout" id="resultReadout" style="margin-top:6px;">
+        radius r: <b>&mdash;</b><br>
+        charge q: <b>&mdash;</b><br>
+        q / e<sub>modern</sub>: <b>&mdash;</b><br>
+        nearest integer n: <b>&mdash;</b>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div>
+      <h3>Charge-change log <span style="float:right; font-weight:normal;">(same drop)</span></h3>
+      <div class="note">Millikan's most famous proof re-charged one drop repeatedly with an X-ray tube and watched q always jump by whole multiples of e. Use "Ionize" below, then re-measure v_field and recalculate.</div>
+      <div class="history">
+        <table id="dropTable">
+          <thead><tr><th>#</th><th>q (&times;10&#8315;&sup1;&#8313; C)</th><th>&Delta;q</th><th>&Delta;q/e</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div>
+      <h3>Trial history <span style="float:right; font-weight:normal;">(across drops)</span></h3>
+      <div class="history">
+        <table id="histTable">
+          <thead><tr><th>#</th><th>q (&times;10&#8315;&sup1;&#8313; C)</th><th>q/e</th><th>n</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="note" id="estimateNote"></div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" style="margin-top:16px; max-width:800px;">
+  <h3 style="margin-top:0; color:var(--accent);">Controls added to match the real apparatus</h3>
+  <div class="note" style="font-size:13px;">
+  The historical apparatus had more knobs than just a field switch, so this version adds: a <b>reversing polarity switch</b> (Millikan's plates were wired to a battery bank through a reversing key, letting him flip the field without changing its magnitude, which is how the sign of a drop's charge was actually determined); an <b>ionizing X-ray source</b> aimed into the chamber (in the real lab this was an X-ray tube or a small radium sample; firing it knocks electrons on or off a drop already in view, letting the same drop's charge change be measured over and over &mdash; this is the experiment Millikan considered his strongest proof that charge is quantized); and a <b>thermostatted, barometer-monitored chamber</b> (temperature and pressure both change air's viscosity via Sutherland's law and the mean free path used in the Cunningham correction, so Millikan controlled both tightly). Voltage, plate separation, and time acceleration remain as before. One knob is intentionally left out: Millikan's actual telescope/eyepiece micrometer for reading droplet position is abstracted here as the two dashed measurement lines.
+  </div>
+</div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('stage');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // Reference physical constants
+  const g = 9.80665;              // m/s^2
+  const eModern = 1.602176634e-19; // C
+  const eta_ref = 1.716e-5;        // Pa*s, Sutherland reference viscosity at 273.15K
+  const T_sutherland = 110.4;      // K, Sutherland's constant for air
+  const T0 = 273.15;               // K
+  const rho_ref = 1.293;           // kg/m^3, air density at 0C, 1atm
+  const lambda_ref = 6.8e-8;       // m, mean free path at 20C, 1atm
+  const T_lref = 293.15;           // K
+  const rhoOil = 920;              // kg/m^3
+
+  // View geometry
+  const gridTopY = 130, gridBotY = 310; // measured interval (fixed pixel span)
+  const plateTopY = 40, plateBotY = H - 40;
+  const measuredMM = 8;
+  const pxPerMM = (gridBotY-gridTopY)/measuredMM;
+  const pxPerM = pxPerMM*1000;
+
+  function tempK(){ return parseFloat(document.getElementById('temperature').value) + 273.15; }
+  function pressAtm(){ return parseFloat(document.getElementById('pressure').value); }
+
+  function airViscosity(){
+    const T = tempK();
+    return eta_ref * Math.pow(T/T0, 1.5) * (T0+T_sutherland)/(T+T_sutherland);
+  }
+  function airDensity(){
+    const T = tempK(), P = pressAtm();
+    return rho_ref * (T0/T) * P;
+  }
+  function meanFreePath(){
+    const T = tempK(), P = pressAtm();
+    return lambda_ref * (T/T_lref) * (1/P);
+  }
+  function effectiveViscosity(r){
+    const eta = airViscosity();
+    if(!document.getElementById('slip').checked) return eta;
+    const A = 0.864; // Millikan's slip-correction coefficient
+    return eta / (1 + (A*meanFreePath()/r));
+  }
+  function fieldStrength(){
+    const V = parseFloat(document.getElementById('voltage').value);
+    const d_m = parseFloat(document.getElementById('dsep').value)/1000;
+    return V/d_m;
+  }
+
+  let state = {
+    hasDrop:false,
+    r:0, n:0, sign:1,      // sign: +1 (deficit of electrons) or -1 (excess of electrons)
+    topPlateSign:1,        // user-controlled polarity switch
+    fieldOn:false,
+    yPix: gridTopY-40,
+    v_fall:null, v_field:null,
+    q_est:null,
+    lastFrameT:null,
+    flashUntil:0
+  };
+  let history = [];      // across different droplets
+  let dropLog = [];      // charge states of the CURRENT droplet
+
+  function mgOf(r){
+    const rhoAir = airDensity();
+    return (4/3)*Math.PI*r*r*r*(rhoOil-rhoAir)*g;
+  }
+
+  // signed velocity, positive = downward
+  function signedVelocity(r,n,sign,topPlateSign,fieldOn){
+    const eta = effectiveViscosity(r);
+    const mg = mgOf(r);
+    if(!fieldOn){
+      return mg/(6*Math.PI*eta*r);
+    }
+    const E = fieldStrength();
+    const Fdown_electric = sign*topPlateSign*n*eModern*E;
+    const netDown = mg + Fdown_electric;
+    return netDown/(6*Math.PI*eta*r);
+  }
+
+  function randomDroplet(){
+    const r = (0.3 + Math.random()*1.7)*1e-6;
+    const n = 1 + Math.floor(Math.random()*8);
+    const sign = Math.random()<0.5 ? 1 : -1;
+    state.hasDrop = true;
+    state.r = r; state.n = n; state.sign = sign;
+    state.yPix = gridTopY - 40;
+    state.fieldOn = false;
+    document.getElementById('fieldState').textContent = 'OFF';
+    document.getElementById('fieldState').className = 'badge off';
+    state.v_fall = null; state.v_field = null; state.q_est = null;
+    fallTimer = {active:false, t0:null, y0:null};
+    riseTimer = {active:false, t0:null, y0:null};
+    document.getElementById('btnTimeFall').textContent = 'Time fall (field off)';
+    document.getElementById('btnTimeRise').textContent = 'Time field-on motion';
+    document.getElementById('btnIonize').disabled = false;
+    dropLog = [];
+    renderDropLog();
+    updateTimingReadout();
+    updateResultReadout();
+    document.getElementById('hint').innerHTML = 'Droplet sprayed. Time the free fall (field OFF) across the two dashed lines first.';
+  }
+
+  function ionizeDrop(){
+    if(!state.hasDrop) return;
+    let delta = 0;
+    while(delta===0) delta = Math.floor(Math.random()*5)-2; // -2..2, excluding 0
+    let newN = state.n + delta;
+    let newSign = state.sign;
+    if(newN <= 0){ newSign = -state.sign; newN = Math.abs(newN)||1; }
+    state.n = newN; state.sign = newSign;
+    state.v_field = null; // must retime; v_fall (mass-based) still valid
+    riseTimer = {active:false, t0:null, y0:null};
+    document.getElementById('btnTimeRise').textContent = 'Time field-on motion';
+    state.flashUntil = performance.now()+350;
+    updateTimingReadout();
+    document.getElementById('hint').innerHTML = 'X-ray pulse fired — the drop’s charge just changed. Re-measure the field-on motion and recalculate q to see the jump.';
+  }
+
+  function updateTimingReadout(){
+    document.getElementById('timingReadout').innerHTML =
+      'v_fall: <b>' + (state.v_fall!==null ? (state.v_fall*1000).toFixed(4)+' mm/s' : '&mdash;') + '</b><br>' +
+      'v_field: <b>' + (state.v_field!==null ? (Math.abs(state.v_field)*1000).toFixed(4)+' mm/s '+(state.v_field<0?'(rising)':'(falling)') : '&mdash;') + '</b>';
+  }
+
+  function updateResultReadout(){
+    const div = document.getElementById('resultReadout');
+    if(state.q_est===null){
+      div.innerHTML = 'radius r: <b>&mdash;</b><br>charge q: <b>&mdash;</b><br>q / e<sub>modern</sub>: <b>&mdash;</b><br>nearest integer n: <b>&mdash;</b>';
+    }
+  }
+
+  function renderDropLog(){
+    const tbody = document.querySelector('#dropTable tbody');
+    tbody.innerHTML = '';
+    dropLog.forEach((entry,i)=>{
+      const tr = document.createElement('tr');
+      let dq = '&mdash;', dqe = '&mdash;';
+      if(i>0){
+        const diff = entry.q - dropLog[i-1].q;
+        dq = diff.toFixed(3);
+        dqe = (diff/(eModern/1e-19)).toFixed(3);
+      }
+      tr.innerHTML = '<td>'+(i+1)+'</td><td>'+entry.q.toFixed(3)+'</td><td>'+dq+'</td><td>'+dqe+'</td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  function addHistory(){
+    if(state.q_est===null) return;
+    const ratio = state.q_est/eModern;
+    history.push({q: state.q_est/1e-19, ratio: ratio, n: Math.round(ratio)});
+    const tbody = document.querySelector('#histTable tbody');
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>'+history.length+'</td><td>'+history[history.length-1].q.toFixed(3)+'</td><td>'+ratio.toFixed(3)+'</td><td>'+history[history.length-1].n+'</td>';
+    tbody.appendChild(tr);
+    tbody.parentElement.parentElement.scrollTop = 1e9;
+    if(history.length>=3){
+      const est = history.reduce((s,h)=>s+h.q*1e-19/h.n,0)/history.length;
+      document.getElementById('estimateNote').innerHTML =
+        'Averaging q/n across ' + history.length + ' trials gives e &asymp; <b style="color:var(--good)">' + (est/1e-19).toFixed(4) + ' &times;10&#8315;&sup1;&#8313; C</b> (modern value 1.6022).';
+    }
+  }
+
+  // ---- drawing ----
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#444';
+    ctx.fillRect(0, plateTopY-8, W, 8);
+    ctx.fillRect(0, plateBotY, W, 8);
+    ctx.fillStyle = '#666'; ctx.font='12px sans-serif';
+    ctx.fillText('plate ('+(state.topPlateSign>0?'+':'−')+')', 10, plateTopY-14);
+    ctx.fillText('plate ('+(state.topPlateSign>0?'−':'+')+')', 10, plateBotY+22);
+
+    ctx.strokeStyle = '#999'; ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.moveTo(60,gridTopY); ctx.lineTo(W-20,gridTopY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(60,gridBotY); ctx.lineTo(W-20,gridBotY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#333';
+    ctx.fillText('measurement line A', W-170, gridTopY-6);
+    ctx.fillText('measurement line B', W-170, gridBotY+16);
+    ctx.fillText(measuredMM.toFixed(1)+' mm apart', 65, (gridTopY+gridBotY)/2);
+
+    // X-ray source icon, top-right
+    ctx.fillStyle = '#8b5cf6';
+    ctx.fillRect(W-38, 6, 26, 16);
+    ctx.fillStyle='#fff'; ctx.font='10px sans-serif';
+    ctx.fillText('X-ray', W-36, 17);
+
+    if(performance.now() < state.flashUntil && state.hasDrop){
+      ctx.strokeStyle = 'rgba(139,92,246,.8)';
+      ctx.lineWidth = 1.5;
+      for(let i=0;i<6;i++){
+        ctx.beginPath();
+        ctx.moveTo(W-25, 14);
+        ctx.lineTo(240 + (Math.random()-0.5)*10, state.yPix + (Math.random()-0.5)*10);
+        ctx.stroke();
+      }
+      ctx.lineWidth = 1;
+    }
+
+    if(state.hasDrop){
+      const rPix = Math.max(2.5, state.r*1e6*2.2);
+      ctx.beginPath();
+      ctx.fillStyle = '#2b2b2b';
+      ctx.arc(240, state.yPix, rPix, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    if(state.fieldOn){
+      ctx.strokeStyle='rgba(88,166,255,.35)';
+      for(let x=70;x<W-30;x+=40){
+        ctx.beginPath(); ctx.moveTo(x, plateTopY); ctx.lineTo(x, plateBotY); ctx.stroke();
+      }
+    }
+  }
+
+  function step(ts){
+    if(state.lastFrameT===null) state.lastFrameT = ts;
+    const dtReal = (ts - state.lastFrameT)/1000;
+    state.lastFrameT = ts;
+    const accel = parseFloat(document.getElementById('taccel').value);
+    const dtSim = dtReal*accel;
+
+    if(state.hasDrop){
+      const v = signedVelocity(state.r, state.n, state.sign, state.topPlateSign, state.fieldOn);
+      state.yPix += v*dtSim*pxPerM;
+      if(state.yPix < gridTopY-70) state.yPix = gridTopY-70;
+      if(state.yPix > gridBotY+70) state.yPix = gridBotY+70;
+    }
+    draw();
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+
+  // ---- UI wiring ----
+  document.getElementById('voltage').addEventListener('input', e=>{
+    document.getElementById('vLabel').textContent = e.target.value+' V';
+  });
+  document.getElementById('dsep').addEventListener('input', e=>{
+    document.getElementById('dLabel').textContent = parseFloat(e.target.value).toFixed(1)+' mm';
+  });
+  document.getElementById('taccel').addEventListener('input', e=>{
+    document.getElementById('taLabel').textContent = e.target.value+'x';
+  });
+  document.getElementById('temperature').addEventListener('input', e=>{
+    document.getElementById('tempLabel').textContent = parseFloat(e.target.value).toFixed(1)+' °C';
+  });
+  document.getElementById('pressure').addEventListener('input', e=>{
+    document.getElementById('pressLabel').textContent = parseFloat(e.target.value).toFixed(2)+' atm';
+  });
+
+  document.getElementById('btnSpray').addEventListener('click', randomDroplet);
+
+  document.getElementById('btnField').addEventListener('click', ()=>{
+    if(!state.hasDrop) return;
+    state.fieldOn = !state.fieldOn;
+    document.getElementById('fieldState').textContent = state.fieldOn?'ON':'OFF';
+    document.getElementById('fieldState').className = 'badge ' + (state.fieldOn?'on':'off');
+  });
+
+  document.getElementById('btnPolarity').addEventListener('click', ()=>{
+    state.topPlateSign *= -1;
+    document.getElementById('polState').textContent = state.topPlateSign>0 ? '+' : '−';
+  });
+
+  document.getElementById('btnIonize').addEventListener('click', ionizeDrop);
+
+  let fallTimer = {active:false, t0:null, y0:null};
+  let riseTimer = {active:false, t0:null, y0:null};
+
+  document.getElementById('btnTimeFall').addEventListener('click', ()=>{
+    if(!state.hasDrop || state.fieldOn){ alert('Turn the field OFF first, then time the free fall.'); return; }
+    if(!fallTimer.active){
+      fallTimer.active = true; fallTimer.t0 = performance.now(); fallTimer.y0 = state.yPix;
+      document.getElementById('btnTimeFall').textContent = 'Click again to stop';
+    } else {
+      const accel = parseFloat(document.getElementById('taccel').value);
+      const simSeconds = (performance.now()-fallTimer.t0)/1000*accel;
+      const dyM = (state.yPix - fallTimer.y0)/pxPerM;
+      state.v_fall = simSeconds>0 ? dyM/simSeconds : null;
+      fallTimer.active = false;
+      document.getElementById('btnTimeFall').textContent = 'Time fall (field off)';
+      updateTimingReadout();
+    }
+  });
+
+  document.getElementById('btnTimeRise').addEventListener('click', ()=>{
+    if(!state.hasDrop || !state.fieldOn){ alert('Turn the field ON first, then time its motion.'); return; }
+    if(!riseTimer.active){
+      riseTimer.active = true; riseTimer.t0 = performance.now(); riseTimer.y0 = state.yPix;
+      document.getElementById('btnTimeRise').textContent = 'Click again to stop';
+    } else {
+      const accel = parseFloat(document.getElementById('taccel').value);
+      const simSeconds = (performance.now()-riseTimer.t0)/1000*accel;
+      const dyM = (state.yPix - riseTimer.y0)/pxPerM;
+      state.v_field = simSeconds>0 ? dyM/simSeconds : null; // signed, positive=down
+      riseTimer.active = false;
+      document.getElementById('btnTimeRise').textContent = 'Time field-on motion';
+      updateTimingReadout();
+    }
+  });
+
+  document.getElementById('btnCalc').addEventListener('click', ()=>{
+    if(state.v_fall===null || state.v_field===null){
+      alert('You need both v_fall and the field-on velocity measured first.');
+      return;
+    }
+    const eta = effectiveViscosity(state.r);
+    const rFromData = Math.sqrt(9*eta*Math.abs(state.v_fall)/(2*g*(rhoOil-airDensity())));
+    const E = fieldStrength();
+    const q = 6*Math.PI*eta*rFromData*Math.abs(state.v_field - state.v_fall)/E;
+    state.q_est = q;
+    const div = document.getElementById('resultReadout');
+    const ratio = q/eModern;
+    div.innerHTML =
+      'radius r (from v_fall): <b>' + (rFromData*1e6).toFixed(3) + ' &micro;m</b><br>' +
+      'charge q: <b>' + (q/1e-19).toFixed(3) + ' &times;10&#8315;&sup1;&#8313; C</b><br>' +
+      'q / e<sub>modern</sub>: <b>' + ratio.toFixed(3) + '</b><br>' +
+      'nearest integer n: <b>' + Math.round(ratio) + '</b> (actual electrons on this drop: ' + state.n + ')';
+    addHistory();
+    dropLog.push({q: q/1e-19});
+    renderDropLog();
+  });
+
+  draw();
+})();
+</script>
+
+</body>
+</html>

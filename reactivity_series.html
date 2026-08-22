@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simplified Reactivity Series</title>
+<style>
+  :root {
+    --surface-2: #ffffff;
+    --surface-1: #f1efe8;
+    --surface-0: #f7f6f2;
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-muted: #888780;
+    --text-accent: #185fa5;
+    --text-danger: #a32d2d;
+    --border: #e3e1d9;
+    --border-strong: #b4b2a9;
+    --bg-accent: #e6f1fb;
+    --radius: 8px;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  html, body { margin:0; padding:0; background:var(--surface-0); font-family:var(--font-sans); color:var(--text-primary); }
+  .wrap { max-width: 720px; margin:0 auto; padding:2rem 1.25rem 4rem; box-sizing:border-box; }
+  h1 { font-size:22px; margin:0 0 0.25rem; }
+  h2 { font-size:16px; margin:2rem 0 0.6rem; }
+  p { line-height:1.6; }
+  .subtitle { color:var(--text-secondary); font-size:13.5px; margin-top:0; }
+  .card { background:var(--surface-2); border:0.5px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.25rem; margin-bottom:1.25rem; }
+  .note { font-size:12.5px; color:var(--text-secondary); margin:0.5rem 0; }
+  table { width:100%; border-collapse:collapse; font-size:13px; margin:0.5rem 0 0.5rem; }
+  th, td { border:1px solid var(--border); padding:7px 10px; text-align:left; vertical-align:top; }
+  th { background:var(--surface-1); font-weight:600; color:var(--text-secondary); font-size:11px; text-transform:uppercase; letter-spacing:0.02em; }
+  td.rank { text-align:center; font-variant-numeric:tabular-nums; color:var(--text-muted); width:34px; }
+  td.symbol { font-weight:700; font-size:15px; }
+  td.eval { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  tr.ref-row { background:var(--surface-1); }
+  tr.ref-row td { font-style:italic; color:var(--text-secondary); }
+  tr.hazard-row { background:#fdf2f2; }
+  .tag { display:inline-block; font-size:10px; font-weight:600; padding:1px 7px; border-radius:10px; white-space:nowrap; }
+  .tag-s { background:var(--text-accent); color:#fff; }
+  .tag-ib { background:var(--surface-1); color:var(--text-secondary); border:0.5px solid var(--border-strong); }
+  .haz { color:var(--text-danger); font-weight:600; font-size:11px; }
+  .top-label, .bottom-label { text-align:center; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-secondary); padding:6px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Simplified Reactivity Series</h1>
+<p class="subtitle">Metals ordered from most reactive to least reactive, derived directly from the standard reduction potentials used in the galvanic cell simulation and the IB Chemistry data booklet. The more negative the standard reduction potential (E&deg;), the more strongly a metal favours losing electrons (being oxidised) &mdash; and the more reactive it is.</p>
+<a href="zn_cu_galvanic_cell_experiment.html" target="_blank" rel="noopener" style="display:inline-block; margin-bottom:1rem; font-size:13px; padding:7px 12px; border-radius:8px; border:0.5px solid var(--border-strong); background:var(--surface-2); color:var(--text-primary); text-decoration:none;">Try out the experiment!</a>
+
+<div class="card">
+  <h2 style="margin-top:0;">How this was built</h2>
+  <p class="note">This series is simply the "Standard Reduction Potentials — Combined Reference Table" (Bratsch, 1989, tagged <span class="tag tag-s">S</span>; IB Chemistry data booklet, tagged <span class="tag tag-ib">IB</span>) filtered down to only the simple metal / metal-ion couples (M<sup>n+</sup>(aq) + n e&#8315; &#8652; M(s)), with each metal appearing once. Where a metal is used in the simulation, its Bratsch (1989) value is shown; where a metal is not part of the simulation (Li, K, Ca, Na), its IB data booklet value is shown instead. Hydrogen is included as the traditional reference point (E&deg; = 0.00 V by definition) even though it is not a metal. Carbon is also included, in its conventional textbook position between aluminium and zinc — carbon does not have a simple, directly comparable aqueous standard reduction potential the way a metal does, so it is placed here by convention (reflecting its usefulness in the carbon-reduction extraction of metals below it, e.g. iron, tin, lead) rather than by a sourced E&deg; value.</p>
+  <p class="note">See the <a href="reduction_potentials_table.html" target="_blank" rel="noopener" style="color:var(--text-accent);">full combined reduction potentials table</a> for every entry, including non-metal couples, both literature values where a metal appears twice, and full source citations.</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0;">Reactivity series (most reactive &rarr; least reactive)</h2>
+  <div class="top-label">&#9650; more reactive &mdash; loses electrons more readily</div>
+  <table>
+    <thead>
+      <tr><th class="rank">#</th><th>Metal</th><th style="width:70px;">E&deg; / V</th><th style="width:60px;">Source</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="rank">1</td><td><span class="symbol">Li</span> — lithium</td><td class="eval">&minus;3.04</td><td><span class="tag tag-ib">IB</span></td></tr>
+      <tr><td class="rank">2</td><td><span class="symbol">K</span> — potassium</td><td class="eval">&minus;2.93</td><td><span class="tag tag-ib">IB</span></td></tr>
+      <tr><td class="rank">3</td><td><span class="symbol">Ca</span> — calcium</td><td class="eval">&minus;2.87</td><td><span class="tag tag-ib">IB</span></td></tr>
+      <tr><td class="rank">4</td><td><span class="symbol">Na</span> — sodium</td><td class="eval">&minus;2.71</td><td><span class="tag tag-ib">IB</span></td></tr>
+      <tr><td class="rank">5</td><td><span class="symbol">Mg</span> — magnesium</td><td class="eval">&minus;2.360</td><td><span class="tag tag-s">S</span></td></tr>
+      <tr><td class="rank">6</td><td><span class="symbol">Sc</span> — scandium</td><td class="eval">&minus;2.09</td><td><span class="tag tag-s">S</span></td></tr>
+      <tr class="hazard-row"><td class="rank">7</td><td><span class="symbol">Pu</span> — plutonium <span class="haz">&#9762; hazardous</span></td><td class="eval">&minus;1.978</td><td><span class="tag tag-s">S</span></td></tr>
+      <tr><td class="rank">8</td><td><span class="symbol">Al</span> — aluminium</td><td class="eval">&minus;1.677</td><td><span class="tag tag-s">S</span></td></tr>
+      <tr class="hazard-row"><td class="rank">9</td><td><span class="symbol">U</span> — uranium <span class="haz">&#9762; hazardous</span></td><td class="eval">&minus;1.642</td><td><span class="tag tag-s">S</span></td></tr>
+      <tr><td class="rank">10</td><td><span class="symbol">Mn</span> — manganese</td><td class="eval">&minus;1.182</td><td><span class="tag tag-s">S</span></td></tr>
+      <tr><td class="rank">11</td><td><span class="symbol">V</span> — vanadium</td><td class="eval">&minus;1.125</td><td><span class="tag tag-s">S</span></td></tr>
+      <tr class="ref-row"><td class="rank">—</td><td><span class="symbol">C</span> — carbon (reference point, not a metal)</td><td class="eval">n/a</td><td>&mdash;</td></tr>
+      <tr><td class="rank">12</td><td><span class="symbol">Zn</span> — zinc</td><td class="eval">&minus;0.762</td><td><span class="tag tag-s">S</span></td></tr>
+      <tr><td class="rank">13</td><td><span class="symbol">Cr</span> — chromium</td><td class="eval">&minus;0.74</td><td><span class="tag tag-s">S</span></td></tr>
+      <tr><td class="rank">14</td><td><span class="symbol">Fe</span> — iron</td><td class="eval">&minus;0.44</td><td><span class="tag tag-s">S</span></td></tr>
+      <tr><td class="rank">15</td><td><span class="symbol">Ni</span> — nickel</td><td class="eval">&minus;0.236</td><td><span class="tag tag-s">S</span></td></tr>
+      <tr><td class="rank">16</td><td><span class="symbol">Sn</span> — tin</td><td class="eval">&minus;0.141</td><td><span class="tag tag-s">S</span></td></tr>
+      <tr><td class="rank">17</td><td><span class="symbol">Pb</span> — lead</td><td class="eval">&minus;0.126</td><td><span class="tag tag-s">S</span></td></tr>
+      <tr class="ref-row"><td class="rank">—</td><td><span class="symbol">H</span> — hydrogen (reference point, not a metal)</td><td class="eval">0.00</td><td><span class="tag tag-ib">IB</span></td></tr>
+      <tr><td class="rank">18</td><td><span class="symbol">Bi</span> — bismuth</td><td class="eval">+0.308</td><td><span class="tag tag-s">S</span></td></tr>
+      <tr><td class="rank">19</td><td><span class="symbol">Cu</span> — copper</td><td class="eval">+0.339</td><td><span class="tag tag-s">S</span></td></tr>
+      <tr><td class="rank">20</td><td><span class="symbol">Ag</span> — silver</td><td class="eval">+0.7993</td><td><span class="tag tag-s">S</span></td></tr>
+      <tr><td class="rank">21</td><td><span class="symbol">Au</span> — gold</td><td class="eval">+1.503</td><td><span class="tag tag-s">S</span></td></tr>
+    </tbody>
+  </table>
+  <div class="bottom-label">&#9660; less reactive (more "noble") — holds on to its electrons</div>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0;">Reading the series</h2>
+  <p class="note">A metal higher in this list will always displace (reduce) the ion of a metal lower in the list from solution — this is the basis of a displacement reaction. It is also why, in the galvanic cell simulator, the metal higher in this series always ends up as the anode (oxidised, negative electrode) when paired with a metal lower down.</p>
+  <p class="note"><span class="haz">&#9762;</span> Uranium and plutonium are included for completeness (they do have well-defined standard reduction potentials) but are radioactive/fissile — see the simulator's built-in safety notes if you select them there.</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0;">Sources</h2>
+  <p class="note"><span class="tag tag-s">S</span> Bratsch, S. G. (1989). Standard electrode potentials and temperature coefficients in water at 298.15 K. <em>Journal of Physical and Chemical Reference Data</em>, <em>18</em>, 1. (Values as used internally by the galvanic cell simulation.)</p>
+  <p class="note"><span class="tag tag-ib">IB</span> International Baccalaureate. <em>Chemistry data booklet</em> (2025 edition), Section 19: Standard reduction potentials at 298.15 K, p. 20.</p>
+</div>
+
+</div>
+</body>
+</html>

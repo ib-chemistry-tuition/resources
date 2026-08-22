@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Standard Reduction Potentials — Combined Reference Table</title>
+<style>
+  :root {
+    --surface-2: #ffffff;
+    --surface-1: #f1efe8;
+    --surface-0: #f7f6f2;
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-muted: #888780;
+    --text-accent: #185fa5;
+    --text-danger: #a32d2d;
+    --border: #e3e1d9;
+    --border-strong: #b4b2a9;
+    --bg-accent: #e6f1fb;
+    --radius: 8px;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  html, body { margin:0; padding:0; background:var(--surface-0); font-family:var(--font-sans); color:var(--text-primary); }
+  .wrap { max-width: 860px; margin:0 auto; padding:2rem 1.25rem 4rem; box-sizing:border-box; }
+  h1 { font-size:22px; margin:0 0 0.25rem; }
+  h2 { font-size:16px; margin:2rem 0 0.6rem; }
+  p { line-height:1.6; }
+  .subtitle { color:var(--text-secondary); font-size:13.5px; margin-top:0; }
+  .card { background:var(--surface-2); border:0.5px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.25rem; margin-bottom:1.25rem; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; margin:0.5rem 0 1rem; }
+  th, td { border:1px solid var(--border); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:var(--surface-1); font-weight:600; color:var(--text-secondary); font-size:11px; text-transform:uppercase; letter-spacing:0.02em; }
+  td.eval { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  tr.sim-row { background:var(--bg-accent); }
+  .tag { display:inline-block; font-size:10px; font-weight:600; padding:1px 7px; border-radius:10px; white-space:nowrap; }
+  .tag-s { background:var(--text-accent); color:#fff; }
+  .tag-ib { background:var(--surface-1); color:var(--text-secondary); border:0.5px solid var(--border-strong); }
+  .yes { color:var(--text-accent); font-weight:600; }
+  .no { color:var(--text-muted); }
+  .note { font-size:12.5px; color:var(--text-secondary); margin:0.5rem 0; }
+  .legend { display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--text-secondary); margin:0.5rem 0 1rem; }
+  .legend span { display:flex; align-items:center; gap:5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Standard Reduction Potentials — Combined Reference Table</h1>
+<p class="subtitle">All electrode couples used in the galvanic cell simulation (Bratsch, 1989), combined with the full standard reduction potentials table from the IB Chemistry data booklet, sorted together as one electrochemical series.</p>
+<a href="zn_cu_galvanic_cell_experiment.html" target="_blank" rel="noopener" style="display:inline-block; margin-bottom:1rem; font-size:13px; padding:7px 12px; border-radius:8px; border:0.5px solid var(--border-strong); background:var(--surface-2); color:var(--text-primary); text-decoration:none;">Try out the experiment!</a>
+
+<div class="card">
+  <h2 style="margin-top:0;">About this table</h2>
+  <p class="note">Two different literature sources are combined here, and both are kept fully traceable rather than merged into single "averaged" values:</p>
+  <div class="legend">
+    <span><span class="tag tag-s">S</span> — used in this simulation, from Bratsch (1989)</span>
+    <span><span class="tag tag-ib">IB</span> — IB Chemistry data booklet (2025), Section 19</span>
+  </div>
+  <p class="note">Where a species appears in both sources (e.g. Mg, Al, Mn, Zn, Fe, Ni, Sn, Pb, Cu, Ag), you'll see two adjacent rows with slightly different E° values. This is not an error — it reflects the two sources using different levels of precision and, in places, slightly different underlying measurements. The simulation itself always uses the Bratsch (1989) values internally. The IB data booklet values are what you should quote in IB exam contexts.</p>
+  <p class="note">Only couples of the form <em>M<sup>n+</sup>(aq) + n e⁻ ⇌ M(s)</em> — a metal in equilibrium with its own aqueous ion — can be used directly as one of the two electrodes in this simulator. The other entries from the IB data booklet (involving H₂, O₂, halogens, MnO₄⁻, Cr₂O₇²⁻, Fe³⁺/Fe²⁺, Cu²⁺/Cu⁺, etc.) are not simple solid-metal electrodes and cannot be selected in the simulation, but are included here for a complete reference electrochemical series — useful for predicting the feasibility of any redox reaction, not just the ones this simulator can build.</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0;">Combined electrochemical series (sorted E°, most negative to most positive)</h2>
+  <table>
+    <thead>
+      <tr><th style="width:290px;">Reduction half-equation</th><th style="width:70px;">E° / V</th><th style="width:60px;">Source</th><th style="width:110px;">Usable as a simulator electrode?</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Li⁺(aq) + e⁻ ⇌ Li(s)</td><td class="eval">−3.04</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr><td>K⁺(aq) + e⁻ ⇌ K(s)</td><td class="eval">−2.93</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr><td>Ca²⁺(aq) + 2e⁻ ⇌ Ca(s)</td><td class="eval">−2.87</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr><td>Na⁺(aq) + e⁻ ⇌ Na(s)</td><td class="eval">−2.71</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr class="sim-row"><td>Mg²⁺(aq) + 2e⁻ ⇌ Mg(s)</td><td class="eval">−2.360</td><td><span class="tag tag-s">S</span></td><td class="yes">Yes</td></tr>
+      <tr><td>Mg²⁺(aq) + 2e⁻ ⇌ Mg(s)</td><td class="eval">−2.37</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr class="sim-row"><td>Sc³⁺(aq) + 3e⁻ ⇌ Sc(s)</td><td class="eval">−2.09</td><td><span class="tag tag-s">S</span></td><td class="yes">Yes</td></tr>
+      <tr class="sim-row"><td>Pu³⁺(aq) + 3e⁻ ⇌ Pu(s)</td><td class="eval">−1.978</td><td><span class="tag tag-s">S</span></td><td class="yes">Yes (hazardous, capped conc.)</td></tr>
+      <tr class="sim-row"><td>Al³⁺(aq) + 3e⁻ ⇌ Al(s)</td><td class="eval">−1.677</td><td><span class="tag tag-s">S</span></td><td class="yes">Yes</td></tr>
+      <tr><td>Al³⁺(aq) + 3e⁻ ⇌ Al(s)</td><td class="eval">−1.66</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr class="sim-row"><td>U³⁺(aq) + 3e⁻ ⇌ U(s)</td><td class="eval">−1.642</td><td><span class="tag tag-s">S</span></td><td class="yes">Yes (hazardous, capped conc.)</td></tr>
+      <tr class="sim-row"><td>Mn²⁺(aq) + 2e⁻ ⇌ Mn(s)</td><td class="eval">−1.182</td><td><span class="tag tag-s">S</span></td><td class="yes">Yes</td></tr>
+      <tr><td>Mn²⁺(aq) + 2e⁻ ⇌ Mn(s)</td><td class="eval">−1.18</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr class="sim-row"><td>V²⁺(aq) + 2e⁻ ⇌ V(s)</td><td class="eval">−1.125</td><td><span class="tag tag-s">S</span></td><td class="yes">Yes</td></tr>
+      <tr><td>H₂O(l) + e⁻ ⇌ ½H₂(g) + OH⁻(aq)</td><td class="eval">−0.83</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr class="sim-row"><td>Zn²⁺(aq) + 2e⁻ ⇌ Zn(s)</td><td class="eval">−0.762</td><td><span class="tag tag-s">S</span></td><td class="yes">Yes</td></tr>
+      <tr><td>Zn²⁺(aq) + 2e⁻ ⇌ Zn(s)</td><td class="eval">−0.76</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr class="sim-row"><td>Cr³⁺(aq) + 3e⁻ ⇌ Cr(s)</td><td class="eval">−0.74</td><td><span class="tag tag-s">S</span></td><td class="yes">Yes</td></tr>
+      <tr class="sim-row"><td>Fe²⁺(aq) + 2e⁻ ⇌ Fe(s)</td><td class="eval">−0.44</td><td><span class="tag tag-s">S</span></td><td class="yes">Yes</td></tr>
+      <tr><td>Fe²⁺(aq) + 2e⁻ ⇌ Fe(s)</td><td class="eval">−0.45</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr class="sim-row"><td>Ni²⁺(aq) + 2e⁻ ⇌ Ni(s)</td><td class="eval">−0.236</td><td><span class="tag tag-s">S</span></td><td class="yes">Yes</td></tr>
+      <tr><td>Ni²⁺(aq) + 2e⁻ ⇌ Ni(s)</td><td class="eval">−0.26</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr class="sim-row"><td>Sn²⁺(aq) + 2e⁻ ⇌ Sn(s)</td><td class="eval">−0.141</td><td><span class="tag tag-s">S</span></td><td class="yes">Yes</td></tr>
+      <tr><td>Sn²⁺(aq) + 2e⁻ ⇌ Sn(s)</td><td class="eval">−0.14</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr class="sim-row"><td>Pb²⁺(aq) + 2e⁻ ⇌ Pb(s)</td><td class="eval">−0.126</td><td><span class="tag tag-s">S</span></td><td class="yes">Yes</td></tr>
+      <tr><td>Pb²⁺(aq) + 2e⁻ ⇌ Pb(s)</td><td class="eval">−0.13</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr><td>H⁺(aq) + e⁻ ⇌ ½H₂(g)</td><td class="eval">0.00</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr><td>Cu²⁺(aq) + e⁻ ⇌ Cu⁺(aq)</td><td class="eval">+0.15</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr><td>SO₄²⁻(aq) + 4H⁺(aq) + 2e⁻ ⇌ H₂SO₃(aq) + H₂O(l)</td><td class="eval">+0.17</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr class="sim-row"><td>Bi³⁺(aq) + 3e⁻ ⇌ Bi(s)</td><td class="eval">+0.308</td><td><span class="tag tag-s">S</span></td><td class="yes">Yes</td></tr>
+      <tr class="sim-row"><td>Cu²⁺(aq) + 2e⁻ ⇌ Cu(s)</td><td class="eval">+0.339</td><td><span class="tag tag-s">S</span></td><td class="yes">Yes</td></tr>
+      <tr><td>Cu²⁺(aq) + 2e⁻ ⇌ Cu(s)</td><td class="eval">+0.34</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr><td>½O₂(g) + H₂O(l) + 2e⁻ ⇌ 2OH⁻(aq)</td><td class="eval">+0.40</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr><td>Cu⁺(aq) + e⁻ ⇌ Cu(s)</td><td class="eval">+0.52</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr><td>½I₂(s) + e⁻ ⇌ I⁻(aq)</td><td class="eval">+0.54</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr><td>Fe³⁺(aq) + e⁻ ⇌ Fe²⁺(aq)</td><td class="eval">+0.77</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr class="sim-row"><td>Ag⁺(aq) + e⁻ ⇌ Ag(s)</td><td class="eval">+0.7993</td><td><span class="tag tag-s">S</span></td><td class="yes">Yes</td></tr>
+      <tr><td>Ag⁺(aq) + e⁻ ⇌ Ag(s)</td><td class="eval">+0.80</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr><td>½Br₂(l) + e⁻ ⇌ Br⁻(aq)</td><td class="eval">+1.09</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr><td>½O₂(g) + 2H⁺(aq) + 2e⁻ ⇌ H₂O(l)</td><td class="eval">+1.23</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr><td>Cr₂O₇²⁻(aq) + 14H⁺(aq) + 6e⁻ ⇌ 2Cr³⁺(aq) + 7H₂O(l)</td><td class="eval">+1.36</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr><td>½Cl₂(g) + e⁻ ⇌ Cl⁻(aq)</td><td class="eval">+1.36</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr class="sim-row"><td>Au³⁺(aq) + 3e⁻ ⇌ Au(s)</td><td class="eval">+1.503</td><td><span class="tag tag-s">S</span></td><td class="yes">Yes</td></tr>
+      <tr><td>MnO₄⁻(aq) + 8H⁺(aq) + 5e⁻ ⇌ Mn²⁺(aq) + 4H₂O(l)</td><td class="eval">+1.51</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+      <tr><td>½F₂(g) + e⁻ ⇌ F⁻(aq)</td><td class="eval">+2.87</td><td><span class="tag tag-ib">IB</span></td><td class="no">No</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0;">Sources</h2>
+  <p class="note"><span class="tag tag-s">S</span> Bratsch, S. G. (1989). Standard electrode potentials and temperature coefficients in water at 298.15 K. <em>Journal of Physical and Chemical Reference Data</em>, <em>18</em>, 1. (Values as used internally by the galvanic cell simulation.)</p>
+  <p class="note"><span class="tag tag-ib">IB</span> International Baccalaureate. <em>Chemistry data booklet</em> (2025 edition), Section 19: Standard reduction potentials at 298.15 K, p. 20.</p>
+</div>
+
+</div>
+</body>
+</html>

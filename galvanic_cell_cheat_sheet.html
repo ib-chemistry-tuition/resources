@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galvanic Cell Investigation — Student Cheat Sheet</title>
+<style>
+  :root {
+    --surface-2: #ffffff;
+    --surface-1: #f1efe8;
+    --surface-0: #f7f6f2;
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-muted: #888780;
+    --text-accent: #185fa5;
+    --text-danger: #a32d2d;
+    --border: #e3e1d9;
+    --border-strong: #b4b2a9;
+    --bg-accent: #e6f1fb;
+    --radius: 8px;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  html, body { margin:0; padding:0; background:var(--surface-0); font-family:var(--font-sans); color:var(--text-primary); }
+  .wrap { max-width: 820px; margin:0 auto; padding:2rem 1.25rem 4rem; box-sizing:border-box; }
+  h1 { font-size:22px; margin:0 0 0.25rem; }
+  h2 { font-size:17px; margin:2rem 0 0.6rem; padding-top:0.5rem; border-top:1px solid var(--border); }
+  h2:first-of-type { border-top:none; padding-top:0; margin-top:1.25rem; }
+  h3 { font-size:14px; margin:1.25rem 0 0.4rem; }
+  p { line-height:1.6; }
+  .subtitle { color:var(--text-secondary); font-size:13.5px; margin-top:0; }
+  .card { background:var(--surface-2); border:0.5px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.25rem; margin-bottom:1.25rem; }
+  .idea-block { margin-bottom:1rem; }
+  .idea-block:last-child { margin-bottom:0; }
+  .idea-title { font-weight:600; font-size:13.5px; color:var(--text-primary); margin-bottom:3px; }
+  .idea-body { font-size:13.5px; color:var(--text-secondary); line-height:1.6; }
+  .mnemonic { display:inline-block; background:var(--bg-accent); color:var(--text-accent); font-weight:600; font-size:12.5px; padding:2px 8px; border-radius:12px; margin:0 2px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; margin:0.5rem 0 1.25rem; }
+  th, td { border:1px solid var(--border); padding:7px 10px; text-align:left; vertical-align:top; }
+  th { background:var(--surface-1); font-weight:600; color:var(--text-secondary); font-size:11.5px; text-transform:uppercase; letter-spacing:0.02em; }
+  td.term { font-weight:600; white-space:nowrap; }
+  .warn { background:var(--surface-1); border-left:3px solid var(--text-danger); border-radius:4px; padding:10px 12px; font-size:13px; color:var(--text-secondary); margin:0.75rem 0; }
+  .warn strong { color:var(--text-danger); }
+  .eq { font-family: "SFMono-Regular", Menlo, Consolas, monospace; background:var(--surface-1); border-radius:4px; padding:2px 6px; }
+  code { font-family: "SFMono-Regular", Menlo, Consolas, monospace; background:var(--surface-1); border-radius:4px; padding:1px 5px; font-size:12.5px; }
+  ul, ol { font-size:13.5px; color:var(--text-secondary); line-height:1.65; margin:0.4rem 0 1rem; padding-left:1.3rem; }
+  li { margin-bottom:4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Galvanic Cell Investigation — Student Cheat Sheet</h1>
+<p class="subtitle">A quick-reference overview of the ideas, vocabulary and correct phrasing you need before working through the galvanic cell simulation and worksheet.</p>
+<a href="zn_cu_galvanic_cell_experiment.html" target="_blank" rel="noopener" style="display:inline-block; margin-bottom:1rem; font-size:13px; padding:7px 12px; border-radius:8px; border:0.5px solid var(--border-strong); background:var(--surface-2); color:var(--text-primary); text-decoration:none;">Try out the experiment!</a>
+
+<h2>1. The key ideas, in brief</h2>
+<div class="card">
+
+  <div class="idea-block">
+    <div class="idea-title">What a galvanic (voltaic) cell is</div>
+    <div class="idea-body">A galvanic cell converts chemical energy into electrical energy via a spontaneous redox reaction. It is built from two <strong>half-cells</strong> — each a metal electrode dipped in a solution of its own ions — connected by an external wire (through which electrons flow) and a <strong>salt bridge</strong> (through which ions flow to keep both solutions electrically neutral). Separating the oxidation and reduction half-reactions into two half-cells forces the electrons to travel through the external circuit, which is what lets you extract useful electrical work (and measure a voltage) instead of the electrons just transferring directly on contact, as they would if the two metals touched in one beaker.</div>
+  </div>
+
+  <div class="idea-block">
+    <div class="idea-title">Oxidation and reduction — which electrode is which</div>
+    <div class="idea-body">
+      Oxidation is loss of electrons; reduction is gain of electrons. Remember this with <span class="mnemonic">OIL RIG</span> — Oxidation Is Loss, Reduction Is Gain.<br>
+      In any galvanic cell: <span class="mnemonic">AN OX</span> — oxidation happens at the ANode. <span class="mnemonic">RED CAT</span> — reduction happens at the CAThode.<br>
+      The anode is the electrode that gives up electrons into the external circuit (it is the source of electrons, so conventionally it is the negative terminal in a galvanic cell). The cathode receives those electrons and is where reduction occurs (the positive terminal in a galvanic cell).
+    </div>
+  </div>
+
+  <div class="idea-block">
+    <div class="idea-title">Standard electrode potential, E°</div>
+    <div class="idea-body">Every half-cell has an intrinsic "pulling power" for electrons, measured (relative to the standard hydrogen electrode, defined as 0.00 V) as its standard electrode potential, E°, always written as a <em>reduction</em> potential. A more positive E° means a greater tendency to be reduced (to gain electrons); a more negative E° means a greater tendency to be oxidised (to lose electrons). In a cell built from two half-cells, the one with the more positive E° becomes the cathode, and the one with the more negative E° becomes the anode.</div>
+  </div>
+
+  <div class="idea-block">
+    <div class="idea-title">Cell potential (EMF)</div>
+    <div class="idea-body">The cell's electromotive force is the difference between the two electrode potentials: <span class="eq">E<sub>cell</sub> = E<sub>cathode</sub> − E<sub>anode</sub></span>. Under standard conditions (1.00 M, 298 K) this becomes E°<sub>cell</sub>. A positive E<sub>cell</sub> means the reaction is spontaneous as written (which is why a correctly wired galvanic cell always gives a positive reading).</div>
+  </div>
+
+  <div class="idea-block">
+    <div class="idea-title">Why concentration and temperature matter — the Nernst equation</div>
+    <div class="idea-body">E° values are defined only at standard conditions (1.00 M, 298 K). Away from standard conditions, the actual electrode potential shifts according to the Nernst equation: <span class="eq">E = E° + (0.0592/n)·log₁₀[M<sup>n+</sup>]</span> at 298 K, where n is the number of electrons transferred in that half-equation. Raising the ion concentration raises E (Le Chatelier's Principle — see below); lowering it lowers E. Temperature affects E° itself, roughly linearly, via each electrode's own empirical temperature coefficient, dE°/dT.</div>
+  </div>
+
+  <div class="idea-block">
+    <div class="idea-title">Le Chatelier's Principle and Kc applied to a half-cell</div>
+    <div class="idea-body">Treat a half-equation such as M<sup>n+</sup>(aq) + n e⁻ ⇌ M(s) as a reversible equilibrium. Increasing [M<sup>n+</sup>] shifts this equilibrium to the right (towards the metal), i.e. it increases the half-cell's tendency to be reduced — so its electrode potential becomes more positive (or less negative). Decreasing [M<sup>n+</sup>] shifts the equilibrium left, decreasing the tendency to be reduced, so the potential becomes more negative. This is exactly the same direction of shift you'd predict from the reaction quotient, Q, in the Nernst equation: Q gets smaller as [M<sup>n+</sup>] decreases, which — because of the minus-log relationship — makes E increase relative to when Q is larger. Both viewpoints (equilibrium shift and Q) agree; use whichever explanation the question is asking for.</div>
+  </div>
+
+  <div class="idea-block">
+    <div class="idea-title">Concentration cells</div>
+    <div class="idea-body">If both half-cells use the <em>same</em> metal, E°<sub>cell</sub> = 0 (there's no difference in standard potential — both half-cells contain the same species). Any EMF that appears must come entirely from a difference in <em>concentration</em> between the two sides. The more concentrated half-cell has the higher (more positive) electrode potential, so it becomes the cathode; the more dilute half-cell becomes the anode. This is a "concentration cell" and is a direct, clean test of the Nernst equation on its own, with no E° term to complicate things.</div>
+  </div>
+
+  <div class="idea-block">
+    <div class="idea-title">Systematic (zero) error</div>
+    <div class="idea-body">A real analogue meter's needle can rest slightly away from true zero even with no potential difference applied — a "zero error". This is a systematic error: it shifts every reading by a constant amount in the same direction, and averaging repeated readings will not remove it (unlike random error). It must be corrected by re-zeroing the instrument (e.g. with the meter's zero-adjustment screw) before taking measurements, or accounted for by subtracting the offset afterwards.</div>
+  </div>
+
+</div>
+
+<h2>2. Vocabulary and definitions</h2>
+<table>
+  <thead><tr><th style="width:190px;">Term</th><th>Definition</th></tr></thead>
+  <tbody>
+    <tr><td class="term">Galvanic (voltaic) cell</td><td>A device that converts the chemical energy of a spontaneous redox reaction into electrical energy.</td></tr>
+    <tr><td class="term">Electrode</td><td>A solid conductor (usually a metal) at which a half-reaction takes place; also used loosely to mean the whole half-cell.</td></tr>
+    <tr><td class="term">Electrolyte</td><td>An ionic solution that conducts electricity via the movement of ions.</td></tr>
+    <tr><td class="term">Half-cell</td><td>One electrode dipped in its own electrolyte solution — one half of a complete galvanic cell.</td></tr>
+    <tr><td class="term">Salt bridge</td><td>A tube of inert electrolyte (e.g. saturated KNO₃ in agar gel) connecting the two half-cells, allowing ions to migrate and keep both solutions electrically neutral without letting the solutions mix directly.</td></tr>
+    <tr><td class="term">Anode</td><td>The electrode at which oxidation occurs. In a galvanic cell it is the negative terminal and the source of electrons for the external circuit.</td></tr>
+    <tr><td class="term">Cathode</td><td>The electrode at which reduction occurs. In a galvanic cell it is the positive terminal, and electrons flow into it from the external circuit.</td></tr>
+    <tr><td class="term">Oxidation</td><td>Loss of electrons by a species (its oxidation number increases).</td></tr>
+    <tr><td class="term">Reduction</td><td>Gain of electrons by a species (its oxidation number decreases).</td></tr>
+    <tr><td class="term">Redox reaction</td><td>A reaction in which oxidation and reduction occur simultaneously — electrons transfer from one species to another.</td></tr>
+    <tr><td class="term">Oxidising agent (oxidant)</td><td>The species that causes another species to be oxidised. In doing so, the oxidising agent itself is reduced.</td></tr>
+    <tr><td class="term">Reducing agent (reductant)</td><td>The species that causes another species to be reduced. In doing so, the reducing agent itself is oxidised.</td></tr>
+    <tr><td class="term">Half-equation</td><td>An equation showing only the oxidation or only the reduction part of a redox reaction, including the electrons transferred explicitly.</td></tr>
+    <tr><td class="term">Standard hydrogen electrode (SHE)</td><td>The reference half-cell (H⁺(aq, 1.00 M) | H₂(g, 1 atm) | Pt) defined to have E° = 0.00 V exactly, against which all other standard electrode potentials are measured.</td></tr>
+    <tr><td class="term">Standard electrode potential, E°</td><td>The potential of a half-cell measured against the SHE under standard conditions (1.00 M, 298 K, 1 atm), always expressed as a reduction potential.</td></tr>
+    <tr><td class="term">Electromotive force (EMF) / cell potential, E<sub>cell</sub></td><td>The potential difference between the cathode and the anode of a complete cell; the "driving force" of the cell reaction, E<sub>cell</sub> = E<sub>cathode</sub> − E<sub>anode</sub>.</td></tr>
+    <tr><td class="term">Nernst equation</td><td>The equation describing how electrode (or cell) potential varies with concentration (and, via E°, with temperature): E = E° + (0.0592/n)·log₁₀[ion] at 298 K.</td></tr>
+    <tr><td class="term">Reaction quotient, Q</td><td>An expression with the same form as the equilibrium constant, but calculated from the concentrations present at any moment (not necessarily at equilibrium). Used inside the full Nernst equation.</td></tr>
+    <tr><td class="term">Equilibrium constant, K<sub>c</sub></td><td>The value of the reaction quotient once a reversible reaction has reached equilibrium — describes the position of that equilibrium at a given temperature.</td></tr>
+    <tr><td class="term">Le Chatelier's Principle</td><td>If a system at equilibrium is disturbed (e.g. by changing a concentration), the equilibrium shifts in the direction that partially opposes the disturbance.</td></tr>
+    <tr><td class="term">Concentration cell</td><td>A galvanic cell in which both half-cells contain the same metal/ion couple but at different concentrations; E°<sub>cell</sub> = 0, so any EMF arises purely from the concentration difference.</td></tr>
+    <tr><td class="term">Spontaneous reaction</td><td>A reaction that proceeds on its own without continuous external energy input; corresponds to a positive E<sub>cell</sub> (and a negative ΔG).</td></tr>
+    <tr><td class="term">Inert electrode</td><td>An electrode (e.g. platinum or graphite) that conducts electrons but does not itself take part in the redox reaction — used when neither half-reaction involves a solid metal.</td></tr>
+    <tr><td class="term">Cell notation (cell diagram)</td><td>A shorthand way of writing a cell: anode | anode electrolyte || cathode electrolyte | cathode, read left to right in the direction electrons flow through the external circuit, anode always written first.</td></tr>
+    <tr><td class="term">Systematic (zero) error</td><td>A consistent offset error affecting every reading in the same way and direction; not reduced by repeating/averaging measurements, and must be corrected at the instrument or in the analysis.</td></tr>
+  </tbody>
+</table>
+
+<h2>3. Phraseology — correct usage in redox and electrochemistry</h2>
+<p style="font-size:13px; color:var(--text-secondary); margin-top:-0.3rem;">These phrases are frequently used loosely or backwards. Use the "correct usage" column as your model.</p>
+<table>
+  <thead><tr><th style="width:230px;">Phrase / situation</th><th>Correct usage and explanation</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="term">"X is oxidised"</td>
+      <td>Means X <em>loses</em> electrons (X's oxidation number increases). Do not say "X oxidises" to mean this — "X oxidises Y" means X causes Y to lose electrons (X is the oxidising agent).</td>
+    </tr>
+    <tr>
+      <td class="term">"X is reduced"</td>
+      <td>Means X <em>gains</em> electrons (X's oxidation number decreases). Avoid confusing this with "X reduces Y", which means X causes Y to gain electrons (X is the reducing agent).</td>
+    </tr>
+    <tr>
+      <td class="term">"X is the oxidising agent"</td>
+      <td>X is the species that is itself <em>reduced</em>, and in being reduced it removes electrons from (oxidises) something else. A common error is to say the oxidising agent "is oxidised" — it is not; it causes oxidation elsewhere while being reduced itself.</td>
+    </tr>
+    <tr>
+      <td class="term">"X is the reducing agent"</td>
+      <td>X is the species that is itself <em>oxidised</em>, and in being oxidised it supplies electrons to (reduces) something else.</td>
+    </tr>
+    <tr>
+      <td class="term">Writing a half-equation</td>
+      <td>Always show the electrons explicitly on the correct side. Reduction: <span class="eq">M<sup>n+</sup>(aq) + n e⁻ → M(s)</span> (electrons on the reactant side). Oxidation: <span class="eq">M(s) → M<sup>n+</sup>(aq) + n e⁻</span> (electrons on the product side). E° tables are conventionally written as reductions — reverse the equation (and the sign of E°) to get the oxidation half-equation.</td>
+    </tr>
+    <tr>
+      <td class="term">"Electrode potential" vs "cell potential"</td>
+      <td>An electrode (half-cell) potential, E, describes one half-cell alone (always relative to the SHE). A cell potential, E<sub>cell</sub>, describes the potential difference of a whole cell made of two half-cells: E<sub>cell</sub> = E<sub>cathode</sub> − E<sub>anode</sub>. Do not use these terms interchangeably.</td>
+    </tr>
+    <tr>
+      <td class="term">Sign of E° and spontaneity</td>
+      <td>A larger (more positive) E° means a stronger tendency to be reduced, i.e. a stronger oxidising agent. A larger (more negative) E° means a stronger tendency to be oxidised, i.e. a stronger reducing agent. Never describe a negative E° as meaning "no reaction happens" — it simply means that half-reaction, as a reduction, is unfavourable; it can still proceed as an oxidation.</td>
+    </tr>
+    <tr>
+      <td class="term">Anode/cathode vs positive/negative terminal</td>
+      <td>In a <strong>galvanic</strong> cell (the type in this activity): anode = negative terminal, cathode = positive terminal. Be aware this assignment reverses in an <strong>electrolytic</strong> cell (one driven by an external power supply), where the cathode becomes the negative terminal. Always specify which type of cell you mean.</td>
+    </tr>
+    <tr>
+      <td class="term">"The reaction shifts towards the products/reactants"</td>
+      <td>Preferred phrasing over vague terms like "moves". State explicitly which direction (left/right, or towards products/reactants) and link it to the disturbance that caused it, per Le Chatelier's Principle.</td>
+    </tr>
+    <tr>
+      <td class="term">Describing a concentration change's effect on potential</td>
+      <td>Say "the electrode potential becomes more positive/less negative" or "more negative/less positive" rather than just "increases/decreases" — this avoids ambiguity when a value moves from, e.g., −0.80 V towards −0.76 V (technically an increase, but easy to misread).</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="warn"><strong>Common mix-up:</strong> students often write "zinc is reduced" when they mean "zinc reduces copper ions" (i.e. zinc is the reducing agent and is itself oxidised). Always double-check which species is gaining electrons (reduced) and which is losing them (oxidised, and therefore the reducing agent) before describing a reaction.</div>
+
+</div>
+</body>
+</html>

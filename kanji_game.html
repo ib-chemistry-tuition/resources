@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Kanji Quest — JLPT N5</title>
+<style>
+  :root{
+    --bg:#1a1625; --card:#241f35; --accent:#e94560; --accent2:#0f9b8e;
+    --gold:#f4b942; --text:#f1eef9; --muted:#9b93b5;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:linear-gradient(135deg,#1a1625,#241f35 60%,#1a1625);
+    color:var(--text); min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    padding:24px 16px;
+  }
+  h1{font-size:1.8em; margin:0 0 4px; letter-spacing:1px;}
+  .sub{color:var(--muted); margin-bottom:20px; font-size:.95em;}
+  .panel{
+    background:var(--card); border-radius:16px; padding:24px; width:100%;
+    max-width:520px; box-shadow:0 10px 30px rgba(0,0,0,.4); text-align:center;
+  }
+  .stats{display:flex; justify-content:space-between; width:100%; max-width:520px; margin-bottom:12px; font-size:.9em; color:var(--muted);}
+  .stats b{color:var(--gold);}
+  .modebar{display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; justify-content:center;}
+  .modebar button{
+    background:#2f2a45; color:var(--text); border:1px solid #3d3656; border-radius:20px;
+    padding:8px 16px; cursor:pointer; font-size:.85em; transition:.15s;
+  }
+  .modebar button.active{background:var(--accent); border-color:var(--accent);}
+  .modebar button:hover{border-color:var(--accent);}
+  .kanji-big{font-size:5.5em; margin:10px 0; line-height:1; font-weight:400;}
+  .prompt{color:var(--muted); font-size:.95em; margin-bottom:6px;}
+  .options{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:18px;}
+  .opt{
+    background:#2f2a45; border:2px solid #3d3656; border-radius:10px; padding:14px 10px;
+    cursor:pointer; font-size:1.05em; color:var(--text); transition:.15s;
+  }
+  .opt:hover{border-color:var(--accent2);}
+  .opt.correct{background:var(--accent2); border-color:var(--accent2); color:#fff;}
+  .opt.wrong{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .opt[disabled]{cursor:default;}
+  .feedback{min-height:26px; margin-top:14px; font-weight:600;}
+  .card-flip{
+    perspective:1000px; width:220px; height:220px; margin:20px auto; cursor:pointer;
+  }
+  .card-inner{
+    position:relative; width:100%; height:100%; transition:transform .5s; transform-style:preserve-3d;
+  }
+  .card-flip.flipped .card-inner{transform:rotateY(180deg);}
+  .card-face{
+    position:absolute; width:100%; height:100%; backface-visibility:hidden;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    border-radius:16px; border:2px solid #3d3656; background:#2f2a45;
+  }
+  .card-back{transform:rotateY(180deg);}
+  .card-face .big{font-size:4em;}
+  .card-face .info{font-size:.95em; color:var(--muted); margin-top:6px;}
+  .card-face .info b{color:var(--gold); font-size:1.1em;}
+  .navrow{display:flex; gap:10px; justify-content:center; margin-top:14px;}
+  .navrow button{
+    background:var(--accent); border:none; color:#fff; padding:10px 20px;
+    border-radius:10px; cursor:pointer; font-size:.95em;
+  }
+  .navrow button.secondary{background:#3d3656;}
+  .match-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:10px;}
+  .match-cell{
+    background:#2f2a45; border:2px solid #3d3656; border-radius:10px; padding:14px 6px;
+    cursor:pointer; font-size:1.3em; min-height:60px; display:flex; align-items:center; justify-content:center;
+    transition:.15s;
+  }
+  .match-cell.small{font-size:.85em;}
+  .match-cell.selected{border-color:var(--gold);}
+  .match-cell.matched{opacity:.25; cursor:default; border-color:var(--accent2);}
+  .match-cell.wrongflash{background:var(--accent);}
+  footer{margin-top:20px; color:var(--muted); font-size:.8em; text-align:center;}
+</style>
+</head>
+<body>
+
+<h1>漢字 Kanji Quest</h1>
+<div class="sub">JLPT N5 — ~100 essential kanji</div>
+
+<div class="stats">
+  <div>Score: <b id="scoreVal">0</b></div>
+  <div>Streak: <b id="streakVal">0</b></div>
+  <div>Best streak: <b id="bestVal">0</b></div>
+</div>
+
+<div class="modebar">
+  <button class="mode-btn active" data-mode="quiz">Meaning Quiz</button>
+  <button class="mode-btn" data-mode="reading">Reading Quiz</button>
+  <button class="mode-btn" data-mode="flash">Flashcards</button>
+  <button class="mode-btn" data-mode="match">Matching</button>
+</div>
+
+<div class="panel" id="panel"></div>
+
+<footer>100 JLPT N5 kanji · progress resets each session</footer>
+
+<script>
+const KANJI = [
+["一","one","いち / ひと"],["二","two","に / ふた"],["三","three","さん / み"],
+["四","four","し / よん"],["五","five","ご / いつ"],["六","six","ろく / む"],
+["七","seven","しち / なな"],["八","eight","はち / や"],["九","nine","きゅう / ここの"],
+["十","ten","じゅう / とお"],["百","hundred","ひゃく"],["千","thousand","せん"],
+["万","ten thousand","まん"],["円","yen / circle","えん"],["日","day / sun","にち / ひ"],
+["月","month / moon","げつ / つき"],["火","fire","か / ひ"],["水","water","すい / みず"],
+["木","tree / wood","もく / き"],["金","gold / money","きん / かね"],
+["土","earth / soil","ど / つち"],["曜","weekday","よう"],["年","year","ねん / とし"],
+["時","time / hour","じ / とき"],["分","minute / part","ふん / わ"],
+["半","half","はん"],["今","now","こん / いま"],["何","what","なに / なん"],
+["人","person","じん / ひと"],["名","name","めい / な"],["前","before / front","ぜん / まえ"],
+["後","after / behind","ご / あと"],["上","up / above","じょう / うえ"],
+["下","down / below","か / した"],["中","middle / inside","ちゅう / なか"],
+["外","outside","がい / そと"],["大","big","だい / おお"],["小","small","しょう / ちい"],
+["高","tall / expensive","こう / たか"],["安","cheap / peaceful","あん / やす"],
+["長","long / chief","ちょう / なが"],["新","new","しん / あたら"],["古","old","こ / ふる"],
+["多","many","た / おお"],["少","few","しょう / すこ"],["山","mountain","さん / やま"],
+["川","river","せん / かわ"],["田","rice field","でん / た"],["天","heaven / sky","てん"],
+["気","spirit / air","き"],["空","sky / empty","くう / そら"],["雨","rain","う / あめ"],
+["電","electricity","でん"],["車","car","しゃ / くるま"],["駅","station","えき"],
+["道","road / path","どう / みち"],["国","country","こく / くに"],["語","language","ご"],
+["本","book / origin","ほん"],["文","sentence / writing","ぶん"],["字","character","じ"],
+["学","study / learn","がく / まな"],["校","school","こう"],["生","life / birth","せい / い"],
+["先","before / previous","せん / さき"],["私","I / private","し / わたし"],
+["友","friend","ゆう / とも"],["男","man","だん / おとこ"],["女","woman","じょ / おんな"],
+["子","child","し / こ"],["父","father","ふ / ちち"],["母","mother","ぼ / はは"],
+["会","meet / meeting","かい / あ"],["社","company / shrine","しゃ"],["食","eat / food","しょく / た"],
+["飲","drink","いん / の"],["買","buy","ばい / か"],["行","go","こう / い"],
+["来","come","らい / く"],["見","see / look","けん / み"],["聞","hear / ask","ぶん / き"],
+["読","read","どく / よ"],["書","write","しょ / か"],["話","talk / speak","わ / はな"],
+["言","say / word","げん / い"],["出","exit / go out","しゅつ / で"],["入","enter","にゅう / い"],
+["立","stand","りつ / た"],["休","rest","きゅう / やす"],["働","work","どう / はたら"],
+["作","make","さく / つく"],["使","use","し / つか"],["待","wait","たい / ま"],
+["思","think","し / おも"],["知","know","ち / し"],["好","like / fond","こう / す"],
+["同","same","どう / おな"],["白","white","はく / しろ"],["赤","red","せき / あか"],
+["青","blue","せい / あお"],["黒","black","こく / くろ"],["早","early","そう / はや"],
+["近","near","きん / ちか"],["遠","far","えん / とお"],["毎","every","まい"]
+];
+
+let score=0, streak=0, best=0;
+let mode="quiz";
+let quizPool=[], quizIdx=0;
+let flashIdx=0, flashFlipped=false;
+let matchState=null;
+
+const panel=document.getElementById("panel");
+const scoreVal=document.getElementById("scoreVal");
+const streakVal=document.getElementById("streakVal");
+const bestVal=document.getElementById("bestVal");
+
+document.querySelectorAll(".mode-btn").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll(".mode-btn").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    mode=b.dataset.mode;
+    startMode();
+  });
+});
+
+function shuffle(arr){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function updateStats(){
+  scoreVal.textContent=score;
+  streakVal.textContent=streak;
+  bestVal.textContent=best;
+}
+
+function startMode(){
+  if(mode==="quiz"||mode==="reading") newQuizQuestion();
+  else if(mode==="flash") { flashIdx=0; flashFlipped=false; renderFlash(); }
+  else if(mode==="match") newMatchRound();
+}
+
+// ---------- Quiz mode (meaning or reading) ----------
+function newQuizQuestion(){
+  const correctIdx=Math.floor(Math.random()*KANJI.length);
+  const correct=KANJI[correctIdx];
+  const field = mode==="quiz" ? 1 : 2; // 1=meaning, 2=reading
+  let pool=[correct];
+  while(pool.length<4){
+    const cand=KANJI[Math.floor(Math.random()*KANJI.length)];
+    if(!pool.includes(cand) && cand[field]!==correct[field]) pool.push(cand);
+  }
+  pool=shuffle(pool);
+  const label = mode==="quiz" ? "Meaning" : "Reading";
+  panel.innerHTML=`
+    <div class="prompt">What is the ${label.toLowerCase()} of:</div>
+    <div class="kanji-big">${correct[0]}</div>
+    <div class="options" id="opts"></div>
+    <div class="feedback" id="fb"></div>
+  `;
+  const optsDiv=document.getElementById("opts");
+  pool.forEach(k=>{
+    const btn=document.createElement("button");
+    btn.className="opt";
+    btn.textContent=k[field];
+    btn.onclick=()=>answerQuiz(btn, k[field]===correct[field]);
+    optsDiv.appendChild(btn);
+  });
+}
+
+function answerQuiz(btn, isCorrect){
+  document.querySelectorAll("#opts .opt").forEach(o=>o.disabled=true);
+  const fb=document.getElementById("fb");
+  if(isCorrect){
+    btn.classList.add("correct");
+    score+=10; streak++; best=Math.max(best,streak);
+    fb.textContent="Correct! ✓"; fb.style.color="var(--accent2)";
+  } else {
+    btn.classList.add("wrong");
+    streak=0;
+    fb.textContent="Not quite ✗"; fb.style.color="var(--accent)";
+  }
+  updateStats();
+  setTimeout(newQuizQuestion, 1000);
+}
+
+// ---------- Flashcard mode ----------
+function renderFlash(){
+  const k=KANJI[flashIdx];
+  panel.innerHTML=`
+    <div class="prompt">Card ${flashIdx+1} / ${KANJI.length} — tap to flip</div>
+    <div class="card-flip ${flashFlipped?'flipped':''}" id="cardFlip">
+      <div class="card-inner">
+        <div class="card-face card-front"><div class="big">${k[0]}</div></div>
+        <div class="card-face card-back">
+          <div class="info"><b>${k[1]}</b></div>
+          <div class="info">${k[2]}</div>
+        </div>
+      </div>
+    </div>
+    <div class="navrow">
+      <button class="secondary" id="prevBtn">◀ Prev</button>
+      <button id="nextBtn">Next ▶</button>
+    </div>
+  `;
+  document.getElementById("cardFlip").onclick=()=>{
+    flashFlipped=!flashFlipped;
+    document.getElementById("cardFlip").classList.toggle("flipped");
+  };
+  document.getElementById("prevBtn").onclick=()=>{
+    flashIdx=(flashIdx-1+KANJI.length)%KANJI.length; flashFlipped=false; renderFlash();
+  };
+  document.getElementById("nextBtn").onclick=()=>{
+    flashIdx=(flashIdx+1)%KANJI.length; flashFlipped=false; renderFlash();
+  };
+}
+
+// ---------- Matching mode ----------
+function newMatchRound(){
+  const chosen=shuffle(KANJI).slice(0,6);
+  const kanjiCards=chosen.map((k,i)=>({id:i,type:"k",text:k[0],pair:i}));
+  const meanCards=chosen.map((k,i)=>({id:i,type:"m",text:k[1],pair:i}));
+  const cells=shuffle([...kanjiCards,...meanCards]);
+  matchState={cells, first:null, matchedCount:0, total:chosen.length};
+  renderMatch();
+}
+
+function renderMatch(){
+  const {cells}=matchState;
+  panel.innerHTML=`
+    <div class="prompt">Match each kanji to its meaning</div>
+    <div class="match-grid" id="grid"></div>
+    <div class="feedback" id="mfb"></div>
+  `;
+  const grid=document.getElementById("grid");
+  cells.forEach((c,idx)=>{
+    const div=document.createElement("div");
+    div.className="match-cell"+(c.type==="m"?" small":"")+(c.matched?" matched":"");
+    div.textContent=c.text;
+    div.dataset.idx=idx;
+    if(!c.matched) div.onclick=()=>selectMatch(idx);
+    grid.appendChild(div);
+  });
+}
+
+function selectMatch(idx){
+  const st=matchState;
+  const cell=st.cells[idx];
+  if(cell.matched) return;
+  const cellEls=document.querySelectorAll(".match-cell");
+  if(st.first===null){
+    st.first=idx;
+    cellEls[idx].classList.add("selected");
+    return;
+  }
+  if(st.first===idx) return;
+  const firstCell=st.cells[st.first];
+  if(firstCell.pair===cell.pair && firstCell.type!==cell.type){
+    firstCell.matched=true; cell.matched=true;
+    st.matchedCount++;
+    score+=15; streak++; best=Math.max(best,streak);
+    updateStats();
+    st.first=null;
+    renderMatch();
+    if(st.matchedCount===st.total){
+      document.getElementById("mfb").textContent="Round complete! 🎉 New round...";
+      document.getElementById("mfb").style.color="var(--gold)";
+      setTimeout(newMatchRound, 1200);
+    }
+  } else {
+    streak=0; updateStats();
+    cellEls[st.first].classList.add("wrongflash");
+    cellEls[idx].classList.add("wrongflash");
+    const f=st.first;
+    setTimeout(()=>{
+      cellEls[f]?.classList.remove("selected","wrongflash");
+      cellEls[idx]?.classList.remove("wrongflash");
+    },500);
+    st.first=null;
+  }
+}
+
+updateStats();
+startMode();
+</script>
+</body>
+</html>
