@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Oxidation Numbers — Interactive Learning Activity</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0b1426;color:#e2e8f0;min-height:100vh;display:flex;flex-direction:column;font-size:15px}
+
+/* TOP BAR */
+.topbar{background:#060e1a;border-bottom:2px solid #1e3a5f;padding:10px 24px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.topbar-title{font-size:.85rem;font-weight:700;color:#bfdbfe;white-space:nowrap}
+.progress-steps{display:flex;gap:3px;flex:1;max-width:480px}
+.ps{flex:1;height:5px;border-radius:3px;background:#1e3a5f;transition:background .3s}
+.ps.done{background:#22c55e}
+.ps.active{background:#38bdf8}
+.score-chip{background:#0f2040;border:1px solid #1e4d7a;border-radius:99px;font-size:.68rem;font-weight:700;color:#38bdf8;padding:3px 12px;white-space:nowrap;flex-shrink:0}
+
+/* PAGES */
+.page{display:none;flex:1;overflow-y:auto;padding:28px 24px;max-width:760px;margin:0 auto;width:100%}
+.page.active{display:block}
+
+/* NAV BAR */
+.navbar{background:#060e1a;border-top:1px solid #1e3a5f;padding:11px 24px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;gap:10px}
+.nbtn{padding:8px 22px;border-radius:8px;border:none;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .15s}
+.nbtn.fwd{background:#1d4ed8;color:#fff}
+.nbtn.fwd:hover{background:#2563eb}
+.nbtn.bck{background:#1e293b;color:#94a3b8;border:1px solid #334155}
+.nbtn.bck:hover{background:#334155;color:#e2e8f0}
+.nbtn:disabled{opacity:.25;cursor:default;pointer-events:none}
+.page-indicator{font-size:.7rem;color:#334155}
+
+/* TYPOGRAPHY */
+.section-tag{display:inline-block;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#38bdf8;background:#0c2a48;border:1px solid #1e4d7a;border-radius:99px;padding:3px 12px;margin-bottom:10px}
+h1{font-size:1.55rem;font-weight:800;color:#f1f5f9;margin-bottom:6px;line-height:1.2}
+.subtitle{font-size:.82rem;color:#475569;margin-bottom:22px;line-height:1.55}
+h2{font-size:1.05rem;font-weight:700;color:#bfdbfe;margin:24px 0 10px}
+h2:first-of-type{margin-top:0}
+p{font-size:.82rem;line-height:1.75;color:#94a3b8;margin-bottom:10px}
+p strong{color:#e2e8f0}
+hr{border:none;border-top:1px solid #1e3a5f;margin:22px 0}
+
+/* RULE CARDS */
+.rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0 20px}
+.rule-card{background:#0a1e38;border:1px solid #1e4d7a;border-radius:10px;padding:13px 15px}
+.rule-label{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#38bdf8;margin-bottom:5px}
+.rule-heading{font-size:.83rem;font-weight:700;color:#e2e8f0;margin-bottom:4px}
+.rule-body{font-size:.74rem;color:#64748b;line-height:1.6}
+.rule-eg{display:inline-block;margin-top:7px;font-size:.7rem;background:#0f1a00;border:1px solid #365314;border-radius:5px;padding:2px 9px;color:#86efac}
+
+/* WORKED EXAMPLES */
+.eg-box{background:#07172e;border:1px solid #1e4d7a;border-radius:12px;padding:16px 18px;margin:10px 0}
+.eg-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:#38bdf8;margin-bottom:8px}
+.formula-big{font-size:1.35rem;font-weight:700;color:#f1f5f9;margin-bottom:12px}
+.steps{display:flex;flex-direction:column;gap:7px;margin-bottom:10px}
+.step{display:flex;gap:9px;font-size:.78rem;color:#94a3b8;align-items:flex-start}
+.sn{width:20px;height:20px;border-radius:50%;background:#1e3a5f;color:#38bdf8;font-size:.62rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.st{line-height:1.6}
+.st strong,.st b{color:#fbbf24}
+.answer-box{background:#031a06;border:1px solid #15803d;border-radius:7px;padding:8px 13px;font-size:.8rem;font-weight:700;color:#86efac}
+.on{display:inline-block;background:#0f1a00;border:1px solid #365314;border-radius:5px;padding:1px 7px;font-size:.75rem;font-weight:700;color:#a3e635;margin:0 1px}
+.red{color:#f87171}
+.blue{color:#93c5fd}
+
+/* QUIZ */
+.quiz-wrap{background:#07172e;border:1px solid #1e3a5f;border-radius:14px;padding:22px;margin:10px 0}
+.q-progress{font-size:.65rem;color:#334155;margin-bottom:14px;display:flex;justify-content:space-between}
+.q-progress .qp-dots{display:flex;gap:5px}
+.qpdot{width:8px;height:8px;border-radius:50%;background:#1e3a5f}
+.qpdot.done{background:#22c55e}
+.qpdot.active{background:#38bdf8}
+.q-text{font-size:.95rem;font-weight:600;color:#e2e8f0;margin-bottom:10px;line-height:1.5}
+.q-formula{font-size:1.15rem;color:#f1f5f9;background:#0a1628;border-left:3px solid #38bdf8;border-radius:0 8px 8px 0;padding:9px 14px;display:inline-block;margin-bottom:16px}
+.q-context{font-size:.78rem;color:#64748b;margin-bottom:14px;line-height:1.6;background:#0a1628;border-radius:8px;padding:10px 13px;border:1px solid #1e293b}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.opt{background:#0f2040;border:2px solid #1e4d7a;border-radius:9px;padding:11px 13px;font-size:.84rem;font-weight:600;color:#94a3b8;cursor:pointer;transition:all .15s;font-family:inherit;text-align:center}
+.opt:hover:not(:disabled){border-color:#38bdf8;color:#e2e8f0;background:#152a4e}
+.opt.correct{background:#031a06;border-color:#15803d !important;color:#86efac !important}
+.opt.wrong{background:#1a0606;border-color:#991b1b !important;color:#fca5a5 !important}
+.opt.show-correct{background:#031a06;border-color:#15803d !important;color:#86efac !important;opacity:.7}
+.opt:disabled{cursor:default}
+.fb{border-radius:10px;padding:12px 15px;margin-bottom:14px;font-size:.78rem;line-height:1.7;display:none}
+.fb.correct{background:#031a06;border:1px solid #15803d;color:#86efac;display:block}
+.fb.wrong{background:#1a0606;border:1px solid #991b1b;color:#fca5a5;display:block}
+.fb-title{font-weight:700;font-size:.8rem;margin-bottom:3px}
+.fb-body{color:#cbd5e1}
+.fb-working{margin-top:8px;padding:8px 11px;background:#060e1a;border-radius:7px;font-size:.74rem;color:#94a3b8;border:1px solid #1e293b}
+.qbtns{display:flex;gap:9px}
+.check-btn{background:#1d4ed8;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:inherit;font-size:.8rem;font-weight:700;cursor:pointer}
+.check-btn:hover{background:#2563eb}
+.check-btn:disabled{opacity:.3;cursor:default}
+.next-q{background:#14532d;color:#86efac;border:1px solid #15803d;border-radius:8px;padding:9px 20px;font-family:inherit;font-size:.8rem;font-weight:700;cursor:pointer;display:none}
+.next-q:hover{background:#166534}
+.q-result{text-align:center;padding:20px;background:#0a1628;border-radius:10px;border:1px solid #1e3a5f;display:none}
+.q-result h3{color:#e2e8f0;font-size:1rem;margin-bottom:8px}
+.q-result .big-score{font-size:2.5rem;font-weight:800;color:#38bdf8}
+.q-result .score-msg{font-size:.8rem;color:#475569;margin-top:4px}
+
+/* CONCEPT BOXES */
+.concept-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.con{border-radius:11px;padding:15px;border:2px solid}
+.con.ox{background:#120800;border-color:#f97316}
+.con.red{background:#0c0820;border-color:#818cf8}
+.con h3{font-size:.82rem;font-weight:700;margin-bottom:5px}
+.con.ox h3{color:#fb923c}
+.con.red h3{color:#a78bfa}
+.con p{font-size:.74rem;line-height:1.65;color:#94a3b8}
+.mnemonic{background:#07172e;border:1px solid #1e293b;border-radius:10px;padding:16px;text-align:center;margin:14px 0}
+.mnemonic-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.09em;color:#334155;margin-bottom:10px}
+.oilrig{display:flex;justify-content:center;gap:40px}
+.or-part{text-align:center}
+.or-word{font-size:1.2rem;font-weight:800;letter-spacing:.12em;margin-bottom:3px}
+.or-part:first-child .or-word{color:#f97316}
+.or-part:last-child .or-word{color:#818cf8}
+.or-sub{font-size:.62rem;color:#475569}
+
+/* OA/RA CARDS */
+.oara-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.oa-card,.ra-card{border-radius:11px;padding:15px;border:2px solid}
+.oa-card{background:#040e04;border-color:#22c55e}
+.ra-card{background:#0e0404;border-color:#f87171}
+.oa-card h3{color:#4ade80;font-size:.82rem;font-weight:700;margin-bottom:5px}
+.ra-card h3{color:#f87171;font-size:.82rem;font-weight:700;margin-bottom:5px}
+.oa-card p,.ra-card p{font-size:.74rem;line-height:1.65;color:#94a3b8}
+
+/* REACTION */
+.rxn{font-size:.95rem;background:#04090f;border:1px solid #1e293b;border-radius:8px;padding:11px 15px;margin:9px 0;color:#f1f5f9;letter-spacing:.02em;line-height:1.8}
+.rxn-row{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.on-label{font-size:.62rem;color:#fbbf24;font-weight:700}
+.arrow-ox{color:#f97316;font-size:.72rem;font-weight:700}
+.arrow-red{color:#818cf8;font-size:.72rem;font-weight:700}
+
+/* WELCOME */
+.welcome-hero{text-align:center;padding:14px 0 26px}
+.welcome-icon{font-size:2.8rem;margin-bottom:12px}
+.topics{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:18px 0}
+.topic{background:#07172e;border:1px solid #1e3a5f;border-radius:9px;padding:12px 14px;font-size:.76rem;color:#94a3b8;display:flex;align-items:flex-start;gap:9px;line-height:1.5}
+.topic-n{background:#1e3a5f;color:#38bdf8;border-radius:50%;width:20px;height:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700}
+.topic strong{color:#e2e8f0;display:block;margin-bottom:2px}
+
+/* FINAL */
+.final-hero{text-align:center;padding:20px 0}
+.final-big{font-size:3.2rem;font-weight:800;color:#38bdf8;line-height:1}
+.final-label{font-size:.8rem;color:#475569;margin-top:6px}
+.section-rows{display:grid;gap:8px;margin:18px 0}
+.s-row{display:flex;justify-content:space-between;align-items:center;background:#07172e;border-radius:9px;padding:10px 15px;border:1px solid #1e293b;font-size:.8rem}
+.s-row .s-name{color:#94a3b8}
+.s-row .s-sc{font-weight:700;color:#38bdf8}
+.grade-msg{text-align:center;padding:14px;border-radius:10px;font-size:.85rem;font-weight:700}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-title">⚗️ Oxidation Numbers</div>
+  <div class="progress-steps">
+    <div class="ps active" id="ps0"></div>
+    <div class="ps" id="ps1"></div>
+    <div class="ps" id="ps2"></div>
+    <div class="ps" id="ps3"></div>
+    <div class="ps" id="ps4"></div>
+    <div class="ps" id="ps5"></div>
+  </div>
+  <div class="score-chip" id="total-chip">Score: 0 / 18</div>
+</div>
+
+<!-- PAGES ─────────────────────────────────────────── -->
+
+<!-- PAGE 0: WELCOME -->
+<div class="page active" id="pg0">
+  <div class="welcome-hero">
+    <div class="welcome-icon">⚗️</div>
+    <h1>Oxidation Numbers</h1>
+    <p class="subtitle">An interactive activity for GCSE Chemistry &nbsp;·&nbsp; 5 sections &nbsp;·&nbsp; 18 practice questions</p>
+  </div>
+  <p>Oxidation numbers (also called <strong>oxidation states</strong>) are a tool chemists use to keep track of electrons in chemical reactions. They let us identify which atoms have gained or lost electrons — and by how much.</p>
+  <p>Work through each section in order. Read the explanation, study the worked examples, then answer the practice questions. You'll get instant feedback and a running score.</p>
+  <div class="topics">
+    <div class="topic"><div class="topic-n">1</div><div><strong>The Rules</strong>Six rules for assigning oxidation numbers to any element</div></div>
+    <div class="topic"><div class="topic-n">2</div><div><strong>Binary Compounds</strong>Practice with two-element compounds like NaCl and FeCl₃</div></div>
+    <div class="topic"><div class="topic-n">3</div><div><strong>Oxoanions</strong>More complex ions like SO₄²⁻ and MnO₄⁻</div></div>
+    <div class="topic"><div class="topic-n">4</div><div><strong>Changes in Reactions</strong>Track how oxidation numbers change during a reaction</div></div>
+    <div class="topic"><div class="topic-n">5</div><div><strong>Oxidising &amp; Reducing Agents</strong>Identify which species causes oxidation or reduction</div></div>
+  </div>
+  <p style="font-size:.75rem;color:#334155">Use the <strong>Next →</strong> button at the bottom to move between pages. Keyboard shortcuts: → and ← arrow keys.</p>
+</div>
+
+<!-- PAGE 1: THE RULES -->
+<div class="page" id="pg1">
+  <div class="section-tag">Section 1 — The Rules</div>
+  <h1>The Six Rules</h1>
+  <p class="subtitle">These six rules let you work out the oxidation number of any element in any compound.</p>
+  <div class="rules-grid">
+    <div class="rule-card">
+      <div class="rule-label">Rule 1</div>
+      <div class="rule-heading">Pure elements = 0</div>
+      <div class="rule-body">Any uncombined element — whether a single atom or a molecule — has oxidation number zero.</div>
+      <div class="rule-eg">Na = 0 &nbsp; O₂ = 0 &nbsp; Fe = 0 &nbsp; Cl₂ = 0</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-label">Rule 2</div>
+      <div class="rule-heading">Simple ions = their charge</div>
+      <div class="rule-body">A monoatomic ion's oxidation number equals its ionic charge.</div>
+      <div class="rule-eg">Na⁺ = +1 &nbsp; Cl⁻ = −1 &nbsp; Fe³⁺ = +3</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-label">Rule 3</div>
+      <div class="rule-heading">Oxygen = −2 (usually)</div>
+      <div class="rule-body">Oxygen is almost always −2. Exceptions: peroxides (−1) and in OF₂ (+2).</div>
+      <div class="rule-eg">In H₂O: O = −2 &nbsp; In H₂O₂: O = −1</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-label">Rule 4</div>
+      <div class="rule-heading">Hydrogen = +1 (usually)</div>
+      <div class="rule-body">Hydrogen is +1 in most compounds. Exception: metal hydrides (e.g., NaH), where H = −1.</div>
+      <div class="rule-eg">In HCl: H = +1 &nbsp; In NaH: H = −1</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-label">Rule 5</div>
+      <div class="rule-heading">Fluorine = always −1</div>
+      <div class="rule-body">Fluorine is the most electronegative element — it is always −1 in every compound, no exceptions.</div>
+      <div class="rule-eg">In NaF: F = −1 &nbsp; In OF₂: F = −1</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-label">Rule 6 ⭐</div>
+      <div class="rule-heading">The sum rule</div>
+      <div class="rule-body">In a <strong>neutral compound</strong> all oxidation numbers add up to <strong>0</strong>. In a <strong>polyatomic ion</strong> they add up to the <strong>ion's charge</strong>.</div>
+      <div class="rule-eg">H₂O: 2(+1) + (−2) = 0 &nbsp; SO₄²⁻: sum = −2</div>
+    </div>
+  </div>
+  <p style="font-size:.76rem;color:#64748b">💡 <strong>Tip:</strong> Rule 6 is the key calculation tool. Once you know the oxidation numbers of the other elements (from Rules 1–5), you use Rule 6 to find the unknown one.</p>
+</div>
+
+<!-- PAGE 2: BINARY COMPOUNDS — TEACH -->
+<div class="page" id="pg2">
+  <div class="section-tag">Section 2 — Binary Compounds</div>
+  <h1>Binary Compounds</h1>
+  <p class="subtitle">A <strong>binary compound</strong> contains exactly two elements. We apply the rules in order to find the unknown oxidation number.</p>
+
+  <div class="eg-box">
+    <div class="eg-label">Worked Example 1</div>
+    <div class="formula-big">NaCl</div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><div class="st">Na is a Group 1 metal → always forms Na⁺ &nbsp;→&nbsp; Na = <b>+1</b></div></div>
+      <div class="step"><div class="sn">2</div><div class="st">Compound is neutral → sum of oxidation numbers = 0 &nbsp;(Rule 6)</div></div>
+      <div class="step"><div class="sn">3</div><div class="st">(+1) + Cl = 0 &nbsp;→&nbsp; Cl = <b>−1</b></div></div>
+    </div>
+    <div class="answer-box">Na = +1 &nbsp;&nbsp; Cl = −1</div>
+  </div>
+
+  <div class="eg-box">
+    <div class="eg-label">Worked Example 2</div>
+    <div class="formula-big">Fe<sub>2</sub>O<sub>3</sub></div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><div class="st">O follows Rule 3 → O = <b>−2</b> (no peroxide here)</div></div>
+      <div class="step"><div class="sn">2</div><div class="st">There are 3 oxygen atoms: 3 × (−2) = −6</div></div>
+      <div class="step"><div class="sn">3</div><div class="st">Compound is neutral → sum = 0 &nbsp;(Rule 6)</div></div>
+      <div class="step"><div class="sn">4</div><div class="st">2 × Fe + (−6) = 0 &nbsp;→&nbsp; 2 × Fe = +6 &nbsp;→&nbsp; Fe = <b>+3</b></div></div>
+    </div>
+    <div class="answer-box">Fe = +3 &nbsp;&nbsp; O = −2</div>
+  </div>
+
+  <div class="eg-box">
+    <div class="eg-label">Worked Example 3</div>
+    <div class="formula-big">PCl<sub>5</sub></div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><div class="st">Cl is a halogen (below F in Group 7) → usually <b>−1</b></div></div>
+      <div class="step"><div class="sn">2</div><div class="st">There are 5 chlorine atoms: 5 × (−1) = −5</div></div>
+      <div class="step"><div class="sn">3</div><div class="st">Compound is neutral → P + (−5) = 0 &nbsp;→&nbsp; P = <b>+5</b></div></div>
+    </div>
+    <div class="answer-box">P = +5 &nbsp;&nbsp; Cl = −1</div>
+  </div>
+  <p>Notice how the element we're looking for is always found using Rule 6 — the sum rule. <strong>Practice using this approach now.</strong></p>
+</div>
+
+<!-- PAGE 3: BINARY COMPOUNDS — QUIZ -->
+<div class="page" id="pg3">
+  <div class="section-tag">Section 2 — Practice</div>
+  <h1>Binary Compounds: Practice</h1>
+  <p class="subtitle">5 questions. Use the rules and the worked examples to guide you.</p>
+  <div class="quiz-wrap" id="quiz-binary">
+    <div class="q-progress">
+      <span id="qb-label">Question 1 of 5</span>
+      <div class="qp-dots" id="qb-dots"></div>
+    </div>
+    <div id="qb-content"></div>
+    <div class="fb" id="qb-fb"></div>
+    <div class="qbtns">
+      <button class="check-btn" id="qb-check" onclick="checkQ('binary')" disabled>Check Answer</button>
+      <button class="next-q" id="qb-next" onclick="nextQ('binary')">Next Question →</button>
+    </div>
+    <div class="q-result" id="qb-result"></div>
+  </div>
+</div>
+
+<!-- PAGE 4: OXOANIONS — TEACH -->
+<div class="page" id="pg4">
+  <div class="section-tag">Section 3 — Oxoanions</div>
+  <h1>Oxoanions</h1>
+  <p class="subtitle">An <strong>oxoanion</strong> is a negative ion containing oxygen bonded to another element. The key difference from binary compounds: the ion has a charge, which becomes your target sum in Rule 6.</p>
+
+  <div class="eg-box">
+    <div class="eg-label">Worked Example 1 — Sulfate ion</div>
+    <div class="formula-big">SO<sub>4</sub><sup>2−</sup></div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><div class="st">O = <b>−2</b> (Rule 3, no exceptions here)</div></div>
+      <div class="step"><div class="sn">2</div><div class="st">There are 4 oxygen atoms: 4 × (−2) = −8</div></div>
+      <div class="step"><div class="sn">3</div><div class="st">The ion has charge 2− → sum of oxidation numbers = <b>−2</b> &nbsp;(Rule 6)</div></div>
+      <div class="step"><div class="sn">4</div><div class="st">S + (−8) = −2 &nbsp;→&nbsp; S = −2 + 8 &nbsp;→&nbsp; S = <b>+6</b></div></div>
+    </div>
+    <div class="answer-box">S = +6 &nbsp;&nbsp; O = −2</div>
+  </div>
+
+  <div class="eg-box">
+    <div class="eg-label">Worked Example 2 — Dichromate ion</div>
+    <div class="formula-big">Cr<sub>2</sub>O<sub>7</sub><sup>2−</sup></div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><div class="st">O = <b>−2</b></div></div>
+      <div class="step"><div class="sn">2</div><div class="st">7 oxygen atoms: 7 × (−2) = −14</div></div>
+      <div class="step"><div class="sn">3</div><div class="st">Ion charge is 2− → sum = <b>−2</b></div></div>
+      <div class="step"><div class="sn">4</div><div class="st">2 × Cr + (−14) = −2 &nbsp;→&nbsp; 2 × Cr = +12 &nbsp;→&nbsp; Cr = <b>+6</b></div></div>
+    </div>
+    <div class="answer-box">Cr = +6 &nbsp;&nbsp; O = −2</div>
+  </div>
+
+  <div class="eg-box">
+    <div class="eg-label">Worked Example 3 — Nitrate ion</div>
+    <div class="formula-big">NO<sub>3</sub><sup>−</sup></div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><div class="st">O = <b>−2</b></div></div>
+      <div class="step"><div class="sn">2</div><div class="st">3 oxygen atoms: 3 × (−2) = −6</div></div>
+      <div class="step"><div class="sn">3</div><div class="st">Ion charge is 1− → sum = <b>−1</b></div></div>
+      <div class="step"><div class="sn">4</div><div class="st">N + (−6) = −1 &nbsp;→&nbsp; N = −1 + 6 &nbsp;→&nbsp; N = <b>+5</b></div></div>
+    </div>
+    <div class="answer-box">N = +5 &nbsp;&nbsp; O = −2</div>
+  </div>
+  <p>The method is always the same: O = −2, count the oxygens, set the sum equal to the ion charge, solve for the unknown.</p>
+</div>
+
+<!-- PAGE 5: OXOANIONS — QUIZ -->
+<div class="page" id="pg5">
+  <div class="section-tag">Section 3 — Practice</div>
+  <h1>Oxoanions: Practice</h1>
+  <p class="subtitle">5 questions. Remember: the sum of all oxidation numbers equals the ion's charge.</p>
+  <div class="quiz-wrap" id="quiz-oxo">
+    <div class="q-progress">
+      <span id="qo-label">Question 1 of 5</span>
+      <div class="qp-dots" id="qo-dots"></div>
+    </div>
+    <div id="qo-content"></div>
+    <div class="fb" id="qo-fb"></div>
+    <div class="qbtns">
+      <button class="check-btn" id="qo-check" onclick="checkQ('oxo')" disabled>Check Answer</button>
+      <button class="next-q" id="qo-next" onclick="nextQ('oxo')">Next Question →</button>
+    </div>
+    <div class="q-result" id="qo-result"></div>
+  </div>
+</div>
+
+<!-- PAGE 6: REDOX CHANGES — TEACH -->
+<div class="page" id="pg6">
+  <div class="section-tag">Section 4 — Changes in Reactions</div>
+  <h1>Oxidation &amp; Reduction</h1>
+  <p class="subtitle">When atoms react, their oxidation numbers can change. These changes tell us whether an atom has been <strong>oxidised</strong> or <strong>reduced</strong>.</p>
+
+  <div class="concept-pair">
+    <div class="con ox">
+      <h3>🔺 Oxidation</h3>
+      <p>An atom is <strong>oxidised</strong> when its oxidation number <strong>increases</strong>.<br><br>Think of it as "losing electrons" — the atom becomes more positive.</p>
+    </div>
+    <div class="con red">
+      <h3>🔻 Reduction</h3>
+      <p>An atom is <strong>reduced</strong> when its oxidation number <strong>decreases</strong>.<br><br>Think of it as "gaining electrons" — the atom becomes more negative (or less positive).</p>
+    </div>
+  </div>
+
+  <div class="mnemonic">
+    <div class="mnemonic-label">Memory aid</div>
+    <div class="oilrig">
+      <div class="or-part">
+        <div class="or-word">OIL</div>
+        <div class="or-sub">Oxidation Is Loss (of electrons)</div>
+      </div>
+      <div class="or-part">
+        <div class="or-word">RIG</div>
+        <div class="or-sub">Reduction Is Gain (of electrons)</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Worked Example 1</h2>
+  <p>Zinc reacts with copper sulfate solution. Which atom is oxidised and which is reduced?</p>
+  <div class="eg-box">
+    <div class="eg-label">Zn + CuSO₄ → ZnSO₄ + Cu</div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><div class="st">Zn on the left is a pure element → ON = <b>0</b><br>Zn in ZnSO₄ on the right is Zn²⁺ → ON = <b>+2</b></div></div>
+      <div class="step"><div class="sn">2</div><div class="st">Zn: 0 → +2 &nbsp; ON <b>increases</b> → Zn is <span style="color:#f97316;font-weight:700">oxidised</span></div></div>
+      <div class="step"><div class="sn">3</div><div class="st">Cu in CuSO₄ is Cu²⁺ → ON = <b>+2</b><br>Cu on the right is a pure element → ON = <b>0</b></div></div>
+      <div class="step"><div class="sn">4</div><div class="st">Cu: +2 → 0 &nbsp; ON <b>decreases</b> → Cu is <span style="color:#818cf8;font-weight:700">reduced</span></div></div>
+    </div>
+    <div class="answer-box" style="background:#110822;border-color:#4c1d95;color:#c4b5fd">Zn is oxidised (+2) &nbsp;|&nbsp; Cu is reduced (−2 change)</div>
+  </div>
+
+  <h2>Worked Example 2</h2>
+  <p>Magnesium reacts with hydrochloric acid.</p>
+  <div class="eg-box">
+    <div class="eg-label">Mg + 2HCl → MgCl₂ + H₂</div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><div class="st">Mg (left): pure element → ON = <b>0</b><br>Mg in MgCl₂: Mg²⁺ → ON = <b>+2</b> &nbsp;→ ON increases → Mg <span style="color:#f97316;font-weight:700">oxidised</span></div></div>
+      <div class="step"><div class="sn">2</div><div class="st">H in HCl: Rule 4 → ON = <b>+1</b><br>H in H₂: pure element → ON = <b>0</b> &nbsp;→ ON decreases → H <span style="color:#818cf8;font-weight:700">reduced</span></div></div>
+      <div class="step"><div class="sn">3</div><div class="st">Cl in HCl: halogen → −1. Cl in MgCl₂: still −1. <span style="color:#64748b">No change — Cl is neither oxidised nor reduced.</span></div></div>
+    </div>
+    <div class="answer-box" style="background:#110822;border-color:#4c1d95;color:#c4b5fd">Mg oxidised (+2) &nbsp;|&nbsp; H reduced (−1 change)</div>
+  </div>
+  <p style="font-size:.76rem;color:#64748b">💡 <strong>Important:</strong> In every redox reaction, oxidation and reduction always occur <em>together</em>. You cannot have one without the other.</p>
+</div>
+
+<!-- PAGE 7: CHANGE TRACKING — QUIZ -->
+<div class="page" id="pg7">
+  <div class="section-tag">Section 4 — Practice</div>
+  <h1>Tracking Oxidation Number Changes</h1>
+  <p class="subtitle">4 questions. Work out each element's oxidation number on both sides, then identify the change.</p>
+  <div class="quiz-wrap" id="quiz-change">
+    <div class="q-progress">
+      <span id="qc-label">Question 1 of 4</span>
+      <div class="qp-dots" id="qc-dots"></div>
+    </div>
+    <div id="qc-content"></div>
+    <div class="fb" id="qc-fb"></div>
+    <div class="qbtns">
+      <button class="check-btn" id="qc-check" onclick="checkQ('change')" disabled>Check Answer</button>
+      <button class="next-q" id="qc-next" onclick="nextQ('change')">Next Question →</button>
+    </div>
+    <div class="q-result" id="qc-result"></div>
+  </div>
+</div>
+
+<!-- PAGE 8: OA/RA — TEACH -->
+<div class="page" id="pg8">
+  <div class="section-tag">Section 5 — Oxidising &amp; Reducing Agents</div>
+  <h1>Oxidising &amp; Reducing Agents</h1>
+  <p class="subtitle">Once you know which atom is oxidised and which is reduced, you can identify the <strong>agent</strong> responsible — the species doing the oxidising or the reducing.</p>
+
+  <div class="oara-pair">
+    <div class="oa-card">
+      <h3>Oxidising Agent</h3>
+      <p>The species that <strong>causes</strong> another to be oxidised.<br><br>It does this by accepting electrons — so the oxidising agent itself gets <strong>reduced</strong>.<br><br>→ Find the atom that is <em>reduced</em> and name its compound.</p>
+    </div>
+    <div class="ra-card">
+      <h3>Reducing Agent</h3>
+      <p>The species that <strong>causes</strong> another to be reduced.<br><br>It does this by donating electrons — so the reducing agent itself gets <strong>oxidised</strong>.<br><br>→ Find the atom that is <em>oxidised</em> and name its compound.</p>
+    </div>
+  </div>
+  <p style="text-align:center;font-size:.8rem;font-weight:700;color:#94a3b8;margin:4px 0 18px">The oxidising agent is itself reduced. &nbsp;·&nbsp; The reducing agent is itself oxidised.</p>
+
+  <div class="eg-box">
+    <div class="eg-label">Worked Example — Zn + CuSO₄ → ZnSO₄ + Cu</div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><div class="st">Zn: 0 → +2 (oxidised) — so <span style="color:#f87171;font-weight:700">Zn is the reducing agent</span> (it reduces Cu²⁺ to Cu)</div></div>
+      <div class="step"><div class="sn">2</div><div class="st">Cu: +2 → 0 (reduced) — so <span style="color:#4ade80;font-weight:700">CuSO₄ is the oxidising agent</span> (it oxidises Zn to Zn²⁺)</div></div>
+    </div>
+    <div class="answer-box" style="background:#031a06;border-color:#15803d;color:#86efac">Oxidising agent: CuSO₄ &nbsp;|&nbsp; Reducing agent: Zn</div>
+  </div>
+
+  <div class="eg-box">
+    <div class="eg-label">Worked Example — 2Na + Cl₂ → 2NaCl</div>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><div class="st">Na: 0 → +1 (oxidised) — <span style="color:#f87171;font-weight:700">Na is the reducing agent</span></div></div>
+      <div class="step"><div class="sn">2</div><div class="st">Cl in Cl₂: 0 → Cl in NaCl: −1 (reduced) — <span style="color:#4ade80;font-weight:700">Cl₂ is the oxidising agent</span></div></div>
+    </div>
+    <div class="answer-box" style="background:#031a06;border-color:#15803d;color:#86efac">Oxidising agent: Cl₂ &nbsp;|&nbsp; Reducing agent: Na</div>
+  </div>
+
+  <p>Notice the pattern: the oxidising agent contains the atom that gets reduced; the reducing agent contains the atom that gets oxidised. The key is to find the changes first, then name the compound.</p>
+</div>
+
+<!-- PAGE 9: OA/RA — QUIZ -->
+<div class="page" id="pg9">
+  <div class="section-tag">Section 5 — Practice</div>
+  <h1>Oxidising &amp; Reducing Agents: Practice</h1>
+  <p class="subtitle">4 questions. Identify the ON changes first, then decide which species is the agent.</p>
+  <div class="quiz-wrap" id="quiz-oara">
+    <div class="q-progress">
+      <span id="qa-label">Question 1 of 4</span>
+      <div class="qp-dots" id="qa-dots"></div>
+    </div>
+    <div id="qa-content"></div>
+    <div class="fb" id="qa-fb"></div>
+    <div class="qbtns">
+      <button class="check-btn" id="qa-check" onclick="checkQ('oara')" disabled>Check Answer</button>
+      <button class="next-q" id="qa-next" onclick="nextQ('oara')">Next Question →</button>
+    </div>
+    <div class="q-result" id="qa-result"></div>
+  </div>
+</div>
+
+<!-- PAGE 10: FINAL SCORE -->
+<div class="page" id="pg10">
+  <div class="section-tag">Activity Complete</div>
+  <h1>Well done!</h1>
+  <div class="final-hero">
+    <div class="final-big" id="final-big">0</div>
+    <div class="final-label">out of 18</div>
+  </div>
+  <div class="section-rows">
+    <div class="s-row"><span class="s-name">Binary Compounds (Q1–5)</span><span class="s-sc" id="sc-binary">0 / 5</span></div>
+    <div class="s-row"><span class="s-name">Oxoanions (Q6–10)</span><span class="s-sc" id="sc-oxo">0 / 5</span></div>
+    <div class="s-row"><span class="s-name">ON Changes in Reactions (Q11–14)</span><span class="s-sc" id="sc-change">0 / 4</span></div>
+    <div class="s-row"><span class="s-name">Oxidising &amp; Reducing Agents (Q15–18)</span><span class="s-sc" id="sc-oara">0 / 4</span></div>
+  </div>
+  <div class="grade-msg" id="grade-msg"></div>
+  <p style="margin-top:18px;font-size:.76rem;color:#475569">Review any sections where you lost marks — go back using the ← Prev button and re-read the worked examples before trying again.</p>
+</div>
+
+<!-- NAV BAR -->
+<div class="navbar">
+  <button class="nbtn bck" id="btn-prev" onclick="navigate(-1)" disabled>← Prev</button>
+  <span class="page-indicator" id="pg-indicator">Page 1 of 11</span>
+  <button class="nbtn fwd" id="btn-next" onclick="navigate(1)">Next →</button>
+</div>
+
+<script>
+// ── QUIZ DATA ────────────────────────────────────────────────────────────────
+const QUIZZES = {
+  binary: {
+    id: 'binary', pfx: 'qb', total: 5,
+    qs: [
+      {
+        text: 'What is the oxidation number of <strong>Cl</strong> in MgCl<sub>2</sub>?',
+        formula: 'MgCl<sub>2</sub>',
+        opts: ['+2', '+1', '&minus;1', '&minus;2'],
+        correct: 2,
+        explanation: 'Correct! Mg is Group 2 → Mg = +2. Compound is neutral → +2 + 2(Cl) = 0 → Cl = <strong>−1</strong>.',
+        wrong_exp: 'Mg is Group 2, so Mg = +2. The compound is neutral, so the sum must equal 0. That gives: +2 + 2(Cl) = 0, so Cl = <strong>−1</strong>.',
+        working: 'Mg = +2 &nbsp;|&nbsp; Sum = 0 &nbsp;|&nbsp; 2(Cl) = −2 &nbsp;|&nbsp; <b>Cl = −1</b>'
+      },
+      {
+        text: 'What is the oxidation number of <strong>Fe</strong> in FeCl<sub>3</sub>?',
+        formula: 'FeCl<sub>3</sub>',
+        opts: ['+1', '+2', '+3', '+4'],
+        correct: 2,
+        explanation: 'Correct! Cl is a halogen → Cl = −1. Three Cl atoms: 3 × (−1) = −3. Neutral compound: Fe + (−3) = 0 → Fe = <strong>+3</strong>.',
+        wrong_exp: 'Cl is a halogen, so Cl = −1. Three Cl atoms give a total of −3. Since the compound is neutral: Fe + (−3) = 0, so Fe = <strong>+3</strong>.',
+        working: 'Cl = −1 &nbsp;|&nbsp; 3(−1) = −3 &nbsp;|&nbsp; Sum = 0 &nbsp;|&nbsp; <b>Fe = +3</b>'
+      },
+      {
+        text: 'What is the oxidation number of <strong>N</strong> in NH<sub>3</sub>?',
+        formula: 'NH<sub>3</sub>',
+        opts: ['&minus;3', '&minus;1', '+1', '+3'],
+        correct: 0,
+        explanation: 'Correct! H follows Rule 4 → H = +1. Three H atoms: 3 × (+1) = +3. Neutral compound: N + 3 = 0 → N = <strong>−3</strong>.',
+        wrong_exp: 'H = +1 (Rule 4). Three H atoms give +3. Neutral compound: N + 3 = 0, so N = <strong>−3</strong>.',
+        working: 'H = +1 &nbsp;|&nbsp; 3(+1) = +3 &nbsp;|&nbsp; Sum = 0 &nbsp;|&nbsp; <b>N = −3</b>'
+      },
+      {
+        text: 'What is the oxidation number of <strong>S</strong> in H<sub>2</sub>S?',
+        formula: 'H<sub>2</sub>S',
+        opts: ['+2', '+1', '&minus;1', '&minus;2'],
+        correct: 3,
+        explanation: 'Correct! H = +1 (Rule 4). Two H atoms: 2 × (+1) = +2. Neutral compound: +2 + S = 0 → S = <strong>−2</strong>.',
+        wrong_exp: 'H = +1. Two H atoms give +2. Since the compound is neutral: S + 2 = 0, so S = <strong>−2</strong>.',
+        working: 'H = +1 &nbsp;|&nbsp; 2(+1) = +2 &nbsp;|&nbsp; Sum = 0 &nbsp;|&nbsp; <b>S = −2</b>'
+      },
+      {
+        text: 'What is the oxidation number of <strong>Mn</strong> in MnO<sub>2</sub>?',
+        formula: 'MnO<sub>2</sub>',
+        opts: ['+1', '+2', '+4', '+6'],
+        correct: 2,
+        explanation: 'Correct! O = −2 (Rule 3). Two O atoms: 2 × (−2) = −4. Neutral compound: Mn + (−4) = 0 → Mn = <strong>+4</strong>.',
+        wrong_exp: 'O = −2. Two oxygen atoms give −4. Neutral compound: Mn + (−4) = 0, so Mn = <strong>+4</strong>.',
+        working: 'O = −2 &nbsp;|&nbsp; 2(−2) = −4 &nbsp;|&nbsp; Sum = 0 &nbsp;|&nbsp; <b>Mn = +4</b>'
+      }
+    ]
+  },
+  oxo: {
+    id: 'oxo', pfx: 'qo', total: 5,
+    qs: [
+      {
+        text: 'What is the oxidation number of <strong>N</strong> in the nitrate ion, NO<sub>3</sub><sup>&minus;</sup>?',
+        formula: 'NO<sub>3</sub><sup>&minus;</sup>',
+        opts: ['+3', '+4', '+5', '+6'],
+        correct: 2,
+        explanation: 'Correct! O = −2. Three O atoms: 3 × (−2) = −6. Ion charge is −1, so sum = −1: N + (−6) = −1 → N = <strong>+5</strong>.',
+        wrong_exp: 'O = −2. Three oxygens give −6. The ion charge is −1, so sum = −1: N + (−6) = −1, giving N = <strong>+5</strong>.',
+        working: 'O = −2 &nbsp;|&nbsp; 3(−2) = −6 &nbsp;|&nbsp; Sum = −1 &nbsp;|&nbsp; <b>N = +5</b>'
+      },
+      {
+        text: 'What is the oxidation number of <strong>Cl</strong> in the hypochlorite ion, ClO<sup>&minus;</sup>?',
+        formula: 'ClO<sup>&minus;</sup>',
+        opts: ['&minus;1', '0', '+1', '+2'],
+        correct: 2,
+        explanation: 'Correct! O = −2. Ion charge is −1 → sum = −1: Cl + (−2) = −1 → Cl = <strong>+1</strong>.',
+        wrong_exp: 'O = −2. The ion charge is −1, so the sum must equal −1: Cl + (−2) = −1, giving Cl = <strong>+1</strong>.',
+        working: 'O = −2 &nbsp;|&nbsp; Sum = −1 &nbsp;|&nbsp; Cl + (−2) = −1 &nbsp;|&nbsp; <b>Cl = +1</b>'
+      },
+      {
+        text: 'What is the oxidation number of <strong>Mn</strong> in the permanganate ion, MnO<sub>4</sub><sup>&minus;</sup>?',
+        formula: 'MnO<sub>4</sub><sup>&minus;</sup>',
+        opts: ['+4', '+5', '+6', '+7'],
+        correct: 3,
+        explanation: 'Correct! O = −2. Four oxygens: 4 × (−2) = −8. Sum = −1: Mn + (−8) = −1 → Mn = <strong>+7</strong>.',
+        wrong_exp: 'O = −2. Four oxygens give −8. Ion charge = −1, so sum = −1: Mn + (−8) = −1, giving Mn = <strong>+7</strong>.',
+        working: 'O = −2 &nbsp;|&nbsp; 4(−2) = −8 &nbsp;|&nbsp; Sum = −1 &nbsp;|&nbsp; <b>Mn = +7</b>'
+      },
+      {
+        text: 'What is the oxidation number of <strong>Cr</strong> in the dichromate ion, Cr<sub>2</sub>O<sub>7</sub><sup>2&minus;</sup>?',
+        formula: 'Cr<sub>2</sub>O<sub>7</sub><sup>2&minus;</sup>',
+        opts: ['+3', '+4', '+6', '+7'],
+        correct: 2,
+        explanation: 'Correct! O = −2. Seven oxygens: 7 × (−2) = −14. Sum = −2: 2Cr + (−14) = −2 → 2Cr = +12 → Cr = <strong>+6</strong>.',
+        wrong_exp: 'O = −2. Seven oxygens give −14. Ion charge = −2, so sum = −2: 2Cr + (−14) = −2, so 2Cr = +12, giving Cr = <strong>+6</strong>.',
+        working: '7(−2) = −14 &nbsp;|&nbsp; Sum = −2 &nbsp;|&nbsp; 2Cr = +12 &nbsp;|&nbsp; <b>Cr = +6</b>'
+      },
+      {
+        text: 'What is the oxidation number of <strong>P</strong> in the phosphate ion, PO<sub>4</sub><sup>3&minus;</sup>?',
+        formula: 'PO<sub>4</sub><sup>3&minus;</sup>',
+        opts: ['+2', '+3', '+4', '+5'],
+        correct: 3,
+        explanation: 'Correct! O = −2. Four oxygens: 4 × (−2) = −8. Sum = −3: P + (−8) = −3 → P = <strong>+5</strong>.',
+        wrong_exp: 'O = −2. Four oxygens give −8. Ion charge = −3, so sum = −3: P + (−8) = −3, giving P = <strong>+5</strong>.',
+        working: '4(−2) = −8 &nbsp;|&nbsp; Sum = −3 &nbsp;|&nbsp; P + (−8) = −3 &nbsp;|&nbsp; <b>P = +5</b>'
+      }
+    ]
+  },
+  change: {
+    id: 'change', pfx: 'qc', total: 4,
+    qs: [
+      {
+        text: 'In the reaction below, what happens to the oxidation number of <strong>Mg</strong>?',
+        formula: '2Mg + O<sub>2</sub> → 2MgO',
+        opts: ['Stays at 0', 'Increases from 0 to +1', 'Increases from 0 to +2', 'Decreases from 0 to &minus;2'],
+        correct: 2,
+        explanation: 'Correct! Mg on the left is a pure element → ON = 0. In MgO, Mg is Mg²⁺ → ON = +2. The ON <strong>increases from 0 to +2</strong> — Mg is oxidised.',
+        wrong_exp: 'Mg (left) is a pure element → ON = 0. In MgO, Mg is Mg²⁺ → ON = +2. The oxidation number <strong>increases from 0 to +2</strong>.',
+        working: 'Mg (left): 0 &nbsp;|&nbsp; Mg in MgO: +2 &nbsp;|&nbsp; <b>Change: 0 → +2 (increase)</b>'
+      },
+      {
+        text: 'In the reaction below, which species is <strong>reduced</strong>?',
+        formula: 'Fe + CuSO<sub>4</sub> → FeSO<sub>4</sub> + Cu',
+        context: 'Hint: work out ON of Fe and Cu on both sides. Reduction = decrease in ON.',
+        opts: ['Fe', 'S (in SO<sub>4</sub>)', 'Cu²<sup>+</sup> (in CuSO<sub>4</sub>)', 'O (in SO<sub>4</sub>)'],
+        correct: 2,
+        explanation: 'Correct! Cu in CuSO₄ is Cu²⁺ (ON = +2). Cu on the right is a pure element (ON = 0). ON decreases from +2 to 0 → Cu²⁺ is <strong>reduced</strong>.',
+        wrong_exp: 'Cu in CuSO₄ is Cu²⁺ → ON = +2. Cu on the right is a pure element → ON = 0. ON decreases (reduces) from +2 to 0 → Cu²⁺ is <strong>reduced</strong>.',
+        working: 'Cu (CuSO₄): +2 &nbsp;|&nbsp; Cu (right): 0 &nbsp;|&nbsp; <b>Decrease → reduced</b>'
+      },
+      {
+        text: 'In the reaction below, by how much does the oxidation number of <strong>Cl</strong> change?',
+        formula: 'Cl<sub>2</sub> + 2KBr → 2KCl + Br<sub>2</sub>',
+        context: 'Find ON of Cl in Cl₂, then in KCl.',
+        opts: ['No change', 'Decreases by 1', 'Increases by 1', 'Decreases by 2'],
+        correct: 1,
+        explanation: 'Correct! Cl in Cl₂ is a pure element → ON = 0. Cl in KCl: K = +1, so Cl = −1. Change: 0 → −1, a <strong>decrease of 1</strong>. Cl is reduced.',
+        wrong_exp: 'Cl in Cl₂ → ON = 0 (pure element). Cl in KCl: K = +1, neutral compound → Cl = −1. Change: 0 → −1, a <strong>decrease of 1</strong>.',
+        working: 'Cl (Cl₂): 0 &nbsp;|&nbsp; Cl (KCl): −1 &nbsp;|&nbsp; <b>Change: −1 (decrease)</b>'
+      },
+      {
+        text: 'In the reaction below, what is the change in oxidation number of <strong>Mn</strong>?',
+        formula: 'MnO<sub>4</sub><sup>&minus;</sup> + 5Fe<sup>2+</sup> + 8H<sup>+</sup> → Mn<sup>2+</sup> + 5Fe<sup>3+</sup> + 4H<sub>2</sub>O',
+        context: 'First find ON of Mn in MnO₄⁻ (O = −2, ion charge = −1), then Mn in Mn²⁺.',
+        opts: ['Increases by 5', 'Decreases by 2', 'Decreases by 5', 'Increases by 2'],
+        correct: 2,
+        explanation: 'Correct! In MnO₄⁻: Mn + 4(−2) = −1 → Mn = +7. As Mn²⁺: ON = +2. Change: +7 → +2 — a <strong>decrease of 5</strong>. Mn is reduced.',
+        wrong_exp: 'In MnO₄⁻: Mn + (−8) = −1, so Mn = +7. As Mn²⁺: ON = +2. The change is +7 → +2, a <strong>decrease of 5</strong>.',
+        working: 'Mn in MnO₄⁻: +7 &nbsp;|&nbsp; Mn in Mn²⁺: +2 &nbsp;|&nbsp; <b>Change: −5 (decrease)</b>'
+      }
+    ]
+  },
+  oara: {
+    id: 'oara', pfx: 'qa', total: 4,
+    qs: [
+      {
+        text: 'In the reaction below, which species is the <strong>oxidising agent</strong>?',
+        formula: 'Zn + CuSO<sub>4</sub> → ZnSO<sub>4</sub> + Cu',
+        context: 'The oxidising agent is the species that gets reduced (causes the other to be oxidised).',
+        opts: ['Zn', 'ZnSO<sub>4</sub>', 'CuSO<sub>4</sub>', 'Cu'],
+        correct: 2,
+        explanation: 'Correct! Cu in CuSO₄ is reduced (ON: +2 → 0). The species containing the atom that is reduced is the <strong>oxidising agent → CuSO₄</strong>.',
+        wrong_exp: 'The oxidising agent gets reduced. Cu in CuSO₄ goes from +2 → 0 (reduced). So <strong>CuSO₄</strong> is the oxidising agent.',
+        working: 'Cu: +2 → 0 (reduced) &nbsp;|&nbsp; <b>CuSO₄ is the oxidising agent</b>'
+      },
+      {
+        text: 'In the reaction below, which species is the <strong>reducing agent</strong>?',
+        formula: '2Na + Cl<sub>2</sub> → 2NaCl',
+        context: 'The reducing agent is the species that gets oxidised (causes the other to be reduced).',
+        opts: ['NaCl', 'Cl<sub>2</sub>', 'Cl<sup>&minus;</sup> in NaCl', 'Na'],
+        correct: 3,
+        explanation: 'Correct! Na goes from ON = 0 to ON = +1 (oxidised). The species that is oxidised is the <strong>reducing agent → Na</strong>.',
+        wrong_exp: 'Na (left) has ON = 0; Na in NaCl has ON = +1. Na is oxidised — so <strong>Na is the reducing agent</strong>.',
+        working: 'Na: 0 → +1 (oxidised) &nbsp;|&nbsp; <b>Na is the reducing agent</b>'
+      },
+      {
+        text: 'In the reaction below, which species is the <strong>oxidising agent</strong>?',
+        formula: 'MnO<sub>4</sub><sup>&minus;</sup> + 5Fe<sup>2+</sup> + 8H<sup>+</sup> → Mn<sup>2+</sup> + 5Fe<sup>3+</sup> + 4H<sub>2</sub>O',
+        context: 'Mn changes from +7 to +2. Fe changes from +2 to +3.',
+        opts: ['H<sup>+</sup>', 'Fe<sup>2+</sup>', 'MnO<sub>4</sub><sup>&minus;</sup>', 'Fe<sup>3+</sup>'],
+        correct: 2,
+        explanation: 'Correct! Mn in MnO₄⁻ is reduced from +7 to +2. The species that is reduced is the oxidising agent → <strong>MnO₄⁻</strong>.',
+        wrong_exp: 'Mn in MnO₄⁻ goes from +7 → +2 (reduced). The species that is reduced is the oxidising agent → <strong>MnO₄⁻</strong>.',
+        working: 'Mn: +7 → +2 (reduced) &nbsp;|&nbsp; <b>MnO₄⁻ is the oxidising agent</b>'
+      },
+      {
+        text: 'In the reaction below, which species is the <strong>reducing agent</strong>?',
+        formula: 'Cl<sub>2</sub> + 2KBr → 2KCl + Br<sub>2</sub>',
+        context: 'Cl: 0 → −1 (reduced). Br in KBr: −1. Br in Br₂: 0.',
+        opts: ['Cl<sub>2</sub>', 'KBr', 'KCl', 'K<sup>+</sup>'],
+        correct: 1,
+        explanation: 'Correct! Br in KBr goes from −1 to 0 (oxidised). The species that is oxidised is the reducing agent → <strong>KBr</strong>.',
+        wrong_exp: 'Br in KBr: ON = −1. Br in Br₂: ON = 0. Br is oxidised (−1 → 0). The species being oxidised is the reducing agent → <strong>KBr</strong>.',
+        working: 'Br (KBr): −1 → 0 (oxidised) &nbsp;|&nbsp; <b>KBr is the reducing agent</b>'
+      }
+    ]
+  }
+};
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+const state = {
+  page: 0,
+  totalPages: 11,
+  scores: { binary: 0, oxo: 0, change: 0, oara: 0 },
+  qState: {}
+};
+
+// Initialise each quiz's question state
+Object.keys(QUIZZES).forEach(k => {
+  state.qState[k] = { cur: 0, selected: null, answered: false, done: false };
+});
+
+// ── PAGE NAVIGATION ──────────────────────────────────────────────────────────
+const PAGES = ['pg0','pg1','pg2','pg3','pg4','pg5','pg6','pg7','pg8','pg9','pg10'];
+// Progress step mapping: which pages count toward which step
+const STEP_MAP = [0,0, 1,1, 2,2, 3,3, 4,4, 5];
+// Quiz pages
+const QUIZ_PAGES = { 3:'binary', 5:'oxo', 7:'change', 9:'oara' };
+// Next-locked pages (quiz pages where next is locked until quiz is done)
+const QUIZ_PAGE_NUMS = [3, 5, 7, 9];
+
+function navigate(dir) {
+  const np = state.page + dir;
+  if (np < 0 || np >= state.totalPages) return;
+  state.page = np;
+  renderPage();
+}
+
+function renderPage() {
+  const p = state.page;
+  PAGES.forEach((id, i) => {
+    document.getElementById(id).classList.toggle('active', i === p);
+  });
+  // Progress steps
+  for (let i = 0; i < 6; i++) {
+    const el = document.getElementById('ps' + i);
+    const mapped = STEP_MAP[p] ?? 5;
+    el.className = 'ps' + (i < mapped ? ' done' : i === mapped ? ' active' : '');
+  }
+  document.getElementById('pg-indicator').textContent = `Page ${p + 1} of ${state.totalPages}`;
+  document.getElementById('btn-prev').disabled = p === 0;
+  // Lock next on quiz pages until quiz done
+  const isQuizPage = QUIZ_PAGE_NUMS.includes(p);
+  const quizKey = QUIZ_PAGES[p];
+  const quizDone = quizKey ? state.qState[quizKey].done : true;
+  document.getElementById('btn-next').disabled = p === state.totalPages - 1 || (isQuizPage && !quizDone);
+
+  // If landing on final page, update it
+  if (p === 10) updateFinal();
+
+  // If landing on quiz page, render current question
+  if (isQuizPage && quizKey) renderQ(quizKey);
+}
+
+// ── QUIZ RENDERING ───────────────────────────────────────────────────────────
+function renderQ(key) {
+  const quiz = QUIZZES[key];
+  const qs = state.qState[key];
+  if (qs.done) return; // show result
+
+  const q = quiz.qs[qs.cur];
+  const pfx = quiz.pfx;
+  const total = quiz.total;
+
+  // Label
+  document.getElementById(pfx + '-label').textContent = `Question ${qs.cur + 1} of ${total}`;
+  // Dots
+  const dotsEl = document.getElementById(pfx + '-dots');
+  dotsEl.innerHTML = quiz.qs.map((_, i) =>
+    `<div class="qpdot${i < qs.cur ? ' done' : i === qs.cur ? ' active' : ''}"></div>`
+  ).join('');
+
+  // Content
+  let html = `<div class="q-text">${q.text}</div>`;
+  html += `<div class="q-formula">${q.formula}</div>`;
+  if (q.context) html += `<div class="q-context">💡 ${q.context}</div>`;
+  html += `<div class="options">`;
+  q.opts.forEach((opt, i) => {
+    html += `<button class="opt" id="${pfx}-opt-${i}" onclick="selectOpt('${key}',${i})">${opt}</button>`;
+  });
+  html += `</div>`;
+  document.getElementById(pfx + '-content').innerHTML = html;
+
+  // Reset feedback
+  const fb = document.getElementById(pfx + '-fb');
+  fb.className = 'fb';
+  fb.innerHTML = '';
+
+  // Buttons
+  const checkBtn = document.getElementById(pfx + '-check');
+  const nextBtn = document.getElementById(pfx + '-next');
+  checkBtn.disabled = true;
+  checkBtn.style.display = 'inline-block';
+  nextBtn.style.display = 'none';
+
+  qs.selected = null;
+  qs.answered = false;
+}
+
+function selectOpt(key, idx) {
+  const qs = state.qState[key];
+  if (qs.answered) return;
+  const quiz = QUIZZES[key];
+  const pfx = quiz.pfx;
+  qs.selected = idx;
+  quiz.qs[qs.cur].opts.forEach((_, i) => {
+    const el = document.getElementById(pfx + '-opt-' + i);
+    el.style.borderColor = i === idx ? '#38bdf8' : '';
+    el.style.color = i === idx ? '#e2e8f0' : '';
+    el.style.background = i === idx ? '#0e2d52' : '';
+  });
+  document.getElementById(pfx + '-check').disabled = false;
+}
+
+function checkQ(key) {
+  const quiz = QUIZZES[key];
+  const qs = state.qState[key];
+  const q = quiz.qs[qs.cur];
+  const pfx = quiz.pfx;
+  if (qs.selected === null || qs.answered) return;
+  qs.answered = true;
+
+  const correct = qs.selected === q.correct;
+  if (correct) state.scores[key]++;
+  updateScoreChip();
+
+  // Style options
+  q.opts.forEach((_, i) => {
+    const el = document.getElementById(pfx + '-opt-' + i);
+    el.disabled = true;
+    el.style.borderColor = '';
+    el.style.color = '';
+    el.style.background = '';
+    if (i === q.correct) el.classList.add(correct ? 'correct' : 'show-correct');
+    if (!correct && i === qs.selected) el.classList.add('wrong');
+  });
+
+  // Feedback
+  const fb = document.getElementById(pfx + '-fb');
+  fb.className = 'fb ' + (correct ? 'correct' : 'wrong');
+  fb.innerHTML = `<div class="fb-title">${correct ? '✓ Correct!' : '✗ Not quite'}</div>
+    <div class="fb-body">${correct ? q.explanation : q.wrong_exp}</div>
+    <div class="fb-working"><strong>Working:</strong> ${q.working}</div>`;
+
+  // Buttons
+  document.getElementById(pfx + '-check').style.display = 'none';
+  document.getElementById(pfx + '-next').style.display = 'inline-block';
+  document.getElementById(pfx + '-next').textContent =
+    qs.cur < quiz.total - 1 ? 'Next Question →' : 'See Section Score →';
+}
+
+function nextQ(key) {
+  const quiz = QUIZZES[key];
+  const qs = state.qState[key];
+  const pfx = quiz.pfx;
+
+  qs.cur++;
+  qs.answered = false;
+  qs.selected = null;
+
+  if (qs.cur >= quiz.total) {
+    // Show section result
+    qs.done = true;
+    const score = state.scores[key];
+    const total = quiz.total;
+    const resultEl = document.getElementById(pfx + '-result');
+    resultEl.style.display = 'block';
+    document.getElementById(pfx + '-content').innerHTML = '';
+    document.getElementById(pfx + '-fb').className = 'fb';
+    document.getElementById(pfx + '-check').style.display = 'none';
+    document.getElementById(pfx + '-next').style.display = 'none';
+    document.getElementById(pfx + '-label').textContent = 'Section complete!';
+    document.getElementById(pfx + '-dots').innerHTML = quiz.qs.map(() => `<div class="qpdot done"></div>`).join('');
+    const pct = Math.round((score / total) * 100);
+    const msg = pct === 100 ? '🌟 Perfect score!' : pct >= 80 ? '⭐ Great work!' : pct >= 60 ? '👍 Good effort.' : '📚 Review the worked examples and try again.';
+    resultEl.innerHTML = `<h3>Section complete</h3><div class="big-score">${score} / ${total}</div><div class="score-msg">${msg}</div>`;
+    // Unlock Next
+    document.getElementById('btn-next').disabled = false;
+  } else {
+    renderQ(key);
+  }
+}
+
+// ── SCORE ────────────────────────────────────────────────────────────────────
+function totalScore() {
+  return Object.values(state.scores).reduce((a, b) => a + b, 0);
+}
+
+function updateScoreChip() {
+  document.getElementById('total-chip').textContent = `Score: ${totalScore()} / 18`;
+}
+
+function updateFinal() {
+  const t = totalScore();
+  document.getElementById('final-big').textContent = t;
+  document.getElementById('sc-binary').textContent = `${state.scores.binary} / 5`;
+  document.getElementById('sc-oxo').textContent = `${state.scores.oxo} / 5`;
+  document.getElementById('sc-change').textContent = `${state.scores.change} / 4`;
+  document.getElementById('sc-oara').textContent = `${state.scores.oara} / 4`;
+  const pct = Math.round((t / 18) * 100);
+  const gm = document.getElementById('grade-msg');
+  if (pct >= 90) { gm.style.background='#031a06';gm.style.color='#86efac';gm.style.border='1px solid #15803d';gm.textContent='🌟 Excellent! You have a thorough understanding of oxidation numbers.'; }
+  else if (pct >= 75) { gm.style.background='#0a1628';gm.style.color='#93c5fd';gm.style.border='1px solid #1e4d7a';gm.textContent='⭐ Good work! Review any sections where you lost marks.'; }
+  else if (pct >= 55) { gm.style.background='#140c00';gm.style.color='#fde68a';gm.style.border='1px solid #854d0e';gm.textContent='👍 A solid start. Re-read the worked examples for the sections you found tricky.'; }
+  else { gm.style.background='#1a0606';gm.style.color='#fca5a5';gm.style.border='1px solid #991b1b';gm.textContent='📚 Go back and review the rules and worked examples carefully, then try again.'; }
+}
+
+// ── KEYBOARD ─────────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'BUTTON') return;
+  if (e.key === 'ArrowRight') { if (!document.getElementById('btn-next').disabled) navigate(1); }
+  if (e.key === 'ArrowLeft')  { if (!document.getElementById('btn-prev').disabled) navigate(-1); }
+});
+
+// INIT
+renderPage();
+</script>
+</body>
+</html>

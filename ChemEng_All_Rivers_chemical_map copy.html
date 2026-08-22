@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Germany's Rivers — Chemical Industry Interactive Map</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;color:#f1f5f9;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+    /* TOP BAR */
+    .topbar{background:linear-gradient(135deg,#1e3a5f,#0f2a4a);border-bottom:2px solid #2563eb;padding:8px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap}
+    .topbar h1{font-size:.95rem;font-weight:700;color:#e2e8f0;white-space:nowrap}
+    .topbar p{font-size:.72rem;color:#94a3b8}
+    .filter-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+    .filter-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:700;white-space:nowrap}
+    .filter-btn{padding:4px 10px;border-radius:99px;border:2px solid transparent;cursor:pointer;font-size:.7rem;font-weight:700;transition:all .15s;opacity:.5}
+    .filter-btn.active{opacity:1}
+    .filter-btn:hover{opacity:.85}
+
+    /* LAYOUT */
+    .main{display:flex;flex:1;overflow:hidden}
+
+    /* SIDEBAR */
+    .sidebar{width:280px;background:#1e293b;border-right:1px solid #334155;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+    .sidebar-tabs{display:flex;border-bottom:1px solid #334155}
+    .stab{flex:1;padding:8px;text-align:center;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;color:#64748b;border-bottom:2px solid transparent;transition:all .15s}
+    .stab.active{color:#93c5fd;border-bottom-color:#2563eb;background:#162032}
+    .site-list{overflow-y:auto;flex:1}
+
+    /* River group headers */
+    .river-group-header{padding:8px 14px 5px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:7px;position:sticky;top:0;z-index:1;background:#1e293b;border-bottom:1px solid #0f172a}
+    .river-line-swatch{height:3px;width:22px;border-radius:99px;flex-shrink:0}
+
+    /* Site items */
+    .site-item{padding:9px 14px 9px 20px;border-bottom:1px solid #1a2535;cursor:pointer;transition:background .12s;display:flex;align-items:flex-start;gap:9px}
+    .site-item:hover{background:#263548}
+    .site-item.selected{background:#1e3a5f;border-left:3px solid #2563eb}
+    .site-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px}
+    .site-item-name{font-size:.8rem;font-weight:600;color:#e2e8f0;line-height:1.3}
+    .site-item-sub{font-size:.68rem;color:#64748b;margin-top:1px}
+
+    /* Legends */
+    .legend-panel{padding:10px 14px;border-top:1px solid #334155;background:#162032}
+    .legend-title{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:700;margin-bottom:6px}
+    .legend-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px 8px}
+    .legend-item{display:flex;align-items:center;gap:6px;font-size:.68rem;color:#94a3b8;line-height:1.3}
+    .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+    .legend-line{height:3px;width:18px;border-radius:99px;flex-shrink:0}
+    .legend-sep{border:none;border-top:1px solid #334155;margin:7px 0}
+
+    /* MAP */
+    #map{flex:1;z-index:1}
+
+    /* POPUP */
+    .leaflet-popup-content-wrapper{background:#1e293b!important;color:#e2e8f0!important;border-radius:12px!important;box-shadow:0 8px 32px rgba(0,0,0,.5)!important;border:1px solid #334155!important;max-width:320px!important}
+    .leaflet-popup-tip{background:#1e293b!important}
+    .leaflet-popup-content{margin:0!important;padding:0!important}
+    .popup-inner{padding:15px}
+    .popup-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+    .popup-badge{display:inline-block;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:99px}
+    .popup-name{font-size:.95rem;font-weight:700;color:#f1f5f9;margin-bottom:3px;line-height:1.3}
+    .popup-location{font-size:.72rem;color:#64748b;margin-bottom:9px}
+    .popup-co-title{font-size:.65rem;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:4px;font-weight:700}
+    .popup-co-tag{display:inline-block;background:#0f2040;border:1px solid #1d3c6e;color:#93c5fd;font-size:.68rem;padding:2px 7px;border-radius:4px;margin:2px 2px 2px 0;font-weight:600}
+    .popup-activities{font-size:.77rem;line-height:1.6;color:#94a3b8;margin:8px 0}
+    .popup-fact{background:#0f2040;border-left:3px solid #2563eb;padding:7px 10px;border-radius:4px;font-size:.72rem;color:#7dd3fc;line-height:1.5}
+    .popup-gmaps{display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:5px 12px;background:#1a3a5f;border:1px solid #2563eb;border-radius:99px;color:#93c5fd;font-size:.72rem;font-weight:700;text-decoration:none;transition:background .15s}
+    .popup-gmaps:hover{background:#1e4a7a;color:#bfdbfe}
+
+    /* COUNTER */
+    .counter-bar{display:flex;gap:14px;padding:5px 14px;background:#162032;border-bottom:1px solid #334155;font-size:.72rem;color:#64748b;flex-shrink:0;flex-wrap:wrap}
+    .counter-bar strong{color:#e2e8f0}
+
+    @media(max-width:700px){.sidebar{display:none}}
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <h1>⚗️ Germany's Rivers — Chemical Industry Map</h1>
+    <p>Click a marker or sidebar entry to explore · Filter by industry type below</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:5px">
+    <div class="filter-row">
+      <span class="filter-label">Industry:</span>
+      <div id="filter-industry"></div>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">River:</span>
+      <div id="filter-river"></div>
+    </div>
+  </div>
+</div>
+
+<div class="counter-bar">
+  <span><strong id="count-total">0</strong> sites shown</span>
+  <span id="count-desc"></span>
+</div>
+
+<div class="main">
+  <div class="sidebar">
+    <div class="sidebar-tabs">
+      <div class="stab active" id="tab-list" onclick="showTab('list')">📍 Sites</div>
+      <div class="stab" id="tab-legend" onclick="showTab('legend')">🗺 Legend</div>
+    </div>
+    <div class="site-list" id="site-list"></div>
+    <div id="legend-tab" style="display:none;overflow-y:auto;flex:1">
+      <div class="legend-panel">
+        <div class="legend-title">Industry Type</div>
+        <div id="legend-industry"></div>
+      </div>
+      <div class="legend-panel">
+        <div class="legend-title">Rivers</div>
+        <div id="legend-rivers"></div>
+      </div>
+    </div>
+  </div>
+  <div id="map"></div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// INDUSTRY TYPES
+// ─────────────────────────────────────────────
+const TYPES = {
+  petrochemical: { label:'Petrochemicals / Refining',    color:'#f97316', bg:'#431407', text:'#fb923c' },
+  integrated:    { label:'Integrated Chemical Complex',   color:'#2563eb', bg:'#1e1b4b', text:'#818cf8' },
+  pharmaceutical:{ label:'Pharmaceutical & Life Science', color:'#22c55e', bg:'#14532d', text:'#86efac' },
+  specialty:     { label:'Specialty Chemicals',           color:'#a855f7', bg:'#2e1065', text:'#d8b4fe' },
+  polymers:      { label:'Polymers & Materials',          color:'#ef4444', bg:'#450a0a', text:'#fca5a5' },
+  consumer:      { label:'Consumer & Industrial Chem.',   color:'#eab308', bg:'#422006', text:'#fde047' },
+};
+
+// ─────────────────────────────────────────────
+// RIVERS  (color, label, path coords)
+// ─────────────────────────────────────────────
+const RIVERS = {
+  Rhine:  { color:'#3b82f6', label:'Rhine (Rhein)',       weight:5,
+    path:[[47.56,7.59],[47.70,7.55],[47.90,7.65],[48.00,7.70],[48.57,7.75],[48.83,8.12],[49.01,8.38],[49.48,8.45],[49.64,8.36],[49.99,8.27],[50.36,7.59],[50.74,7.10],[50.83,6.98],[50.94,6.96],[51.05,6.99],[51.22,6.78],[51.43,6.76],[51.66,6.62]] },
+  Main:   { color:'#22c55e', label:'Main',                 weight:3.5,
+    path:[[50.14,9.15],[50.135,8.916],[50.105,8.769],[50.111,8.682],[50.094,8.549],[50.02,8.37],[49.99,8.27]] },
+  Neckar: { color:'#06b6d4', label:'Neckar',               weight:3,
+    path:[[48.05,8.46],[48.40,8.95],[48.52,9.06],[48.78,9.18],[49.14,9.22],[49.40,8.69],[49.47,8.47]] },
+  Ruhr:   { color:'#f59e0b', label:'Ruhr',                 weight:2.5,
+    path:[[51.40,8.07],[51.36,7.47],[51.44,7.34],[51.43,7.16],[51.45,6.97],[51.43,6.76]] },
+  Emscher:{ color:'#fbbf24', label:'Emscher',              weight:2,
+    path:[[51.52,7.50],[51.54,7.07],[51.55,6.86],[51.56,6.73]] },
+  Lippe:  { color:'#8b5cf6', label:'Lippe',                weight:3,
+    path:[[51.71,8.77],[51.67,8.35],[51.68,7.83],[51.67,7.37],[51.66,7.09],[51.66,6.63]] },
+  Weser:  { color:'#10b981', label:'Weser',                weight:4,
+    path:[[51.41,9.65],[51.64,9.44],[52.10,9.36],[52.30,9.25],[52.64,9.22],[53.08,8.80],[53.54,8.58]] },
+  Saale:  { color:'#fb923c', label:'Saale',                weight:3,
+    path:[[50.49,11.93],[50.70,11.89],[51.00,11.83],[51.22,11.96],[51.32,11.99],[51.48,11.98],[51.72,11.87],[51.88,11.85],[51.90,11.90]] },
+  Elbe:   { color:'#f43f5e', label:'Elbe',                 weight:4,
+    path:[[50.89,14.21],[51.05,13.74],[51.16,13.48],[51.36,12.93],[51.56,13.00],[51.86,12.65],[51.84,12.24],[51.90,11.90],[52.13,11.64],[52.54,11.97],[52.88,11.44],[53.55,9.99],[53.88,8.70]] },
+  Oder:   { color:'#a78bfa', label:'Oder / Neisse',        weight:3.5,
+    path:[[51.73,14.64],[51.95,14.72],[52.35,14.55],[52.74,14.38],[53.06,14.28],[53.44,14.15]] },
+  Danube: { color:'#2dd4bf', label:'Danube (Donau)',       weight:4,
+    path:[[47.96,8.10],[48.09,9.22],[48.40,9.99],[48.62,10.97],[48.76,11.43],[49.02,12.10],[48.70,12.71],[48.57,13.45]] },
+  Salzach:{ color:'#14b8a6', label:'Salzach (→ Danube)',  weight:2.5,
+    path:[[47.80,13.00],[48.00,12.99],[48.17,12.83],[48.43,13.00],[48.57,13.45]] },
+};
+
+// ─────────────────────────────────────────────
+// SITES
+// ─────────────────────────────────────────────
+const SITES = [
+
+  // ── RHINE ─────────────────────────────────────────────────────
+  { id:1, name:'Basel Chemical & Pharma Cluster', river:'Rhine', lat:47.5596, lng:7.5886,
+    type:'pharmaceutical', country:'Switzerland',
+    companies:['Novartis','Roche','Syngenta','Clariant','Givaudan','Lonza'],
+    activities:'Drug manufacturing, agrochemicals, specialty chemicals, fragrances & flavours, biotechnology. Basel is where the modern Swiss chemical industry began with synthetic dye production in the 19th century.',
+    fact:'💡 Switzerland\'s chemical & pharma sector generates ~50% of all Swiss exports. Basel is often called the "pharmaceutical capital of the world."' },
+
+  { id:2, name:'Strasbourg Industrial Zone', river:'Rhine', lat:48.5734, lng:7.7521,
+    type:'petrochemical', country:'France (Alsace)',
+    companies:['TotalEnergies','Vynova','Rohm and Haas (Dow)'],
+    activities:'Petroleum refining, PVC production, chlorine chemistry, specialty polymers. The Rhine forms the French-German border here and both banks host industrial activity.',
+    fact:'💡 The Rhine at Strasbourg marks the French-German border. France\'s eastern chemical industry grew here because of easy river-borne crude oil transport.' },
+
+  { id:3, name:'MiRO Refinery — Karlsruhe', river:'Rhine', lat:49.0080, lng:8.3830,
+    type:'petrochemical', country:'Germany (Baden-Württemberg)',
+    companies:['MiRO (Shell, Rosneft, Esso, Eni joint venture)'],
+    activities:'Crude oil processing, production of petrol, diesel, jet fuel, heating oil, bitumen and base oils. Germany\'s largest oil refinery by capacity.',
+    fact:'💡 MiRO processes over 14 million tonnes of crude oil per year. Crude arrives via the South European Pipeline from Marseille — pumped underground all the way from the Mediterranean.' },
+
+  { id:4, name:'BASF Verbund — Ludwigshafen', river:'Rhine', lat:49.4771, lng:8.4452,
+    type:'integrated', country:'Germany (Rhineland-Palatinate)',
+    companies:['BASF SE'],
+    activities:'Integrated "Verbund" production: plastics, coatings, crop protection, performance chemicals, intermediates, catalysts and construction chemicals. Raw materials and energy are shared between 200+ on-site plants.',
+    fact:'💡 The BASF Ludwigshafen site is the world\'s largest integrated chemical complex — 10 km², 2,850 km of pipelines, and ~39,000 people working on a single campus.' },
+
+  { id:5, name:'Chemiepark Mannheim', river:'Rhine', lat:49.4875, lng:8.4660,
+    type:'specialty', country:'Germany (Baden-Württemberg)',
+    companies:['Various specialty producers','Bilfinger','John Deere (R&D)'],
+    activities:'Specialty chemicals, industrial gases, chemical engineering services and research. Mannheim sits directly across the Rhine from BASF Ludwigshafen, forming one integrated industrial region.',
+    fact:'💡 Mannheim and Ludwigshafen face each other across the Rhine. Together they form one of Europe\'s densest concentrations of chemical manufacturing within a few square kilometres.' },
+
+  { id:6, name:'Chempark Dormagen', river:'Rhine', lat:51.097, lng:6.833,
+    type:'polymers', country:'Germany (North Rhine-Westphalia)',
+    companies:['Lanxess','INEOS','Currenta','Covestro'],
+    activities:'Synthetic rubber (butyl rubber, EPDM), polyurethane raw materials, engineering plastics, textile fibres and agricultural chemicals. Operated by Currenta (infrastructure) with multiple tenant companies.',
+    fact:'💡 Butyl rubber produced at Dormagen is used in the inner tubes of car tyres and as stoppers for medicine vials. Its low gas permeability makes it ideal for containing pressurised air or medicine.' },
+
+  { id:7, name:'LyondellBasell — Wesseling', river:'Rhine', lat:50.826, lng:6.977,
+    type:'petrochemical', country:'Germany (North Rhine-Westphalia)',
+    companies:['LyondellBasell (formerly Rheinische Olefinwerke)'],
+    activities:'Steam cracking of naphtha to produce ethylene and propylene — the basic building blocks of most plastics. Also produces polyethylene, polypropylene and other polyolefins.',
+    fact:'💡 A steam cracker breaks long hydrocarbon chains into short, reactive molecules at ~800 °C. Ethylene from Wesseling feeds plastic factories across Germany and the Netherlands.' },
+
+  { id:8, name:'INEOS Köln-Worringen', river:'Rhine', lat:51.052, lng:6.972,
+    type:'petrochemical', country:'Germany (North Rhine-Westphalia)',
+    companies:['INEOS (formerly BP)','Evonik'],
+    activities:'Ethylene oxide production, polyols, glycols and specialty chemicals. INEOS operates one of Europe\'s largest ethylene oxide plants here, supplying raw materials for surfactants, antifreeze and pharmaceuticals.',
+    fact:'💡 Ethylene oxide must be handled with great care — it is both highly reactive and toxic. It is essential for making antifreeze (ethylene glycol), laundry detergents and excipients used to coat pharmaceutical tablets.' },
+
+  { id:9, name:'Bayer / Covestro / Lanxess — Leverkusen', river:'Rhine', lat:51.0459, lng:6.9894,
+    type:'polymers', country:'Germany (North Rhine-Westphalia)',
+    companies:['Bayer AG','Covestro','Lanxess'],
+    activities:'Pharmaceuticals, polycarbonate plastics (used in phone screens and car headlights), polyurethane precursors (MDI/TDI), specialty polymers, synthetic rubber and ion-exchange resins.',
+    fact:'💡 Aspirin was invented here by Bayer chemist Felix Hoffmann in 1897. Covestro and Lanxess were later spun out of Bayer — today three globally significant chemical companies operate from this one location.' },
+
+  { id:10, name:'Henkel — Düsseldorf', river:'Rhine', lat:51.2217, lng:6.7762,
+    type:'consumer', country:'Germany (North Rhine-Westphalia)',
+    companies:['Henkel AG & Co. KGaA'],
+    activities:'Adhesives, sealants & coatings (Loctite, Pritt), laundry & home care (Persil, Pril) and beauty care. Henkel\'s global headquarters sits on the Rhine in Düsseldorf.',
+    fact:'💡 Henkel\'s Adhesive Technologies division is the world\'s largest adhesive supplier — its products bond components in cars, smartphones, aircraft and wind turbines.' },
+
+  { id:11, name:'Chempark Duisburg (Evonik)', river:'Rhine', lat:51.4344, lng:6.7623,
+    type:'specialty', country:'Germany (North Rhine-Westphalia)',
+    companies:['Evonik Industries','Bayer CropScience'],
+    activities:'Feed additives (amino acids: methionine, lysine), hydrogen peroxide, silica and catalysts. Duisburg is also Europe\'s largest inland port, linking chemical plants by barge to Rotterdam for global export.',
+    fact:'💡 Duisburg handles more inland waterway freight than any other port in the world. Chemical barges travel the Rhine from here to Rotterdam, from where products are shipped globally.' },
+
+  // ── MAIN ──────────────────────────────────────────────────────
+  { id:12, name:'Industriepark Höchst — Frankfurt', river:'Main', lat:50.0942, lng:8.5487,
+    type:'pharmaceutical', country:'Germany (Hesse)',
+    companies:['Sanofi','Celanese','Clariant','Infraserv Höchst','~90 companies total'],
+    activities:'Pharmaceuticals (insulin, vaccines, APIs), acetyl chemicals (acetic acid), specialty chemicals, biotechnology, industrial gases. Shared infrastructure — steam, power, water — serves all 90 companies.',
+    fact:'💡 Industriepark Höchst was the home of Hoechst AG, once the world\'s largest chemical company. Now 90 separate firms share 460 hectares and 22,000 employees — one of Europe\'s largest chemical parks.' },
+
+  { id:13, name:'Evonik Industries — Frankfurt-Griesheim', river:'Main', lat:50.097, lng:8.623,
+    type:'specialty', country:'Germany (Hesse)',
+    companies:['Evonik Industries (formerly Degussa)'],
+    activities:'Hydrogen peroxide, specialty silica, methacrylates (used in Perspex/Plexiglas), amino acids for animal feed. Degussa (now Evonik) was historically rooted in the Frankfurt region.',
+    fact:'💡 Evonik is a global leader in amino acid production. Compounds like methionine and lysine are produced industrially and added to animal feed — reducing the amount of feed needed and lowering agricultural land use.' },
+
+  { id:14, name:'Heraeus — Hanau', river:'Main', lat:50.1359, lng:8.9162,
+    type:'specialty', country:'Germany (Hesse)',
+    companies:['Heraeus Holding GmbH'],
+    activities:'Precious metal chemistry (platinum, palladium, gold, silver), speciality quartz glass, electronic materials, dental materials and catalysts for chemical and pharmaceutical synthesis.',
+    fact:'💡 Heraeus is the world\'s leading supplier of precious-metal catalysts. Platinum and palladium catalysts from Hanau are used in pharmaceutical synthesis and in every car\'s catalytic converter.' },
+
+  { id:15, name:'Merck KGaA — Darmstadt', river:'Main', lat:49.8728, lng:8.6512,
+    type:'pharmaceutical', country:'Germany (Hesse / Rhine-Main)',
+    companies:['Merck KGaA'],
+    activities:'Specialty chemicals, liquid crystals (LCD screens), semiconductor materials, laboratory chemicals, life science tools and pharmaceuticals. Founded in Darmstadt in 1668 — the world\'s oldest pharma and chemical company.',
+    fact:'💡 Merck KGaA invented the first commercially viable liquid crystal displays. Its liquid crystal division still supplies the global flat-panel display industry, found in every modern TV, phone and monitor.' },
+
+  // ── NECKAR ────────────────────────────────────────────────────
+  { id:16, name:'Neckar Valley — Stuttgart / Heilbronn', river:'Neckar', lat:49.14, lng:9.22,
+    type:'specialty', country:'Germany (Baden-Württemberg)',
+    companies:['BASF Coatings','Celanese','Südzucker Biotech','Linde','Various specialty producers'],
+    activities:'Automotive coatings and adhesives, acetate chemicals, biotechnology, industrial gases and fine chemicals. The automotive cluster (Daimler, Porsche, Bosch) drives demand for specialty chemical formulations.',
+    fact:'💡 Every car rolling off Stuttgart\'s production lines requires hundreds of specialty chemicals: corrosion-resistant coatings, structural adhesives, lubricants, rubber seals and electronic materials — most sourced from the Neckar Valley.' },
+
+  // ── EMSCHER / RUHR REGION ─────────────────────────────────────
+  { id:17, name:'Gelsenkirchen Refinery & Chemicals (Emscher)', river:'Emscher', lat:51.546, lng:7.041,
+    type:'petrochemical', country:'Germany (North Rhine-Westphalia)',
+    companies:['bp (Ruhr Oel GmbH — Scholven Refinery)','INEOS Styrolution'],
+    activities:'Petroleum refining (petrol, diesel, lubricants), styrene monomer production and polystyrene plastics (EPS, HIPS, ABS). The Scholven refinery is one of NRW\'s largest.',
+    fact:'💡 Polystyrene from Gelsenkirchen is used in disposable coffee cups, food packaging and building insulation. "Expanded polystyrene" (EPS) — the white foam — is 98% air trapped in plastic.' },
+
+  // ── LIPPE ─────────────────────────────────────────────────────
+  { id:18, name:'Marl Chemical Park (Evonik)', river:'Lippe', lat:51.657, lng:7.088,
+    type:'specialty', country:'Germany (North Rhine-Westphalia)',
+    companies:['Evonik Industries','Lanxess','Akzo Nobel','Ube','18 companies total'],
+    activities:'Polyamide (nylon) production, caprolactam, hydrogen peroxide, specialty plastics and chemical intermediates. Germany\'s third largest chemical complex with 100 production plants.',
+    fact:'💡 Evonik is the world\'s largest producer of hydrogen peroxide (H₂O₂). It is used to bleach paper and textiles, disinfect water, and — increasingly — as a green oxidant in chemical synthesis.' },
+
+  // ── WESER ─────────────────────────────────────────────────────
+  { id:19, name:'BASF Catalysts — Nienburg/Weser', river:'Weser', lat:52.637, lng:9.215,
+    type:'specialty', country:'Germany (Lower Saxony)',
+    companies:['BASF SE (Catalysts Division)'],
+    activities:'Production of precious metal and base metal catalysts for vehicle exhaust systems, chemical synthesis and petroleum refining. Specialised site within the BASF global network.',
+    fact:'💡 A catalytic converter in a car contains platinum, palladium and rhodium — all worth more per gram than gold. These metals convert harmful exhaust gases (CO, NOₓ, unburnt hydrocarbons) into CO₂, N₂ and H₂O.' },
+
+  // ── SAALE ─────────────────────────────────────────────────────
+  { id:20, name:'Leuna Chemical Complex', river:'Saale', lat:51.323, lng:11.993,
+    type:'integrated', country:'Germany (Saxony-Anhalt)',
+    companies:['TotalEnergies (refinery)','Dow Chemical','Linde','Infraleuna','Total Petrochemicals'],
+    activities:'Crude oil refining (12 million t/year), steam cracking, acrylic acid, industrial gases, propylene oxide and chemical intermediates. Leuna is a connected pipeline hub linking the whole Central German Chemical Triangle.',
+    fact:'💡 Leuna was built in 1916 for wartime nitrogen fixation. Later under the GDR it made synthetic petrol from coal by hydrogenation. Today it is a modern world-class refinery — one of the most remarkable reinventions of a chemical site in history.' },
+
+  { id:21, name:'Schkopau / Buna Werke (Dow)', river:'Saale', lat:51.400, lng:11.970,
+    type:'polymers', country:'Germany (Saxony-Anhalt)',
+    companies:['Dow Chemical (Buna SB Rubber)','Akzo Nobel'],
+    activities:'Synthetic rubber production (styrene-butadiene rubber, SBR) and specialty polymers. The Buna works pioneered the industrial synthesis of rubber as a substitute for natural latex.',
+    fact:'💡 "Buna" comes from BUtadiene + NAtrium (sodium). Synthetic rubber invented here in the 1930s helped reduce Germany\'s dependence on natural rubber imports. Today SBR is the most widely used rubber in the world — in car tyres, conveyor belts and shoe soles.' },
+
+  // ── ELBE ──────────────────────────────────────────────────────
+  { id:22, name:'Bitterfeld-Wolfen Chemical Park', river:'Elbe', lat:51.620, lng:12.322,
+    type:'specialty', country:'Germany (Saxony-Anhalt)',
+    companies:['Lanxess','Agfa','Dow','Akzo Nobel','Heraeus','Linde'],
+    activities:'Chlorine and electrochemistry, photochemicals, specialty polymers, agrochemicals, fine chemicals. One of Europe\'s largest chemical parks by area (1,300 ha).',
+    fact:'💡 After reunification, Bitterfeld was named one of Europe\'s most polluted places — rivers and soil were severely contaminated from decades of unchecked industrial dumping. It is now held up as a model of industrial environmental cleanup and reinvestment.' },
+
+  { id:23, name:'BASF Schwarzheide', river:'Elbe', lat:51.490, lng:13.860,
+    type:'polymers', country:'Germany (Brandenburg)',
+    companies:['BASF Schwarzheide GmbH'],
+    activities:'Polyurethane systems (for car seats, insulation foam, shoe soles), engineering plastics, coatings and battery materials. Over €1.7 billion invested since BASF acquired the site in 1990.',
+    fact:'💡 Polyurethane from Schwarzheide goes into the foam in your car seat, the insulation in your walls, the sole of your trainers and the cushioning in your sofa. It is one of the most versatile and widely used synthetic materials ever created.' },
+
+  // ── ODER ──────────────────────────────────────────────────────
+  { id:24, name:'PCK Raffinerie — Schwedt/Oder', river:'Oder', lat:53.058, lng:14.280,
+    type:'petrochemical', country:'Germany (Brandenburg)',
+    companies:['PCK Raffinerie GmbH (bp, Eni, Total, Rosneft)'],
+    activities:'Crude oil refining: petrol, diesel, jet fuel, heating oil and base chemicals. Capacity ~12 million t/year. Supplies fuel to Berlin, Brandenburg and north-east Germany.',
+    fact:'💡 After Russia\'s 2022 invasion of Ukraine, Germany had to reverse-engineer oil supply to PCK — pumping crude from North Sea tankers at Rostock back via pipeline. This was a major logistical challenge, as the refinery was designed to receive oil from the east.' },
+
+  { id:25, name:'Guben — Synthetic Fibres (Neisse / Oder)', river:'Oder', lat:51.950, lng:14.718,
+    type:'specialty', country:'Germany (Brandenburg)',
+    companies:['Trevira GmbH','Märkische Faser'],
+    activities:'Polyester fibres (PET) for textiles, technical fabrics and non-wovens. Also polyacrylonitrile fibres. Products used in clothing, automotive interiors, filtration and geotextiles.',
+    fact:'💡 Guben sits on the Neisse River — the German-Polish border. The Polish side is called Gubin. Polyester fibre, first made commercially in the 1950s, is now the world\'s most produced synthetic fibre — over 50 million tonnes per year.' },
+
+  // ── DANUBE / SALZACH ──────────────────────────────────────────
+  { id:26, name:'Gunvor Raffinerie — Ingolstadt', river:'Danube', lat:48.760, lng:11.430,
+    type:'petrochemical', country:'Germany (Bavaria)',
+    companies:['Gunvor Group (formerly Petroplus / Mobil)'],
+    activities:'Crude oil refining: petrol, diesel, jet fuel and heating oil for Bavaria and Austria. Crude arrives via the Trans-Alpine Pipeline (TAL) from Trieste, Italy.',
+    fact:'💡 Crude oil reaches Ingolstadt via an underground pipeline that crosses the Alps from the Mediterranean. Oil tankers unload at Trieste, and the crude is pumped over 700 km of pipeline to reach Bavaria — one of the longest mountain oil pipelines in the world.' },
+
+  { id:27, name:'Wacker Chemie — Burghausen', river:'Salzach', lat:48.168, lng:12.827,
+    type:'specialty', country:'Germany (Bavaria)',
+    companies:['Wacker Chemie AG'],
+    activities:'Hyperpure polysilicon for solar panels and semiconductors, silicones (sealants, lubricants, cosmetics), vinyl acetate polymers (for adhesives and paints) and speciality chemical solutions.',
+    fact:'💡 Wacker produces silicon for solar panels and computer chips with a purity of 99.9999999% — nine nines. The Burghausen site is Europe\'s largest contiguous single-company chemical plant, covering 2.4 million m².' },
+];
+
+// ─────────────────────────────────────────────
+// MAP INIT
+// ─────────────────────────────────────────────
+const map = L.map('map', { center:[51.0,10.5], zoom:6, zoomControl:true });
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution:'© OpenStreetMap contributors © CARTO', subdomains:'abcd', maxZoom:18
+}).addTo(map);
+
+// Draw rivers
+Object.entries(RIVERS).forEach(([key, r]) => {
+  L.polyline(r.path, { color:r.color, weight:r.weight, opacity:.75, smoothFactor:2 })
+    .addTo(map)
+    .bindTooltip(r.label, { sticky:true, direction:'top' });
+});
+
+// River labels on map
+const riverLabelData = [
+  { river:'Rhine',   pos:[50.3,7.45],  text:'Rhine' },
+  { river:'Main',    pos:[50.12,9.05], text:'Main' },
+  { river:'Neckar',  pos:[48.6,9.0],   text:'Neckar' },
+  { river:'Ruhr',    pos:[51.44,7.6],  text:'Ruhr' },
+  { river:'Lippe',   pos:[51.69,7.8],  text:'Lippe' },
+  { river:'Weser',   pos:[52.3,9.0],   text:'Weser' },
+  { river:'Elbe',    pos:[51.8,12.5],  text:'Elbe' },
+  { river:'Saale',   pos:[51.0,11.7],  text:'Saale' },
+  { river:'Oder',    pos:[52.5,14.4],  text:'Oder' },
+  { river:'Danube',  pos:[48.5,10.5],  text:'Danube' },
+];
+riverLabelData.forEach(d => {
+  const r = RIVERS[d.river];
+  const icon = L.divIcon({
+    className:'',
+    html:`<div style="background:${r.color}22;color:${r.color};padding:2px 8px;border-radius:99px;font-size:.65rem;font-weight:700;white-space:nowrap;border:1px solid ${r.color}66;pointer-events:none">${d.text}</div>`,
+    iconAnchor:[30,8]
+  });
+  L.marker(d.pos, { icon, interactive:false }).addTo(map);
+});
+
+// ─────────────────────────────────────────────
+// FILTERS
+// ─────────────────────────────────────────────
+let filterIndustry = 'all';
+let filterRiver = 'all';
+let markers = [];
+let selectedId = null;
+
+function visibleSites() {
+  return SITES.filter(s =>
+    (filterIndustry === 'all' || s.type === filterIndustry) &&
+    (filterRiver === 'all' || s.river === filterRiver)
+  );
+}
+
+// Industry filter buttons
+const indRow = document.getElementById('filter-industry');
+[['all','All','#334155','#e2e8f0','#64748b'], ...Object.entries(TYPES).map(([k,t])=>[k,t.label.split(' ')[0],t.bg,t.text,t.color])].forEach(([k,lbl,bg,tc,bc])=>{
+  const b=document.createElement('button');
+  b.className='filter-btn'+(k==='all'?' active':'');
+  b.textContent=lbl; b.style.background=bg; b.style.color=tc; b.style.borderColor=bc; b.dataset.k=k;
+  b.addEventListener('click',()=>{ filterIndustry=k; document.querySelectorAll('#filter-industry .filter-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); refresh(); });
+  indRow.appendChild(b);
+});
+
+// River filter buttons
+const rivRow = document.getElementById('filter-river');
+const riverKeys = ['all',...Object.keys(RIVERS).filter(k=>SITES.some(s=>s.river===k))];
+riverKeys.forEach(k=>{
+  const r = k==='all' ? {color:'#64748b',label:'All'} : RIVERS[k];
+  const b=document.createElement('button');
+  b.className='filter-btn'+(k==='all'?' active':'');
+  b.textContent=k==='all'?'All':k; b.style.background=r.color+'22'; b.style.color=r.color; b.style.borderColor=r.color; b.dataset.k=k;
+  b.addEventListener('click',()=>{ filterRiver=k; document.querySelectorAll('#filter-river .filter-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); refresh(); });
+  rivRow.appendChild(b);
+});
+
+// ─────────────────────────────────────────────
+// MARKER ICON
+// ─────────────────────────────────────────────
+function makeIcon(site) {
+  const t=TYPES[site.type]; const r=RIVERS[site.river];
+  return L.divIcon({
+    className:'',
+    html:`<div style="width:20px;height:20px;border-radius:50%;background:${t.color};border:3px solid ${r?r.color:'#fff'};box-shadow:0 0 0 2px rgba(0,0,0,.45),0 3px 8px rgba(0,0,0,.4);cursor:pointer"></div>`,
+    iconAnchor:[10,10]
+  });
+}
+
+// ─────────────────────────────────────────────
+// POPUP
+// ─────────────────────────────────────────────
+function makePopup(s) {
+  const t=TYPES[s.type]; const r=RIVERS[s.river]||{color:'#888',label:s.river};
+  const tags=s.companies.map(c=>`<span class="popup-co-tag">${c}</span>`).join('');
+  const gmapsUrl=`https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}`;
+  return `<div class="popup-inner">
+    <div class="popup-badges">
+      <span class="popup-badge" style="background:${t.bg};color:${t.text}">${t.label}</span>
+      <span class="popup-badge" style="background:${r.color}22;color:${r.color};border:1px solid ${r.color}66">${r.label}</span>
+    </div>
+    <div class="popup-name">${s.name}</div>
+    <div class="popup-location">📍 ${s.country}</div>
+    <div class="popup-co-title">Key Companies</div>
+    <div style="margin-bottom:8px">${tags}</div>
+    <div class="popup-activities">${s.activities}</div>
+    <div class="popup-fact">${s.fact}</div>
+    <a class="popup-gmaps" href="${gmapsUrl}" target="_blank" rel="noopener noreferrer">🗺 View on Google Maps</a>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────
+// BUILD MARKERS
+// ─────────────────────────────────────────────
+function buildMarkers() {
+  markers.forEach(m=>map.removeLayer(m.marker));
+  markers=[];
+  const vis=visibleSites();
+  document.getElementById('count-total').textContent=vis.length;
+  document.getElementById('count-desc').textContent=
+    filterRiver!=='all'?`On the ${filterRiver}`:(filterIndustry!=='all'?TYPES[filterIndustry].label:'All rivers · All industry types');
+  vis.forEach(s=>{
+    const m=L.marker([s.lat,s.lng],{icon:makeIcon(s)});
+    m.addTo(map);
+    m.bindPopup(makePopup(s),{maxWidth:330});
+    m.on('click',()=>selectSite(s.id,false));
+    markers.push({id:s.id,marker:m});
+  });
+}
+
+// ─────────────────────────────────────────────
+// SIDEBAR
+// ─────────────────────────────────────────────
+function buildSidebar() {
+  const list=document.getElementById('site-list');
+  list.innerHTML='';
+  const vis=visibleSites();
+  // Group by river (maintain order of river keys)
+  const grouped={};
+  Object.keys(RIVERS).forEach(r=>{ grouped[r]=[]; });
+  vis.forEach(s=>{ if(grouped[s.river]) grouped[s.river].push(s); });
+  Object.entries(grouped).forEach(([rKey,sites])=>{
+    if(!sites.length) return;
+    const r=RIVERS[rKey];
+    // River header
+    const hdr=document.createElement('div');
+    hdr.className='river-group-header';
+    hdr.innerHTML=`<div class="river-line-swatch" style="background:${r.color}"></div><span style="color:${r.color}">${r.label}</span>`;
+    list.appendChild(hdr);
+    sites.forEach(s=>{
+      const t=TYPES[s.type];
+      const div=document.createElement('div');
+      div.className='site-item';
+      div.dataset.id=s.id;
+      const gmapsUrl=`https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}`;
+      div.innerHTML=`<div class="site-dot" style="background:${t.color}"></div><div><div class="site-item-name">${s.name}</div><div class="site-item-sub">${s.country} · ${t.label.split(' ')[0]}</div><a href="${gmapsUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="font-size:.63rem;color:#3b82f6;text-decoration:none;display:inline-flex;align-items:center;gap:3px;margin-top:2px;opacity:.75">🗺 Maps</a></div>`;
+      div.addEventListener('click',()=>selectSite(s.id,true));
+      list.appendChild(div);
+    });
+  });
+}
+
+// ─────────────────────────────────────────────
+// LEGEND
+// ─────────────────────────────────────────────
+function buildLegend() {
+  const indEl=document.getElementById('legend-industry');
+  indEl.innerHTML='';
+  const indGrid=document.createElement('div'); indGrid.className='legend-grid';
+  Object.entries(TYPES).forEach(([k,t])=>{
+    const d=document.createElement('div'); d.className='legend-item';
+    d.innerHTML=`<div class="legend-dot" style="background:${t.color}"></div><span>${t.label}</span>`;
+    indGrid.appendChild(d);
+  });
+  indEl.appendChild(indGrid);
+
+  const rivEl=document.getElementById('legend-rivers');
+  rivEl.innerHTML='<div style="font-size:.68rem;color:#64748b;margin-bottom:5px">Line colour = river · Dot border = river</div>';
+  const rivGrid=document.createElement('div'); rivGrid.className='legend-grid';
+  Object.entries(RIVERS).forEach(([k,r])=>{
+    if(!SITES.some(s=>s.river===k)&&k!=='Elbe'&&k!=='Rhine'&&k!=='Danube') return;
+    const d=document.createElement('div'); d.className='legend-item';
+    d.innerHTML=`<div class="legend-line" style="background:${r.color}"></div><span>${r.label}</span>`;
+    rivGrid.appendChild(d);
+  });
+  rivEl.appendChild(rivGrid);
+}
+
+// ─────────────────────────────────────────────
+// SELECT SITE
+// ─────────────────────────────────────────────
+function selectSite(id, fromSidebar) {
+  selectedId=id;
+  document.querySelectorAll('.site-item').forEach(el=>{
+    el.classList.toggle('selected', parseInt(el.dataset.id)===id);
+    if(parseInt(el.dataset.id)===id) el.scrollIntoView({block:'nearest'});
+  });
+  const s=SITES.find(x=>x.id===id);
+  if(s){
+    map.flyTo([s.lat,s.lng],11,{duration:.8});
+    const m=markers.find(x=>x.id===id);
+    if(m) setTimeout(()=>m.marker.openPopup(),900);
+  }
+}
+
+// ─────────────────────────────────────────────
+// TABS
+// ─────────────────────────────────────────────
+function showTab(t) {
+  document.getElementById('tab-list').classList.toggle('active',t==='list');
+  document.getElementById('tab-legend').classList.toggle('active',t==='legend');
+  document.getElementById('site-list').style.display=t==='list'?'':'none';
+  document.getElementById('legend-tab').style.display=t==='legend'?'flex':'none';
+  if(t==='legend') document.getElementById('legend-tab').style.flexDirection='column';
+}
+
+// ─────────────────────────────────────────────
+// REFRESH
+// ─────────────────────────────────────────────
+function refresh() { buildMarkers(); buildSidebar(); }
+
+map.on('click',()=>document.querySelectorAll('.site-item').forEach(el=>el.classList.remove('selected')));
+
+// INIT
+buildLegend();
+refresh();
+</script>
+</body>
+</html>

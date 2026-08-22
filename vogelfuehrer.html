@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vögel in Deutschland · Birds of Germany — Lern- & Quiztool</title>
+<style>
+  :root{
+    --bg:#0f1713; --panel:#16211b; --panel2:#1d2c24; --line:#2b3d33;
+    --ink:#eaf3ee; --muted:#9fb5aa; --accent:#7fc99a; --accent2:#e9b949;
+    --good:#4ec27a; --bad:#e2685f; --shadow:0 6px 24px rgba(0,0,0,.35);
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 700px at 80% -10%,#1a2a20 0%,var(--bg) 55%);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent)}
+  header{padding:22px 20px 6px;max-width:1180px;margin:0 auto}
+  .titlebar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between}
+  h1{font-size:clamp(1.3rem,2.6vw,2rem);margin:0;letter-spacing:.2px}
+  h1 .sub{color:var(--muted);font-weight:500;font-size:.62em;display:block;margin-top:2px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .seg{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px}
+  .seg button{border:0;background:transparent;color:var(--muted);padding:7px 14px;border-radius:999px;cursor:pointer;font-size:.9rem;font-weight:600}
+  .seg button.on{background:var(--accent);color:#0d1712}
+  .tabs{max-width:1180px;margin:14px auto 0;padding:0 20px;display:flex;gap:8px;flex-wrap:wrap}
+  .tab{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:10px 18px;border-radius:12px 12px 0 0;cursor:pointer;font-weight:600;font-size:.95rem}
+  .tab.on{background:var(--panel2);border-bottom-color:var(--panel2);color:var(--accent)}
+  main{max-width:1180px;margin:0 auto;padding:16px 20px 60px}
+  .intro{color:var(--muted);font-size:.92rem;margin:2px 0 16px;max-width:820px}
+  /* Gallery */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;transition:transform .12s,border-color .12s}
+  .card:hover{transform:translateY(-3px);border-color:var(--accent)}
+  .thumb{position:relative;aspect-ratio:4/3;background:linear-gradient(135deg,#23342b,#182219);overflow:hidden}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .thumb .ld{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.8rem;gap:8px}
+  .spinner{width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .cbody{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .cname{font-weight:700;font-size:1.02rem}
+  .cname small{display:block;font-weight:500;color:var(--muted);font-size:.82rem}
+  .csci{font-style:italic;color:var(--accent);font-size:.82rem}
+  .meta{color:var(--muted);font-size:.78rem}
+  .aud{margin-top:auto}
+  audio{width:100%;height:34px;margin-top:6px}
+  .btn{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:10px;padding:8px 12px;cursor:pointer;font-weight:600;font-size:.85rem}
+  .btn:hover{border-color:var(--accent)}
+  .btn.primary{background:var(--accent);color:#0d1712;border-color:transparent}
+  .btn.mini{padding:5px 10px;font-size:.78rem}
+  .callnote{font-size:.8rem;color:var(--muted);background:#12211a;border:1px dashed var(--line);border-radius:8px;padding:6px 8px}
+  /* Detail modal */
+  .modal{position:fixed;inset:0;background:rgba(4,8,6,.72);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}
+  .modal.on{display:flex}
+  .sheet{background:var(--panel);border:1px solid var(--line);border-radius:20px;max-width:860px;width:100%;max-height:92vh;overflow:auto;box-shadow:var(--shadow)}
+  .sheet .top{display:grid;grid-template-columns:1.05fr 1fr;gap:0}
+  .sheet .ph{aspect-ratio:1/1;background:#0f1a14;position:relative;overflow:hidden}
+  .sheet .ph img{width:100%;height:100%;object-fit:cover}
+  .sheet .info{padding:20px 22px}
+  .sheet h2{margin:0 0 2px;font-size:1.5rem}
+  .sheet .en{color:var(--muted);font-weight:500}
+  .sheet .sci{font-style:italic;color:var(--accent);margin:6px 0 12px}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.9rem;margin:10px 0}
+  .kv b{color:var(--muted);font-weight:600}
+  .section{padding:0 22px 8px}
+  .section h3{font-size:.82rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent2);margin:16px 0 4px}
+  .section p{margin:0 0 4px;font-size:.94rem}
+  .links{padding:14px 22px 22px;display:flex;gap:10px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:8px}
+  .x{position:absolute;top:10px;right:12px;z-index:2;background:rgba(0,0,0,.5);border:0;color:#fff;width:34px;height:34px;border-radius:50%;font-size:1.2rem;cursor:pointer}
+  /* Quiz */
+  .quizwrap{max-width:680px;margin:0 auto}
+  .qcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+  .qtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;color:var(--muted);font-size:.9rem}
+  .qmedia{border-radius:12px;overflow:hidden;background:#0f1a14;margin-bottom:16px;min-height:120px;display:flex;align-items:center;justify-content:center}
+  .qmedia img{width:100%;max-height:340px;object-fit:contain;display:block}
+  .qprompt{font-size:1.05rem;font-weight:600;margin-bottom:12px}
+  .opts{display:grid;gap:10px}
+  .opt{text-align:left;padding:13px 15px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);cursor:pointer;font-size:1rem;font-weight:600;transition:.1s}
+  .opt:hover:not(:disabled){border-color:var(--accent)}
+  .opt.correct{background:rgba(78,194,122,.18);border-color:var(--good);color:#c7f2d6}
+  .opt.wrong{background:rgba(226,104,95,.16);border-color:var(--bad);color:#f6cdc9}
+  .opt small{display:block;font-weight:500;color:var(--muted);font-style:italic}
+  .fb{margin-top:14px;font-size:.95rem;min-height:1.2em}
+  .quiz-setup{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}
+  .scorebar{height:8px;background:var(--panel2);border-radius:99px;overflow:hidden;margin:10px 0 0}
+  .scorebar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+  .result{text-align:center;padding:10px}
+  .result .big{font-size:2.6rem;font-weight:800;color:var(--accent)}
+  footer{max-width:1180px;margin:0 auto;padding:8px 20px 40px;color:var(--muted);font-size:.8rem}
+  footer code{background:var(--panel2);padding:1px 6px;border-radius:5px}
+  .badge{display:inline-block;font-size:.7rem;background:var(--panel2);border:1px solid var(--line);color:var(--muted);padding:2px 8px;border-radius:99px;margin-left:6px;vertical-align:middle}
+  .hidden{display:none!important}
+  @media(max-width:620px){.sheet .top{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="titlebar">
+    <h1 data-i18n="title">Vögel in Deutschland<span class="sub" data-i18n="subtitle">Ein Bild- und Klang-Lerntool · A pictorial guide to common birds & their calls</span></h1>
+    <div class="toolbar">
+      <div class="seg" id="langseg">
+        <button data-lang="de" class="on">DE</button>
+        <button data-lang="en">EN</button>
+        <button data-lang="both">DE+EN</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="tabs" id="tabs">
+  <button class="tab on" data-view="browse" data-i18n="tab_browse">📖 Steckbriefe</button>
+  <button class="tab" data-view="quizPhoto" data-i18n="tab_qphoto">🖼️ Quiz: Bild</button>
+</div>
+
+<main>
+  <p class="intro" id="intro"></p>
+
+  <section id="view-browse">
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section id="view-quizPhoto" class="hidden"></section>
+</main>
+
+<footer>
+  <p id="footnote"></p>
+</footer>
+
+<!-- Detail modal -->
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+
+<script>
+// Shared species dataset — 15 common German birds.
+// Facts are curated (reliable general ornithology). Media (photo + call) is fetched
+// live in the student's browser from Wikimedia's CORS-enabled API at runtime.
+const SPECIES = [
+  {
+    id: "amsel", de: "Amsel", en: "Blackbird", sci: "Turdus merula",
+    fam_de: "Drosseln (Turdidae)", fam_en: "Thrushes (Turdidae)",
+    len: "24–25 cm", wt: "80–110 g",
+    art_de: "Amsel", art_en: "Common_blackbird",
+    hab_de: "Gärten, Parks, Wälder, Städte — überall häufig.",
+    hab_en: "Gardens, parks, woodland and cities — abundant everywhere.",
+    marks_de: "Männchen tiefschwarz mit leuchtend gelb-orangem Schnabel und gelbem Augenring; Weibchen dunkelbraun, oft mit gefleckter Brust.",
+    marks_en: "Male jet-black with a bright yellow-orange bill and yellow eye-ring; female dark brown, often with a mottled breast.",
+    song_de: "Lauter, melodischer, flötender Gesang von einer erhöhten Warte — voll, ruhig und variabel, oft mit kratzigem Abschluss. Warnruf: hektisches „tix-tix-tix\".",
+    song_en: "Loud, mellow, fluty song from a high perch — rich, unhurried and varied, often ending in a scratchy twitter. Alarm: a frantic 'tix-tix-tix' rattle.",
+    mnem: "Ein entspanntes, jazziges Flöten vom Dach / A relaxed, jazzy fluting from the rooftop."
+  },
+  {
+    id: "kohlmeise", de: "Kohlmeise", en: "Great Tit", sci: "Parus major",
+    fam_de: "Meisen (Paridae)", fam_en: "Tits (Paridae)",
+    len: "13–15 cm", wt: "16–21 g",
+    art_de: "Kohlmeise", art_en: "Great_tit",
+    hab_de: "Wälder, Gärten, Parks; regelmäßig am Futterhaus.",
+    hab_en: "Woods, gardens and parks; a regular at feeders.",
+    marks_de: "Glänzend schwarzer Kopf mit weißen Wangen, gelbe Unterseite mit breitem schwarzem Längsstreifen („Krawatte\"), grün-blauer Rücken.",
+    marks_en: "Glossy black head with white cheeks, yellow underparts with a broad black central stripe ('tie'), greenish-blue back.",
+    song_de: "Zweisilbiges, durchdringendes „zi-ZÄ zi-ZÄ\" wie eine quietschende Fahrradpumpe; sehr großes Rufrepertoire.",
+    song_en: "A ringing, two-note 'teacher-teacher' (zi-ZÄ) like a squeaky bicycle pump; a huge variety of other calls.",
+    mnem: "„TEA-cher, TEA-cher\" — die quietschende Pumpe / The squeaky see-saw 'teacher, teacher'."
+  },
+  {
+    id: "blaumeise", de: "Blaumeise", en: "Blue Tit", sci: "Cyanistes caeruleus",
+    fam_de: "Meisen (Paridae)", fam_en: "Tits (Paridae)",
+    len: "11–12 cm", wt: "9–12 g",
+    art_de: "Blaumeise", art_en: "Eurasian_blue_tit",
+    hab_de: "Laubwälder, Gärten, Parks; akrobatisch am Futterhaus.",
+    hab_en: "Deciduous woods, gardens and parks; acrobatic at feeders.",
+    marks_de: "Leuchtend blaue Kappe, Flügel und Schwanz, gelbe Unterseite, weißes Gesicht mit schwarzem Augenstreif. Kleiner als die Kohlmeise.",
+    marks_en: "Bright blue crown, wings and tail, yellow underparts, white face with a dark eye-stripe. Smaller than the Great Tit.",
+    song_de: "Hohes, silbriges „tsi-tsi-tsi-hihihihi\" — zwei klare Töne, dann ein trillernder Wirbel.",
+    song_en: "A high, silvery 'tsee-tsee-tsee-sihihihi' — two clear notes then a trilling flourish.",
+    mnem: "Zwei helle Pieptöne + abfallender Triller / Two bright pips then a tumbling trill."
+  },
+  {
+    id: "rotkehlchen", de: "Rotkehlchen", en: "Robin", sci: "Erithacus rubecula",
+    fam_de: "Fliegenschnäpper (Muscicapidae)", fam_en: "Chats (Muscicapidae)",
+    len: "12,5–14 cm", wt: "16–22 g",
+    art_de: "Rotkehlchen", art_en: "European_robin",
+    hab_de: "Wälder, Hecken, Gärten; oft nah am Menschen, folgt dem Spaten.",
+    hab_en: "Woods, hedges and gardens; often confiding, follows the gardener's spade.",
+    marks_de: "Orangerote Brust und Gesicht, blaugraue Seiten, brauner Rücken, runde Gestalt. Geschlechter gleich.",
+    marks_en: "Orange-red breast and face, blue-grey sides, brown upperparts, plump rounded shape. Sexes alike.",
+    song_de: "Zarter, perlender, wehmütiger Gesang mit hohen, silbrigen Kaskaden — auch im Winter und nachts unter Laternen. Ruf: scharfes „tik-tik-tik\".",
+    song_en: "A delicate, silvery, wistful warble of trickling high notes — sung even in winter and at night under streetlights. Call: a sharp 'tik-tik-tik'.",
+    mnem: "Wehmütiges, perlendes Rieseln / A melancholy, silvery trickle of notes."
+  },
+  {
+    id: "haussperling", de: "Haussperling", en: "House Sparrow", sci: "Passer domesticus",
+    fam_de: "Sperlinge (Passeridae)", fam_en: "Old World sparrows (Passeridae)",
+    len: "14–16 cm", wt: "24–39 g",
+    art_de: "Haussperling", art_en: "House_sparrow",
+    hab_de: "Dörfer, Städte, Bauernhöfe — fast immer in Gruppen beim Menschen.",
+    hab_en: "Villages, towns and farms — almost always in noisy groups near people.",
+    marks_de: "Männchen mit grauer Kappe, kastanienbraunem Nacken und schwarzem Kehllatz; Weibchen schlicht graubraun mit hellem Überaugenstreif.",
+    marks_en: "Male has a grey crown, chestnut nape and black throat bib; female plain grey-brown with a pale stripe behind the eye.",
+    song_de: "Kein echter Gesang — monotone, tschilpende Reihen aus „tschilp\", „tschep\" und Schwatzen aus Büschen und Dachrinnen.",
+    song_en: "No true song — monotonous cheeping series of 'chirrup', 'chelp' and chattering from bushes and gutters.",
+    mnem: "Endloses „tschilp-tschilp\"-Geschwätz / Endless chirpy 'cheep-cheep' chatter."
+  },
+  {
+    id: "buchfink", de: "Buchfink", en: "Chaffinch", sci: "Fringilla coelebs",
+    fam_de: "Finken (Fringillidae)", fam_en: "Finches (Fringillidae)",
+    len: "14–16 cm", wt: "18–29 g",
+    art_de: "Buchfink", art_en: "Common_chaffinch",
+    hab_de: "Wälder, Gärten, Parks, Feldränder — einer der häufigsten Vögel.",
+    hab_en: "Woods, gardens, parks and field edges — one of the commonest birds.",
+    marks_de: "Männchen mit blaugrauer Kappe, rostroter Brust; beide Geschlechter mit auffälligen weißen Flügelbinden und weißen Schwanzkanten.",
+    marks_en: "Male has a blue-grey cap and rusty-pink breast; both sexes show bold white wing-bars and white tail-sides.",
+    song_de: "Kräftiger, beschleunigender Gesang, der abwärts läuft und mit einem Schnörkel endet („zizizizi-tell-tell-tscherwitscheu\"). Ruf: „pink\".",
+    song_en: "A vigorous descending phrase that accelerates and ends in a flourish ('chip-chip-chip … chooEEoo'). Call: a metallic 'pink'.",
+    mnem: "Ein Cricket-Werfer im Anlauf — beschleunigt zum Wurf / A cricket bowler's run-up, quickening to the flourish."
+  },
+  {
+    id: "star", de: "Star", en: "Starling", sci: "Sturnus vulgaris",
+    fam_de: "Stare (Sturnidae)", fam_en: "Starlings (Sturnidae)",
+    len: "19–22 cm", wt: "58–101 g",
+    art_de: "Star_(Art)", art_en: "Common_starling",
+    hab_de: "Städte, Parks, Felder; bildet riesige Schwärme („Schwarmwolken\").",
+    hab_en: "Towns, parks and farmland; forms huge swirling flocks (murmurations).",
+    marks_de: "Schillernd schwarz mit grün-violettem Glanz, im Winter dicht hell gepunktet; spitzer gelber Schnabel, kurzer Schwanz, dreieckige Flügel.",
+    marks_en: "Glossy black with green-purple sheen, heavily pale-spotted in winter; pointed yellow bill, short tail, triangular wings.",
+    song_de: "Wildes Gemisch aus Pfeifen, Klicken, Rasseln und perfekten Imitationen (Handys, andere Vögel), oft mit flatternden Flügeln vorgetragen.",
+    song_en: "A wild medley of whistles, clicks, rattles and uncanny mimicry (phones, other birds), often given with quivering wings.",
+    mnem: "DJ-Vogel: pfeift, klickt und imitiert alles / The DJ bird — whistles, clicks and samples everything."
+  },
+  {
+    id: "elster", de: "Elster", en: "Magpie", sci: "Pica pica",
+    fam_de: "Rabenvögel (Corvidae)", fam_en: "Crows (Corvidae)",
+    len: "44–46 cm (mit Schwanz)", wt: "180–270 g",
+    art_de: "Elster", art_en: "Eurasian_magpie",
+    hab_de: "Offenes Gelände mit Bäumen, Parks, Siedlungsränder.",
+    hab_en: "Open country with trees, parks and the edges of settlements.",
+    marks_de: "Unverwechselbar schwarz-weiß mit sehr langem, grün-blau schillerndem Schwanz.",
+    marks_en: "Unmistakable pied black-and-white bird with a very long, iridescent green-blue tail.",
+    song_de: "Kein Gesang — lautes, hartes „tschak-tschak-tschak\"-Schnattern, oft als Alarm.",
+    song_en: "No song — a loud, harsh chattering 'chak-chak-chak-chak' rattle, often as an alarm.",
+    mnem: "Ratterndes Maschinengewehr-Schnattern / A machine-gun rattling chatter."
+  },
+  {
+    id: "rabenkraehe", de: "Rabenkrähe", en: "Carrion Crow", sci: "Corvus corone",
+    fam_de: "Rabenvögel (Corvidae)", fam_en: "Crows (Corvidae)",
+    len: "44–51 cm", wt: "400–600 g",
+    art_de: "Rabenkrähe", art_en: "Carrion_crow",
+    hab_de: "Nahezu überall: Felder, Städte, Küsten, Parks.",
+    hab_en: "Almost everywhere: fields, cities, coasts and parks.",
+    marks_de: "Ganz mattschwarz (auch Schnabel und Beine), kräftiger Schnabel, gerader Schwanz. Meist einzeln oder paarweise.",
+    marks_en: "Entirely matt black (bill and legs too), stout bill, square-ended tail. Usually alone or in pairs.",
+    song_de: "Tiefes, hartes, krächzendes „krah-krah-krah\", meist in Dreierserien.",
+    song_en: "A deep, hard, grating 'kraa-kraa-kraa', typically in series of three.",
+    mnem: "Heiseres, flaches „krah\" — drei Mal / A hoarse, flat 'kraa' — usually thrice."
+  },
+  {
+    id: "ringeltaube", de: "Ringeltaube", en: "Wood Pigeon", sci: "Columba palumbus",
+    fam_de: "Tauben (Columbidae)", fam_en: "Pigeons (Columbidae)",
+    len: "40–42 cm", wt: "460–570 g",
+    art_de: "Ringeltaube", art_en: "Common_wood_pigeon",
+    hab_de: "Wälder, Felder, Parks und Gärten; Deutschlands größte Taube.",
+    hab_en: "Woods, farmland, parks and gardens; Germany's largest pigeon.",
+    marks_de: "Grau mit weißem Halsfleck und weißer Flügelbinde (im Flug auffällig), rosa Brust.",
+    marks_en: "Grey with a white neck-patch and a broad white wing-bar (obvious in flight), pinkish breast.",
+    song_de: "Gedämpftes, fünfsilbiges Gurren „ruh-RUU-ru … ru-ru\", mit Betonung auf der zweiten Silbe, endet oft abrupt.",
+    song_en: "A muffled five-note coo, 'take-TWO-cows … Taffy', stressed on the second note and often cut off abruptly.",
+    mnem: "„MEIN Bein tut WEH, tut WEH\" — gedämpftes Gurren / The soft 'my TOE hurts, Betty' coo."
+  },
+  {
+    id: "gruenfink", de: "Grünfink", en: "Greenfinch", sci: "Chloris chloris",
+    fam_de: "Finken (Fringillidae)", fam_en: "Finches (Fringillidae)",
+    len: "14–16 cm", wt: "25–32 g",
+    art_de: "Grünfink", art_en: "European_greenfinch",
+    hab_de: "Gärten, Hecken, Waldränder, Friedhöfe; oft am Futterhaus.",
+    hab_en: "Gardens, hedges, woodland edges and cemeteries; often at feeders.",
+    marks_de: "Kräftiger olivgrüner Fink mit gelben Flügel- und Schwanzkanten, dickem hellem Schnabel; Weibchen matter.",
+    marks_en: "A chunky olive-green finch with yellow flashes on wings and tail and a thick pale bill; female duller.",
+    song_de: "Klingelnde, zwitschernde Strophen mit einem charakteristischen, lang gezogenen, nasalen „dschrüüüü\".",
+    song_en: "Jingling twittered phrases interrupted by a distinctive long, wheezy, nasal 'dzweee'.",
+    mnem: "Kanarien-Klingeln + genervtes „dschrüüü\" / Canary-like jingle plus a wheezy 'dzweee'."
+  },
+  {
+    id: "zaunkoenig", de: "Zaunkönig", en: "Wren", sci: "Troglodytes troglodytes",
+    fam_de: "Zaunkönige (Troglodytidae)", fam_en: "Wrens (Troglodytidae)",
+    len: "9–10 cm", wt: "8–13 g",
+    art_de: "Zaunkönig", art_en: "Eurasian_wren",
+    hab_de: "Unterholz, Hecken, Gärten, Reisighaufen; huscht mausartig.",
+    hab_en: "Undergrowth, hedges, gardens and brush piles; creeps about like a mouse.",
+    marks_de: "Winzig, rundlich, rotbraun, fein gebändert, mit kurzem, oft steil aufgestelltem Schwanz.",
+    marks_en: "Tiny, rounded, russet-brown, finely barred, with a short tail often cocked straight up.",
+    song_de: "Erstaunlich laut für die Größe: eine schnelle, schmetternde Kaskade aus Trillern mit einem harten Triller in der Mitte.",
+    song_en: "Astonishingly loud for its size: a fast, explosive cascade of clear notes with a hard trill in the middle.",
+    mnem: "Winzling mit Riesenstimme — Triller-Explosion / A giant voice from a tiny bird — a trilling explosion."
+  },
+  {
+    id: "buntspecht", de: "Buntspecht", en: "Great Spotted Woodpecker", sci: "Dendrocopos major",
+    fam_de: "Spechte (Picidae)", fam_en: "Woodpeckers (Picidae)",
+    len: "23–26 cm", wt: "70–98 g",
+    art_de: "Buntspecht", art_en: "Great_spotted_woodpecker",
+    hab_de: "Wälder, Parks, Gärten mit alten Bäumen.",
+    hab_en: "Woods, parks and gardens with mature trees.",
+    marks_de: "Schwarz-weiß gemustert mit großen weißen Schulterflecken und leuchtend roter Unterschwanzdecke; Männchen mit rotem Nackenfleck.",
+    marks_en: "Boldly black-and-white with large white shoulder patches and a bright red vent; male has a red nape patch.",
+    song_de: "Kein Gesang — scharfes „kick!\", und im Frühjahr ein sehr schnelles, kurzes Trommeln an totem Holz (½–1 Sekunde).",
+    song_en: "No song — a sharp 'kick!' call, and in spring a very fast, short drumroll on dead wood (½–1 second).",
+    mnem: "Scharfes „kick!\" + kurzes Presslufthammer-Trommeln / A sharp 'kick!' plus a brief pneumatic drumroll."
+  },
+  {
+    id: "zilpzalp", de: "Zilpzalp", en: "Chiffchaff", sci: "Phylloscopus collybita",
+    fam_de: "Laubsänger (Phylloscopidae)", fam_en: "Leaf warblers (Phylloscopidae)",
+    len: "10–12 cm", wt: "7–9 g",
+    art_de: "Zilpzalp", art_en: "Common_chiffchaff",
+    hab_de: "Wälder, Gärten, Parks mit Bäumen und Büschen; früher Frühlingsbote.",
+    hab_en: "Woods, gardens and parks with trees and scrub; an early sign of spring.",
+    marks_de: "Kleiner, unscheinbarer olivbrauner Laubsänger mit dunklen Beinen und feinem hellem Überaugenstreif.",
+    marks_en: "A small, plain olive-brown warbler with dark legs and a faint pale eyebrow.",
+    song_de: "Namensgebend: ein einfaches, gleichmäßiges „zilp-zalp-zilp-zalp\", das monoton zwischen zwei Tönen hin- und herspringt.",
+    song_en: "Named after its song: a simple, even 'chiff-chaff-chiff-chaff' bouncing monotonously between two notes.",
+    mnem: "Sagt seinen Namen: „zilp-zalp-zilp-zalp\" / Says its name: 'chiff-chaff, chiff-chaff'."
+  },
+  {
+    id: "moenchsgrasmuecke", de: "Mönchsgrasmücke", en: "Blackcap", sci: "Sylvia atricapilla",
+    fam_de: "Grasmücken (Sylviidae)", fam_en: "Typical warblers (Sylviidae)",
+    len: "13–15 cm", wt: "14–20 g",
+    art_de: "Mönchsgrasmücke", art_en: "Eurasian_blackcap",
+    hab_de: "Wälder, Gärten und Parks mit dichtem Gebüsch.",
+    hab_en: "Woods, gardens and parks with dense shrubbery.",
+    marks_de: "Grauer Vogel mit sauberer Kappe: Männchen schwarze Kappe, Weibchen rotbraune Kappe.",
+    marks_en: "A neat grey warbler with a clean cap: black in the male, red-brown in the female.",
+    song_de: "Beginnt mit leisem, kratzigem Schwätzen und geht in einen kräftigen, klaren, flötenden Schlussteil über — reich und musikalisch.",
+    song_en: "Begins with a low, scratchy chatter that swells into a rich, clear, fluty finale — full and musical.",
+    mnem: "Kratziger Anfang, dann brillante Flötentöne / A scratchy start bursting into brilliant fluting."
+  },
+  {
+    id: "feldsperling", de: "Feldsperling", en: "Tree Sparrow", sci: "Passer montanus",
+    fam_de: "Sperlinge (Passeridae)", fam_en: "Old World sparrows (Passeridae)",
+    len: "12,5–14 cm", wt: "19–25 g",
+    art_de: "Feldsperling", art_en: "Eurasian_tree_sparrow",
+    hab_de: "Feldränder, Streuobstwiesen, Dörfer; ländlicher als der Haussperling.",
+    hab_en: "Field edges, orchards and villages; more rural than the House Sparrow.",
+    marks_de: "Wie ein Haussperling, aber mit ganz kastanienbrauner Kappe und schwarzem Wangenfleck; Geschlechter gleich.",
+    marks_en: "Like a House Sparrow but with an all-chestnut crown and a black cheek spot; sexes alike.",
+    song_de: "Höheres, helleres Tschilpen als der Haussperling; im Flug ein hartes „tek-tek\".",
+    song_en: "A higher, cleaner cheep than the House Sparrow; a hard 'tek-tek' in flight.",
+    mnem: "Sperling mit brauner Mütze und schwarzem Ohrfleck / A sparrow in a brown cap with a black earspot."
+  },
+  {
+    id: "kleiber", de: "Kleiber", en: "Nuthatch", sci: "Sitta europaea",
+    fam_de: "Kleiber (Sittidae)", fam_en: "Nuthatches (Sittidae)",
+    len: "12–14,5 cm", wt: "19–25 g",
+    art_de: "Kleiber", art_en: "Eurasian_nuthatch",
+    hab_de: "Laub- und Mischwälder, Parks und Gärten mit alten Bäumen.",
+    hab_en: "Deciduous and mixed woods, parks and gardens with old trees.",
+    marks_de: "Blaugraue Oberseite, orangebraune Unterseite, schwarzer Augenstreif; läuft als einziger Vogel kopfüber Stämme hinab.",
+    marks_en: "Blue-grey above, buff-orange below, a black eye-stripe; the only bird that climbs down trunks head-first.",
+    song_de: "Laute, klare, pfeifende Rufe „wüi-wüi-wüi\" und ein trillerndes „twet-twet-twet\", weit hörbar.",
+    song_en: "Loud, clear piping 'wui-wui-wui' whistles and a trilling 'twet-twet-twet', carrying far.",
+    mnem: "Der Kopfüber-Kletterer mit lautem Pfeifen / The head-first climber with loud whistles."
+  },
+  {
+    id: "heckenbraunelle", de: "Heckenbraunelle", en: "Dunnock", sci: "Prunella modularis",
+    fam_de: "Braunellen (Prunellidae)", fam_en: "Accentors (Prunellidae)",
+    len: "13–14,5 cm", wt: "19–24 g",
+    art_de: "Heckenbraunelle", art_en: "Dunnock",
+    hab_de: "Hecken, Gebüsch, Gartenränder; trippelt unauffällig am Boden.",
+    hab_en: "Hedges, scrub and garden edges; shuffles about unobtrusively on the ground.",
+    marks_de: "Unscheinbar: sperlingsgroß, aber mit feinem, dünnem Schnabel, grauem Kopf/Brust und braun gestreiftem Rücken.",
+    marks_en: "Drab: sparrow-sized but with a fine, thin bill, grey head and breast and a brown-streaked back.",
+    song_de: "Ein hastiger, gleichmäßig hoher, etwas dünner Zwitschergesang — wie ein eiliges, klingelndes „quietsch\".",
+    song_en: "A hurried, even-pitched, slightly thin warble — like a fast, tinkling little squeak.",
+    mnem: "Grauer „Sperling\" mit Nadelschnabel, hastiges Zwitschern / A grey 'sparrow' with a needle bill and hurried warble."
+  },
+  {
+    id: "stieglitz", de: "Stieglitz (Distelfink)", en: "Goldfinch", sci: "Carduelis carduelis",
+    fam_de: "Finken (Fringillidae)", fam_en: "Finches (Fringillidae)",
+    len: "12–13,5 cm", wt: "14–19 g",
+    art_de: "Stieglitz", art_en: "European_goldfinch",
+    hab_de: "Offene Flächen mit Disteln, Gärten, Brachen; oft in kleinen Trupps.",
+    hab_en: "Open ground with thistles, gardens and waste ground; often in small flocks.",
+    marks_de: "Unverwechselbar: rote Gesichtsmaske, schwarz-weißer Kopf und breite leuchtend gelbe Flügelbinde.",
+    marks_en: "Unmistakable: a red face-mask, black-and-white head and a broad bright-yellow wing-bar.",
+    song_de: "Flüssiges, klingelndes, perlendes Zwitschern mit charakteristischem „stiglit\"-Ruf im Flug.",
+    song_en: "A liquid, tinkling, pearly twitter with a diagnostic 'tickelit' call in flight.",
+    mnem: "Roter Maskenvogel, klingelnder Gesang / The red-masked bird with a tinkling song."
+  },
+  {
+    id: "girlitz", de: "Girlitz", en: "Serin", sci: "Serinus serinus",
+    fam_de: "Finken (Fringillidae)", fam_en: "Finches (Fringillidae)",
+    len: "11–12 cm", wt: "9–14 g",
+    art_de: "Girlitz", art_en: "European_serin",
+    hab_de: "Parks, Gärten, Friedhöfe, Ortsränder mit einzelnen hohen Bäumen.",
+    hab_en: "Parks, gardens, cemeteries and village edges with scattered tall trees.",
+    marks_de: "Sehr kleiner, gedrungener gelbgrüner Fink mit dunkel gestreiften Flanken und winzigem Schnabel; Europas kleinster Fink.",
+    marks_en: "A very small, stubby yellow-green finch with dark-streaked flanks and a tiny bill; Europe's smallest finch.",
+    song_de: "Ein schnelles, hohes, klirrendes Schwirren „wie zerbrechendes Glas\", oft vom Baumwipfel oder im Singflug.",
+    song_en: "A fast, high, jangling buzz 'like breaking glass', often from a treetop or in song-flight.",
+    mnem: "Klirrt wie ein Schlüsselbund / Jangles like a bunch of keys."
+  },
+  {
+    id: "hausrotschwanz", de: "Hausrotschwanz", en: "Black Redstart", sci: "Phoenicurus ochruros",
+    fam_de: "Fliegenschnäpper (Muscicapidae)", fam_en: "Chats (Muscicapidae)",
+    len: "13–14,5 cm", wt: "14–20 g",
+    art_de: "Hausrotschwanz", art_en: "Black_redstart",
+    hab_de: "Städte, Industrieflächen, Dörfer, Felsen; singt gern von Dächern.",
+    hab_en: "Towns, industrial sites, villages and rocky ground; loves singing from rooftops.",
+    marks_de: "Rußgraues bis schwarzes Männchen mit rostrotem Schwanz, den es ständig zittern lässt; Weibchen graubraun, ebenfalls mit rotem Schwanz.",
+    marks_en: "Sooty-grey to black male with a rusty-red tail that it constantly quivers; female grey-brown, also red-tailed.",
+    song_de: "Kurze, kratzige Strophe mit einem eigenartigen Teil, der wie zerknülltes Papier oder Kieselknistern klingt.",
+    song_en: "A short, scratchy phrase with a curious middle that sounds like crumpling paper or rattling gravel.",
+    mnem: "Roter Zitterschwanz, „Papierknister\"-Gesang / Quivering red tail and a 'crackling paper' song."
+  },
+  {
+    id: "gartenrotschwanz", de: "Gartenrotschwanz", en: "Redstart", sci: "Phoenicurus phoenicurus",
+    fam_de: "Fliegenschnäpper (Muscicapidae)", fam_en: "Chats (Muscicapidae)",
+    len: "13–14,5 cm", wt: "12–20 g",
+    art_de: "Gartenrotschwanz", art_en: "Common_redstart",
+    hab_de: "Lichte Wälder, Streuobstwiesen, alte Gärten und Parks.",
+    hab_en: "Open woodland, orchards, old gardens and parks.",
+    marks_de: "Prächtiges Männchen: schwarze Kehle, weiße Stirn, blaugrauer Rücken, orangerote Brust und Schwanz. Weibchen schlicht mit rotem Schwanz.",
+    marks_en: "Handsome male: black throat, white forehead, blue-grey back, orange-red breast and tail. Female plain with a red tail.",
+    song_de: "Klarer, wehmütiger Anfang aus wenigen Tönen, der oft in ein leiseres, kratziges Geplapper übergeht.",
+    song_en: "A clear, wistful opening of a few notes that often tails off into a quieter scratchy jumble.",
+    mnem: "Bunter Vetter des Hausrotschwanzes, roter Schwanz / The colourful cousin with the same red tail."
+  },
+  {
+    id: "bachstelze", de: "Bachstelze", en: "White Wagtail", sci: "Motacilla alba",
+    fam_de: "Stelzen (Motacillidae)", fam_en: "Wagtails (Motacillidae)",
+    len: "16,5–19 cm", wt: "19–27 g",
+    art_de: "Bachstelze", art_en: "White_wagtail",
+    hab_de: "Offene Flächen, Ufer, Parkplätze, Dächer, Wiesen — oft nah am Wasser.",
+    hab_en: "Open ground, watersides, car parks, roofs and lawns — often near water.",
+    marks_de: "Schlank, schwarz-weiß-grau mit sehr langem, ständig auf- und abwippendem Schwanz; trippelt und rennt am Boden.",
+    marks_en: "Slim black-white-and-grey bird with a very long tail wagged constantly up and down; trips and runs on the ground.",
+    song_de: "Helles, zweisilbiges „ziss-ellitt\" oder „tschisick\", meist im wellenförmigen Flug gerufen.",
+    song_en: "A bright, disyllabic 'chis-ick' or 'tsli-vitt', usually called in bounding flight.",
+    mnem: "Der Wippschwanz — „tschisick\" im Wellenflug / The tail-wagger calling 'chis-ick' in bounding flight."
+  },
+  {
+    id: "singdrossel", de: "Singdrossel", en: "Song Thrush", sci: "Turdus philomelos",
+    fam_de: "Drosseln (Turdidae)", fam_en: "Thrushes (Turdidae)",
+    len: "20–23 cm", wt: "50–107 g",
+    art_de: "Singdrossel", art_en: "Song_thrush",
+    hab_de: "Wälder, Gärten und Parks mit Unterwuchs; nutzt „Schmiedesteine\" zum Knacken von Schnecken.",
+    hab_en: "Woods, gardens and parks with undergrowth; uses 'anvil' stones to smash snails.",
+    marks_de: "Warm braune Oberseite, cremefarbene Unterseite mit klaren, tropfenförmigen dunklen Flecken. Kleiner als die Amsel.",
+    marks_en: "Warm brown above, cream below with neat arrow-shaped dark spots. Smaller than a Blackbird.",
+    song_de: "Kräftiger, klarer Gesang, bei dem jede kurze Phrase zwei- bis viermal wiederholt wird — das Markenzeichen.",
+    song_en: "A loud, clear song in which each short phrase is repeated two to four times — the give-away.",
+    mnem: "Sagt alles doppelt und dreifach / Says everything two or three times over."
+  },
+  {
+    id: "tuerkentaube", de: "Türkentaube", en: "Collared Dove", sci: "Streptopelia decaocto",
+    fam_de: "Tauben (Columbidae)", fam_en: "Pigeons (Columbidae)",
+    len: "29–33 cm", wt: "150–200 g",
+    art_de: "Türkentaube", art_en: "Eurasian_collared_dove",
+    hab_de: "Dörfer, Vorgärten, Parks, Bauernhöfe — fast immer in Siedlungen.",
+    hab_en: "Villages, front gardens, parks and farmyards — almost always near settlements.",
+    marks_de: "Zierliche, hell sandfarbene Taube mit schmalem schwarzem Halsband und langem Schwanz.",
+    marks_en: "A dainty, pale sandy dove with a narrow black half-collar and a long tail.",
+    song_de: "Monotones, dreisilbiges „du-DUU-du\" mit Betonung in der Mitte, endlos wiederholt; im Flug ein nasales „hräää\".",
+    song_en: "A monotonous three-note 'coo-COO-cuk' stressed in the middle, repeated endlessly; a nasal 'hwarr' in flight.",
+    mnem: "Ewiges „du-DUU-du\" aus dem Vorgarten / The endless 'u-NIII-ted' coo from the front garden."
+  },
+  {
+    id: "eichelhaeher", de: "Eichelhäher", en: "Jay", sci: "Garrulus glandarius",
+    fam_de: "Rabenvögel (Corvidae)", fam_en: "Crows (Corvidae)",
+    len: "32–35 cm", wt: "140–190 g",
+    art_de: "Eichelhäher", art_en: "Eurasian_jay",
+    hab_de: "Laub- und Mischwälder, Parks; vergräbt im Herbst tausende Eicheln.",
+    hab_en: "Deciduous and mixed woods and parks; caches thousands of acorns in autumn.",
+    marks_de: "Rosa-braun mit leuchtend blau-schwarz gebändertem Flügelfeld, weißem Bürzel und schwarzem Bartstreif.",
+    marks_en: "Pinkish-brown with a brilliant blue-and-black barred wing panel, white rump and black moustache.",
+    song_de: "Kein Gesang — ein lautes, raues, kreischendes „krätsch-krätsch\"; imitiert oft den Mäusebussard.",
+    song_en: "No song — a loud, harsh, screeching 'kscharrch'; often mimics the Buzzard.",
+    mnem: "Blaues Flügelabzeichen, kreischender Waldwächter / The blue-winged, screeching sentinel of the woods."
+  },
+  {
+    id: "dohle", de: "Dohle", en: "Jackdaw", sci: "Coloeus monedula",
+    fam_de: "Rabenvögel (Corvidae)", fam_en: "Crows (Corvidae)",
+    len: "34–39 cm", wt: "220–270 g",
+    art_de: "Dohle", art_en: "Western_jackdaw",
+    hab_de: "Kirchtürme, Altstädte, Parks, Felder; brütet in Gruppen in Höhlen und Schornsteinen.",
+    hab_en: "Church towers, old towns, parks and fields; nests colonially in holes and chimneys.",
+    marks_de: "Kleinste „Krähe\", grau-schwarz mit silbergrauem Nacken und auffällig hellen, blassen Augen.",
+    marks_en: "The smallest 'crow', grey-black with a silvery nape and striking pale, near-white eyes.",
+    song_de: "Ein helles, kurzes, metallisches „kja\" oder „tschack\", oft aus dem Schwarm.",
+    song_en: "A bright, short, metallic 'kya' or 'tchack', often given from the flock.",
+    mnem: "Helläugige Mini-Krähe, sagt „jack\" / The pale-eyed mini-crow that says its name, 'jack'."
+  },
+  {
+    id: "gruenspecht", de: "Grünspecht", en: "Green Woodpecker", sci: "Picus viridis",
+    fam_de: "Spechte (Picidae)", fam_en: "Woodpeckers (Picidae)",
+    len: "30–36 cm", wt: "150–220 g",
+    art_de: "Grünspecht", art_en: "European_green_woodpecker",
+    hab_de: "Streuobstwiesen, Parks, Waldränder mit kurzem Rasen; frisst am liebsten Ameisen am Boden.",
+    hab_en: "Orchards, parks and woodland edges with short grass; feeds mainly on ants on the ground.",
+    marks_de: "Grün mit gelbem Bürzel und roter Kappe, schwarze Gesichtsmaske; trommelt kaum, sitzt oft am Boden.",
+    marks_en: "Green with a yellow rump and red crown, black face-mask; rarely drums, often on the ground.",
+    song_de: "Ein lautes, lachendes, abfallendes „kjückkjückkjück…\" — daher der Name „Lachvogel\".",
+    song_en: "A loud, laughing, falling 'kyu-kyu-kyu-kyu…' — earning it the name 'yaffle' (laughing bird).",
+    mnem: "Der lachende „grüne Specht am Boden\" / The laughing green woodpecker on the lawn."
+  },
+  {
+    id: "mauersegler", de: "Mauersegler", en: "Swift", sci: "Apus apus",
+    fam_de: "Segler (Apodidae)", fam_en: "Swifts (Apodidae)",
+    len: "16–17 cm", wt: "36–52 g",
+    art_de: "Mauersegler", art_en: "Common_swift",
+    hab_de: "Über Städten und Dörfern von Mai bis August; brütet in Dachnischen, landet fast nie.",
+    hab_en: "Over towns and villages from May to August; nests in roof cavities and almost never lands.",
+    marks_de: "Ganz rußbraun-schwarz mit langen, sichelförmigen Flügeln und kurzem Gabelschwanz — Silhouette wie ein Anker.",
+    marks_en: "All sooty blackish-brown with long, scythe-shaped wings and a short forked tail — an anchor-like silhouette.",
+    song_de: "Schrilles, langgezogenes Kreischen „srriii\", meist von jagenden Trupps um die Dächer.",
+    song_en: "A shrill, drawn-out scream 'srreee', usually from parties racing around the rooftops.",
+    mnem: "Schwarze Sichel am Sommerhimmel, kreischend / The screaming black sickle of the summer sky."
+  },
+  {
+    id: "rauchschwalbe", de: "Rauchschwalbe", en: "Barn Swallow", sci: "Hirundo rustica",
+    fam_de: "Schwalben (Hirundinidae)", fam_en: "Swallows (Hirundinidae)",
+    len: "17–19 cm (mit Schwanzspießen)", wt: "16–25 g",
+    art_de: "Rauchschwalbe", art_en: "Barn_swallow",
+    hab_de: "Bauernhöfe, Ställe, offenes Land; brütet an Balken im Inneren von Gebäuden.",
+    hab_en: "Farms, stables and open country; nests on beams inside buildings.",
+    marks_de: "Blau-schwarz glänzend oben, cremeweiß unten, rostrote Kehle/Stirn und sehr lange Schwanzspieße.",
+    marks_en: "Glossy blue-black above, creamy-white below, with a rusty throat and forehead and very long tail-streamers.",
+    song_de: "Ein zwitscherndes, plauderndes Geplapper mit einem knirschenden „Rätschen\" am Ende der Strophe.",
+    song_en: "A twittering, chattering warble ending in a grating 'zzzt' rattle.",
+    mnem: "Langschwänziger Zwitscherer über der Weide / The long-tailed twitterer over the pasture."
+  },
+  {
+    id: "goldammer", de: "Goldammer", en: "Yellowhammer", sci: "Emberiza citrinella",
+    fam_de: "Ammern (Emberizidae)", fam_en: "Buntings (Emberizidae)",
+    len: "15,5–17 cm", wt: "24–30 g",
+    art_de: "Goldammer", art_en: "Yellowhammer",
+    hab_de: "Feldränder, Hecken, offene Kulturlandschaft; singt von Buschspitzen und Zäunen.",
+    hab_en: "Field edges, hedges and open farmland; sings from bush-tops and fences.",
+    marks_de: "Männchen mit leuchtend gelbem Kopf und Unterseite, kastanienbraunem Bürzel; Weibchen matter, gestreift.",
+    marks_en: "Male with a bright yellow head and underparts and a chestnut rump; female duller and streaked.",
+    song_de: "Klassische Merkhilfe: „wie-wie-wie-wie-wie-hab-ich-dich-lieeeb\" — mehrere gleiche Töne, dann ein langer.",
+    song_en: "The classic mnemonic 'a-little-bit-of-bread-and-no-cheeese' — several even notes then one long one.",
+    mnem: "„…-und-kein-Käääse\": Reihe gleicher Töne + langer Schlusston / '…and-no-cheeese' — even notes then a drawn-out finish."
+  },
+  {
+    id: "maeusebussard", de: "Mäusebussard", en: "Buzzard", sci: "Buteo buteo",
+    fam_de: "Habichtartige (Accipitridae)", fam_en: "Hawks & eagles (Accipitridae)",
+    len: "48–56 cm", wt: "550–1300 g",
+    art_de: "Mäusebussard", art_en: "Common_buzzard",
+    hab_de: "Der häufigste Greifvogel: Felder, Waldränder, oft auf Zaunpfählen oder kreisend.",
+    hab_en: "The commonest raptor: farmland and woodland edges, often on fence-posts or circling.",
+    marks_de: "Kräftig, variabel braun (hell bis dunkel), breite Flügel, kurzer runder Schwanz; kreist mit leicht V-förmig gehobenen Flügeln.",
+    marks_en: "Bulky, variably brown (pale to dark), broad wings, short rounded tail; soars on slightly raised wings.",
+    song_de: "Ein weit hörbares, katzenartig miauendes „hiääh\", oft im Kreisflug.",
+    song_en: "A far-carrying, cat-like mewing 'peee-yow', often given while soaring.",
+    mnem: "Der miauende Kreisflieger über dem Feld / The mewing, circling hawk over the field."
+  },
+  {
+    id: "turmfalke", de: "Turmfalke", en: "Kestrel", sci: "Falco tinnunculus",
+    fam_de: "Falken (Falconidae)", fam_en: "Falcons (Falconidae)",
+    len: "32–39 cm", wt: "150–250 g",
+    art_de: "Turmfalke", art_en: "Common_kestrel",
+    hab_de: "Offenes Land, Autobahnränder, Städte; brütet an Türmen und Gebäuden.",
+    hab_en: "Open country, motorway verges and towns; nests on towers and buildings.",
+    marks_de: "Schlanker Falke mit rotbraunem Rücken; Männchen mit grauem Kopf und Schwanz. Rüttelt charakteristisch an Ort und Stelle.",
+    marks_en: "A slim falcon with a rufous back; male has a grey head and tail. Famous for hovering on the spot.",
+    song_de: "Eine schnelle, schrille Reihe „ki-ki-ki-ki\", meist in Brutplatznähe.",
+    song_en: "A rapid, shrill 'kee-kee-kee-kee', usually near the nest.",
+    mnem: "Der „Rüttelfalke\", der in der Luft steht / The kestrel that hangs still in the air, hovering."
+  },
+  {
+    id: "rotmilan", de: "Rotmilan", en: "Red Kite", sci: "Milvus milvus",
+    fam_de: "Habichtartige (Accipitridae)", fam_en: "Hawks & eagles (Accipitridae)",
+    len: "60–72 cm", wt: "800–1300 g",
+    art_de: "Rotmilan", art_en: "Red_kite",
+    hab_de: "Offene Landschaft mit Wäldchen und Feldern; kreist elegant über Feld und Wald.",
+    hab_en: "Open landscapes with woods and fields; circles elegantly over field and forest.",
+    marks_de: "Großer, eleganter Greif mit langen Flügeln, rostrotem Gefieder und tief gegabeltem, rotem Schwanz, der ständig gedreht wird.",
+    marks_en: "A large, elegant raptor with long wings, rusty-red plumage and a deeply forked red tail constantly twisted in flight.",
+    song_de: "Ein hohes, wieherndes, an- und abschwellendes „wiuu-wiu-wiu\", ganz anders als das Miauen des Bussards.",
+    song_en: "A high, quavering, whinnying 'weeoo-wiu-wiu', quite unlike the Buzzard's mew.",
+    mnem: "Gabelschwanz-Greif mit rotem, gedrehtem Schwanz / The fork-tailed raptor with a twisting red tail."
+  },
+  {
+    id: "graureiher", de: "Graureiher", en: "Grey Heron", sci: "Ardea cinerea",
+    fam_de: "Reiher (Ardeidae)", fam_en: "Herons (Ardeidae)",
+    len: "90–98 cm", wt: "1–2 kg",
+    art_de: "Graureiher", art_en: "Grey_heron",
+    hab_de: "Ufer von Seen, Flüssen, Teichen und Feuchtwiesen; steht oft reglos im Flachwasser.",
+    hab_en: "Edges of lakes, rivers, ponds and wet meadows; often stands motionless in the shallows.",
+    marks_de: "Großer grauer Reiher mit weißem Kopf, schwarzem Augenstreif und Schopf, langem Hals und dolchartigem gelbem Schnabel; fliegt mit S-förmig eingezogenem Hals.",
+    marks_en: "A large grey heron with a white head, black eye-stripe and crest, long neck and dagger-like yellow bill; flies with its neck folded into an S.",
+    song_de: "Kein Gesang — ein lautes, raues, krächzendes „krääk\", meist im Auffliegen.",
+    song_en: "No song — a loud, harsh, grating 'fraaank' croak, usually as it takes off.",
+    mnem: "Grauer Angler, reglos am Wasser, rauer „krääk\"-Ruf / The grey angler standing still at the water, with a harsh 'fraaank'."
+  },
+  {
+    id: "kanadagans", de: "Kanadagans", en: "Canada Goose", sci: "Branta canadensis",
+    fam_de: "Entenvögel (Anatidae)", fam_en: "Wildfowl (Anatidae)",
+    len: "90–100 cm", wt: "3–5 kg",
+    art_de: "Kanadagans", art_en: "Canada_goose",
+    hab_de: "Parkseen, Flüsse, Wiesen und Felder; eingebürgert, oft in lauten Trupps.",
+    hab_en: "Park lakes, rivers, meadows and fields; an introduced species, often in noisy flocks.",
+    marks_de: "Große braune Gans mit schwarzem Hals und Kopf und auffälligem weißem Kinnband über die Wangen.",
+    marks_en: "A large brown goose with a black neck and head and a bold white chinstrap across the cheeks.",
+    song_de: "Laute, trompetende, zweisilbige „a-ronk\"-Rufe, oft schon von Weitem und im Flug hörbar.",
+    song_en: "Loud, trumpeting, two-note 'a-ronk' honking, often heard from afar and in flight.",
+    mnem: "Schwarzer Hals, weißes Kinnband, trompetendes „a-ronk\" / Black neck, white chinstrap, trumpeting 'a-ronk'."
+  },
+  {
+    id: "schwanzmeise", de: "Schwanzmeise", en: "Long-tailed Tit", sci: "Aegithalos caudatus",
+    fam_de: "Schwanzmeisen (Aegithalidae)", fam_en: "Long-tailed tits (Aegithalidae)",
+    len: "13–15 cm (über die Hälfte Schwanz)", wt: "7–10 g",
+    art_de: "Schwanzmeise", art_en: "Long-tailed_tit",
+    hab_de: "Hecken, Waldränder und Gärten; zieht in kleinen, unruhigen Trupps durch die Zweige.",
+    hab_en: "Hedges, woodland edges and gardens; moves through the twigs in small, restless flocks.",
+    marks_de: "Winzig und kugelig, schwarz-weiß-rosa gefärbt mit sehr langem Schwanz — wie ein fliegender Wattebausch mit Stiel.",
+    marks_en: "Tiny and rounded, black, white and pink with a very long tail — like a flying cotton ball on a stick.",
+    song_de: "Dünne, hohe „srih-srih-srih\"-Kontaktrufe und ein trillerndes „tsirrup\", ständig aus dem Trupp.",
+    song_en: "Thin, high 'see-see-see' contact calls and a trilling 'tsirrup', kept up constantly by the flock.",
+    mnem: "Fliegender Wattebausch mit langem Stiel-Schwanz / A flying cotton ball with a long stick of a tail."
+  },
+  {
+    id: "mehlschwalbe", de: "Mehlschwalbe", en: "House Martin", sci: "Delichon urbicum",
+    fam_de: "Schwalben (Hirundinidae)", fam_en: "Swallows (Hirundinidae)",
+    len: "13–15 cm", wt: "15–23 g",
+    art_de: "Mehlschwalbe", art_en: "Common_house_martin",
+    hab_de: "Über Dörfern und Städten; baut geschlossene Lehmnester unter Dachvorsprüngen.",
+    hab_en: "Over villages and towns; builds closed mud nests under the eaves of buildings.",
+    marks_de: "Blau-schwarze Oberseite mit leuchtend weißem Bürzel und reinweißer Unterseite; kurzer Gabelschwanz, weiß befiederte Beine.",
+    marks_en: "Blue-black above with a bright white rump and pure white underparts; a short forked tail and white-feathered legs.",
+    song_de: "Ein trockenes, zwitscherndes „prrit-prrit\", oft im Flug rund ums Nest.",
+    song_en: "A dry, twittering 'prrit-prrit', often given in flight around the nest.",
+    mnem: "Die Schwalbe mit dem leuchtend weißen Bürzel / The swallow with the obvious bright-white rump."
+  }
+];
+
+</script>
+<script>
+/* ---------- i18n strings ---------- */
+const I18N = {
+  de:{
+    title:"Vögel in Deutschland", subtitle:"Ein Bild- und Klang-Lerntool · Häufige Arten erkennen und ihre Stimmen lernen",
+    tab_browse:"📖 Steckbriefe", tab_qphoto:"🖼️ Quiz: Bild", tab_qcall:"🔊 Quiz: Ruf",
+    intro_browse:"Die häufigsten heimischen Vögel aus Gärten, Parks, Feldern und Wäldern. Auf eine Karte tippen für Details. Fotos werden live aus Wikimedia Commons geladen; Rufe zum Anhören über xeno-canto verlinkt.",
+    intro_qphoto:"Erkenne den Vogel am Foto. Wähle den richtigen Namen.",
+    intro_qcall:"Höre den Ruf oder Gesang und ordne ihn der richtigen Art zu.",
+    listen:"Ruf anhören", listenXC:"Ruf auf xeno-canto anhören", size:"Größe", weight:"Gewicht", family:"Familie", habitat:"Lebensraum",
+    marks:"Erkennungsmerkmale", voice:"Stimme", mnem:"Eselsbrücke",
+    wiki:"Wikipedia-Artikel", xc:"Rufe auf xeno-canto",
+    loadingImg:"Foto lädt…", loadingAud:"Aufnahme wird gesucht…", noAud:"Keine Aufnahme in Wikimedia gefunden — Link unten nutzen.",
+    start:"Quiz starten", q:"Frage", score:"Punkte", next:"Weiter →", finish:"Ergebnis",
+    correct:"Richtig!", wrong:"Leider falsch. Richtig ist:", again:"Nochmal", play:"▶ Abspielen",
+    result_lead:"Du hast erreicht", of:"von", restart:"Neues Quiz", whichBird:"Welcher Vogel ist das?", whichCall:"Wessen Stimme hörst du?",
+    foot:"Fotos stammen von Wikimedia Commons und den jeweiligen Autor:innen (meist CC-lizenziert) und werden beim Öffnen direkt im Browser geladen — bitte in einem normalen Browser mit Internet öffnen. Rufe zum Anhören sind zu xeno-canto verlinkt. Artenauswahl orientiert an den häufigsten heimischen Brut- und Gartenvögeln. Frei nutzbar als offene Bildungsressource."
+  },
+  en:{
+    title:"Birds of Germany", subtitle:"A pictorial guide to identifying common birds and learning their calls",
+    tab_browse:"📖 Field guide", tab_qphoto:"🖼️ Quiz: photo", tab_qcall:"🔊 Quiz: call",
+    intro_browse:"The commonest birds of gardens, parks, farmland and woods. Tap a card for details. Photos load live from Wikimedia Commons; calls are linked out to xeno-canto to listen.",
+    intro_qphoto:"Identify the bird from its photo. Pick the correct name.",
+    intro_qcall:"Listen to the call or song and match it to the right species.",
+    listen:"Listen to call", listenXC:"Hear the call on xeno-canto", size:"Length", weight:"Weight", family:"Family", habitat:"Habitat",
+    marks:"Field marks", voice:"Voice", mnem:"Memory hook",
+    wiki:"Wikipedia article", xc:"Calls on xeno-canto",
+    loadingImg:"Loading photo…", loadingAud:"Finding a recording…", noAud:"No recording found on Wikimedia — use the link below.",
+    start:"Start quiz", q:"Question", score:"Score", next:"Next →", finish:"See result",
+    correct:"Correct!", wrong:"Not quite. The answer is:", again:"Again", play:"▶ Play",
+    result_lead:"You scored", of:"of", restart:"New quiz", whichBird:"Which bird is this?", whichCall:"Whose voice is this?",
+    foot:"Photos come from Wikimedia Commons and their respective authors (mostly CC-licensed) and load directly in your browser when opened — please open this file in a normal browser with internet. Calls are linked out to xeno-canto for listening. Species selection reflects the commonest breeding and garden birds. Free to use as an open educational resource."
+  }
+};
+let LANG = "de";
+function t(k){ return (I18N[LANG==="both"?"de":LANG][k]) || I18N.de[k]; }
+
+/* ---------- names helper (respects DE/EN/both) ---------- */
+function nameMain(s){ if(LANG==="en")return s.en; if(LANG==="both")return s.de+" · "+s.en; return s.de; }
+function nameSub(s){ if(LANG==="en")return s.de; if(LANG==="both")return ""; return s.en; }
+function field(s,key){ // returns localized string; 'both' shows DE then EN
+  if(LANG==="en") return s[key+"_en"];
+  if(LANG==="both") return s[key+"_de"]+"  ·  "+s[key+"_en"];
+  return s[key+"_de"];
+}
+function fam(s){ if(LANG==="en")return s.fam_en; if(LANG==="both")return s.fam_de+" · "+s.fam_en; return s.fam_de; }
+
+/* ---------- Wikimedia media loader (runs in the student's browser) ---------- */
+const imgCache={}, audCache={};
+async function getImage(s){
+  if(imgCache[s.id]!==undefined) return imgCache[s.id];
+  // Offline bundle: use embedded photo if the builder injected one.
+  if(window.BUNDLED_IMG && BUNDLED_IMG[s.id]){ imgCache[s.id]=BUNDLED_IMG[s.id]; return imgCache[s.id]; }
+  const tries = [["de",s.art_de],["en",s.art_en]];
+  for(const [lang,title] of tries){
+    try{
+      const url=`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}?origin=*`;
+      const r=await fetch(url); if(!r.ok) continue;
+      const j=await r.json();
+      const src=(j.originalimage&&j.originalimage.source)||(j.thumbnail&&j.thumbnail.source);
+      if(src){ // ask for a reasonably sized thumb
+        const thumb = src.replace(/\/(\d+)px-/,'/640px-');
+        imgCache[s.id]=thumb; return thumb;
+      }
+    }catch(e){}
+  }
+  imgCache[s.id]=null; return null;
+}
+// Score an audio filename for "is this a good song/call clip?"
+function scoreAudio(title){
+  const t=title.toLowerCase(); let sc=0;
+  if(/song|gesang|ruf|call|vocal|voice|stimme|singing/.test(t)) sc+=5;
+  if(/\.oga$|\.ogg$/.test(t)) sc+=2;
+  if(/\.mp3$/.test(t)) sc+=2;
+  if(/\.wav$/.test(t)) sc+=1;
+  if(/drum|trommel/.test(t)) sc+=1;
+  if(/flight|flug/.test(t)) sc-=1;
+  return sc;
+}
+async function getAudio(s){
+  if(audCache[s.id]!==undefined) return audCache[s.id];
+  // Offline bundle: use embedded call if the builder injected one.
+  if(window.BUNDLED_AUDIO && BUNDLED_AUDIO[s.id]){ audCache[s.id]={url:BUNDLED_AUDIO[s.id],title:"bundled",bundled:true}; return audCache[s.id]; }
+  const tries=[["de",s.art_de],["en",s.art_en]];
+  for(const [lang,title] of tries){
+    try{
+      const api=`https://${lang}.wikipedia.org/w/api.php?action=query&format=json&origin=*`+
+        `&generator=images&gimlimit=200&titles=${encodeURIComponent(title)}`+
+        `&prop=imageinfo&iiprop=url|mime`;
+      const r=await fetch(api); if(!r.ok) continue;
+      const j=await r.json();
+      const pages=j.query&&j.query.pages; if(!pages) continue;
+      let best=null,bestScore=-99;
+      for(const k in pages){
+        const p=pages[k]; const ii=p.imageinfo&&p.imageinfo[0]; if(!ii) continue;
+        if(!/audio\//.test(ii.mime||"")) continue;
+        const sc=scoreAudio(p.title||ii.url||"");
+        if(sc>bestScore){bestScore=sc;best={url:ii.url,title:(p.title||"").replace(/^File:/,"")};}
+      }
+      if(best){ audCache[s.id]=best; return best; }
+    }catch(e){}
+  }
+  audCache[s.id]=null; return null;
+}
+
+/* ---------- Build gallery ---------- */
+const grid=document.getElementById('grid');
+function renderGrid(){
+  grid.innerHTML='';
+  SPECIES.forEach(s=>{
+    const card=document.createElement('div'); card.className='card';
+    card.innerHTML=`
+      <div class="thumb" data-img="${s.id}">
+        <div class="ld"><span class="spinner"></span><span>${t('loadingImg')}</span></div>
+      </div>
+      <div class="cbody">
+        <div class="cname">${nameMain(s)}${nameSub(s)?`<small>${nameSub(s)}</small>`:''}</div>
+        <div class="csci">${s.sci}</div>
+        <div class="meta">${fam(s)} · ${s.len}</div>
+        <div class="aud" data-aud="${s.id}"><div class="callnote"><span class="spinner" style="display:inline-block;vertical-align:-2px"></span> ${t('loadingAud')}</div></div>
+      </div>`;
+    card.querySelector('.cname').style.cursor='pointer';
+    card.addEventListener('click',e=>{ if(e.target.closest('audio')||e.target.closest('a')) return; openDetail(s); });
+    grid.appendChild(card);
+    // lazy-load media
+    getImage(s).then(src=>{
+      const box=card.querySelector('.thumb');
+      if(src){ box.innerHTML=`<img loading="lazy" src="${src}" alt="${nameMain(s)}">`; }
+      else { box.querySelector('.ld').innerHTML=`<span>🪶 ${s.de}</span>`; }
+    });
+    const xc=`https://xeno-canto.org/explore?query=${encodeURIComponent(s.sci)}`;
+    getAudio(s).then(a=>{
+      const box=card.querySelector('.aud');
+      if(a){ box.innerHTML=`<audio controls preload="none" src="${a.url}"></audio>
+        <a class="callnote listen" href="${xc}" target="_blank" rel="noopener" style="display:block;margin-top:6px;text-decoration:none">🔊 ${t('xc')} ↗</a>`; }
+      else { box.innerHTML=`<a class="callnote listen" href="${xc}" target="_blank" rel="noopener" style="display:block;text-decoration:none">🔊 ${t('listenXC')} ↗</a>`; }
+    });
+  });
+}
+
+/* ---------- Detail modal ---------- */
+const modal=document.getElementById('modal'), sheet=document.getElementById('sheet');
+function openDetail(s){
+  const xc=`https://xeno-canto.org/explore?query=${encodeURIComponent(s.sci)}`;
+  const wiki = LANG==='en'
+    ? `https://en.wikipedia.org/wiki/${s.art_en}`
+    : `https://de.wikipedia.org/wiki/${encodeURIComponent(s.art_de)}`;
+  sheet.innerHTML=`
+    <div style="position:relative">
+      <button class="x" id="xbtn">×</button>
+      <div class="top">
+        <div class="ph" id="detimg"><div class="ld" style="position:absolute;inset:0"><span class="spinner"></span></div></div>
+        <div class="info">
+          <h2>${LANG==='en'?s.en:s.de} ${LANG==='both'?`<span class="en">/ ${LANG==='en'?s.de:s.en}</span>`:''}</h2>
+          <div class="en">${LANG==='en'?s.de:(LANG==='de'?s.en:'')}</div>
+          <div class="sci">${s.sci}</div>
+          <div class="kv">
+            <b>${t('family')}</b><span>${fam(s)}</span>
+            <b>${t('size')}</b><span>${s.len}</span>
+            <b>${t('weight')}</b><span>${s.wt}</span>
+          </div>
+          <div class="aud" id="detaud"><div class="callnote"><span class="spinner" style="display:inline-block;vertical-align:-2px"></span> ${t('loadingAud')}</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <h3>${t('habitat')}</h3><p>${field(s,'hab')}</p>
+      <h3>${t('marks')}</h3><p>${field(s,'marks')}</p>
+      <h3>${t('voice')}</h3><p>${field(s,'song')}</p>
+      <h3>${t('mnem')}</h3><p>${s.mnem}</p>
+    </div>
+    <div class="links">
+      <a class="btn" href="${wiki}" target="_blank" rel="noopener">${t('wiki')} ↗</a>
+      <a class="btn" href="${xc}" target="_blank" rel="noopener">${t('xc')} ↗</a>
+    </div>`;
+  modal.classList.add('on');
+  document.getElementById('xbtn').onclick=closeDetail;
+  getImage(s).then(src=>{
+    const box=document.getElementById('detimg');
+    if(src) box.innerHTML=`<img src="${src}" alt="${s.de}">`;
+    else box.innerHTML=`<div class="ld" style="position:absolute;inset:0">🪶 ${s.de}</div>`;
+  });
+  getAudio(s).then(a=>{
+    const box=document.getElementById('detaud');
+    box.innerHTML = a ? `<audio controls preload="none" src="${a.url}"></audio>`
+                      : `<div class="callnote">${t('noAud')}</div>`;
+  });
+}
+function closeDetail(){ modal.classList.remove('on'); sheet.innerHTML=''; }
+modal.addEventListener('click',e=>{ if(e.target===modal) closeDetail(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeDetail(); });
+
+/* ---------- Quiz engine ---------- */
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const QN=10;
+let quiz={mode:null,order:[],i:0,score:0,answered:false};
+
+function startQuiz(mode){
+  quiz={mode,order:shuffle(SPECIES).slice(0,QN),i:0,score:0,answered:false};
+  renderQuestion();
+}
+function optionsFor(correct){
+  const others=shuffle(SPECIES.filter(s=>s.id!==correct.id)).slice(0,3);
+  return shuffle([correct,...others]);
+}
+function quizContainer(){ return document.getElementById(quiz.mode==='photo'?'view-quizPhoto':'view-quizCall'); }
+
+function renderQuestion(){
+  const cont=quizContainer();
+  if(quiz.i>=quiz.order.length){ return renderResult(cont); }
+  const s=quiz.order[quiz.i];
+  const opts=optionsFor(s);
+  const label = quiz.mode==='photo'? t('whichBird') : t('whichCall');
+  cont.innerHTML=`
+    <div class="quizwrap">
+      <div class="qcard">
+        <div class="qtop"><span>${t('q')} ${quiz.i+1}/${quiz.order.length}</span><span class="js-score">${t('score')}: ${quiz.score}</span></div>
+        <div class="scorebar"><i style="width:${(quiz.i/quiz.order.length)*100}%"></i></div>
+        <div class="qmedia js-media" style="margin-top:14px">
+          <div class="ld"><span class="spinner"></span></div>
+        </div>
+        <div class="qprompt">${label}</div>
+        <div class="opts js-opts">
+          ${opts.map(o=>`<button class="opt" data-id="${o.id}">${quizOptionLabel(o)}</button>`).join('')}
+        </div>
+        <div class="fb js-fb"></div>
+        <div style="margin-top:14px;text-align:right"><button class="btn primary hidden js-next">${quiz.i+1>=quiz.order.length?t('finish'):t('next')}</button></div>
+      </div>
+    </div>`;
+  // media
+  const mbox=cont.querySelector('.js-media');
+  if(quiz.mode==='photo'){
+    getImage(s).then(src=>{ mbox.innerHTML = src?`<img src="${src}" alt="?">`:`<div class="ld">🪶</div>`; });
+  }else{
+    getAudio(s).then(a=>{
+      if(a){ mbox.innerHTML=`<div style="width:100%;padding:16px"><audio controls autoplay src="${a.url}" style="width:100%"></audio><div class="callnote" style="margin-top:8px;text-align:center">🔊 ${t('play')}</div></div>`; }
+      else { mbox.innerHTML=`<div class="ld" style="padding:20px;text-align:center">${t('noAud')}</div>`; }
+    });
+  }
+  quiz.answered=false;
+  cont.querySelectorAll('.js-opts .opt').forEach(b=>b.addEventListener('click',()=>choose(cont,b,s)));
+  cont.querySelector('.js-next').addEventListener('click',()=>{ quiz.i++; renderQuestion(); });
+}
+function quizOptionLabel(o){
+  if(LANG==='en') return `${o.en}<small>${o.sci}</small>`;
+  if(LANG==='both') return `${o.de} · ${o.en}<small>${o.sci}</small>`;
+  return `${o.de}<small>${o.sci}</small>`;
+}
+function choose(cont,btn,correct){
+  if(quiz.answered) return; quiz.answered=true;
+  const chosen=btn.dataset.id;
+  cont.querySelectorAll('.js-opts .opt').forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.id===correct.id) b.classList.add('correct');
+    else if(b.dataset.id===chosen) b.classList.add('wrong');
+  });
+  const fb=cont.querySelector('.js-fb');
+  if(chosen===correct.id){ quiz.score++; fb.innerHTML=`<span style="color:var(--good)">✔ ${t('correct')}</span>`; }
+  else { fb.innerHTML=`<span style="color:var(--bad)">✗ ${t('wrong')} <b>${LANG==='en'?correct.en:correct.de}</b></span>`; }
+  cont.querySelector('.js-score').textContent=`${t('score')}: ${quiz.score}`;
+  cont.querySelector('.js-next').classList.remove('hidden');
+}
+function renderResult(cont){
+  const pct=Math.round(quiz.score/quiz.order.length*100);
+  let emoji = pct>=90?'🏆':pct>=70?'🌟':pct>=50?'👍':'🌱';
+  cont.innerHTML=`
+    <div class="quizwrap"><div class="qcard result">
+      <div style="font-size:3rem">${emoji}</div>
+      <div class="big">${quiz.score}/${quiz.order.length}</div>
+      <p>${t('result_lead')} ${quiz.score} ${t('of')} ${quiz.order.length} (${pct}%)</p>
+      <button class="btn primary js-restart">${t('restart')}</button>
+    </div></div>`;
+  cont.querySelector('.js-restart').addEventListener('click',()=>startQuiz(quiz.mode));
+}
+function renderQuizStart(mode,cont){
+  cont.innerHTML=`
+    <div class="quizwrap"><div class="qcard" style="text-align:center">
+      <p style="font-size:1.05rem;margin-top:4px">${mode==='photo'?t('intro_qphoto'):t('intro_qcall')}</p>
+      <p class="meta" style="color:var(--muted)">${QN} ${t('q').toLowerCase()}s · ${SPECIES.length} ${LANG==='en'?'species':'Arten'}</p>
+      <button class="btn primary js-start" style="font-size:1.05rem;padding:12px 26px;margin-top:8px">${t('start')}</button>
+    </div></div>`;
+  cont.querySelector('.js-start').addEventListener('click',()=>startQuiz(mode));
+}
+
+/* ---------- View switching ---------- */
+const views={browse:document.getElementById('view-browse'),
+             quizPhoto:document.getElementById('view-quizPhoto')};
+let current='browse';
+function setView(v){
+  current=v;
+  Object.entries(views).forEach(([k,el])=>el.classList.toggle('hidden',k!==v));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.view===v));
+  const intro=document.getElementById('intro');
+  if(v==='browse'){ intro.textContent=t('intro_browse'); }
+  else { intro.textContent=''; renderQuizStart('photo',views.quizPhoto); }
+}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+
+/* ---------- Language switching ---------- */
+document.querySelectorAll('#langseg button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#langseg button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); LANG=b.dataset.lang;
+  document.documentElement.lang = LANG==='en'?'en':'de';
+  applyStatic(); renderGrid();
+  // reset quiz to start screen for chosen language
+  renderQuizStart('photo',views.quizPhoto);
+  if(current!=='browse') setView(current);
+}));
+
+function applyStatic(){
+  document.querySelector('[data-i18n="title"]').childNodes[0].nodeValue=t('title');
+  document.querySelector('[data-i18n="subtitle"]').textContent=t('subtitle');
+  document.querySelector('[data-view="browse"]').textContent=t('tab_browse');
+  document.querySelector('[data-view="quizPhoto"]').textContent=t('tab_qphoto');
+  document.getElementById('footnote').textContent=t('foot');
+  document.getElementById('intro').textContent = current==='browse'?t('intro_browse'):'';
+}
+
+/* ---------- init ---------- */
+applyStatic();
+renderGrid();
+setView('browse');
+</script>
+</body>
+</html>

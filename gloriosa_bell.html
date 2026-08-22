@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bell Beat Frequencies – Great Bells of Europe &amp; America</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#07090f; color:#c5b890;
+    font-family:Georgia,'Times New Roman',serif;
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center;
+    padding:24px 16px 48px;
+  }
+
+  /* ── Selector bar ──────────────────────────────────────────────────── */
+  .selector-bar {
+    display:flex; align-items:center; gap:10px;
+    margin-bottom:20px; width:100%; max-width:960px;
+    background:#0c1018; border:1px solid #1c2535;
+    border-radius:5px; padding:9px 14px;
+  }
+  .sel-label { color:#4a6070; font-size:.72rem; white-space:nowrap; flex-shrink:0; }
+  #bellSel {
+    flex:1; background:#0e1828; color:#c9a227;
+    border:1px solid #243848; border-radius:4px;
+    padding:5px 9px; font-family:Georgia,serif; font-size:.77rem; cursor:pointer;
+  }
+  #bellSel option { background:#0e1828; color:#b0c8a0; }
+  .est-badge {
+    background:#120d04; border:1px solid #503808; color:#907038;
+    border-radius:3px; padding:3px 9px; font-size:.67rem; white-space:nowrap;
+  }
+
+  /* ── Header ─────────────────────────────────────────────────────────── */
+  header { text-align:center; margin-bottom:14px; max-width:960px; }
+  h1 { color:#c9a227; font-size:1.22rem; letter-spacing:.05em; margin-bottom:4px; }
+  .sub  { color:#504535; font-size:.74rem; font-style:italic; line-height:1.6; }
+  .sub strong { color:#706050; font-style:normal; }
+
+  /* ── Panels ──────────────────────────────────────────────────────────── */
+  .panel {
+    background:#0c1018; border:1px solid #1c2535;
+    border-radius:6px; padding:11px 14px 13px;
+    width:100%; max-width:960px; margin-bottom:11px;
+  }
+  .ptitle { font-size:.62rem; text-transform:uppercase; letter-spacing:.12em; color:#3d5070; margin-bottom:8px; }
+  canvas { display:block; width:100%; }
+  #c1 { height:138px; }
+  #c2 { height:102px; }
+  #c3 { height:240px; }
+
+  .liss-wrap { display:flex; justify-content:center; margin:2px 0; }
+  #cL { width:260px; height:260px; flex-shrink:0; }
+
+  .leg { display:flex; flex-wrap:wrap; gap:14px; margin-top:8px; font-size:.67rem; color:#60707a; }
+  .li  { display:flex; align-items:center; gap:5px; }
+  .sw  { display:inline-block; width:16px; height:2px; flex-shrink:0; }
+
+  .desc { font-size:.73rem; color:#60707a; line-height:1.8; margin-top:9px; border-top:1px solid #141e2c; padding-top:8px; }
+
+  /* ── Note boxes ──────────────────────────────────────────────────────── */
+  .snote { border-radius:6px; padding:14px 18px; width:100%; max-width:960px; margin-bottom:12px; display:none; }
+  .snote h3 { font-size:.8rem; margin-bottom:10px; letter-spacing:.05em; }
+  .snote p  { font-size:.73rem; line-height:1.85; margin-bottom:8px; }
+  .snote p:last-child { margin-bottom:0; }
+  .snote em { font-style:normal; }
+
+  #crackNote { background:#0a1520; border:1px solid #24405a; }
+  #crackNote h3 { color:#5080a0; } #crackNote p { color:#6080a0; }
+  #crackNote em { color:#80a0c0; } #crackNote strong { color:#90b0c8; }
+
+  #castNote { background:#0e1a12; border:1px solid #254530; }
+  #castNote h3 { color:#508060; } #castNote p { color:#607860; }
+  #castNote em { color:#80a080; } #castNote strong { color:#90b890; }
+
+  #estNote { background:#0f0c07; border:1px solid #3a2508; }
+  #estNote h3 { color:#806030; } #estNote p { color:#705028; }
+  #estNote em { color:#a07840; } #estNote strong { color:#b08840; }
+
+  /* ── Always-visible casting note ──────────────────────────────────────── */
+  #castingNote {
+    background:#0b1015; border:1px solid #202a38;
+    border-radius:6px; padding:13px 18px;
+    width:100%; max-width:960px; margin-bottom:11px;
+  }
+  #castingNote h3 { color:#3d6070; font-size:.78rem; margin-bottom:8px; letter-spacing:.04em; }
+  #castingNote p  { font-size:.71rem; color:#4d6a70; line-height:1.85; margin-bottom:7px; }
+  #castingNote p:last-child { margin-bottom:0; }
+  #castingNote em     { color:#5d808a; font-style:normal; }
+  #castingNote strong { color:#6090a0; }
+  #castingNote .method-detail {
+    background:#0c181c; border-left:2px solid #2a5060;
+    padding:7px 12px; margin-bottom:7px; font-size:.71rem; color:#5a8090; line-height:1.7;
+  }
+  #castingNote .method-detail strong { color:#70a0b0; }
+
+  /* ── Compare bar ─────────────────────────────────────────────────────── */
+  .compare {
+    font-size:.7rem; color:#50687a; max-width:960px; width:100%;
+    text-align:center; margin-bottom:10px; font-style:italic; line-height:1.6;
+    background:#0a1018; border:1px solid #192530; border-radius:5px; padding:7px 14px;
+  }
+  .compare strong { color:#6888a0; font-style:normal; }
+
+  /* ── Controls ────────────────────────────────────────────────────────── */
+  .controls { display:flex; gap:12px; margin:8px 0 6px; justify-content:center; }
+  button.ring {
+    background:#c9a227; color:#07090f; border:none;
+    padding:10px 28px; font-family:Georgia,serif; font-size:.95rem; font-weight:bold;
+    cursor:pointer; border-radius:4px; transition:background .15s;
+  }
+  button.ring:hover { background:#d4b030; }
+  button.ring:disabled { background:#604800; color:#302400; cursor:default; }
+  button.stop {
+    background:#1a2232; color:#60788a; border:none;
+    padding:10px 20px; font-family:Georgia,serif; font-size:.9rem;
+    cursor:pointer; border-radius:4px;
+  }
+  button.stop:hover { background:#232f44; }
+
+  /* ── Footer ──────────────────────────────────────────────────────────── */
+  footer { font-size:.69rem; color:#38424e; max-width:800px; text-align:center; line-height:1.85; margin-top:16px; }
+  footer a { color:#4d6080; text-decoration:none; }
+  footer a:hover { color:#6d80a8; }
+  .note { color:#404858; margin-top:8px; font-size:.66rem; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="selector-bar">
+  <span class="sel-label">Bell:</span>
+  <select id="bellSel" onchange="switchBell(parseInt(this.value))"></select>
+  <span class="est-badge" id="estBadge" style="display:none">&#9888; Estimated data</span>
+</div>
+
+<header>
+  <h1 id="hTitle"></h1>
+  <p class="sub" id="hDetail"></p>
+</header>
+
+<div id="castingNote">
+  <h3>&#9658; Method of Casting &amp; Tuning</h3>
+  <div class="method-detail" id="castMethodDetail"></div>
+  <p id="castGeneral"></p>
+</div>
+
+<p class="compare" id="compareNote"></p>
+
+<div id="crackNote" class="snote">
+  <h3>&#9658; The Crack &mdash; A Note for the Curious Student</h3>
+  <p>Big Ben rang for the first time on 11 July 1859. Within two months it had cracked. The cause: the hammer supplied by the foundry weighed <strong>660 lb (300 kg)</strong> &mdash; far heavier than specification. Repeated blows split the bronze along a fissure roughly 1.2 metres long. Rather than recast, the bell was turned <strong>90 degrees</strong> so the clapper would strike fresh metal, and a lighter hammer fitted. Big Ben has rung from that turned position ever since.</p>
+  <p><em>What the crack does acoustically.</em> The crack destroys the bell's rotational symmetry, forcing each vibrational mode to split into two slightly different frequencies (<strong>doublet</strong>), one for each flexing plane. In an undamaged bell the two doublet components are nearly identical; in Big Ben the crack widens every doublet. The amplitude difference between in-phase and out-of-phase states creates the famous <strong>warble</strong> at 1.5 Hz on the Nominal.</p>
+  <p><em>Why it sounds like A, not E.</em> Despite a Nominal of ~335 Hz (E4), most listeners perceive Big Ben as A4 (440 Hz). A strong partial cluster near 883 Hz triggers a <strong>virtual pitch</strong> percept &mdash; the brain infers a missing fundamental of 440 Hz.</p>
+</div>
+
+<div id="castNote" class="snote">
+  <h3>&#9658; True-Harmonic Tuning &mdash; A Note for Students</h3>
+  <p><em>The distinction:</em> the doublet beating modelled here (the pulse within each partial) comes from <strong>physical asymmetry</strong> in the casting: uneven wall thickness causes each vibrational mode to split. No tuning process eliminates it; only a more perfectly symmetric casting would narrow it.</p>
+  <p>What the <strong>true-harmonic (Taylor/Simpson) system</strong> addressed was a different roughness. In old-style English bells the Hum partial sat about 2 semitones <em>sharp</em> and the Prime about 1.5 semitones <em>flat</em> of where they would need to be to form clean octaves with the Nominal. Canon Arthur Simpson described this in 1895&ndash;96 papers, and Taylor's achieved consistent true-harmonic tuning by 1896: <strong>Hum = 2 octaves below Nominal &middot; Prime = 1 octave below Nominal</strong>. The bell is lathe-turned inside to bring all five partials to exact harmonic ratios.</p>
+  <p><em>Continental traditions:</em> German founders worked in the <em>Nominalton</em> tradition &mdash; tuning the Nominal precisely while allowing other partials to sit where the profile places them. Both traditions are beautiful; they sound differently.</p>
+</div>
+
+<div id="estNote" class="snote">
+  <h3>&#9658; Estimated Data &mdash; No Confirmed Source Found</h3>
+  <p>No independently verified frequency or weight data has been located for this bell. The nominal frequency, mass, and year shown are <strong>estimated</strong> from historical records, contextual evidence, and physical scaling from comparable bells. The acoustic simulation is illustrative only and may differ significantly from the real bell.</p>
+</div>
+
+<div class="panel">
+  <div class="ptitle" id="pATitle"></div>
+  <canvas id="c1"></canvas>
+  <div class="leg" id="pALeg"></div>
+  <p class="desc" id="pADesc"></p>
+</div>
+
+<div class="panel">
+  <div class="ptitle">Phase Portrait (Lissajous) &mdash; x&nbsp;=&nbsp;sin(2&pi;f&#8321;t) horizontal &middot; y&nbsp;=&nbsp;sin(2&pi;f&#8322;t) vertical &middot; ellipse rotates once per beat period</div>
+  <div class="liss-wrap"><canvas id="cL"></canvas></div>
+  <p class="desc" id="pLDesc"></p>
+</div>
+
+<div class="panel">
+  <div class="ptitle" id="pBTitle"></div>
+  <canvas id="c2"></canvas>
+  <p class="desc" id="pBDesc"></p>
+</div>
+
+<div class="panel">
+  <div class="ptitle">Panel C &mdash; All partials &middot; amplitude envelopes over 30 seconds &middot; white bar = now</div>
+  <canvas id="c3"></canvas>
+  <p class="desc" id="pCDesc"></p>
+</div>
+
+<div class="controls">
+  <button class="ring" id="playBtn" onclick="ringBell()">&#9654; Ring the Bell</button>
+  <button class="stop" onclick="stopBell()">&#9632; Stop</button>
+</div>
+<p class="note">Synthesised with Web Audio API &middot; best with headphones or a speaker that reproduces bass &middot; second strike auto-repeats at 10 s</p>
+
+<footer id="footerDesc"></footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════════════════════════════════════════════
+const E3    = 164.814;
+const GNOM  = E3 * Math.pow(2, 1/192);   // Frankfurt  ≈ 165.41 Hz
+const GPRI  = GNOM / 2;
+const BHNOM = 196.0 * Math.pow(2, 4/192);// Bad Homburg ≈ 198.84 Hz
+const BHPRI = BHNOM / 2;
+const BBNOM = 335.0;   const BBPRI = BBNOM / 2;  // Big Ben
+const YPNOM = 304.5;   const YPPRI = YPNOM / 2;  // York
+const DCNOM = 590.5;   const DCPRI = DCNOM / 2;  // Durham
+const WCNOM = 518.3;   const WCPRI = WCNOM / 2;  // Winchester
+const SCNOM = 602.0;   const SCPRI = SCNOM / 2;  // Salisbury
+const KLNOM = 130.0;   const KLPRI = KLNOM / 2;  // Köln
+const WPNOM = 138.6;   const WPPRI = WPNOM / 2;  // Vienna
+const SZNOM = 155.6;   const SZPRI = SZNOM / 2;  // Salzburg
+const MFNOM = 220.0;   const MFPRI = MFNOM / 2;  // Munich Susanna
+const NDNOM = 185.0;   const NDPRI = NDNOM / 2;  // Notre Dame Emmanuel
+const DPNOM = 220.0;   const DPPRI = DPNOM / 2;  // Pauluskirche Darmstadt
+const BRNOM = 293.7;   const BRPRI = BRNOM / 2;  // Bad Reichenhall [est]
+const AFNOM = 349.2;   const AFPRI = AFNOM / 2;  // Ampleforth [est]
+const QANOM = 392.0;   const QAPRI = QANOM / 2;  // Quarr [est]
+const GMNOM = 415.0;   const GMPRI = GMNOM / 2;  // Gethsemani [est]
+const TXNOM = 609.0;   const TXPRI = TXNOM / 2;  // Thaxted
+
+const P2 = Math.pow(2, 3/12);  // minor third ratio (tierce)
+const P5 = Math.pow(2, 7/12);  // perfect fifth ratio (quinte)
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  BELLS  (sorted by nominal Hz, lowest first)
+// ═══════════════════════════════════════════════════════════════════════════════
+const BELLS = [
+
+// ─── 0 · KÖLN DOM PETERSGLOCKE 1923 ──────────────────────────────────────────
+{
+  h1:'Petersglocke · Hoher Dom zu Köln · Cologne Cathedral',
+  detail:'Cast <strong>1923</strong> · <strong>~24,000 kg · 24 t</strong> · Nominal C ≈ <strong>130 Hz</strong> (C3−) · Heaviest swinging bell in the world',
+  castDetail:'<strong>German swept-loam (Lehmguss) · Nominalton tuning · cast in situ at Cologne</strong><br>The enormous mass required casting in a temporary pit-foundry at the cathedral site. A rotating strickle (Schablone) shaped the loam core and outer cope to the required C-minus profile. The Nominal (Schlagton) was set as the primary tuning reference; the bell is so large that the hum partial drops below 33 Hz — below the threshold of hearing for many listeners, felt rather than heard.',
+  castGeneral:'The Petersglocke is one of several great bourdon bells on the continent that push the limits of what a single bell can achieve. At ~24 t it sits at the practical upper limit of castable and swingable bronze. The doublet beating (~1.2 Hz Nominal) arises, as always, from slight wall-thickness asymmetry in the casting — at this scale even minute variations in the cooling rate create measurable doublet widths.',
+  showCrack:false, showCast:false, estimated:false, featPI:4,
+  parts:[
+    {name:'Hum',        freq:KLPRI/2,      beat:1.2, amp:0.32, decay:38, color:'#3355bb'},
+    {name:'Prime',      freq:KLPRI,        beat:4.5, amp:0.68, decay:28, color:'#4477ee'},
+    {name:'Tierce',     freq:KLPRI*P2,     beat:2.5, amp:0.88, decay:20, color:'#44bb88'},
+    {name:'Quinte',     freq:KLPRI*P5,     beat:1.5, amp:0.55, decay:15, color:'#99cc44'},
+    {name:'Nominal',    freq:KLNOM,        beat:1.2, amp:1.00, decay:11, color:'#c9a227'},
+    {name:'Superoctave',freq:KLNOM*2,      beat:0.8, amp:0.55, decay: 5, color:'#ee6633'},
+  ],
+  pATitle:'Panel A — Doublet anatomy · Nominal partial (~130 Hz) · rolling window',
+  pADesc:'The Nominal doublet of the Petersglocke at ~130 Hz, beating at 1.2 Hz. This slow, majestic pulse gives the great bell its characteristic rumbling throb. At 24 t the bell moves enormous volumes of air; its lowest audible partial is the Hum at ~65 Hz, which many smaller speakers cannot reproduce.',
+  pBTitle:'Panel B — Beat envelope · Nominal partial · 2-second window',
+  pBDesc:'1.2 Hz beat on the Nominal — one throb every 833 ms. The very long decay (τ = 11 s on the Nominal, 38 s on the Hum) reflects the vast bronze mass. The Petersglocke rings only on major feast days; each stroke can be heard across the Rhine.',
+  pCDesc:'Six partials over 30 seconds. The Hum (~65 Hz, τ = 38 s) is the longest-decaying partial in this collection. At 24 t the bell stores so much acoustic energy that even the Superoctave (260 Hz) lasts 5 seconds. The slow beats on every partial give the Petersglocke its uniquely ponderous, cathedral-filling sound.',
+  pLDesc:'The Nominal doublet (130 Hz ± 0.6 Hz) traces an ellipse rotating at 1.2 Hz (period 833 ms) — among the slowest rotations in this collection. The slow beat reflects very slight asymmetry in a bell so massive that even minute casting variations are physically large. Watch the figure settle into its slow, stately rotation after ringing.',
+  compareNote:'<strong>The two great C-bells:</strong> Köln Petersglocke (C3−, 24 t, 1923) and Vienna Pummerin (D♭3, ~20 t, 1951) are the two heaviest bells in this collection, ringing within a semitone of each other. Between them they span the German and Austrian bourdon traditions of the 20th century.',
+  footer:'Petersglocke, Cologne Cathedral, cast 1923. Weight ~24,000 kg; nominal approximately C3 (130 Hz). One of the heaviest swinging bells in the world; rung only on major feast days. The bell hangs in the south tower of Cologne Cathedral (Hoher Dom St. Peter und Maria), a UNESCO World Heritage Site.<br><br>Sources: <a href="https://en.wikipedia.org/wiki/Bells_of_Cologne_Cathedral">Wikipedia · Bells of Cologne Cathedral</a> · <a href="https://www.koelner-dom.de">Kölner Dom official site</a>',
+},
+
+// ─── 1 · VIENNA PUMMERIN 1951 ─────────────────────────────────────────────────
+{
+  h1:'Pummerin · Stephansdom · Vienna (Wien)',
+  detail:'Cast <strong>1951</strong> by Glockengießerei Grassmayr, Innsbruck · <strong>~20,130 kg · ~20 t</strong> · Nominal D♭ ≈ <strong>138.6 Hz</strong> (D♭3) · Recast from the 1711 bell',
+  castDetail:'<strong>Austrian swept-loam · Nominalton tradition · Grassmayr, Innsbruck (est. 1599)</strong><br>The original Pummerin (1711) was cast from some 180 Turkish cannons captured at the 1683 Siege of Vienna. It fell from the tower in April 1945 during a fire caused by wartime bombing and shattered on impact. The fragments were carefully collected and recast by Grassmayr of Innsbruck in 1951 — one of the oldest bell-founding families in Europe, continuously active since 1599.',
+  castGeneral:'The reuse of the 1711 metal was deliberate: the Pummerin\'s bronze, forged from enemy cannon, had become a symbol of Austrian survival. The 1951 bell is slightly heavier than the original (some metal was added). Grassmayr used the same swept-loam Lehmguss method, with the Nominal set to D♭. The bell was hauled by helicopter to the north tower of the Stephansdom in 1952.',
+  showCrack:false, showCast:false, estimated:false, featPI:4,
+  parts:[
+    {name:'Hum',        freq:WPPRI/2,      beat:0.8, amp:0.30, decay:30, color:'#3355bb'},
+    {name:'Prime',      freq:WPPRI,        beat:3.5, amp:0.65, decay:22, color:'#4477ee'},
+    {name:'Tierce',     freq:WPPRI*P2,     beat:1.5, amp:0.85, decay:16, color:'#44bb88'},
+    {name:'Quinte',     freq:WPPRI*P5,     beat:1.0, amp:0.52, decay:12, color:'#99cc44'},
+    {name:'Nominal',    freq:WPNOM,        beat:0.8, amp:1.00, decay: 9, color:'#c9a227'},
+    {name:'Superoctave',freq:WPNOM*2,      beat:0.5, amp:0.55, decay: 5, color:'#ee6633'},
+  ],
+  pATitle:'Panel A — Doublet anatomy · Nominal partial (~138.6 Hz) · rolling window',
+  pADesc:'The Nominal doublet of the Pummerin at ~138.6 Hz (D♭3), beating at 0.8 Hz. The narrow beat reflects Grassmayr\'s precision 1951 casting — narrower than the Köln Petersglocke (1.2 Hz) despite similar size. The bell is rung only on New Year\'s Eve and a handful of major feast days, its strokes broadcast live across Austria.',
+  pBTitle:'Panel B — Beat envelope · Nominal partial · 2-second window',
+  pBDesc:'0.8 Hz beat on the Nominal — the period is 1.25 seconds, giving the Pummerin a very slow, deep oscillation. At ~20 t and a long decay, even the Superoctave (277 Hz) lasts five seconds. The narrow doublets are a mark of the modern Grassmayr casting.',
+  pCDesc:'Six partials over 30 seconds. Long decay at all partials (Hum τ = 30 s). The Pummerin\'s narrow doublets across all bands reflect 1951 foundry precision; compare with the Köln Petersglocke (wider doublets, older casting era) at nearly the same pitch.',
+  pLDesc:'The Nominal doublet (138.6 Hz ± 0.4 Hz) traces an ellipse rotating at 0.8 Hz (period 1.25 s) — one of the slowest rotations in this collection, matched by its neighbour the Köln Petersglocke. Both great C-range bells show the extreme slowness that comes with narrow doublets on very low nominals.',
+  compareNote:'<strong>Reborn from cannon:</strong> the Pummerin\'s bronze includes metal from Turkish siege-guns of 1683, melted into the 1711 bell, which fell and shattered in 1945 and was recast in 1951 — more than three centuries of Austrian history dissolved in a single alloy.',
+  footer:'Pummerin, Stephansdom Vienna, recast 1951 by Glockengießerei Grassmayr, Innsbruck. Weight ~20,130 kg; nominal D♭3 (~138.6 Hz). The original 1711 Pummerin was cast from cannon captured at the 1683 Siege of Vienna. It fell and shattered in April 1945; fragments were recast in 1951. The 1951 bell was winched into place by helicopter. Rung on New Year\'s Eve and major feast days; the strokes are broadcast live on Austrian radio and television.<br><br>Sources: <a href="https://en.wikipedia.org/wiki/Pummerin">Wikipedia · Pummerin</a> · <a href="https://www.stephanskirche.at">Stephansdom official site</a>',
+},
+
+// ─── 2 · SALZBURG DOM SALVATOR MUNDI 1961 ────────────────────────────────────
+{
+  h1:'Salvator Mundi · Dom zu Salzburg · Salzburg Cathedral',
+  detail:'Cast <strong>1961</strong> · <strong>14,256 kg · 14.26 t</strong> · Nominal E♭ ≈ <strong>155.6 Hz</strong> (E♭3) · Principal bell of Salzburg Cathedral',
+  castDetail:'<strong>Austrian swept-loam · Nominalton tradition · post-war Austrian casting</strong><br>The Salvator Mundi is the heaviest bell of the Salzburg Cathedral and one of the largest in Austria. It was cast in 1961 to replace earlier bells, using the swept-loam Lehmguss method standard for large Austrian cathedral bells. The E♭ nominal places it a semitone below the Frankfurt Gloriosa (E3) despite being heavier, reflecting a slightly deeper profile.',
+  castGeneral:'Salzburg Cathedral (consecrated 1628) is one of the major early-Baroque churches north of the Alps; Mozart was baptised here in 1756. The seven-bell set includes the Salvator Mundi as its foundation bass. The cathedral sits at the crossing of German and Austrian bell traditions; the 1961 bell\'s moderate doublet widths reflect post-war Austrian foundry practice.',
+  showCrack:false, showCast:false, estimated:false, featPI:4,
+  parts:[
+    {name:'Hum',        freq:SZPRI/2,      beat:0.8, amp:0.30, decay:26, color:'#3355bb'},
+    {name:'Prime',      freq:SZPRI,        beat:3.5, amp:0.65, decay:18, color:'#4477ee'},
+    {name:'Tierce',     freq:SZPRI*P2,     beat:1.5, amp:0.85, decay:13, color:'#44bb88'},
+    {name:'Quinte',     freq:SZPRI*P5,     beat:1.0, amp:0.52, decay:10, color:'#99cc44'},
+    {name:'Nominal',    freq:SZNOM,        beat:1.0, amp:1.00, decay: 8, color:'#c9a227'},
+    {name:'Superoctave',freq:SZNOM*2,      beat:0.5, amp:0.55, decay: 4, color:'#ee6633'},
+  ],
+  pATitle:'Panel A — Doublet anatomy · Nominal partial (~155.6 Hz) · rolling window',
+  pADesc:'The Salvator Mundi Nominal at ~155.6 Hz (E♭3), beating at 1.0 Hz. A clean one-pulse-per-second throb — the simplest possible beat to count. At 14.26 t the bell is the third-heaviest in this collection, with a long, resonant decay.',
+  pBTitle:'Panel B — Beat envelope · Nominal partial · 2-second window',
+  pBDesc:'1.0 Hz beat — exactly one pulse per second. The decay of τ = 8 s on the Nominal is slightly faster than the much heavier Pummerin or Petersglocke, as expected from the smaller mass.',
+  pCDesc:'Six partials over 30 seconds. Moderate doublet widths across all partials reflect 1961 Austrian foundry precision. The Salvator Mundi slots between Vienna Pummerin (D♭3) and Frankfurt Gloriosa (E3), completing the lowest trio of great continental bells in this collection.',
+  pLDesc:'The Nominal doublet (155.6 Hz ± 0.5 Hz) rotates at 1.0 Hz (period 1 s). Exactly one full ellipse-to-line-to-ellipse cycle every second, making the beat visually easy to time. The Lissajous here and on the next bell (Frankfurt, 1.0 Hz Nominal) are near-identical in rotation rate but differ in frequency by a tone.',
+  compareNote:'<strong>Three E♭-to-E great bells:</strong> Salzburg Salvator Mundi (E♭, 14.26 t), Frankfurt Gloriosa (E, 11.95 t), and Notre-Dame Emmanuel (F♯, 13 t) are three of the four heaviest continental bourdon bells in this collection, spanning barely a major third in pitch.',
+  footer:'Salvator Mundi, Salzburg Cathedral, cast 1961. Weight 14,256 kg; nominal E♭3 (≈ 155.6 Hz). Salzburg Cathedral was consecrated 1628; Mozart was baptised in the font of this cathedral on 28 January 1756, the day after his birth. The seven-bell set covers Salzburg\'s liturgical calendar; the Salvator Mundi rings for the most solemn feasts.<br><br>Sources: <a href="https://en.wikipedia.org/wiki/Salzburg_Cathedral">Wikipedia · Salzburg Cathedral</a>',
+},
+
+// ─── 3 · FRANKFURT DOM GLORIOSA 1877 ─────────────────────────────────────────
+{
+  h1:'Die Gloriosa · Kaiserdom St. Bartholomäus · Frankfurt am Main',
+  detail:'Cast <strong>1877</strong> by J.G. Große, Dresden · <strong>11,950 kg · 11.95 t</strong> · Strike note e⁰ (+¹⁄₁₆ st) ≈ <strong>165 Hz</strong> (E3)',
+  castDetail:'<strong>German swept-loam (Lehmguss) casting · Nominalton tuning</strong><br>A rotating wooden arm (Schablone) shaped the loam core and outer cope to exact geometric profiles. The Nominal note (Schlagton) was set as the primary tuning reference; relationships between the other partials (Hum, Prime, Tierce, Quint) were shaped by the bell\'s profile but not independently measured or adjusted.',
+  castGeneral:'The German Nominalton tradition focused on the accuracy of the main strike note; other partials were considered secondary. In a well-made German bell the partial relationships are musically pleasing, though not in the exact harmonic ratios that Taylor\'s true-harmonic system would later demand. The doublet beating you hear in this simulation is universal to all bells regardless of tuning tradition — it comes purely from slight asymmetry in the casting.',
+  showCrack:false, showCast:false, estimated:false, featPI:1,
+  parts:[
+    {name:'Hum',        freq:GPRI/2,       beat:1.0, amp:0.32, decay:28, color:'#3355bb'},
+    {name:'Prime',      freq:GPRI,         beat:4.5, amp:0.70, decay:20, color:'#4477ee'},
+    {name:'Tierce',     freq:GPRI*P2,      beat:2.0, amp:0.90, decay:15, color:'#44bb88'},
+    {name:'Quinte',     freq:GPRI*P5,      beat:1.0, amp:0.55, decay:12, color:'#99cc44'},
+    {name:'Nominal',    freq:GNOM,         beat:1.0, amp:1.00, decay: 9, color:'#c9a227'},
+    {name:'Superoctave',freq:GNOM*2,       beat:0.5, amp:0.60, decay: 5, color:'#ee6633'},
+  ],
+  pATitle:'Panel A — Doublet anatomy · Prime partial (~82.7 Hz) · rolling window',
+  pADesc:'A scrolling window showing the two doublet components of the Prime partial (f₁, f₂) and their sum. As the two components drift in and out of phase, the combined amplitude swells and fades — the physical origin of the beat. The Prime beats at 4.5 Hz, producing nearly 5 pulses per second.',
+  pBTitle:'Panel B — Beat envelope · Prime partial · 2-second window',
+  pBDesc:'The golden envelope pulses 4.5 times per second. The Gloriosa\'s regular casting — no damage, careful German profile — keeps beat frequencies moderate and musical, a hallmark of fine 19th-century German bellfounding.',
+  pCDesc:'All six partials over 30 seconds. The Hum (~41 Hz) outlasts everything at ~28 s, giving the Gloriosa its long, deep resonance. Each band shows its own beating ripple. Notice how upper partials fade first, leaving the Hum and Prime as the bell\'s enduring voice.',
+  pLDesc:'The Lissajous traces f₁ (horizontal) against f₂ (vertical) for the Prime doublet (~82.5 Hz and ~87.0 Hz). When the two are in phase the figure collapses toward a diagonal line (maximum amplitude). When 90° apart it opens into a circle. The ellipse rotates once per beat period (1/4.5 s ≈ 222 ms). Ring the bell and watch the phase portrait evolve in real time.',
+  compareNote:'<strong>Frankfurt and Notre-Dame:</strong> the Gloriosa (E3, 11.95 t, 1877) and Notre-Dame Emmanuel (F♯3, ~13 t, 1686) are the two great continental tenor bells closest in pitch in this collection — separated by a major third and 191 years of history.',
+  footer:'The Gloriosa\'s uneven wall thickness causes each vibrational mode to split into a doublet. Cast at 11,950 kg, it is the heaviest German bell in this collection. Strike note e⁰ +¹⁄₁₆ semitone ≈ 165 Hz, consistent with its enormous size.<br><br>Sources: <a href="https://de.wikipedia.org/wiki/Gloriosa_(Frankfurter_Dom)">Wikipedia · Gloriosa (Frankfurter Dom)</a> · <a href="https://www.keltektrust.org.uk/sob09.html">Keltek Trust · Doublets &amp; Beats</a>',
+},
+
+// ─── 4 · NOTRE-DAME PARIS BOURDON EMMANUEL 1686 ───────────────────────────────
+{
+  h1:'Bourdon Emmanuel · Cathédrale Notre-Dame de Paris',
+  detail:'Cast <strong>1686</strong> by Florentin le Guay et al., Paris · <strong>~13,000 kg · ~13 t</strong> · Nominal F♯ ≈ <strong>185 Hz</strong> (F♯3) · Survived the French Revolution and the 2019 fire',
+  castDetail:'<strong>French swept-loam bourdon casting · Continental (pre-true-harmonic) tradition</strong><br>Cast in a pit on the Terrain near the cathedral — the standard French method for large bells. Florentin le Guay (master founder of Paris) with Nicolas Chapelle, Jean Gillot and François Moreau. The French bourdon profile — wide relative to height — gives a notably rich, dark tone. Emmanuel\'s nominal at F♯3 sits above the Frankfurt Gloriosa (E3) despite being heavier, reflecting the distinctive French casting profile. The bell was cast three times (1680, 1681, 1686) before the chapter was satisfied with the result.',
+  castGeneral:'Emmanuel predates Canon Simpson\'s 1895 papers by 209 years and Taylor\'s true-harmonic system by over two centuries. Its doublet beating comes from casting asymmetry, as in every bell in this collection. The French bourdon tradition differs from both the German Nominalton and the English true-harmonic approach: the emphasis is on the richness and depth of the composite tone rather than on any one partial\'s accuracy. Baptismal godparents were Louis XIV and Maria Theresa of Spain.',
+  showCrack:false, showCast:false, estimated:false, featPI:4,
+  parts:[
+    {name:'Hum',        freq:NDPRI/2,      beat:0.8, amp:0.32, decay:30, color:'#3355bb'},
+    {name:'Prime',      freq:NDPRI,        beat:2.5, amp:0.70, decay:22, color:'#4477ee'},
+    {name:'Tierce',     freq:NDPRI*P2,     beat:1.5, amp:0.88, decay:16, color:'#44bb88'},
+    {name:'Quinte',     freq:NDPRI*P5,     beat:1.0, amp:0.55, decay:13, color:'#99cc44'},
+    {name:'Nominal',    freq:NDNOM,        beat:1.0, amp:1.00, decay:10, color:'#c9a227'},
+    {name:'Superoctave',freq:NDNOM*2,      beat:0.5, amp:0.55, decay: 5, color:'#ee6633'},
+  ],
+  pATitle:'Panel A — Doublet anatomy · Nominal partial (~185 Hz) · rolling window',
+  pADesc:'The Emmanuel Nominal at ~185 Hz (F♯3), beating at 1.0 Hz. One of the most historically significant tones in this collection: this is the note that rang at the Liberation of Paris in August 1944, that was silenced during the French Revolution and restored in 1802, and that survived the April 2019 fire when firefighters prevented the flames from reaching the south tower.',
+  pBTitle:'Panel B — Beat envelope · Nominal partial · 2-second window',
+  pBDesc:'1.0 Hz beat — one pulse per second on the Nominal. At ~13 t and with the generous decay typical of a heavy French bourdon, the Nominal lasts around 10 seconds. The French bourdon profile gives a particularly dark, complex composite tone; the 1686 casting has the character of its era.',
+  pCDesc:'Six partials over 30 seconds. Long decays across all partials reflect the great mass of the bell (~13 t). The French bourdon tradition prizes the composite richness of all partials sounding together rather than strict harmonic ratios. Emmanuel\'s moderate doublet widths are consistent with careful 17th-century founding practice.',
+  pLDesc:'The Nominal doublet (185 Hz ± 0.5 Hz) traces an ellipse rotating at 1.0 Hz (period 1 s). The same rate as the Salzburg Salvator Mundi, but at a higher nominal frequency. Both bells ring at about 1 Hz on the Nominal — a characteristic doublet width for large, carefully cast continental bells.',
+  compareNote:'<strong>The oldest and the largest:</strong> Emmanuel (1686, F♯3, ~13 t) is the oldest bell in this collection, cast 191 years before the Frankfurt Gloriosa (1877, E3, 11.95 t). Both are heavy continental tenor bells; between them and the Köln Petersglocke they represent three distinct national traditions of great-bell founding.',
+  footer:'Emmanuel, Notre-Dame de Paris, cast 1686 by Florentin le Guay, Nicolas Chapelle, Jean Gillot and François Moreau. Weight officially ~13,000 kg; diameter 262 cm; hung in the south tower. Godparents: Louis XIV and Maria Theresa of Spain. Survived the French Revolution by removal to storage (1794–1802). Survived the 2019 fire when firefighters prevented flames reaching the south tower. Rang at the Liberation of Paris, August 1944. Designated French historic monument 1944. Notre-Dame reopened December 2024 after restoration.<br><br>Sources: <a href="https://en.wikipedia.org/wiki/List_of_bells_in_Notre-Dame_de_Paris">Wikipedia · Bells of Notre-Dame de Paris</a> · <a href="https://www.notredamedeparis.fr/en/understand/architecture/the-bells/">Notre-Dame de Paris · The Bells</a>',
+},
+
+// ─── 5 · BAD HOMBURG KAISERGLOCKE 1905 ───────────────────────────────────────
+{
+  h1:'Kaiserglocke · Evangelische Erlöserkirche · Bad Homburg vor der Höhe',
+  detail:'Cast <strong>1905</strong> by Andreas Hamm, Frankenthal · <strong>6,400 kg · 6.40 t</strong> · Strike note g⁰ (+⁴⁄₁₆ st) ≈ <strong>199 Hz</strong> (G3)',
+  castDetail:'<strong>German swept-loam (Lehmguss) · Nominalton tuning, early 20th-century Hamm foundry</strong><br>Same swept-loam / rotating-strickle (Schablone) method as Frankfurt. The Hamm foundry of Frankenthal was a leading German founder; by 1905 some degree of partial refinement beyond just the Nominal was common, but not the systematic five-partial lathe-tuning adopted by Taylor\'s in England from 1896.',
+  castGeneral:'German and English traditions were each developing their own approaches at the turn of the 20th century. The Hamm bell sounds slightly cleaner than 19th-century German bells (narrower doublets, 3.5 Hz vs. 4.5 Hz for Frankfurt) partly because foundry precision improved and partly because later strickle profiles were more carefully designed.',
+  showCrack:false, showCast:false, estimated:false, featPI:1,
+  parts:[
+    {name:'Hum',        freq:BHPRI/2,      beat:0.8, amp:0.30, decay:22, color:'#3355bb'},
+    {name:'Prime',      freq:BHPRI,        beat:3.5, amp:0.65, decay:16, color:'#4477ee'},
+    {name:'Tierce',     freq:BHPRI*P2,     beat:1.5, amp:0.85, decay:12, color:'#44bb88'},
+    {name:'Quinte',     freq:BHPRI*P5,     beat:0.8, amp:0.52, decay:10, color:'#99cc44'},
+    {name:'Nominal',    freq:BHNOM,        beat:0.8, amp:1.00, decay: 7, color:'#c9a227'},
+    {name:'Superoctave',freq:BHNOM*2,      beat:0.4, amp:0.55, decay: 4, color:'#ee6633'},
+  ],
+  pATitle:'Panel A — Doublet anatomy · Prime partial (~99.4 Hz) · rolling window',
+  pADesc:'The Prime partial of the Kaiserglocke at ~99.4 Hz, beating at 3.5 Hz — slightly slower than the Frankfurt Gloriosa\'s 4.5 Hz, reflecting improved 1905 Hamm foundry precision. The Kaiserglocke is the tenor of a five-bell G-major carillon.',
+  pBTitle:'Panel B — Beat envelope · Prime partial · 2-second window',
+  pBDesc:'The 3.5 Hz beat is between Frankfurt\'s 4.5 Hz and the Durham tenor\'s 6 Hz — consistent with a well-made early 20th-century German bell. At 6.40 t the bell is smaller than Frankfurt, so it also decays more quickly.',
+  pCDesc:'Six partials over 30 seconds. The regular decay pattern and controlled beat widths on all partials reflect a well-made Hamm bell. Compare with Frankfurt: both German, both Nominalton tuning, slightly different doublet widths.',
+  pLDesc:'The Prime doublet (99.4 Hz ± 1.75 Hz) traces an ellipse rotating at 3.5 Hz — one full rotation every 286 ms. Slower than Frankfurt\'s 222 ms rotation but faster than Big Ben\'s 667 ms warble. The Lissajous makes the phase relationship immediately visible; Panel B shows the same information as an amplitude-time graph.',
+  compareNote:'<strong>German minor third:</strong> Frankfurt (E3 · 11.95 t · 1877) and Bad Homburg (G3 · 6.40 t · 1905) sit a minor third apart — they would ring a musically rich interval together. Bad Homburg\'s five-bell carillon spells out a G-major chord.',
+  footer:'Kaiserglocke, Erlöserkirche Bad Homburg, cast 1905 by Hamm, Frankenthal. The five-bell carillon sounds G3, B3, D4, E4, G4 — a near-perfect G-major chord. Source: H. Foersch, <em>Limburger Glockenbuch</em> (1996); <a href="https://dewiki.de/Lexikon/Erl%C3%B6serkirche_(Bad_Homburg)">dewiki.de · Erlöserkirche (Bad Homburg)</a>',
+},
+
+// ─── 6 · MUNICH FRAUENKIRCHE SUSANNA 1490 ────────────────────────────────────
+{
+  h1:'Susanna · Frauenkirche (Dom zu Unserer Lieben Frau) · Munich (München)',
+  detail:'Cast <strong>1490</strong> · <strong>~8,000 kg · ~8 t</strong> · Nominal A ≈ <strong>220 Hz</strong> (A3) · Medieval bell · Oldest in this collection',
+  castDetail:'<strong>Medieval German loam casting · pre-Nominalton tradition</strong><br>Cast in 1490 using the same swept-loam pit-casting method that would remain standard for centuries, but without the systematic tuning protocols developed later. The 15th-century founder shaped the bell\'s profile from experience and workshop tradition alone; partial frequencies fell wherever the geometry and cooling placed them. The result is a bell with characteristically wide doublets — not from carelessness, but from the absence of measurement tools and lathe-tuning techniques that would not exist for another 400 years.',
+  castGeneral:'The Susanna is the oldest bell in this collection by 171 years (Salisbury 1661 is the next oldest). It predates Galileo\'s study of pendulums, Newton\'s Principia, and any systematic understanding of acoustics. That it still rings at Munich\'s cathedral, still produces the same doublet physics as every bell in this collection, is a reminder that the underlying physics of bell vibration was always there — waiting for science to catch up with craft.',
+  showCrack:false, showCast:false, estimated:false, featPI:4,
+  parts:[
+    {name:'Hum',        freq:MFPRI/2,      beat:2.0, amp:0.28, decay:22, color:'#3355bb'},
+    {name:'Prime',      freq:MFPRI,        beat:6.0, amp:0.62, decay:14, color:'#4477ee'},
+    {name:'Tierce',     freq:MFPRI*P2,     beat:3.0, amp:0.82, decay:10, color:'#44bb88'},
+    {name:'Quinte',     freq:MFPRI*P5,     beat:2.0, amp:0.50, decay: 8, color:'#99cc44'},
+    {name:'Nominal',    freq:MFNOM,        beat:2.0, amp:1.00, decay: 6, color:'#c9a227'},
+    {name:'Superoctave',freq:MFNOM*2,      beat:1.0, amp:0.55, decay: 3, color:'#ee6633'},
+  ],
+  pATitle:'Panel A — Doublet anatomy · Nominal partial (~220 Hz) · rolling window',
+  pADesc:'The Susanna Nominal at 220 Hz (A3), beating at 2.0 Hz. The wide doublets — roughly twice as wide as modern precision foundry bells at the same pitch — are the acoustic signature of 15th-century casting. Compare with the Pauluskirche Darmstadt (also 220 Hz, 1955): the difference in doublet widths spans five centuries of foundry development.',
+  pBTitle:'Panel B — Beat envelope · Nominal partial · 2-second window',
+  pBDesc:'2.0 Hz beat on the Nominal. The characteristically wide, lively doublets of a medieval bell give the Susanna a rougher, more complex tone than modern bells at the same pitch. At ~8 t (far lighter than the great European bourdons above it), it also decays more quickly.',
+  pCDesc:'Six partials over 30 seconds. Wide doublets on every partial — 6.0 Hz on the Prime is the widest in this collection. The 1490 casting left no partial particularly well controlled. The bell is now 535 years old; every stroke it has ever rung has produced this same doublet physics.',
+  pLDesc:'The Nominal doublet (220 Hz ± 1.0 Hz) rotates at 2.0 Hz (period 500 ms). Compare directly with the Pauluskirche Darmstadt (also 220 Hz Nominal) — identical pitch, almost identical rotation rate shown here, but when you listen the medieval wide doublets produce a noticeably rougher sound than the 1955 precision casting.',
+  compareNote:'<strong>Same pitch, five centuries apart:</strong> the Susanna (1490, ~8 t, wide doublets) and the Pauluskirche Darmstadt bass (1955, 3.65 t, narrow doublets) both ring at A3. Ring each in turn and listen for the difference that 465 years of foundry craft makes to the doublet widths and decay.',
+  footer:'Susanna, Cathedral of Our Lady (Frauenkirche), Munich, cast 1490. Weight approximately 8,000 kg; nominal A3 (220 Hz). The Frauenkirche was completed in 1488; the Susanna was cast just two years later. It is one of the oldest large bells still in regular cathedral use in Bavaria. The Frauenkirche is the cathedral church of the Archbishop of Munich and Freising.<br><br>Sources: <a href="https://en.wikipedia.org/wiki/Frauenkirche,_Munich">Wikipedia · Frauenkirche, Munich</a>',
+},
+
+// ─── 7 · PAULUSKIRCHE DARMSTADT 1955 ─────────────────────────────────────────
+{
+  h1:'Große Glocke · Evangelische Pauluskirche · Darmstadt',
+  detail:'Cast <strong>1955</strong> by Glockengießerei Bachert, Kochendorf (Heilbronn) · <strong>3,649 kg · 3.65 t</strong> · Nominal A ≈ <strong>220 Hz</strong> (A3) · Deepest bell in Darmstadt',
+  castDetail:'<strong>German swept-loam (Lehmguss) · Nominalton tuning · Bachert foundry, post-WWII reconstruction</strong><br>Bachert (Kochendorf near Heilbronn, later Karlsruhe) was one of the leading German foundries of the post-war reconstruction period. Three of the four original Pauluskirche bells were seized for war metals in 1943; the surviving bell was recast as part of a new set of four in 1955. The Lehmguss method was unchanged; what changed was the precision of strickle profiles and the availability of electronic pitch measurement tools unavailable to 15th-century founders.',
+  castGeneral:'Post-WWII German bell-founding saw a wave of reconstruction, with foundries like Bachert, Rincker and Perner reequipping dozens of devastated church towers. The bass bell\'s inscription — <em>Ich bin das A und das O</em> (I am the Alpha and the Omega, Rev. 22:13) — resonates differently when one knows the three preceding bells were destroyed at Germany\'s darkest hour.',
+  showCrack:false, showCast:false, estimated:false, featPI:4,
+  parts:[
+    {name:'Hum',        freq:DPPRI/2,      beat:0.8, amp:0.30, decay:20, color:'#3355bb'},
+    {name:'Prime',      freq:DPPRI,        beat:3.0, amp:0.65, decay:12, color:'#4477ee'},
+    {name:'Tierce',     freq:DPPRI*P2,     beat:1.5, amp:0.85, decay: 8, color:'#44bb88'},
+    {name:'Quinte',     freq:DPPRI*P5,     beat:0.8, amp:0.52, decay: 7, color:'#99cc44'},
+    {name:'Nominal',    freq:DPNOM,        beat:0.8, amp:1.00, decay: 6, color:'#c9a227'},
+    {name:'Superoctave',freq:DPNOM*2,      beat:0.4, amp:0.55, decay: 3, color:'#ee6633'},
+  ],
+  pATitle:'Panel A — Doublet anatomy · Nominal partial (~220 Hz) · rolling window',
+  pADesc:'The Pauluskirche Darmstadt Nominal at 220 Hz (A3), beating at 0.8 Hz — the same pitch as the 1490 Munich Susanna but with dramatically narrower doublets (0.8 Hz vs 2.0 Hz). The Bachert 1955 casting precision, electronic tuning tools, and modern strickle profiles together produced doublets less than half as wide as the medieval bell at the identical frequency.',
+  pBTitle:'Panel B — Beat envelope · Nominal partial · 2-second window',
+  pBDesc:'0.8 Hz beat — one gentle pulse every 1.25 s. A modern post-war German bell, narrower doublets than the 1490 Susanna at the same pitch. At 3.65 t the bell is much lighter than the heavy continental bourdons above it in the list; its decay is correspondingly faster.',
+  pCDesc:'Six partials over 30 seconds. Narrow doublets on all partials reflect Bachert\'s 1955 precision. At 3.65 t, decays are shorter than the heavy bourdons but longer than the small English bells. Inscription on the bell: <em>Ich bin das A und das O</em> — cast 10 years after the destruction of its predecessors.',
+  pLDesc:'The Nominal doublet (220 Hz ± 0.4 Hz) rotates at 0.8 Hz (period 1.25 s). This is the same frequency as the Vienna Pummerin\'s Nominal rotation — two very different bells (20 t vs 3.65 t, 1951 vs 1955) that happen to share both the same beat rate and, in this case, the same bell family (Nominalton, German/Austrian post-war). The different weights mean very different decays.',
+  compareNote:'<strong>A3 in two eras:</strong> the Munich Susanna (1490, ~8 t, medieval doublets) and the Pauluskirche Darmstadt (1955, 3.65 t, modern doublets) both ring at A3 = 220 Hz. Selecting each in turn and listening reveals five centuries of foundry progress in a single tone.',
+  footer:'Pauluskirche Darmstadt bass bell (Große Glocke), cast 1955 by Glockengießerei Bachert, Kochendorf (Heilbronn). Weight 3,649 kg; diameter 188 cm; pitch a0 (A3 = 220 Hz). Inscription: <em>Ich bin das A und das O</em>. Three predecessor bells were confiscated for war metal in 1943. This bell and its three companions were cast in 1955 as a post-war reconstruction set. Source: Evangelische Paulusgemeinde Darmstadt official site (paulusgemeinde-darmstadt.de) · bell data verified from congregation\'s own records.',
+},
+
+// ─── 8 · BAD REICHENHALL ST. ZENO [ESTIMATED] ────────────────────────────────
+{
+  h1:'Große Glocke · Stiftskirche St. Zeno · Bad Reichenhall',
+  detail:'<strong>[Frequency estimated]</strong> · Weight <strong>~1,500 kg [estimated]</strong> · Nominal D ≈ <strong>293.7 Hz</strong> (D4, estimated) · Bavarian Augustinian collegiate church',
+  castDetail:'<strong>[Foundry and date not confirmed] · Bavarian German tradition estimated</strong><br>St. Zeno in Bad Reichenhall is one of the most significant Romanesque churches in Bavaria, founded in the 12th century. The tower bells include a principal bourdon whose exact weight, foundry and year have not been confirmed in available sources. The estimated D4 nominal (293.7 Hz) is derived from physical scaling laws applied to similar-weight Bavarian bells; the doublet widths shown are representative of German bells of unknown but traditional casting.',
+  castGeneral:'The Stiftskirche St. Zeno has one of the finest Romanesque interiors in southern Germany. Its bell tower has rung over the spa town of Bad Reichenhall for centuries; the exact history of the current bells awaits further research. All acoustic parameters for this bell are estimates.',
+  showCrack:false, showCast:false, estimated:true, featPI:4,
+  parts:[
+    {name:'Hum',        freq:BRPRI/2,      beat:1.5, amp:0.28, decay:18, color:'#3355bb'},
+    {name:'Prime',      freq:BRPRI,        beat:4.5, amp:0.62, decay:12, color:'#4477ee'},
+    {name:'Tierce',     freq:BRPRI*P2,     beat:2.5, amp:0.82, decay: 9, color:'#44bb88'},
+    {name:'Quinte',     freq:BRPRI*P5,     beat:1.5, amp:0.50, decay: 7, color:'#99cc44'},
+    {name:'Nominal',    freq:BRNOM,        beat:1.5, amp:1.00, decay: 5, color:'#c9a227'},
+    {name:'Superoctave',freq:BRNOM*2,      beat:0.8, amp:0.50, decay: 3, color:'#ee6633'},
+  ],
+  pATitle:'Panel A — Doublet anatomy · Nominal partial (~293.7 Hz, estimated) · rolling window',
+  pADesc:'Estimated D4 Nominal at ~293.7 Hz, beating at 1.5 Hz (estimated). All acoustic parameters for this bell are illustrative estimates; no primary-source frequency data has been located. The Stiftskirche St. Zeno is a major Romanesque church in the Bavarian Alps.',
+  pBTitle:'Panel B — Beat envelope · Nominal partial · 2-second window',
+  pBDesc:'1.5 Hz beat (estimated). The simulated decay and doublet widths are representative of a Bavarian German bell of approximately this size; they are not derived from measurement of the actual bell.',
+  pCDesc:'Six partials (all estimated). The St. Zeno bell slots between the Pauluskirche Darmstadt (A3) and York Great Peter (E♭4) in pitch. These parameters await confirmation from campanological surveys of the Bad Reichenhall tower.',
+  pLDesc:'Estimated Nominal doublet (293.7 Hz ± 0.75 Hz) rotating at 1.5 Hz. All parameters estimated; the actual bell may differ substantially from this simulation.',
+  compareNote:'<strong>Estimated:</strong> St. Zeno, Bad Reichenhall (D4, ~1.5 t, est.) sits between the heavy Darmstadt bass (A3, 3.65 t) and the York Great Peter (E♭4, 11 t) in pitch — a mid-weight Bavarian church bell filling the D4 gap in this collection.',
+  footer:'Stiftskirche St. Zeno, Bad Reichenhall, Bavaria. Founded 12th century as an Augustinian collegiate church; one of the finest Romanesque interiors in southern Germany. Bell data shown here is <strong>estimated</strong> — no confirmed source has been located for the weight, year or frequency of the current principal bell. If you have primary source data, please contact the simulation author.<br><br>Sources: <a href="https://en.wikipedia.org/wiki/St._Zeno%27s_Church,_Bad_Reichenhall">Wikipedia · St. Zeno\'s Church, Bad Reichenhall</a>',
+},
+
+// ─── 9 · YORK GREAT PETER 1927 ───────────────────────────────────────────────
+{
+  h1:'Great Peter · Cathedral &amp; Metropolitical Church of St Peter · York Minster',
+  detail:'Cast <strong>1927</strong> by John Taylor &amp; Co, Loughborough · <strong>11,009 kg · 11.01 t</strong> · Nominal E♭ = <strong>304.5 Hz</strong> · Largest manually-swung bell in the British Isles',
+  castDetail:'<strong>English swept-loam + lathe-turned inside · True-harmonic (Taylor/Simpson) tuning, 1920s carillon profile</strong><br>After casting in a swept-loam cope-and-core mould, the bell was mounted on Taylor\'s precision lathe (installed 1895). Metal was removed from specific rings inside the bell to bring all five partials to true-harmonic intervals. By 1927 Taylor\'s were in their "carillon period" (from early 1920s), using a slightly flatter tierce profile to serve both ringing and carillon markets.',
+  castGeneral:'True-harmonic tuning makes the Hum, Prime and Nominal stand in perfect octaves, and the Tierce a minor third above the Prime. The result is a "purer" composite tone than old-style bells. The doublet beating in Great Peter (~3.5 Hz Prime, ~0.8 Hz Nominal) is not from tuning but from residual asymmetry in the casting — unavoidable even with the best 1927 foundry technique.',
+  showCrack:false, showCast:true, estimated:false, featPI:1,
+  parts:[
+    {name:'Hum',        freq:YPPRI/2,      beat:1.0, amp:0.30, decay:30, color:'#3355bb'},
+    {name:'Prime',      freq:YPPRI,        beat:3.5, amp:0.68, decay:22, color:'#4477ee'},
+    {name:'Tierce',     freq:YPPRI*P2,     beat:2.0, amp:0.88, decay:16, color:'#44bb88'},
+    {name:'Quinte',     freq:YPPRI*P5,     beat:1.0, amp:0.55, decay:13, color:'#99cc44'},
+    {name:'Nominal',    freq:YPNOM,        beat:0.8, amp:1.00, decay: 9, color:'#c9a227'},
+    {name:'Superoctave',freq:YPNOM*2,      beat:0.5, amp:0.60, decay: 5, color:'#ee6633'},
+  ],
+  pATitle:'Panel A — Doublet anatomy · Prime partial (~152 Hz) · rolling window',
+  pADesc:'Great Peter\'s Prime at ~152 Hz beats at 3.5 Hz. At 11,009 kg this is one of the heaviest swinging bells in the world, rung by hand for five minutes at noon every weekday. Its nominal (304.5 Hz, Dove\'s Guide) sits just 11 Hz below Big Ben.',
+  pBTitle:'Panel B — Beat envelope · Prime partial · 2-second window',
+  pBDesc:'3.5 Hz beat — slightly narrower than Frankfurt (4.5 Hz), consistent with Taylor\'s true-harmonic process producing more symmetric bells. Great Peter replaced an 1845 Whitechapel bell that was found to be unringable, using the same 1845 oak frame.',
+  pCDesc:'Six partials over 30 seconds. The Hum (~76 Hz) gives the bell its deep organ-like presence. At 11 tonnes, all partials decay slowly. True-harmonic tuning brought the five main partials into clean harmonic ratios; the residual doublets are purely from casting asymmetry.',
+  pLDesc:'The Prime doublet (152 Hz ± 1.75 Hz) traces an ellipse rotating at 3.5 Hz (period 286 ms). True-harmonic tuning brought the five main partials into clean harmonic ratios; the residual 3.5 Hz doublet seen here is from casting asymmetry, not tuning errors. Contrast with Durham (1693): a 6 Hz doublet, wider because 17th-century casting was less precise.',
+  compareNote:'<strong>Great Peter and Big Ben:</strong> York (E♭4, 11.01 t, 1927 Taylor) and Westminster (E4, 13.76 t, 1858 Mears) are the two heaviest English bells in this collection, ringing within a semitone of each other — and telling opposite stories: one true-harmonic and intact, the other old-style and cracked.',
+  footer:'Great Peter, Taylor 1927. Weight 11,009 kg; nominal E♭ at 304.5 Hz (Dove\'s Guide). The largest manually-swung bell in England, rung at noon each weekday. Bill Hibbert\'s research confirms Taylor\'s 1920s carillon-era profile (equal-tempered nominals, flatter tierces).<br><br>Sources: <a href="https://dove.cccbr.org.uk/tower/11340">Dove\'s Guide · York Minster</a> · <a href="https://www.hibberts.co.uk/a-history-of-taylors-in-bell-sounds/">Hibbert · A History of Taylors in Bell Sounds</a>',
+},
+
+// ─── 10 · BIG BEN 1858 ───────────────────────────────────────────────────────
+{
+  h1:'Big Ben · Elizabeth Tower · Westminster, London',
+  detail:'Cast <strong>1858</strong> by George Mears, Whitechapel · <strong>13,760 kg · 13.76 t</strong> · Nominal ≈ <strong>335 Hz</strong> (E4 +27¢) · <em>Cracked September 1859</em>',
+  castDetail:'<strong>English swept-loam cope-and-core · Old-style English tuning</strong><br>Cast by Mears at the Whitechapel Foundry in a pit using swept-loam moulds — the standard English method. The Whitechapel strickle profiles of 1858 produced "old-style" bells in which the Hum partial sits about 2 semitones sharp and the Prime about 1.5 semitones flat of true-harmonic ideal. Canon Simpson\'s papers (1895–96) and Taylor\'s true-harmonic revolution came 37 years after this bell was cast.',
+  castGeneral:'Old-style tuning was the universal English norm before the 1890s. The "roughness" of an old-style bell is not doublet beating (which is universal) but a discordance between the Hum, Prime and Nominal — they do not sit in clean octave ratios. The crack of 1859 adds a second layer of roughness by widening all doublets. Big Ben carries both effects simultaneously.',
+  showCrack:true, showCast:false, estimated:false, featPI:4,
+  parts:[
+    {name:'Hum',        freq:BBPRI/2,      beat:2.0, amp:0.28, decay:22, color:'#3355bb'},
+    {name:'Prime',      freq:BBPRI,        beat:7.0, amp:0.60, decay:18, color:'#4477ee'},
+    {name:'Tierce',     freq:BBPRI*P2,     beat:3.5, amp:0.80, decay:13, color:'#44bb88'},
+    {name:'Quinte',     freq:BBPRI*P5,     beat:2.0, amp:0.50, decay:10, color:'#99cc44'},
+    {name:'Nominal',    freq:BBNOM,        beat:1.5, amp:0.85, decay: 7, color:'#c9a227'},
+    {name:'Superoctave',freq:BBNOM*2,      beat:3.0, amp:0.70, decay: 4, color:'#ee6633'},
+    {name:'Secondary ★',freq:883,     beat:1.0, amp:0.82, decay: 4, color:'#cc4488'},
+  ],
+  pATitle:'Panel A — Doublet anatomy · Nominal partial (~335 Hz) · rolling window',
+  pADesc:'The Nominal doublet — the famous warble — beats at 1.5 Hz. The crack of 1859 widened every doublet in the bell beyond what it would have been undamaged. See the crack note below.',
+  pBTitle:'Panel B — Beat envelope · Nominal partial · 2-second window',
+  pBDesc:'Big Ben\'s warble: 1.5 Hz, period 0.67 s. A slow, majestic oscillation. The crack is its cause, and the crack has never been repaired.',
+  pCDesc:'Seven partials including the Secondary strike (★, pink) at 883 Hz. This high partial generates a virtual pitch at ~440 Hz (A4) — why most listeners hear Big Ben as A not E. Note the wide doublets (7 Hz Prime, 3.5 Hz Tierce) caused by the crack.',
+  pLDesc:'The Nominal doublet (335 Hz ± 0.75 Hz) traces an ellipse rotating at 1.5 Hz — one full rotation every 667 ms, the slowest for an undamaged bell in this collection. The languid rotation corresponds directly to Big Ben\'s famous warble. Watch the figure through a full rotation: the beat minimum (line) and maximum (circle) are clearly visible.',
+  compareNote:'<strong>Weight vs. pitch:</strong> Big Ben (13.76 t) is the heaviest bell in this collection yet rings at E4 — an octave above Frankfurt\'s E3. English bells use a thinner, wider profile than German bells; the same weight produces a quite different sound.',
+  footer:'Big Ben cast 1858 by George Mears, Whitechapel. Cracked 1859; turned 90° and fitted with a lighter hammer; the crack has never been sealed. Old-style Whitechapel tuning confirmed by Bill Hibbert\'s analysis.<br><br>Sources: <a href="https://www.hibberts.co.uk/basic-principles-of-bell-tuning/">Hibbert · Basic principles of bell tuning</a> · <a href="https://www.parliament.uk/about/living-heritage/building/palace/big-ben/facts-figures/great-bell/">UK Parliament · The Great Bell</a>',
+},
+
+// ─── 11 · AMPLEFORTH ABBEY [ESTIMATED] ───────────────────────────────────────
+{
+  h1:'Great Bell · Ampleforth Abbey · North Yorkshire',
+  detail:'<strong>[Frequency estimated]</strong> · Weight <strong>~800 kg [estimated]</strong> · Nominal F ≈ <strong>349.2 Hz</strong> (F4, estimated) · Benedictine monastery founded 1802',
+  castDetail:'<strong>[Foundry and date not confirmed] · English Benedictine monastery bell, estimated</strong><br>Ampleforth Abbey was established in 1802 by Benedictine monks who had maintained English Catholic religious life in exile in France during the Penal Laws period. The abbey church was rebuilt and enlarged through the 19th and 20th centuries. Bell data shown here is estimated from contextual evidence; the specific weight, foundry and year of the principal bell have not been confirmed.',
+  castGeneral:'English Benedictine monasteries of this era typically used bells from English foundries (Taylor\'s, Whitechapel, or regional founders). Without confirmed data the acoustic simulation is illustrative only. Ampleforth is also known for its school, one of the leading Catholic schools in England.',
+  showCrack:false, showCast:false, estimated:true, featPI:4,
+  parts:[
+    {name:'Hum',        freq:AFPRI/2,      beat:1.5, amp:0.28, decay:13, color:'#3355bb'},
+    {name:'Prime',      freq:AFPRI,        beat:3.5, amp:0.62, decay: 8, color:'#4477ee'},
+    {name:'Tierce',     freq:AFPRI*P2,     beat:2.0, amp:0.82, decay: 6, color:'#44bb88'},
+    {name:'Quinte',     freq:AFPRI*P5,     beat:1.2, amp:0.50, decay: 5, color:'#99cc44'},
+    {name:'Nominal',    freq:AFNOM,        beat:1.2, amp:1.00, decay: 4, color:'#c9a227'},
+    {name:'Superoctave',freq:AFNOM*2,      beat:0.6, amp:0.50, decay: 2, color:'#ee6633'},
+  ],
+  pATitle:'Panel A — Doublet anatomy · Nominal partial (~349 Hz, estimated) · rolling window',
+  pADesc:'Estimated F4 Nominal at ~349 Hz, beating at 1.2 Hz (estimated). All parameters are illustrative. Ampleforth Abbey, founded 1802 by exiled English Benedictines, is one of the principal Benedictine monasteries in England.',
+  pBTitle:'Panel B — Beat envelope · Nominal partial · 2-second window',
+  pBDesc:'1.2 Hz beat (estimated). At ~800 kg the decay is relatively brief compared with the great cathedral bourdons. All acoustic parameters for this bell await confirmation from primary sources.',
+  pCDesc:'Six partials (all estimated). Ampleforth fills the F4 slot between Big Ben (E4) and Quarr Abbey (G4). The parameters shown are representative of a mid-weight English monastery bell of traditional casting.',
+  pLDesc:'Estimated Nominal doublet (349 Hz ± 0.6 Hz) rotating at 1.2 Hz. Estimated only — the actual bell may differ.',
+  compareNote:'<strong>Two English monasteries:</strong> Ampleforth (Benedictine, North Yorkshire, est. F4) and Quarr (Benedictine, Isle of Wight, est. G4) are both estimated entries, included to represent the tradition of English monastic bells alongside the better-documented cathedral examples.',
+  footer:'Ampleforth Abbey, Ampleforth, North Yorkshire. Founded 1802 by English Benedictine monks returning from exile in France. Bell data shown is <strong>estimated</strong>. The abbey church was designed partly by Sir Giles Gilbert Scott (of Liverpool Cathedral fame). Ampleforth College is attached to the abbey.<br><br>Sources: <a href="https://en.wikipedia.org/wiki/Ampleforth_Abbey">Wikipedia · Ampleforth Abbey</a>',
+},
+
+// ─── 12 · QUARR ABBEY [ESTIMATED] ────────────────────────────────────────────
+{
+  h1:'Great Bell · Quarr Abbey · Isle of Wight',
+  detail:'<strong>[Frequency estimated]</strong> · Weight <strong>~400 kg [estimated]</strong> · Nominal G ≈ <strong>392 Hz</strong> (G4, estimated) · Benedictine monastery, Solesmes tradition',
+  castDetail:'<strong>[Foundry and date not confirmed] · Solesmes-tradition Benedictine monastery bell, estimated</strong><br>Quarr Abbey was founded in 1907 by Benedictine monks from the Abbey of Solesmes in France (who had been expelled under French anti-clerical laws). The Abbey of Solesmes is the fountainhead of the modern Gregorian chant revival; Quarr has continued that tradition. Bell details for Quarr have not been confirmed in available sources; parameters are estimated.',
+  castGeneral:'Monastery bells in the Solesmes tradition tend toward moderate size — sufficient to summon the community to the Divine Office, but not the grand bourdon of a cathedral. The brick Abbey church at Quarr was designed by Benedictine monk and architect Dom Paul Bellot (1876–1944), one of the early 20th century\'s most distinctive religious architects.',
+  showCrack:false, showCast:false, estimated:true, featPI:4,
+  parts:[
+    {name:'Hum',        freq:QAPRI/2,      beat:1.5, amp:0.28, decay:11, color:'#3355bb'},
+    {name:'Prime',      freq:QAPRI,        beat:4.0, amp:0.62, decay: 7, color:'#4477ee'},
+    {name:'Tierce',     freq:QAPRI*P2,     beat:2.0, amp:0.82, decay: 5, color:'#44bb88'},
+    {name:'Quinte',     freq:QAPRI*P5,     beat:1.5, amp:0.50, decay: 4, color:'#99cc44'},
+    {name:'Nominal',    freq:QANOM,        beat:1.5, amp:1.00, decay: 3, color:'#c9a227'},
+    {name:'Superoctave',freq:QANOM*2,      beat:0.8, amp:0.50, decay: 2, color:'#ee6633'},
+  ],
+  pATitle:'Panel A — Doublet anatomy · Nominal partial (~392 Hz, estimated) · rolling window',
+  pADesc:'Estimated G4 Nominal at ~392 Hz, beating at 1.5 Hz (estimated). Quarr Abbey was founded 1907 by Solesmes monks; the community maintains the Gregorian chant tradition. All bell parameters are estimates.',
+  pBTitle:'Panel B — Beat envelope · Nominal partial · 2-second window',
+  pBDesc:'1.5 Hz beat (estimated). At ~400 kg the decay is brief; a modest monastery bell designed to carry across the abbey precinct and no further. All parameters await confirmation.',
+  pCDesc:'Six partials (all estimated). The decay times are the shortest of the larger bells in this collection, consistent with a relatively light monastery calling bell of approximately 400 kg.',
+  pLDesc:'Estimated Nominal doublet (392 Hz ± 0.75 Hz) rotating at 1.5 Hz. Estimated only.',
+  compareNote:'<strong>Isle of Wight Gregorian chant:</strong> Quarr Abbey (est. G4) is the most southerly monastery in this collection. Its founders came from Solesmes, which in turn restored Gregorian plainchant in the 19th century. The bell calls a community still singing exactly that tradition daily.',
+  footer:'Quarr Abbey, Ryde, Isle of Wight. Founded 1907 by Benedictine monks from Solesmes Abbey, France. Abbey church designed by Dom Paul Bellot OSB (1907–1914), a masterpiece of early 20th-century brick religious architecture. Bell data shown is <strong>estimated</strong>.<br><br>Sources: <a href="https://en.wikipedia.org/wiki/Quarr_Abbey">Wikipedia · Quarr Abbey</a>',
+},
+
+// ─── 13 · GETHSEMANI ABBEY [ESTIMATED] ───────────────────────────────────────
+{
+  h1:'Bourdon Bell · Abbey of Our Lady of Gethsemani · Trappist, Kentucky',
+  detail:'<strong>[Frequency estimated]</strong> · Weight <strong>~800 kg [estimated]</strong> · Nominal G♯ ≈ <strong>415 Hz</strong> (G♯4, estimated) · Historically known as the <strong>Bourdon Bell</strong> · Oldest Trappist monastery in the USA · Thomas Merton\'s monastery',
+  castDetail:'<strong>[Foundry and date not confirmed] · 19th-century American monastery bell, estimated</strong><br>The Abbey of Our Lady of Gethsemani was founded on 21 December 1848 by Trappist monks from Melleray Abbey, France — the first Trappist (Cistercian of the Strict Observance) monastery in the United States. American monastery bells of this era were typically cast by domestic foundries (McShane of Baltimore, Meneely of Troy, or others). No Hz, weight, foundry or year data has been located for the Gethsemani tower bell. All parameters are estimated.',
+  castGeneral:'Thomas Merton (1915–1968) entered Gethsemani as a postulant in December 1941 and remained a monk there until his death in Bangkok in December 1968. In <em>The Seven Storey Mountain</em> (1948) he wrote: <em>"I started to hear the great bell of Gethsemani ringing in the night — the bell in the big grey tower, ringing and ringing, as if it were just behind the first hill."</em> Trappist (Cistercian) practice requires that the bell call the community to seven canonical hours each day, from Vigils before dawn to Compline after dark. Whatever bell Merton heard, it rang at least seven times daily for 27 years of his monastic life.',
+  showCrack:false, showCast:false, estimated:true, featPI:4,
+  parts:[
+    {name:'Hum',        freq:GMPRI/2,      beat:1.5, amp:0.28, decay:11, color:'#3355bb'},
+    {name:'Prime',      freq:GMPRI,        beat:4.0, amp:0.62, decay: 7, color:'#4477ee'},
+    {name:'Tierce',     freq:GMPRI*P2,     beat:2.0, amp:0.82, decay: 5, color:'#44bb88'},
+    {name:'Quinte',     freq:GMPRI*P5,     beat:1.5, amp:0.50, decay: 4, color:'#99cc44'},
+    {name:'Nominal',    freq:GMNOM,        beat:1.5, amp:1.00, decay: 3, color:'#c9a227'},
+    {name:'Superoctave',freq:GMNOM*2,      beat:0.8, amp:0.50, decay: 2, color:'#ee6633'},
+  ],
+  pATitle:'Panel A — Doublet anatomy · Bourdon Bell Nominal (~415 Hz, estimated) · rolling window',
+  pADesc:'Estimated G♯4 Nominal at ~415 Hz, beating at 1.5 Hz (estimated). The Bourdon Bell — the large deep bass bell of the tower — is the bell Merton heard "ringing in the night," calling the community to the seven canonical hours. No primary-source frequency data has been found. The Abbey of Our Lady of Gethsemani, Trappist, Kentucky, is the oldest Trappist monastery in the USA.',
+  pBTitle:'Panel B — Beat envelope · Nominal partial · 2-second window',
+  pBDesc:'1.5 Hz beat (estimated). At an estimated 800 kg the decay is moderate. In the Trappist silence of Kentucky, this bell — whatever its actual frequency — was the primary instrument of time, calling the monks to prayer seven times each day.',
+  pCDesc:'Six partials (all estimated). The monastery was founded in 1848 by French Trappists; the founding community would have brought or commissioned bells appropriate to their tradition. Thomas Merton entered in 1941 and was buried in the monastery cemetery in 1968.',
+  pLDesc:'Estimated Bourdon Bell Nominal doublet (415 Hz ± 0.75 Hz) rotating at 1.5 Hz. All parameters are estimated. The Bourdon Bell — the large deep bass bell of Gethsemani tower — is the bell that called Thomas Merton to Vigils at 3:15 am. Its actual acoustics remain undocumented.',
+  compareNote:'<strong>The monastic tradition:</strong> Quarr (est. G4), Gethsemani Bourdon (est. G♯4), and Ampleforth (est. F4) are the three monastery bells in this collection — all estimated, all representing communities where a single bell structures the entire day, seven calls from before dawn to after dusk.',
+  footer:'Abbey of Our Lady of Gethsemani, Trappist, Nelson County, Kentucky. Founded 21 December 1848 by Cistercian monks from Melleray Abbey, France. Thomas Merton (Fr. Louis, OCSO, 1915–1968) entered as a postulant 10 December 1941; professed 1947; ordained priest 1949; killed by accidental electrocution in Bangkok, Thailand, 10 December 1968. His <em>The Seven Storey Mountain</em> (1948) brought monastic life to wide public attention. He is buried in the monastery cemetery. Bell data shown is <strong>estimated</strong>; no primary-source campanological data has been found.<br><br>Sources: <a href="https://monks.org">monks.org · Abbey of Gethsemani</a> · <a href="https://en.wikipedia.org/wiki/Abbey_of_Our_Lady_of_Gethsemani">Wikipedia · Abbey of Our Lady of Gethsemani</a>',
+},
+
+// ─── 14 · WINCHESTER CATHEDRAL TENOR 1937 ────────────────────────────────────
+{
+  h1:'Tenor Bell · Cathedral Church of Holy Trinity, Sts Peter, Paul &amp; Swithun · Winchester',
+  detail:'Cast <strong>1936–37</strong> by John Taylor &amp; Co, Loughborough · <strong>1,806 kg · 1.81 t</strong> · Nominal C = <strong>518.3 Hz</strong> · Ring of 14 in C · Inscribed for two kings',
+  castDetail:'<strong>English swept-loam + lathe-turned inside · True-harmonic (Taylor) · 1930s equal-tempered carillon profile</strong><br>Cast September 1936 in swept-loam cope-and-core moulds, then lathe-turned at Taylor\'s Loughborough. By 1937 Taylor\'s used equal-tempered nominals and equal-tempered tierces (the carillon profile adopted from the early 1920s). Bill Hibbert\'s analysis confirms Winchester (1937) appears in his tierce-flattening data for this period.',
+  castGeneral:'Winchester demonstrates the mature true-harmonic method: all five main partials in exact harmonic ratios. The narrow 2.5 Hz Prime doublet reflects the precision achievable with mid-20th-century Taylor technique. The bells were inscribed with Edward VIII\'s name during casting; after his abdication in December 1936, George VI\'s name was incised over it by hand — both remain legible.',
+  showCrack:false, showCast:true, estimated:false, featPI:1,
+  parts:[
+    {name:'Hum',        freq:WCPRI/2,      beat:0.8, amp:0.28, decay:18, color:'#3355bb'},
+    {name:'Prime',      freq:WCPRI,        beat:2.5, amp:0.64, decay:13, color:'#4477ee'},
+    {name:'Tierce',     freq:WCPRI*P2,     beat:1.5, amp:0.84, decay: 9, color:'#44bb88'},
+    {name:'Quinte',     freq:WCPRI*P5,     beat:0.8, amp:0.52, decay: 7, color:'#99cc44'},
+    {name:'Nominal',    freq:WCNOM,        beat:0.8, amp:1.00, decay: 5, color:'#c9a227'},
+    {name:'Superoctave',freq:WCNOM*2,      beat:0.4, amp:0.55, decay: 3, color:'#ee6633'},
+  ],
+  pATitle:'Panel A — Doublet anatomy · Prime partial (~259 Hz) · rolling window',
+  pADesc:'Winchester\'s tenor Prime at ~259 Hz (close to middle C), beating at 2.5 Hz — the narrowest doublet in this collection. True-harmonic Taylor tuning (post-1896) and 1937 lathe precision give this bell a cleaner, more settled tone than older or less precisely cast bells.',
+  pBTitle:'Panel B — Beat envelope · Prime partial · 2-second window',
+  pBDesc:'2.5 Hz beat — the narrowest Prime doublet here, reflecting Taylor\'s mature 1930s technique. The 14-bell ring in C has more bells to blend than any other in this collection.',
+  pCDesc:'Six partials over 30 seconds. All doublets are narrow. At 1.81 t the decay is moderate — faster than the heavy German/York bells, slower than Durham or Salisbury. Narrow doublets across all bands are the signature of true-harmonic lathe-turning.',
+  pLDesc:'The Prime doublet (259 Hz ± 1.25 Hz) gives an ellipse rotating at 2.5 Hz (period 400 ms). The narrow doublet is immediately visible: even at maximum phase difference (circle) the figure is tightly constrained. Compare with Durham (6 Hz): the Lissajous spins almost three times faster, corresponding to 244 years of foundry improvement.',
+  compareNote:'<strong>Precision across time:</strong> Winchester (2.5 Hz · 1937 Taylor) and Durham (6 Hz · 1693 Hodson) share a similar nominal frequency but show 244 years of foundry development. True-harmonic lathe-tuning roughly halved the doublet width achievable in practice.',
+  footer:'Winchester Cathedral, 14 bells cast September 1936 by Taylor\'s Loughborough. Tenor: 1,806 kg (35 cwt 2 qr 6 lb); nominal C at 518.3 Hz (Dove\'s Guide). Each bell originally inscribed for Edward VIII; George VI\'s name incised over it after the December 1936 abdication.<br><br>Sources: <a href="https://dove.cccbr.org.uk/tower/14349">Dove\'s Guide · Winchester Cathedral</a> · <a href="https://www.hibberts.co.uk/a-history-of-taylors-in-bell-sounds/">Hibbert · History of Taylors in Bell Sounds</a>',
+},
+
+// ─── 15 · DURHAM CATHEDRAL TENOR 1693 ────────────────────────────────────────
+{
+  h1:'Tenor Bell · Cathedral Church of Christ, Blessed Virgin Mary &amp; St Cuthbert · Durham',
+  detail:'Cast <strong>1693</strong> by Christopher Hodson · <strong>1,425 kg · 1.43 t</strong> · Nominal D = <strong>590.5 Hz</strong> · Ring of 10 · One of England\'s oldest change-ringing bells still regularly rung',
+  castDetail:'<strong>English pit-foundry swept-loam · Pre-scientific casting (no systematic tuning)</strong><br>Cast by Christopher Hodson of London in a loam-mould pit. 17th-century founders defined the bell\'s shape using wooden templates (strickles) but had no frequency-measurement apparatus and no lathe for post-cast tuning. Five of Durham\'s ten bells date from this 1693 Hodson casting — remarkable survivors.',
+  castGeneral:'Bells from this era predate any systematic partial measurement. The prime/hum relationship would be "old-style" by default. The wide doublets (~6 Hz Prime beat) reflect 17th-century casting precision — not poor workmanship for the time, but lacking the lathe-tuning and strickle refinement developed over the next two centuries.',
+  showCrack:false, showCast:false, estimated:false, featPI:1,
+  parts:[
+    {name:'Hum',        freq:DCPRI/2,      beat:2.0, amp:0.28, decay:16, color:'#3355bb'},
+    {name:'Prime',      freq:DCPRI,        beat:6.0, amp:0.62, decay:11, color:'#4477ee'},
+    {name:'Tierce',     freq:DCPRI*P2,     beat:3.0, amp:0.82, decay: 8, color:'#44bb88'},
+    {name:'Quinte',     freq:DCPRI*P5,     beat:2.0, amp:0.50, decay: 6, color:'#99cc44'},
+    {name:'Nominal',    freq:DCNOM,        beat:2.0, amp:1.00, decay: 5, color:'#c9a227'},
+    {name:'Superoctave',freq:DCNOM*2,      beat:1.0, amp:0.55, decay: 3, color:'#ee6633'},
+  ],
+  pATitle:'Panel A — Doublet anatomy · Prime partial (~295 Hz) · rolling window',
+  pADesc:'The Prime doublet of Durham\'s 1693 Hodson tenor at ~295 Hz, beating at 6.0 Hz — the widest Prime doublet in this collection. 17th-century pit-casting without lathe-tuning left partials wherever the cooling bronze placed them. Five of Durham\'s ten bells date from this same 1693 casting.',
+  pBTitle:'Panel B — Beat envelope · Prime partial · 2-second window',
+  pBDesc:'6.0 Hz beat — noticeably faster and more turbulent than the Taylor bells (2.5–3.5 Hz). Bells of this age have a rougher, more complex timbre that many listeners find deeply characterful. At only 1.43 t the bell also decays about twice as fast as the German or York bells.',
+  pCDesc:'Six partials over 30 seconds. All partials beat noticeably faster than the Taylor or German bells. The lighter mass (1.43 t) means the Hum lasts only ~16 s. The wide rapid doublets give the 1693 bell a more restless, complex sound than its younger neighbours.',
+  pLDesc:'The Prime doublet (295 Hz ± 3.0 Hz) produces an ellipse rotating at 6.0 Hz — the fastest rotation in this collection (period 167 ms). The rapid spin corresponds to the quick, lively beat characteristic of 17th-century bells. You can see the figure sweep through a full orientation almost twice per second.',
+  compareNote:'<strong>Age and precision:</strong> Durham (1693, 6 Hz beat) vs. Winchester (1937, 2.5 Hz beat). Both are D-range tenors. Three centuries of foundry improvement — lathe-tuning, strickle refinement, measurement tools — roughly halved the doublet width.',
+  footer:'Durham Cathedral\'s tenor, 1693, Christopher Hodson, London. Weight 1,425 kg (28 cwt 0 qr 6 lb); nominal D at 590.5 Hz (Dove\'s Guide). Five of the ring of 10 are from this original 1693 casting.<br><br>Sources: <a href="https://dove.cccbr.org.uk/tower/16115">Dove\'s Guide · Durham Cathedral</a> · <a href="https://northeastbells.co.uk/durham-cathedral/">NorthEastBells.co.uk</a>',
+},
+
+// ─── 16 · SALISBURY CATHEDRAL HOUR BELL 1661 ─────────────────────────────────
+{
+  h1:'Hour Bell · Cathedral Church of the Blessed Virgin Mary · Salisbury',
+  detail:'Cast <strong>1661</strong> by William III Purdue · <strong>~1,300 kg · ~1.30 t</strong> · Nominal D = <strong>602.0 Hz</strong> · Clock chime only · Oldest English bell in this collection',
+  castDetail:'<strong>Traditional 17th-century pit-foundry loam casting · Pre-scientific (no partial tuning)</strong><br>Almost certainly cast in a temporary pit-foundry at or near the cathedral. William III Purdue was a West Country founder; the loam-mould shape was set by wooden templates and the Schlagton checked by ear against a pitch pipe or a known bell. No lathe, no frequency measurement, no systematic partial adjustment. This bell predates any concept of true-harmonic tuning by 235 years.',
+  castGeneral:'Salisbury Cathedral has no ring of change-ringing bells (one of only three English cathedrals without one, along with Norwich and Ely). The hour bell is struck by a Victorian clock mechanism. It shares the tower with the famous c.1386 medieval clock — one of the oldest working mechanical clocks in the world. The wide doublets (~5.5 Hz Prime) are typical of 17th-century casting.',
+  showCrack:false, showCast:false, estimated:false, featPI:1,
+  parts:[
+    {name:'Hum',        freq:SCPRI/2,      beat:2.5, amp:0.28, decay:14, color:'#3355bb'},
+    {name:'Prime',      freq:SCPRI,        beat:5.5, amp:0.62, decay:10, color:'#4477ee'},
+    {name:'Tierce',     freq:SCPRI*P2,     beat:3.0, amp:0.82, decay: 7, color:'#44bb88'},
+    {name:'Quinte',     freq:SCPRI*P5,     beat:2.5, amp:0.50, decay: 6, color:'#99cc44'},
+    {name:'Nominal',    freq:SCNOM,        beat:2.0, amp:1.00, decay: 4, color:'#c9a227'},
+    {name:'Superoctave',freq:SCNOM*2,      beat:1.0, amp:0.55, decay: 3, color:'#ee6633'},
+  ],
+  pATitle:'Panel A — Doublet anatomy · Prime partial (~301 Hz) · rolling window',
+  pADesc:'The Prime doublet of Salisbury\'s 1661 hour bell at ~301 Hz, beating at 5.5 Hz. Cast just after the Restoration of Charles II, this is the oldest English bell in the collection — 216 years older than the Frankfurt Gloriosa. Pre-Industrial casting produced wide doublets; the 5.5 Hz beat is a signature of 17th-century bronze-work.',
+  pBTitle:'Panel B — Beat envelope · Prime partial · 2-second window',
+  pBDesc:'5.5 Hz beat — wide, lively, pre-scientific. The bell is struck by a clock rather than swung by hand. At ~1.30 t, it decays faster than the heavier bells. Compare with Winchester (2.5 Hz): three centuries of foundry development separate these two D-range bells.',
+  pCDesc:'Six partials over 30 seconds. The Hum lasts only ~14 s — shortest in this collection — reflecting the light weight. Wide rapid doublets on every partial give the 1661 bell its characteristically "old" and complex timbre.',
+  pLDesc:'The Prime doublet (301 Hz ± 2.75 Hz) traces an ellipse rotating at 5.5 Hz (period 182 ms) — second fastest in this collection after Durham. The rapid spin corresponds to the wide asymmetry left by 17th-century casting.',
+  compareNote:'<strong>The two oldest English bells:</strong> Salisbury (1661, 5.5 Hz beat) and Durham (1693, 6 Hz beat) — both 17th-century, both showing the wide doublets of pre-scientific casting, 32 years apart.',
+  footer:'Salisbury Cathedral hour bell, 1661, William III Purdue. Weight ~1,300 kg; nominal D at 602.0 Hz (Dove\'s Guide). Salisbury has no change-ringing ring. The c.1386 medieval clock in the same tower is one of the oldest working mechanical clocks in the world.<br><br>Sources: <a href="https://dove.cccbr.org.uk/tower/23153">Dove\'s Guide · Salisbury Cathedral</a> · <a href="https://en.wikipedia.org/wiki/Salisbury_Cathedral_clock">Wikipedia · Salisbury Cathedral Clock</a>',
+},
+
+// ─── 17 · THAXTED ST JOHN BAPTIST 1778 ───────────────────────────────────────
+{
+  h1:'Tenor Bell · Church of St John the Baptist · Thaxted, Essex',
+  detail:'Cast <strong>1778</strong> by Whitechapel Bell Foundry, London · <strong>763 kg</strong> · Nominal E♭ ≈ <strong>609 Hz</strong> (E♭5) · Ring of 8 · Gustav Holst\'s church',
+  castDetail:'<strong>English swept-loam cope-and-core · Old-style English tuning · pre-true-harmonic Whitechapel</strong><br>Cast in 1778 by the Whitechapel Bell Foundry using the standard swept-loam cope-and-core method of the period. Old-style tuning left the Hum sharp and the Prime flat relative to true-harmonic ratios — exactly as documented in all pre-1890s English bells. The strickle profiles of the 1770s were less refined than those Taylor\'s developed in the 1890s, producing correspondingly wider doublets.',
+  castGeneral:'Gustav Holst (1874–1934) lived in Thaxted from 1914 and was organist and choirmaster at this church. He composed major portions of <em>The Planets</em> suite (1914–16) and the <em>Ode to Death</em> here; the sound of these bells was part of his creative world. The church of St John the Baptist is one of the finest examples of Perpendicular Gothic architecture in Essex, built 1340–1510, and the church\'s eight bells ring from a tower that dominates the Essex skyline.',
+  showCrack:false, showCast:false, estimated:false, featPI:4,
+  parts:[
+    {name:'Hum',        freq:TXPRI/2,      beat:2.0, amp:0.28, decay:10, color:'#3355bb'},
+    {name:'Prime',      freq:TXPRI,        beat:5.0, amp:0.62, decay: 7, color:'#4477ee'},
+    {name:'Tierce',     freq:TXPRI*P2,     beat:3.0, amp:0.82, decay: 5, color:'#44bb88'},
+    {name:'Quinte',     freq:TXPRI*P5,     beat:2.0, amp:0.50, decay: 4, color:'#99cc44'},
+    {name:'Nominal',    freq:TXNOM,        beat:2.0, amp:1.00, decay: 3, color:'#c9a227'},
+    {name:'Superoctave',freq:TXNOM*2,      beat:1.0, amp:0.50, decay: 2, color:'#ee6633'},
+  ],
+  pATitle:'Panel A — Doublet anatomy · Nominal partial (~609 Hz) · rolling window',
+  pADesc:'The Thaxted tenor Nominal at ~609 Hz (E♭5), beating at 2.0 Hz. An 18th-century Whitechapel bell, wider doublets than a Taylor bell but narrower than the 17th-century Salisbury and Durham examples. Gustav Holst heard these bells throughout his years at Thaxted (1914–1934).',
+  pBTitle:'Panel B — Beat envelope · Nominal partial · 2-second window',
+  pBDesc:'2.0 Hz beat on the Nominal — characteristic of a well-made 18th-century English bell, one step closer to the Taylor precision that would come 118 years later. At 763 kg the decay is brief; a lighter village-church tenor.',
+  pCDesc:'Six partials over 30 seconds. The Thaxted tenor occupies the highest Nominal in this collection (609 Hz), just above Salisbury (602 Hz) and Durham (590.5 Hz). All three are D-E♭ range bells; their doublet widths tell the story of foundry improvement across three centuries.',
+  pLDesc:'The Nominal doublet (609 Hz ± 1.0 Hz) rotates at 2.0 Hz (period 500 ms). An 18th-century Whitechapel rotation rate, sitting between the 17th-century bells (Salisbury 5.5 Hz, Durham 6 Hz) and the Taylor bells (Winchester 2.5 Hz) — exactly where 1778 belongs historically.',
+  compareNote:'<strong>The highest three:</strong> Thaxted (E♭5, 763 kg, 1778), Salisbury (D5, ~1,300 kg, 1661) and Durham (D5, 1,425 kg, 1693) are the three highest-pitched bells in this collection, all within a semitone. Three centuries of English founding history packed into 19 Hz of pitch range.',
+  footer:'Church of St John the Baptist, Thaxted, Essex. Tenor cast 1778 by Whitechapel Bell Foundry. Weight 763 kg (15 cwt 0 qr 5 lb); nominal approximately E♭5 (609 Hz). Gustav Holst was organist at Thaxted 1914–1934 and composed <em>The Planets</em> suite (1914–16) and other major works here. The church is a Grade I listed building.<br><br>Sources: <a href="https://dove.cccbr.org.uk/tower/24183">Dove\'s Guide · Thaxted</a> · <a href="https://en.wikipedia.org/wiki/Church_of_St_John_the_Baptist,_Thaxted">Wikipedia · Church of St John the Baptist, Thaxted</a>',
+},
+
+]; // end BELLS
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════════════════════
+let bellIdx=3, AC=null, oscs=[], uiT0=null, countdown=null, autoStrikeTimer=null;
+const bell  = () => BELLS[bellIdx];
+const parts = () => bell().parts;
+const featP = () => bell().parts[bell().featPI];
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  CANVAS SETUP
+// ═══════════════════════════════════════════════════════════════════════════════
+const C1=document.getElementById('c1');
+const C2=document.getElementById('c2');
+const C3=document.getElementById('c3');
+const CL=document.getElementById('cL');
+
+function sizeCanvas(cv){
+  const dpr=window.devicePixelRatio||1, rect=cv.getBoundingClientRect();
+  if(rect.width<1) return;
+  cv.width =Math.round(rect.width *dpr);
+  cv.height=Math.round(rect.height*dpr);
+}
+function sizeAll(){ [C1,C2,C3,CL].forEach(sizeCanvas); }
+window.addEventListener('resize', sizeAll);
+setTimeout(sizeAll, 60);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  AUDIO  — async ringBell() awaits resume + silent primer; auto-second-strike
+// ═══════════════════════════════════════════════════════════════════════════════
+async function ringBell(){
+  if(!AC) AC=new(window.AudioContext||window.webkitAudioContext)();
+  if(AC.state!=='running') await AC.resume();
+  // Silent priming oscillator warms up the audio pipeline so first attack is not lost
+  const pg=AC.createGain(); pg.gain.value=0; pg.connect(AC.destination);
+  const po=AC.createOscillator(); po.connect(pg);
+  po.start(AC.currentTime); po.stop(AC.currentTime+0.05);
+  if(countdown){clearInterval(countdown);countdown=null;}
+  if(autoStrikeTimer){clearTimeout(autoStrikeTimer);autoStrikeTimer=null;}
+  const btn=document.getElementById('playBtn');
+  let tick=2; btn.textContent='\u25cf '+tick+'\u2026'; btn.disabled=true; uiT0=null;
+  countdown=setInterval(()=>{
+    tick--;
+    if(tick>0){btn.textContent='\u25cf '+tick+'\u2026';}
+    else{clearInterval(countdown);countdown=null;strikeNow();}
+  },1000);
+}
+
+function strikeNow(isRepeat=false){
+  if(!AC) return;
+  oscs.forEach(o=>{try{o.stop();}catch(_){}});
+  oscs=[];
+  const master=AC.createGain(); master.gain.value=0.22; master.connect(AC.destination);
+  const now=AC.currentTime+0.04;
+  uiT0=performance.now()+40;
+  parts().forEach(p=>{
+    [p.freq-p.beat/2, p.freq+p.beat/2].forEach(freq=>{
+      const osc=AC.createOscillator(), gn=AC.createGain();
+      osc.type='sine'; osc.frequency.value=freq;
+      gn.gain.setValueAtTime(0.001,now);
+      gn.gain.linearRampToValueAtTime(p.amp*0.8,now+0.005);
+      gn.gain.exponentialRampToValueAtTime(0.0001,now+p.decay);
+      osc.connect(gn); gn.connect(master);
+      osc.start(now); osc.stop(now+p.decay+0.2);
+      oscs.push(osc);
+    });
+  });
+  document.getElementById('playBtn').textContent='\u25b6 Ring Again';
+  document.getElementById('playBtn').disabled=false;
+  // Auto-repeat at 10 s (one strike only)
+  if(!isRepeat){
+    autoStrikeTimer=setTimeout(()=>{autoStrikeTimer=null;strikeNow(true);},10000);
+  }
+}
+
+function stopBell(){
+  if(countdown){clearInterval(countdown);countdown=null;}
+  if(autoStrikeTimer){clearTimeout(autoStrikeTimer);autoStrikeTimer=null;}
+  oscs.forEach(o=>{try{o.stop();}catch(_){}});
+  oscs=[]; uiT0=null;
+  const btn=document.getElementById('playBtn');
+  btn.textContent='\u25b6 Ring the Bell'; btn.disabled=false;
+}
+function elapsed(){ return uiT0!==null?(performance.now()-uiT0)/1000:-1; }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  PANEL A — waveform
+// ═══════════════════════════════════════════════════════════════════════════════
+function drawA(ts){
+  const g=C1.getContext('2d'), W=C1.width, H=C1.height;
+  if(!W||!H) return;
+  const dpr=window.devicePixelRatio||1;
+  g.fillStyle='#07101c'; g.fillRect(0,0,W,H);
+  const p=featP(), f1=p.freq-p.beat/2, f2=p.freq+p.beat/2;
+  const WIN=Math.min(0.12,12/p.freq), tOff=(ts/1000)*0.3, rowH=H/3;
+  const rows=[
+    {label:'f\u2081 = '+f1.toFixed(2)+' Hz', color:'#4477ee', lw:1.5, fn:t=>Math.sin(2*Math.PI*f1*t)},
+    {label:'f\u2082 = '+f2.toFixed(2)+' Hz', color:'#ee7733', lw:1.5, fn:t=>Math.sin(2*Math.PI*f2*t)},
+    {label:'f\u2081 + f\u2082  (resultant)', color:'#d0d4e8', lw:2.5, fn:t=>0.5*(Math.sin(2*Math.PI*f1*t)+Math.sin(2*Math.PI*f2*t))},
+  ];
+  rows.forEach((r,i)=>{
+    const yC=rowH*i+rowH/2, amp=rowH*0.37;
+    g.beginPath(); g.strokeStyle='#111e2c'; g.lineWidth=1;
+    g.moveTo(0,yC); g.lineTo(W,yC); g.stroke();
+    g.beginPath(); g.strokeStyle=r.color; g.lineWidth=r.lw;
+    g.globalAlpha=i===2?1.0:0.78;
+    for(let px=0;px<=W;px++){
+      const t=tOff+(px/W)*WIN, y=r.fn(t)*amp;
+      px===0?g.moveTo(px,yC-y):g.lineTo(px,yC-y);
+    }
+    g.stroke(); g.globalAlpha=1;
+    g.fillStyle=r.color; g.font=(10.5*dpr)+'px monospace';
+    g.fillText(r.label,5*dpr,rowH*i+14*dpr);
+    if(i<2){g.strokeStyle='#131f30';g.lineWidth=1;g.beginPath();g.moveTo(0,rowH*(i+1));g.lineTo(W,rowH*(i+1));g.stroke();}
+  });
+  g.fillStyle='#283848'; g.font=(8.5*dpr)+'px monospace';
+  g.fillText('window: '+(WIN*1000).toFixed(0)+' ms',W-70*dpr,H-4*dpr);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  LISSAJOUS — simple fixed-N parametric plot (no ghost layers = no flicker)
+// ═══════════════════════════════════════════════════════════════════════════════
+function drawL(ts){
+  const g=CL.getContext('2d'), W=CL.width, H=CL.height;
+  if(!W||!H) return;
+  const dpr=window.devicePixelRatio||1;
+  g.fillStyle='#07101c'; g.fillRect(0,0,W,H);
+  const p=featP(), f1=p.freq-p.beat/2, f2=p.freq+p.beat/2;
+  const cx=W/2, cy=H/2, R=Math.min(W,H)*0.40;
+  const el=elapsed();
+  // Pre-strike: slow demo rotation at 0.2 Hz for all bells (1 rotation per 5 s)
+  // Post-strike: real elapsed time — figure evolves at actual beat rate
+  const tNow = el>=0 ? el : ts/(5000*p.beat);
+  const beatPeriod=1/p.beat;
+  // Show 5 carrier cycles instead of a full beat period — avoids filling the circle
+  // with dense trails. For 165 Hz this is 5/165 ≈ 30 ms; phase advances ~11° within
+  // the trace, giving a clean ellipse/circle/line that morphs at the beat rate.
+  const traceDur = 5/p.freq;
+  const N=300;
+  // Fade: full for first 2 s after ring, then linearly out over the next 2 s
+  const alpha = el<0 ? 1 : el<=2 ? 1 : Math.max(0, 1-(el-2)/2);
+
+  // Axis guides
+  g.strokeStyle='#0f1e2c'; g.lineWidth=1;
+  g.beginPath(); g.moveTo(cx-R*1.1,cy); g.lineTo(cx+R*1.1,cy); g.stroke();
+  g.beginPath(); g.moveTo(cx,cy-R*1.1); g.lineTo(cx,cy+R*1.1); g.stroke();
+  g.strokeStyle='#101c28'; g.lineWidth=0.8;
+  g.beginPath(); g.arc(cx,cy,R,0,2*Math.PI); g.stroke();
+
+  // Trace — 5 carrier cycles, fades out after 2 s
+  g.globalAlpha=alpha;
+  g.beginPath(); g.strokeStyle='#c9a227'; g.lineWidth=1.5;
+  g.lineJoin='round';
+  for(let i=0;i<=N;i++){
+    const t=tNow-traceDur+(i/N)*traceDur;
+    const x=cx+Math.sin(2*Math.PI*f1*t)*R;
+    const y=cy-Math.sin(2*Math.PI*f2*t)*R;
+    i===0?g.moveTo(x,y):g.lineTo(x,y);
+  }
+  g.stroke();
+
+  // Current position dot
+  const xD=cx+Math.sin(2*Math.PI*f1*tNow)*R;
+  const yD=cy-Math.sin(2*Math.PI*f2*tNow)*R;
+  g.fillStyle='#ff3e20';
+  g.beginPath(); g.arc(xD,yD,3.5*dpr,0,2*Math.PI); g.fill();
+  g.globalAlpha=1;
+
+  // Phase & shape label
+  const phi=((2*Math.PI*p.beat*tNow)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
+  const phiDeg=Math.round(phi*180/Math.PI);
+  const shape=(phi<0.22||phi>2*Math.PI-0.22)?'line':
+               Math.abs(phi-Math.PI/2)<0.28?'circle':
+               Math.abs(phi-Math.PI)<0.28?'line':
+               Math.abs(phi-3*Math.PI/2)<0.28?'circle':'ellipse';
+  g.fillStyle='#c9a227'; g.font=(9*dpr)+'px monospace'; g.textAlign='left';
+  g.fillText('\u03c6 = '+phiDeg+'\u00b0  '+shape, 5*dpr, 14*dpr);
+  g.fillStyle='#3a5a70'; g.font=(8.5*dpr)+'px monospace';
+  g.fillText('beat '+p.beat+' Hz \u00b7 period '+(beatPeriod*1000).toFixed(0)+' ms', 5*dpr, 25*dpr);
+  g.fillStyle='#2a4a5a'; g.textAlign='center'; g.font=(8*dpr)+'px monospace';
+  g.fillText('x = sin(2\u03c0f\u2081t)  f\u2081='+f1.toFixed(2)+' Hz', cx, H-3*dpr);
+  g.textAlign='right';
+  g.fillText('y = sin(2\u03c0f\u2082t)  f\u2082='+f2.toFixed(2)+' Hz', W-3*dpr, cy-4*dpr);
+  g.textAlign='left';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  PANEL B — beat envelope
+// ═══════════════════════════════════════════════════════════════════════════════
+function drawB(){
+  const g=C2.getContext('2d'), W=C2.width, H=C2.height;
+  if(!W||!H) return;
+  const dpr=window.devicePixelRatio||1;
+  g.fillStyle='#07101c'; g.fillRect(0,0,W,H);
+  const p=featP(), WIN=2.0, yC=H/2, amp=H*0.40;
+  const el=elapsed(), t0=el>0?Math.max(0,el-WIN*0.65):0, bp=1/p.beat;
+  g.strokeStyle='#101e30'; g.lineWidth=1;
+  for(let t=Math.ceil(t0/bp)*bp;t<=t0+WIN;t+=bp){
+    const x=((t-t0)/WIN)*W;
+    g.beginPath();g.moveTo(x,0);g.lineTo(x,H);g.stroke();
+  }
+  g.beginPath(); g.strokeStyle='rgba(68,119,238,0.22)'; g.lineWidth=1;
+  for(let px=0;px<=W;px++){
+    const t=t0+(px/W)*WIN, dec=el>=0?Math.exp(-t*4/p.decay):0;
+    const wave=dec*Math.cos(Math.PI*p.beat*t)*Math.sin(2*Math.PI*p.freq*t);
+    px===0?g.moveTo(px,yC-wave*amp):g.lineTo(px,yC-wave*amp);
+  }
+  g.stroke();
+  ['top','bot'].forEach(side=>{
+    g.beginPath(); g.strokeStyle='#c9a227'; g.lineWidth=2;
+    for(let px=0;px<=W;px++){
+      const t=t0+(px/W)*WIN, dec=el>=0?Math.exp(-t*4/p.decay):0;
+      const env=dec*Math.abs(Math.cos(Math.PI*p.beat*t));
+      const y=side==='top'?yC-env*amp:yC+env*amp;
+      px===0?g.moveTo(px,y):g.lineTo(px,y);
+    }
+    g.stroke();
+  });
+  if(el>=0){
+    const px=((el-t0)/WIN)*W;
+    if(px>=0&&px<=W){
+      g.strokeStyle='rgba(255,255,255,.35)';g.lineWidth=1.5;
+      g.setLineDash([4,5]);g.beginPath();g.moveTo(px,0);g.lineTo(px,H);g.stroke();g.setLineDash([]);
+    }
+  }
+  g.fillStyle='#c9a227'; g.font=(9.5*dpr)+'px monospace';
+  g.fillText('beat: '+p.beat+' Hz  \u00b7  period: '+bp.toFixed(3)+' s  \u00b7  '+p.name+' partial: '+p.freq.toFixed(1)+' Hz',5*dpr,14*dpr);
+  g.fillStyle='#283848'; g.font=(9*dpr)+'px monospace';
+  g.fillText('0 s',4*dpr,H-4*dpr);
+  g.fillText('+2 s',W-26*dpr,H-4*dpr);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  PANEL C — all partials
+// ═══════════════════════════════════════════════════════════════════════════════
+function drawC(){
+  const g=C3.getContext('2d'), W=C3.width, H=C3.height;
+  if(!W||!H) return;
+  const dpr=window.devicePixelRatio||1;
+  g.fillStyle='#07101c'; g.fillRect(0,0,W,H);
+  const ps=parts(), n=ps.length, rowH=H/n, T=30, el=elapsed();
+  [5,10,15,20,25].forEach(tick=>{
+    const x=(tick/T)*W;
+    g.strokeStyle='#111e2c';g.lineWidth=1;g.beginPath();g.moveTo(x,0);g.lineTo(x,H);g.stroke();
+    g.fillStyle='#28384a';g.font=(9*dpr)+'px monospace';g.fillText(tick+'s',x+2*dpr,H-3*dpr);
+  });
+  ps.forEach((p,i)=>{
+    const yC=rowH*i+rowH/2, aH=rowH*0.37, top=[], bot=[];
+    for(let px=0;px<=W;px++){
+      const t=(px/W)*T, dec=el>=0?Math.exp(-t*4/p.decay):0;
+      const env=dec*Math.abs(Math.cos(Math.PI*p.beat*t));
+      top.push({x:px,y:yC-env*aH}); bot.push({x:px,y:yC+env*aH});
+    }
+    g.beginPath();
+    top.forEach((pt,j)=>j===0?g.moveTo(pt.x,pt.y):g.lineTo(pt.x,pt.y));
+    [...bot].reverse().forEach(pt=>g.lineTo(pt.x,pt.y));
+    g.fillStyle=p.color+'1c'; g.fill();
+    [top,bot].forEach(pts=>{
+      g.beginPath();g.strokeStyle=p.color;g.lineWidth=1.5;
+      pts.forEach((pt,j)=>j===0?g.moveTo(pt.x,pt.y):g.lineTo(pt.x,pt.y));
+      g.stroke();
+    });
+    g.strokeStyle=p.color+'22';g.lineWidth=0.5;
+    g.beginPath();g.moveTo(0,yC);g.lineTo(W,yC);g.stroke();
+    if(i<n-1){g.strokeStyle='#131d2c';g.lineWidth=1;g.beginPath();g.moveTo(0,rowH*(i+1));g.lineTo(W,rowH*(i+1));g.stroke();}
+    g.fillStyle=p.color;g.font=(9.5*dpr)+'px monospace';
+    g.fillText((p.name+'              ').slice(0,14)+' '+p.freq.toFixed(1).padStart(6)+' Hz    beat '+p.beat+' Hz    \u03c4='+p.decay+'s',4*dpr,rowH*i+13*dpr);
+  });
+  if(el>=0&&el<=T){
+    const px=(el/T)*W;
+    g.strokeStyle='rgba(255,255,255,.45)';g.lineWidth=1.5;g.setLineDash([4,5]);
+    g.beginPath();g.moveTo(px,0);g.lineTo(px,H);g.stroke();g.setLineDash([]);
+  }
+  g.fillStyle='#28384a';g.font=(9*dpr)+'px monospace';
+  g.fillText('0 s',3*dpr,H-3*dpr);
+  g.fillText('30 s',W-28*dpr,H-3*dpr);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  UI UPDATE
+// ═══════════════════════════════════════════════════════════════════════════════
+function updateUI(){
+  const b=bell(), p=featP(), f1=p.freq-p.beat/2, f2=p.freq+p.beat/2;
+  document.getElementById('hTitle').textContent        = b.h1;
+  document.getElementById('hDetail').innerHTML         = b.detail;
+  document.getElementById('castMethodDetail').innerHTML= b.castDetail;
+  document.getElementById('castGeneral').innerHTML     = b.castGeneral;
+  document.getElementById('compareNote').innerHTML     = b.compareNote;
+  document.getElementById('pATitle').textContent       = b.pATitle;
+  document.getElementById('pADesc').textContent        = b.pADesc;
+  document.getElementById('pALeg').innerHTML=
+    '<div class="li"><span class="sw" style="background:#4477ee"></span>f\u2081 = '+f1.toFixed(2)+' Hz</div>'+
+    '<div class="li"><span class="sw" style="background:#ee7733"></span>f\u2082 = '+f2.toFixed(2)+' Hz</div>'+
+    '<div class="li"><span class="sw" style="background:#d0d4e8;height:2.5px"></span>f\u2081 + f\u2082 (resultant)</div>'+
+    '<div class="li" style="margin-left:auto">\u0394f = '+p.beat+' Hz \u00b7 period '+(1/p.beat).toFixed(3)+' s</div>';
+  document.getElementById('pLDesc').textContent        = b.pLDesc;
+  document.getElementById('pBTitle').textContent       = b.pBTitle;
+  document.getElementById('pBDesc').textContent        = b.pBDesc;
+  document.getElementById('pCDesc').innerHTML          = b.pCDesc;
+  document.getElementById('footerDesc').innerHTML      = b.footer;
+  document.getElementById('crackNote').style.display   = b.showCrack  ? 'block':'none';
+  document.getElementById('castNote').style.display    = b.showCast   ? 'block':'none';
+  document.getElementById('estNote').style.display     = b.estimated  ? 'block':'none';
+  document.getElementById('estBadge').style.display    = b.estimated  ? 'inline':'none';
+  document.getElementById('bellSel').value = bellIdx;
+}
+
+function populateSel(){
+  const sel=document.getElementById('bellSel');
+  BELLS.forEach((b,i)=>{
+    const o=document.createElement('option');
+    o.value=i;
+    // strip HTML tags for option text
+    o.textContent=b.h1.replace(/<[^>]+>/g,'')+(b.estimated?' [estimated]':'');
+    sel.appendChild(o);
+  });
+}
+
+function switchBell(idx){
+  if(idx===bellIdx) return;
+  bellIdx=idx; stopBell(); updateUI();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  LOOP
+// ═══════════════════════════════════════════════════════════════════════════════
+function loop(ts){ drawA(ts); drawL(ts); drawB(); drawC(); requestAnimationFrame(loop); }
+populateSel();
+updateUI();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

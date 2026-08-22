@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Random Element Drop! Periods 1–4 Edition — Periodic Table Tetris</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1e1e1e;
+    --ink-soft:#495057;
+    --accent:#7048e8;
+    --accent-soft:#e5dbff;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background-color:#ffffff;
+    background-image: radial-gradient(circle, #d8dee9 1.4px, transparent 1.4px);
+    background-size: 22px 22px;
+    font-family:'Kalam','Comic Sans MS',cursive;
+    color:var(--ink);
+    overflow-x:hidden;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:14px 16px 40px;}
+
+  header{
+    text-align:center;
+    padding:6px 0 10px;
+    border-bottom:2.5px solid var(--ink);
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Architects Daughter',cursive;
+    font-size:clamp(20px,4vw,34px);
+    margin:4px 0;
+    color:var(--ink);
+    letter-spacing:0.5px;
+    display:inline-block;
+    transform:rotate(-0.6deg);
+  }
+  .subtitle{font-size:14px;color:var(--ink-soft);letter-spacing:.3px;}
+
+  .hud{
+    display:flex;flex-wrap:wrap;gap:10px 22px;justify-content:center;
+    margin-top:8px;font-size:14px;font-weight:600;
+  }
+  .hud div{
+    background:#fff;
+    border:2.2px solid var(--ink);
+    border-radius: 9px 14px 8px 16px / 13px 8px 15px 9px;
+    padding:4px 12px;
+    box-shadow: 2.5px 2.5px 0 rgba(30,30,30,.9);
+  }
+  .hud span{color:var(--accent);font-weight:800;}
+  .badge{
+    display:inline-block;margin-left:6px;background:var(--accent);color:#fff;
+    border:1.5px solid var(--ink);
+    border-radius:6px;padding:1px 6px;font-size:11px;font-weight:800;
+    vertical-align:middle;
+  }
+
+  .support-bar{
+    display:flex;flex-wrap:wrap;gap:10px 20px;justify-content:center;align-items:center;
+    margin:10px auto 4px;padding:8px 14px;max-width:640px;
+    background:#fff;border:2.2px solid var(--ink);
+    border-radius: 16px 10px 18px 9px / 10px 16px 9px 18px;
+    box-shadow: 3px 3px 0 rgba(30,30,30,.9);
+  }
+  .switch-row{
+    display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-soft);cursor:pointer;
+  }
+  .switch-row input{width:16px;height:16px;cursor:pointer;accent-color:var(--accent);}
+  .switch-row .mult{
+    font-weight:800;color:#fff;background:var(--accent);
+    border:1.5px solid var(--ink);border-radius:6px;padding:0 5px;font-size:11px;
+  }
+  .switch-row.disabled{opacity:.45;cursor:not-allowed;}
+  .switch-row.disabled input{cursor:not-allowed;}
+  .current-mult{
+    font-size:13px;font-weight:700;color:var(--accent);
+    padding-left:10px;border-left:2px dashed var(--ink);
+  }
+
+  .banner{
+    height:30px;text-align:center;font-weight:700;font-size:15px;
+    line-height:30px;border-radius: 8px 14px 7px 15px / 12px 7px 15px 8px;
+    margin:8px auto;max-width:520px;
+    border:2px solid transparent;
+    opacity:0;transition:opacity .25s ease;
+  }
+  .banner.show{opacity:1;}
+  .banner.good{background:#b2f2bb;color:#0b4a1f;border-color:var(--ink);}
+  .banner.bad{background:#ffc9c9;color:#5c0b0b;border-color:var(--ink);}
+
+  .current-guide{
+    text-align:center;font-size:15px;margin:2px 0 10px;color:var(--ink-soft);
+  }
+  .current-guide b{color:var(--accent);font-family:'Architects Daughter',cursive;}
+  .current-guide .sym-inline{
+    font-weight:700;
+    color:var(--accent);
+  }
+
+  .game-area{
+    position:relative;
+    padding-top:200px;
+    overflow:visible;
+    display:flex;
+    justify-content:center;
+  }
+  .bg-text{
+    position:absolute;
+    top:38%;
+    left:50%;
+    transform:translate(-50%,-50%) rotate(-6deg);
+    font-family:'Architects Daughter',cursive;
+    font-weight:900;
+    font-size:clamp(28px,9vw,84px);
+    color:var(--accent);
+    opacity:.14;
+    white-space:nowrap;
+    pointer-events:none;
+    letter-spacing:4px;
+    z-index:0;
+    user-select:none;
+  }
+
+  .table-grid{
+    position:relative;
+    z-index:1;
+    display:grid;
+    grid-template-columns:repeat(18,1fr);
+    grid-template-rows:20px repeat(4,44px) 20px;
+    gap:4px;
+    width:min(96vw,920px);
+  }
+
+  .group-label,
+  .roman-label{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+  .roman-label{ font-style:italic; }
+
+  .cell{
+    position:relative;
+    border-radius: 7px 10px 6px 11px / 9px 6px 11px 7px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Architects Daughter',cursive;
+    font-style:normal;
+    font-weight:700;
+    font-size:22px;
+    line-height:1;
+    color:var(--ink);
+    background:transparent;
+  }
+  .cell::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    background-color:inherit;
+    border:2.2px solid var(--ink);
+    filter:url(#sketchy);
+  }
+  .cell > span{ position:relative; z-index:1; }
+  .target-cell{
+    background:#fff;
+    color:#adb5bd;
+    font-size:22px;
+  }
+  .target-cell::before{
+    border-style:dashed;
+    border-color:#adb5bd;
+  }
+  .target-cell.filled{
+    color:var(--ink);
+    animation:pop .4s ease;
+  }
+  .target-cell.filled::before{
+    border-style:solid;
+    border-color:var(--ink);
+  }
+  /* "Remove all scaffolding! The expert level!" mode: every box that hasn't
+     been solved yet is fully hidden — not even an outline shows — leaving a
+     completely blank sheet apart from elements already placed correctly.
+     visibility (not display) is used so the grid keeps its layout and
+     column/row measurements stay correct even while a cell is invisible. */
+  .target-cell.hidden-cell{
+    visibility:hidden;
+  }
+  @keyframes pop{
+    0%{transform:scale(0.5);}
+    60%{transform:scale(1.15);}
+    100%{transform:scale(1);}
+  }
+  .target-cell.ghost{
+    color:var(--accent);
+    font-style:normal;
+    animation:ghostPulse 1.4s ease-in-out infinite;
+  }
+  .target-cell.ghost::before{
+    border-color:var(--accent);
+  }
+  @keyframes ghostPulse{
+    0%,100%{opacity:.55;}
+    50%{opacity:1;}
+  }
+  .hint-banner{
+    text-align:center;font-size:13px;color:var(--accent);font-weight:700;
+    /* Space for this banner is reserved at all times (even while hidden) so
+       it never shunts the table grid down when a wrong guess first triggers
+       it — only opacity animates, layout stays put. */
+    min-height:1.3em;
+    line-height:1.3;
+    margin:2px 0 8px;
+    visibility:hidden;
+    opacity:0;
+    transition:opacity .3s ease;
+  }
+  .hint-banner.show{visibility:visible;opacity:1;}
+
+  .cat-alkali{background:#ffd8a8; background-image: repeating-linear-gradient(45deg, rgba(30,30,30,.13) 0 1.5px, transparent 1.5px 7px);}
+  .cat-alkaline{background:#ffec99; background-image: repeating-linear-gradient(45deg, rgba(30,30,30,.13) 0 1.5px, transparent 1.5px 7px);}
+  .cat-rare{background:#fcc2d7; background-image: repeating-linear-gradient(45deg, rgba(30,30,30,.13) 0 1.5px, transparent 1.5px 7px);}
+  .cat-transition{background:#a5d8ff; background-image: repeating-linear-gradient(45deg, rgba(30,30,30,.13) 0 1.5px, transparent 1.5px 7px);}
+  .cat-posttrans{background:#b2f2bb; background-image: repeating-linear-gradient(45deg, rgba(30,30,30,.13) 0 1.5px, transparent 1.5px 7px);}
+  .cat-metalloid{background:#99e9f2; background-image: repeating-linear-gradient(45deg, rgba(30,30,30,.13) 0 1.5px, transparent 1.5px 7px);}
+  .cat-nonmetal{background:#b197fc; background-image: repeating-linear-gradient(45deg, rgba(30,30,30,.13) 0 1.5px, transparent 1.5px 7px);}
+  .cat-halogen{background:#ffc9c9; background-image: repeating-linear-gradient(45deg, rgba(30,30,30,.13) 0 1.5px, transparent 1.5px 7px);}
+  .cat-noble{background:#eebefa; background-image: repeating-linear-gradient(45deg, rgba(30,30,30,.13) 0 1.5px, transparent 1.5px 7px);}
+
+  /* No-colour (hardcore) mode: strip category colours from every cell and the falling block */
+  .table-grid.no-color .cat-alkali,
+  .table-grid.no-color .cat-alkaline,
+  .table-grid.no-color .cat-rare,
+  .table-grid.no-color .cat-transition,
+  .table-grid.no-color .cat-posttrans,
+  .table-grid.no-color .cat-metalloid,
+  .table-grid.no-color .cat-nonmetal,
+  .table-grid.no-color .cat-halogen,
+  .table-grid.no-color .cat-noble{
+    background:#f1f3f5 !important;
+    background-image:none !important;
+    color:#343a40 !important;
+  }
+  .table-grid.no-color .target-cell.filled::before{
+    border-color:#343a40 !important;
+  }
+
+  .falling-block{
+    position:absolute;
+    z-index:5;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    transition:left .12s ease;
+  }
+  .falling-block::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius: 12px 18px 10px 20px / 16px 10px 20px 12px;
+    border:2.6px solid var(--ink);
+    background-color:inherit;
+    background-image: repeating-linear-gradient(45deg, rgba(30,30,30,.13) 0 1.5px, transparent 1.5px 7px);
+    box-shadow: 3px 3px 0 rgba(30,30,30,.55);
+    filter:url(#sketchy);
+  }
+  .falling-block .symbol{
+    position:relative;
+    z-index:1;
+    font-family:'Architects Daughter',cursive;
+    font-style:normal;
+    font-weight:900;
+    font-size:20px;
+    line-height:1;
+    color:var(--ink);
+  }
+  .falling-block.wrongflash{animation:flashred .35s ease;}
+  @keyframes flashred{
+    0%,100%{filter:none;}
+    50%{filter:brightness(0.6) saturate(2);}
+  }
+
+  .instructions{
+    text-align:center;font-size:13px;color:var(--ink-soft);margin-top:14px;
+    line-height:1.6;
+  }
+  .instructions kbd{
+    background:#fff;border:1.5px solid var(--ink);border-radius: 5px 8px 4px 9px;
+    padding:1px 6px;font-family:monospace;
+  }
+
+  .overlay{
+    position:fixed;inset:0;background:rgba(30,30,30,.5);
+    display:flex;align-items:center;justify-content:center;z-index:20;
+  }
+  .overlay[hidden]{display:none;}
+  .card{
+    background:#fff;border:2.6px solid var(--ink);
+    border-radius: 20px 14px 22px 12px / 14px 20px 12px 22px;
+    padding:28px 32px;max-width:460px;text-align:center;
+    box-shadow: 6px 6px 0 rgba(30,30,30,.85);
+  }
+  .card h2{font-family:'Architects Daughter',cursive;color:var(--accent);margin-top:0;}
+  .card p{font-size:14px;line-height:1.6;color:var(--ink-soft);}
+  .card button{
+    font-family:'Architects Daughter',cursive;
+    background:var(--accent);
+    border:2.2px solid var(--ink);color:#fff;font-weight:700;
+    padding:10px 26px;border-radius: 10px 16px 9px 17px / 14px 9px 17px 10px;
+    cursor:pointer;font-size:15px;
+    box-shadow: 3px 3px 0 rgba(30,30,30,.85);
+    letter-spacing:0.5px;margin-top:10px;
+  }
+  .card button:hover{filter:brightness(1.08);}
+  .next-btn{
+    font-family:'Architects Daughter',cursive;
+    background:#d43b3b;
+    border:2.2px solid var(--ink);color:#fff;font-weight:700;
+    padding:10px 26px;border-radius: 10px 16px 9px 17px / 14px 9px 17px 10px;
+    cursor:pointer;font-size:15px;
+    box-shadow: 3px 3px 0 rgba(30,30,30,.85);
+    letter-spacing:0.5px;margin-top:14px;
+    display:inline-block;text-decoration:none;
+  }
+  .next-btn:hover{filter:brightness(1.08);}
+  .back-link{
+    display:block;margin-top:12px;font-family:'Architects Daughter',cursive;
+    font-size:13px;color:var(--ink-soft);text-decoration:underline;cursor:pointer;
+  }
+  .back-link:hover{color:var(--ink);}
+  .final-score{font-size:32px;color:var(--accent);font-weight:800;margin:6px 0;font-family:'Architects Daughter',cursive;}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
+  <filter id="sketchy" x="-20%" y="-20%" width="140%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" result="noise"/>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.2"/>
+  </filter>
+</svg>
+
+<div class="wrap">
+  <header>
+    <h1>Random Element Drop! Periods 1–4 Edition</h1>
+    <div class="subtitle">A Periodic Table Challenge — all 36 elements across Periods 1–4 fall in random order, anywhere on the table</div>
+    <div class="hud">
+      <div>Score: <span id="score">0</span><span id="multiplierBadge" class="badge" hidden>×1</span></div>
+      <div>Element Timer: <span id="elTimer">0.0s</span></div>
+      <div>Total Time: <span id="totalTimer">00:00</span></div>
+      <div>Remaining: <span id="remaining">36</span></div>
+    </div>
+    <div class="support-bar">
+      <label class="switch-row" id="noColorRow">
+        <input type="checkbox" id="noColorToggle">
+        Hide colours <span class="mult">×2</span>
+      </label>
+      <label class="switch-row" id="noGhostRow">
+        <input type="checkbox" id="noGhostToggle">
+        Hide ghost hints <span class="mult">×3</span>
+      </label>
+      <label class="switch-row">
+        <input type="checkbox" id="comboToggle">
+        No colours &amp; no help hints <span class="mult">×4</span>
+      </label>
+      <label class="switch-row" id="removeAllRow">
+        <input type="checkbox" id="removeAllToggle">
+        Remove all scaffolding! The expert level! <span class="mult">×6</span>
+      </label>
+      <div class="current-mult">Score multiplier: <span id="multiplierValue">×1</span></div>
+    </div>
+  </header>
+
+  <div class="banner" id="banner"></div>
+  <div class="hint-banner" id="hintBanner">Here's where everything goes — take a look!</div>
+  <div class="current-guide" id="guideText">Guide the block into place.</div>
+
+  <div class="game-area" id="gameArea">
+    <div class="bg-text" id="bgText">PERIODS 1–4</div>
+    <div class="table-grid" id="tableGrid"></div>
+  </div>
+
+  <div class="instructions">
+    <kbd>&larr;</kbd> <kbd>&rarr;</kbd> move the block &nbsp;•&nbsp; <kbd>&darr;</kbd> drop instantly &nbsp;•&nbsp;
+    Every one of the 36 elements across Periods 1–4 can fall next, in completely random order and from anywhere on the table —
+    no working through Period 1, 2, 3... in sequence. Faster + correct = more points!
+  </div>
+</div>
+
+<div class="overlay" id="startOverlay">
+  <div class="card">
+    <h2>Random Element Drop! Periods 1–4 Edition</h2>
+    <p>Built for students who already know Periods 1 through 4: instead of working through Period 1,
+    Period 2, Period 3 and so on in order, all <b>36 elements</b> across every one of the four
+    periods are shuffled together into one pile and fall one at a time in completely random order.</p>
+    <p>Use the arrow keys to steer each falling block sideways and land it in its correct box before it
+    reaches the bottom of its row. The block's landing row is fixed automatically by which element it is —
+    the only guess you have to make is the column. Correct placements score more points the faster you find
+    them; wrong placements cost points and send the block back up for another try.</p>
+    <p>Use the switches above the board any time — even mid-game — to build your own challenge:
+    hide the category colours for double points, hide the ghost-letter hints for triple points,
+    or tick the combined switch for a flat four times the points. For the ultimate challenge, tick
+    <b>"Remove all scaffolding! The expert level!"</b>: every box on the entire table is hidden completely
+    (not even an outline) until you solve it — a true blank sheet, with boxes only appearing as you place
+    them correctly. This is worth a flat six times the points, and stacks with the other switches.</p>
+    <button id="startBtn">Start Game</button>
+  </div>
+</div>
+
+<div class="overlay" id="endOverlay" hidden>
+  <div class="card">
+    <h2>You've Conquered Periods 1–4!</h2>
+    <div class="final-score" id="finalScore">0</div>
+    <p id="finalTime"></p>
+    <button id="restartBtn">Play Again</button>
+    <br>
+    <a class="back-link" href="period-2-drop.html">Start at Period 2 again</a>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const COLS = 18;
+  const EXTRA_LIFT = 100; // raises the spawn point ~2 row-heights higher for more reaction time
+  const ROMAN_LABELS = ['I','II','3','4','5','6','7','8','9','10','11','12','III','IV','V','VI','VII','0']; // historical group numbering, shown above the table
+
+  // No decorative context — every one of the 36 elements is a box the
+  // player fills in, in random order rather than period by period.
+  const context = [];
+
+  // All 36 elements across Periods 1-4 the player must place, in NO fixed
+  // order — spawnNext() draws from a single shuffled queue covering every
+  // period at once. The Lanthanide and Actinide Series are not included
+  // (same main-table-only element set as the other Period drop games).
+  const allTargets = [
+    {p:1, g:1, s:'H', z:1, name:'Hydrogen', cat:'nonmetal'},
+    {p:1, g:18, s:'He', z:2, name:'Helium', cat:'noble'},
+    {p:2, g:1, s:'Li', z:3, name:'Lithium', cat:'alkali'},
+    {p:2, g:2, s:'Be', z:4, name:'Beryllium', cat:'alkaline'},
+    {p:2, g:13, s:'B', z:5, name:'Boron', cat:'metalloid'},
+    {p:2, g:14, s:'C', z:6, name:'Carbon', cat:'nonmetal'},
+    {p:2, g:15, s:'N', z:7, name:'Nitrogen', cat:'nonmetal'},
+    {p:2, g:16, s:'O', z:8, name:'Oxygen', cat:'nonmetal'},
+    {p:2, g:17, s:'F', z:9, name:'Fluorine', cat:'halogen'},
+    {p:2, g:18, s:'Ne', z:10, name:'Neon', cat:'noble'},
+    {p:3, g:1, s:'Na', z:11, name:'Sodium', cat:'alkali'},
+    {p:3, g:2, s:'Mg', z:12, name:'Magnesium', cat:'alkaline'},
+    {p:3, g:13, s:'Al', z:13, name:'Aluminium', cat:'posttrans'},
+    {p:3, g:14, s:'Si', z:14, name:'Silicon', cat:'metalloid'},
+    {p:3, g:15, s:'P', z:15, name:'Phosphorus', cat:'nonmetal'},
+    {p:3, g:16, s:'S', z:16, name:'Sulfur', cat:'nonmetal'},
+    {p:3, g:17, s:'Cl', z:17, name:'Chlorine', cat:'halogen'},
+    {p:3, g:18, s:'Ar', z:18, name:'Argon', cat:'noble'},
+    {p:4, g:1, s:'K', z:19, name:'Potassium', cat:'alkali'},
+    {p:4, g:2, s:'Ca', z:20, name:'Calcium', cat:'alkaline'},
+    {p:4, g:3, s:'Sc', z:21, name:'Scandium', cat:'transition'},
+    {p:4, g:4, s:'Ti', z:22, name:'Titanium', cat:'transition'},
+    {p:4, g:5, s:'V', z:23, name:'Vanadium', cat:'transition'},
+    {p:4, g:6, s:'Cr', z:24, name:'Chromium', cat:'transition'},
+    {p:4, g:7, s:'Mn', z:25, name:'Manganese', cat:'transition'},
+    {p:4, g:8, s:'Fe', z:26, name:'Iron', cat:'transition'},
+    {p:4, g:9, s:'Co', z:27, name:'Cobalt', cat:'transition'},
+    {p:4, g:10, s:'Ni', z:28, name:'Nickel', cat:'transition'},
+    {p:4, g:11, s:'Cu', z:29, name:'Copper', cat:'transition'},
+    {p:4, g:12, s:'Zn', z:30, name:'Zinc', cat:'transition'},
+    {p:4, g:13, s:'Ga', z:31, name:'Gallium', cat:'posttrans'},
+    {p:4, g:14, s:'Ge', z:32, name:'Germanium', cat:'metalloid'},
+    {p:4, g:15, s:'As', z:33, name:'Arsenic', cat:'metalloid'},
+    {p:4, g:16, s:'Se', z:34, name:'Selenium', cat:'nonmetal'},
+    {p:4, g:17, s:'Br', z:35, name:'Bromine', cat:'halogen'},
+    {p:4, g:18, s:'Kr', z:36, name:'Krypton', cat:'noble'}
+  ];
+
+  // Every target sits in a real main-table period (1-4), so the grid row is
+  // simply period+1 (row 1 is the roman-numeral header above the table).
+  function rowForPeriod(p){
+    return p + 1;
+  }
+
+  const tableGrid = document.getElementById('tableGrid');
+  const bgTextEl = document.getElementById('bgText');
+  const scoreEl = document.getElementById('score');
+  const elTimerEl = document.getElementById('elTimer');
+  const totalTimerEl = document.getElementById('totalTimer');
+  const remainingEl = document.getElementById('remaining');
+  const bannerEl = document.getElementById('banner');
+  const hintBannerEl = document.getElementById('hintBanner');
+  const guideTextEl = document.getElementById('guideText');
+  const startOverlay = document.getElementById('startOverlay');
+  const endOverlay = document.getElementById('endOverlay');
+  const finalScoreEl = document.getElementById('finalScore');
+  const finalTimeEl = document.getElementById('finalTime');
+  const noColorToggle = document.getElementById('noColorToggle');
+  const noGhostToggle = document.getElementById('noGhostToggle');
+  const comboToggle = document.getElementById('comboToggle');
+  const removeAllToggle = document.getElementById('removeAllToggle');
+  const noColorRow = document.getElementById('noColorRow');
+  const noGhostRow = document.getElementById('noGhostRow');
+  const multiplierBadge = document.getElementById('multiplierBadge');
+  const multiplierValueEl = document.getElementById('multiplierValue');
+
+  let fallingBlockEl = null;
+  let score = 0;
+  let noColorEnabled = false;
+  let noGhostEnabled = false;
+  let comboEnabled = false;
+  let removeAllEnabled = false;
+  let queue = [];
+  let current = null;
+  let currentCol = 9;
+  let fallingTop = -80;
+  let targetTop = 0;
+  let spawnTime = 0;
+  let gameStart = 0;
+  let gameRunning = false;
+  let fallSpeed = 45;
+  let solvedCount = 0;
+  let bannerTimeout = null;
+  let rafId = null;
+  let hintActive = false;
+  let hintTimer = null;
+  let hintPauseStart = 0;
+  let flashTimer = null;
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  // Students can mix and match these supports at any time, even mid-game.
+  // Hiding colours doubles points; hiding ghost hints triples them; ticking
+  // both individual boxes stacks to x6. The combo box is a flat x4 shortcut.
+  // "Remove all scaffolding! The expert level!" hides every unsolved box on
+  // the whole table (a blank sheet), strips all colour, AND removes the
+  // ghost hints — a flat x6, stacking with the other switches.
+  function colorsHidden(){ return comboEnabled || noColorEnabled || removeAllEnabled; }
+  function hintsHidden(){ return comboEnabled || noGhostEnabled || removeAllEnabled; }
+
+  function computeMultiplier(){
+    const toggles = comboEnabled ? 4 : (1 * (noColorEnabled?2:1) * (noGhostEnabled?3:1));
+    const removeAllFactor = removeAllEnabled ? 6 : 1;
+    return toggles * removeAllFactor;
+  }
+
+  function updateMultiplierDisplay(){
+    const m = computeMultiplier();
+    multiplierValueEl.textContent = '×'+m;
+    multiplierBadge.textContent = '×'+m;
+    multiplierBadge.hidden = (m===1);
+  }
+
+  function applyNoColorClass(){
+    tableGrid.classList.toggle('no-color', colorsHidden());
+  }
+
+  function clearVisibleGhostLetters(){
+    hintBannerEl.classList.remove('show');
+    allTargets.forEach(t=>{
+      const cell = getTargetCell(t.p, t.g);
+      if(cell && !cell.classList.contains('filled')){
+        cell.classList.remove('ghost');
+        cell.innerHTML = '<span>'+t.z+'</span>';
+      }
+    });
+  }
+
+  noColorToggle.addEventListener('change', function(){
+    if(comboEnabled || removeAllEnabled) return;
+    noColorEnabled = this.checked;
+    applyNoColorClass();
+    updateMultiplierDisplay();
+  });
+
+  noGhostToggle.addEventListener('change', function(){
+    if(comboEnabled || removeAllEnabled) return;
+    noGhostEnabled = this.checked;
+    updateMultiplierDisplay();
+    if(noGhostEnabled) clearVisibleGhostLetters();
+  });
+
+  comboToggle.addEventListener('change', function(){
+    comboEnabled = this.checked;
+    if(comboEnabled){
+      noColorEnabled = false;
+      noGhostEnabled = false;
+      noColorToggle.checked = false;
+      noGhostToggle.checked = false;
+      noColorToggle.disabled = true;
+      noGhostToggle.disabled = true;
+      noColorRow.classList.add('disabled');
+      noGhostRow.classList.add('disabled');
+      clearVisibleGhostLetters();
+    } else {
+      // Only re-enable "Hide colours"/"Hide ghost hints" if the expert-level
+      // switch isn't also holding them disabled/redundant.
+      if(!removeAllEnabled){
+        noColorToggle.disabled = false;
+        noColorRow.classList.remove('disabled');
+        noGhostToggle.disabled = false;
+        noGhostRow.classList.remove('disabled');
+      }
+    }
+    applyNoColorClass();
+    updateMultiplierDisplay();
+  });
+
+  // "Remove all scaffolding! The expert level!" — hides every unsolved box
+  // on the ENTIRE table (a true blank sheet, not just upcoming periods),
+  // strips all category colour, AND removes the ghost-letter hints entirely
+  // (like "Hide colours" and "Hide ghost hints" above, both of which become
+  // redundant and are disabled while this is on). Stacks with the combo switch.
+  removeAllToggle.addEventListener('change', function(){
+    removeAllEnabled = this.checked;
+    if(removeAllEnabled){
+      noColorEnabled = false;
+      noGhostEnabled = false;
+      noColorToggle.checked = false;
+      noGhostToggle.checked = false;
+      noColorToggle.disabled = true;
+      noGhostToggle.disabled = true;
+      noColorRow.classList.add('disabled');
+      noGhostRow.classList.add('disabled');
+      clearVisibleGhostLetters();
+    } else if(!comboEnabled){
+      noColorToggle.disabled = false;
+      noGhostToggle.disabled = false;
+      noColorRow.classList.remove('disabled');
+      noGhostRow.classList.remove('disabled');
+    }
+    applyNoColorClass();
+    updateHiddenCells();
+    updateMultiplierDisplay();
+  });
+
+  function buildTable(){
+    tableGrid.innerHTML = '';
+
+    context.forEach(el=>{
+      const div = document.createElement('div');
+      div.className = 'cell context cat-'+el.cat;
+      div.style.gridColumn = el.g;
+      div.style.gridRow = rowForPeriod(el.p);
+      div.innerHTML = '<span>'+el.s+'</span>';
+      tableGrid.appendChild(div);
+    });
+
+    // Every box starts colourless with just its atomic number showing —
+    // there's no "active row" to colour-code here, since any box could be
+    // called on next. Colour and symbol only appear once a box is solved.
+    allTargets.forEach(el=>{
+      const div = document.createElement('div');
+      div.className = 'cell target-cell';
+      div.dataset.period = el.p;
+      div.dataset.group = el.g;
+      div.style.gridColumn = el.g;
+      div.style.gridRow = rowForPeriod(el.p);
+      div.innerHTML = '<span>'+el.z+'</span>';
+      tableGrid.appendChild(div);
+    });
+
+    for(let g=1; g<=COLS; g++){
+      const label = document.createElement('div');
+      label.className = 'group-label';
+      label.dataset.group = g;
+      label.style.gridColumn = g;
+      label.style.gridRow = 9;
+      label.textContent = g;
+      tableGrid.appendChild(label);
+    }
+
+    // Historical (pre-1985) group numbering shown above the table, mixing
+    // Roman numerals for the main groups with plain numbers for groups 3-12,
+    // which never settled on a single clean Roman-numeral label.
+    for(let g=1; g<=COLS; g++){
+      const romanLabel = document.createElement('div');
+      romanLabel.className = 'roman-label';
+      romanLabel.dataset.group = g;
+      romanLabel.style.gridColumn = g;
+      romanLabel.style.gridRow = 1;
+      romanLabel.textContent = ROMAN_LABELS[g-1];
+      tableGrid.appendChild(romanLabel);
+    }
+
+    fallingBlockEl = document.createElement('div');
+    fallingBlockEl.className = 'falling-block';
+    fallingBlockEl.innerHTML =
+      '<div class="symbol" id="blockSymbol">?</div>';
+    tableGrid.appendChild(fallingBlockEl);
+
+    updateHiddenCells();
+  }
+
+  // A target-cell is uniquely identified by BOTH its period and its group,
+  // since e.g. group 1 has a target box in Period 1, Period 2 and Period 3 alike.
+  function getTargetCell(period, group){
+    return tableGrid.querySelector('.target-cell[data-period="'+period+'"][data-group="'+group+'"]');
+  }
+
+  // "Remove all scaffolding! The expert level!": every box that hasn't been
+  // solved yet is hidden completely, wherever it is on the table. Boxes
+  // already solved stay visible as a record of progress.
+  function updateHiddenCells(){
+    tableGrid.querySelectorAll('.target-cell').forEach(cell=>{
+      const isFilled = cell.classList.contains('filled');
+      cell.classList.toggle('hidden-cell', removeAllEnabled && !isFilled);
+    });
+  }
+
+  // Group-label cells exist for every one of the 18 columns, even columns
+  // that have no target box in a given row. Using them (instead of
+  // target-cell) lets the block move across the full board rather than
+  // only the columns that happen to have a target in the current row.
+  function getColumnAnchor(group){
+    return tableGrid.querySelector('.group-label[data-group="'+group+'"]');
+  }
+
+  // The block's landing row is dictated entirely by which element is
+  // currently falling (there's no single "active row" — any row could be
+  // next), so this looks up the row for the CURRENT element specifically.
+  function getRowTop(){
+    if(!current) return 0;
+    const cell = tableGrid.querySelector('.target-cell[data-period="'+current.p+'"]');
+    return cell ? cell.offsetTop : 0;
+  }
+
+  function sizeBlock(){
+    if(!current) return;
+    const cell = tableGrid.querySelector('.target-cell[data-period="'+current.p+'"]');
+    if(!cell) return;
+    const w = cell.offsetWidth, h = cell.offsetHeight;
+    fallingBlockEl.style.width = (w+6)+'px';
+    fallingBlockEl.style.height = (h+6)+'px';
+  }
+
+  function positionBlockX(){
+    const cell = getColumnAnchor(currentCol);
+    if(!cell) return;
+    const left = cell.offsetLeft - 3 + (cell.offsetWidth - fallingBlockEl.offsetWidth)/2;
+    fallingBlockEl.style.left = left+'px';
+  }
+
+  function updateScore(){
+    scoreEl.textContent = score;
+  }
+  function updateRemaining(){
+    remainingEl.textContent = allTargets.length - solvedCount;
+  }
+
+  function showBanner(msg, good){
+    bannerEl.textContent = msg;
+    bannerEl.className = 'banner show ' + (good?'good':'bad');
+    if(bannerTimeout) clearTimeout(bannerTimeout);
+    bannerTimeout = setTimeout(()=>{ bannerEl.className='banner'; }, 1600);
+  }
+
+  function spawnNext(){
+    if(queue.length===0){
+      endGame();
+      return;
+    }
+    current = queue.shift();
+    currentCol = Math.ceil(COLS/2);
+    spawnTime = performance.now();
+    // Ramps up over the first ~22 correct placements, then plateaus — with
+    // 36 elements to get through, an ever-increasing speed would become
+    // unplayable long before the end, unlike the shorter single-period games.
+    fallSpeed = 42 + Math.min(solvedCount, 22)*2.2;
+
+    document.getElementById('blockSymbol').textContent = current.s;
+    fallingBlockEl.className = 'falling-block cat-'+current.cat;
+    bgTextEl.textContent = current.name.toUpperCase();
+    guideTextEl.innerHTML = 'Guide <b>'+current.name+'</b> (<span class="sym-inline">'+current.s+'</span>) into its correct box — it could be anywhere on the table!';
+
+    sizeBlock();
+    positionBlockX();
+
+    targetTop = getRowTop();
+    fallingTop = -(fallingBlockEl.offsetHeight || 50) - 30 - EXTRA_LIFT;
+    fallingBlockEl.style.top = fallingTop+'px';
+
+    updateRemaining();
+  }
+
+  function moveCol(delta){
+    if(!current || !gameRunning || hintActive) return;
+    currentCol = Math.min(COLS, Math.max(1, currentCol+delta));
+    positionBlockX();
+  }
+
+  function hardDrop(){
+    if(!current || !gameRunning || hintActive) return;
+    fallingTop = targetTop;
+    fallingBlockEl.style.top = fallingTop+'px';
+    land();
+  }
+
+  function fillTargetCell(target){
+    const cell = getTargetCell(target.p, target.g);
+    cell.classList.add('filled','cat-'+target.cat);
+    cell.classList.remove('hidden-cell');
+    cell.innerHTML = '<span>'+target.s+'</span>';
+  }
+
+  function showGhostHints(duration, message, onDone){
+    hintActive = true;
+    hintPauseStart = performance.now();
+    hintBannerEl.textContent = message || "Here's where everything goes — take a look!";
+    hintBannerEl.classList.add('show');
+    allTargets.forEach(t=>{
+      const cell = getTargetCell(t.p, t.g);
+      if(cell && !cell.classList.contains('filled')){
+        cell.classList.add('ghost');
+        cell.innerHTML = '<span>'+t.s+'</span>';
+      }
+    });
+    if(hintTimer) clearTimeout(hintTimer);
+    hintTimer = setTimeout(function(){
+      hideGhostHints();
+      if(onDone) onDone();
+    }, duration);
+  }
+
+  function hideGhostHints(){
+    hintBannerEl.classList.remove('show');
+    allTargets.forEach(t=>{
+      const cell = getTargetCell(t.p, t.g);
+      if(cell && !cell.classList.contains('filled')){
+        cell.classList.remove('ghost');
+        cell.innerHTML = '<span>'+t.z+'</span>';
+      }
+    });
+    if(hintActive){
+      // don't let the studied-in-peace hint time count against the player's element timer/score
+      spawnTime += (performance.now() - hintPauseStart);
+    }
+    hintActive = false;
+  }
+
+  // Briefly reveals the correct symbols after a wrong guess, WITHOUT pausing
+  // the falling block or the timer — purely a visual learning aid.
+  function flashAnswers(duration, message){
+    hintBannerEl.textContent = message || "Here's where everything goes!";
+    hintBannerEl.classList.add('show');
+    allTargets.forEach(t=>{
+      const cell = getTargetCell(t.p, t.g);
+      if(cell && !cell.classList.contains('filled')){
+        cell.classList.add('ghost');
+        cell.innerHTML = '<span>'+t.s+'</span>';
+      }
+    });
+    if(flashTimer) clearTimeout(flashTimer);
+    flashTimer = setTimeout(function(){
+      hintBannerEl.classList.remove('show');
+      allTargets.forEach(t=>{
+        const cell = getTargetCell(t.p, t.g);
+        if(cell && !cell.classList.contains('filled')){
+          cell.classList.remove('ghost');
+          cell.innerHTML = '<span>'+t.z+'</span>';
+        }
+      });
+    }, duration);
+  }
+
+  function land(){
+    if(!current) return;
+    const target = current;
+    const correct = (currentCol === target.g);
+    const elapsed = (performance.now()-spawnTime)/1000;
+
+    const multiplier = computeMultiplier();
+
+    if(correct){
+      const pts = Math.round(Math.max(15, Math.round(150 - elapsed*12)) * multiplier);
+      score += pts;
+      solvedCount++;
+      showBanner('Correct! '+target.s+' ('+target.name+')  +'+pts+' pts', true);
+      fillTargetCell(target);
+      current = null;
+      updateScore();
+      updateRemaining();
+      setTimeout(spawnNext, 650);
+    } else {
+      const penalty = Math.round(20 * multiplier);
+      score = Math.max(0, score-penalty);
+      fallingBlockEl.classList.add('wrongflash');
+      setTimeout(()=>fallingBlockEl.classList.remove('wrongflash'), 350);
+      showBanner('Not quite! '+target.name+' belongs elsewhere.  -'+penalty+' pts', false);
+      updateScore();
+      currentCol = Math.ceil(COLS/2);
+      positionBlockX();
+      targetTop = getRowTop();
+      fallingTop = -(fallingBlockEl.offsetHeight || 50) - 30 - EXTRA_LIFT;
+      fallingBlockEl.style.top = fallingTop+'px';
+      if(!hintsHidden()){
+        flashAnswers(5000, "Not quite — here's the correct layout! (5s)");
+      }
+    }
+  }
+
+  function formatTime(ms){
+    const totalSec = Math.floor(ms/1000);
+    const m = Math.floor(totalSec/60);
+    const s = totalSec%60;
+    return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }
+
+  let lastTs = null;
+  function loop(ts){
+    if(!gameRunning) return;
+    if(lastTs===null) lastTs = ts;
+    const dt = (ts-lastTs)/1000;
+    lastTs = ts;
+
+    if(current && !hintActive){
+      fallingTop += fallSpeed*dt;
+      fallingBlockEl.style.top = fallingTop+'px';
+      if(fallingTop >= targetTop){
+        land();
+      }
+      elTimerEl.textContent = ((performance.now()-spawnTime)/1000).toFixed(1)+'s';
+    }
+    totalTimerEl.textContent = formatTime(performance.now()-gameStart);
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function endGame(){
+    gameRunning = false;
+    if(rafId) cancelAnimationFrame(rafId);
+    finalScoreEl.textContent = score;
+    finalTimeEl.textContent = 'Total time: '+formatTime(performance.now()-gameStart);
+    endOverlay.hidden = false;
+  }
+
+  function startGame(){
+    score = 0;
+    solvedCount = 0;
+    current = null;
+    lastTs = null;
+    hintActive = false;
+    if(hintTimer){ clearTimeout(hintTimer); hintTimer = null; }
+    if(flashTimer){ clearTimeout(flashTimer); flashTimer = null; }
+    hintBannerEl.classList.remove('show');
+
+    comboEnabled = comboToggle.checked;
+    noColorEnabled = noColorToggle.checked;
+    noGhostEnabled = noGhostToggle.checked;
+    removeAllEnabled = removeAllToggle.checked;
+    applyNoColorClass();
+    updateMultiplierDisplay();
+
+    buildTable();
+    queue = shuffle(allTargets); // ALL 36 elements shuffled together — no period grouping at all
+    updateScore();
+    updateRemaining();
+    startOverlay.hidden = true;
+    endOverlay.hidden = true;
+    gameRunning = false;
+
+    bgTextEl.textContent = 'GOOD LUCK!';
+    elTimerEl.textContent = '0.0s';
+    totalTimerEl.textContent = '00:00';
+
+    if(hintsHidden()){
+      // Hints are off entirely — skip the preview and drop straight in.
+      guideTextEl.innerHTML = 'Get ready...';
+      gameStart = performance.now();
+      gameRunning = true;
+      spawnNext();
+      rafId = requestAnimationFrame(loop);
+    } else {
+      guideTextEl.innerHTML = 'Study the board — the full 36-element layout is shown for 5 seconds...';
+      showGhostHints(5000, "Here's the full layout — study it! (5s)", function(){
+        gameStart = performance.now();
+        gameRunning = true;
+        spawnNext();
+        rafId = requestAnimationFrame(loop);
+      });
+    }
+  }
+
+  document.getElementById('startBtn').addEventListener('click', startGame);
+  document.getElementById('restartBtn').addEventListener('click', startGame);
+
+  window.addEventListener('keydown', function(e){
+    if(!gameRunning) return;
+    if(e.key==='ArrowLeft'){ moveCol(-1); e.preventDefault(); }
+    else if(e.key==='ArrowRight'){ moveCol(1); e.preventDefault(); }
+    else if(e.key==='ArrowDown'){ hardDrop(); e.preventDefault(); }
+  });
+
+  window.addEventListener('resize', function(){
+    if(!current) return;
+    sizeBlock();
+    positionBlockX();
+    targetTop = getRowTop();
+  });
+
+  // Build the table once immediately so it's visible behind the start overlay
+  buildTable();
+})();
+</script>
+</body>
+</html>

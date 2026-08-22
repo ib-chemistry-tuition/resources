@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Exploring Ohm's Law</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/rough.js/3.1.0/rough.umd.js"></script>
+<style>
+  :root{
+    --ink:#1e1e1e;
+    --paper:#fdfaf3;
+    --accent:#e8590c;
+    --blue:#1971c2;
+    --green:#2b8a3e;
+    --red:#c92a2a;
+    --panel:#fffdf7;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    font-family:'Kalam', cursive;
+    color:var(--ink);
+    padding:24px;
+  }
+  h1{ text-align:center; font-size:32px; margin:0 0 4px 0; }
+  h2.section-title{
+    font-size:24px;
+    border-bottom:3px solid var(--ink);
+    display:inline-block;
+    padding-bottom:2px;
+    margin:0 0 6px 0;
+  }
+  .subtitle{ text-align:center; font-size:16px; color:#555; margin-bottom:20px; }
+  .wrap{
+    display:flex; flex-wrap:wrap; gap:24px; justify-content:center;
+    align-items:flex-start; max-width:1180px; margin:0 auto;
+  }
+  .panel{
+    background:var(--panel); border:2.5px solid var(--ink); border-radius:10px;
+    padding:14px 18px 18px; box-shadow:4px 4px 0 rgba(30,30,30,0.12);
+  }
+  .panel h2{ margin:0 0 8px 0; font-size:20px; text-align:center; }
+  svg{ display:block; }
+  .controls{
+    width:100%; max-width:1180px; margin:22px auto 0; background:var(--panel);
+    border:2.5px solid var(--ink); border-radius:10px; padding:16px 24px;
+    box-shadow:4px 4px 0 rgba(30,30,30,0.12); display:flex; gap:36px;
+    flex-wrap:wrap; justify-content:center;
+  }
+  .ctrl{ display:flex; flex-direction:column; min-width:250px; }
+  .ctrl label{ font-size:17px; margin-bottom:4px; }
+  .ctrl input[type=range]{ width:100%; accent-color:var(--accent); }
+  .ctrl input:disabled{ opacity:0.4; }
+  .ctrl .val{ font-weight:700; color:var(--accent); }
+  .ctrl .lockNote{ font-size:13px; color:#888; margin-top:2px; min-height:16px; }
+  .equation{ text-align:center; font-size:20px; margin-top:14px; letter-spacing:0.3px; line-height:1.7; }
+  .equation .num{ color:var(--blue); font-weight:700; }
+  .wire-label, .axis-label, .part-label{ font-family:'Kalam',cursive; font-size:15px; fill:var(--ink); }
+  .readout{ font-family:'Kalam',cursive; font-weight:700; font-size:15px; fill:var(--accent); }
+  footer{ text-align:center; color:#888; font-size:13px; margin-top:20px; }
+
+  .investigation{
+    max-width:1180px; margin:34px auto 0; background:var(--panel);
+    border:2.5px solid var(--ink); border-radius:10px; padding:22px 28px;
+    box-shadow:5px 5px 0 rgba(30,30,30,0.12);
+  }
+  .step{ margin-bottom:30px; padding-bottom:22px; border-bottom:2px dashed #ccc4ae; }
+  .step:last-child{ border-bottom:none; }
+  .step p{ font-size:17px; line-height:1.5; }
+  .bigbtn{
+    font-family:'Kalam',cursive; font-weight:700; font-size:17px;
+    background:var(--accent); color:#fff; border:2px solid var(--ink);
+    border-radius:8px; padding:10px 20px; cursor:pointer;
+    box-shadow:3px 3px 0 var(--ink);
+  }
+  .bigbtn:hover{ transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(--ink); }
+  .bigbtn:disabled{
+    background:#ccc; color:#777; cursor:not-allowed; box-shadow:3px 3px 0 #999; transform:none;
+  }
+  .hintbtn{
+    font-family:'Kalam',cursive; font-size:14px; background:#fff3bf; border:1.5px solid var(--ink);
+    border-radius:6px; padding:4px 10px; cursor:pointer;
+  }
+  .hint-text{
+    display:none; background:#fff9db; border-left:4px solid #f08c00; padding:8px 12px;
+    margin-top:8px; font-size:15px; border-radius:0 6px 6px 0;
+  }
+  .hint-text.show{ display:block; }
+  table.data-table{ border-collapse:collapse; width:100%; margin:14px 0; font-size:15px; }
+  table.data-table th, table.data-table td{ border:2px solid var(--ink); padding:7px 8px; text-align:center; }
+  table.data-table th{ background:#f1e9d2; }
+  table.data-table input[type=text]{
+    font-family:'Kalam',cursive; font-size:15px; width:70px; text-align:center;
+    border:1.5px solid var(--ink); border-radius:5px; padding:4px;
+  }
+  .checkbtn{
+    font-family:'Kalam',cursive; font-size:14px; background:#d0ebff; border:1.5px solid var(--ink);
+    border-radius:6px; padding:4px 10px; cursor:pointer;
+  }
+  .feedback{ font-weight:700; font-size:15px; min-width:150px; display:inline-block; }
+  .feedback.correct{ color:var(--green); }
+  .feedback.incorrect{ color:var(--red); }
+  textarea, .qtext{
+    font-family:'Kalam',cursive; font-size:16px; width:100%; max-width:640px;
+    border:1.5px solid var(--ink); border-radius:6px; padding:8px; resize:vertical;
+  }
+  .mcq label{
+    display:block; font-size:16px; margin:6px 0; cursor:pointer;
+    padding:6px 10px; border:1.5px solid transparent; border-radius:6px;
+  }
+  .mcq label.correct-pick{ background:#d3f9d8; border-color:var(--green); }
+  .mcq label.incorrect-pick{ background:#ffe3e3; border-color:var(--red); }
+  #plotCatcher{ cursor:crosshair; }
+  .plot-status{ font-size:16px; margin-top:8px; }
+  .checklist{ list-style:none; padding-left:0; font-size:15px; margin:10px 0; }
+  .checklist li{ margin-bottom:5px; }
+  .checklist li.done{ color:var(--green); font-weight:700; }
+  .graph-flex{ display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start; }
+  .revealnote{ font-size:16px; background:#e7f5ff; border:2px solid var(--blue); border-radius:8px; padding:10px 14px; margin-top:14px; display:none; }
+  .revealnote.show{ display:block; }
+  .legend{ font-size:14px; margin-top:6px; }
+  .legend span.sw{ display:inline-block; width:14px; height:4px; margin-right:5px; vertical-align:middle; }
+  .continuelink{ font-size:14px; color:var(--blue); text-decoration:underline; cursor:pointer; margin-left:10px; display:none; }
+</style>
+</head>
+<body>
+
+<h1>&#9889; Exploring Ohm's Law</h1>
+<div class="subtitle">First explore freely — then scroll down for a guided investigation.</div>
+
+<div class="wrap">
+  <div class="panel">
+    <h2>Circuit</h2>
+    <svg id="circuit" viewBox="0 0 640 400" width="600" height="375"></svg>
+  </div>
+  <div class="panel">
+    <h2>Voltage – Current Graph</h2>
+    <svg id="graph" viewBox="0 0 440 400" width="420" height="375"></svg>
+    <div class="plot-status" id="plotStatus"></div>
+    <div class="legend" id="graphLegend" style="display:none;">
+      <span class="sw" style="background:var(--accent);"></span>Your line of best fit &nbsp;&nbsp;
+      <span class="sw" style="background:var(--blue);"></span>True line (I = V/R)
+    </div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="ctrl">
+    <label>Supply Voltage (V<sub>s</sub>): <span class="val" id="vLabel">20.0</span> V</label>
+    <input type="range" id="voltageSlider" min="1" max="20" step="0.5" value="20">
+    <span class="lockNote" id="lockNoteV"></span>
+  </div>
+</div>
+
+<!-- ================= INVESTIGATION ================= -->
+<div class="investigation">
+  <h2 class="section-title">🔬 How does the p.d. across a fixed resistor affect the current flowing through it?</h2>
+  <p>Follow the steps below. Type your answers, click <b>Check</b>, and use the 💡 <b>Hint</b> buttons whenever you're stuck. Everything is marked for you instantly.</p>
+
+  <div class="step" id="stepStart">
+    <p><b>Step 1.</b> For this investigation the supply is fixed at <b>20 V</b> and the resistor under test is fixed at <b>R = 5 Ω</b>. You will use the <b>rheostat</b> to change the current and the p.d. across R.</p>
+    <button class="bigbtn" id="startInvestigationBtn">Start the Investigation</button>
+  </div>
+
+  <div class="step" id="stepTable" style="display:none;">
+    <p><b>Step 2 — Collect your data.</b> For each row: drag the <b>Rheostat</b> slider on the circuit diagram until it matches the "Set rheostat to" value, read the ammeter and voltmeter, then type both readings and click Check.</p>
+    <table class="data-table">
+      <thead><tr><th>#</th><th>Set rheostat to</th><th>Ammeter, I (A)</th><th>Voltmeter, V<sub>R</sub> (V)</th><th></th><th>Feedback</th></tr></thead>
+      <tbody id="dataTableBody"></tbody>
+    </table>
+    <button class="hintbtn" id="hintTableBtn">💡 Hint</button>
+    <div class="hint-text" id="hintTable">Move the rheostat slider slowly and watch the numbers next to the ammeter (A) and voltmeter (V) in the circuit diagram — type exactly what they show.</div>
+    <p id="tableCompleteMsg" style="display:none; color:var(--green); font-weight:700;">✅ All readings recorded! Continue to the question below.</p>
+  </div>
+
+  <div class="step" id="stepQ1" style="display:none;">
+    <p><b>Step 3 — Observe.</b> As you increase the rheostat's resistance, what happens to the ammeter reading and the voltmeter reading?</p>
+    <textarea id="q1answer" rows="2" placeholder="Type what you notice..."></textarea><br>
+    <button class="checkbtn" id="q1check">Check answer</button>
+    <button class="hintbtn" id="q1hintBtn">💡 Hint</button>
+    <span class="feedback" id="q1feedback"></span>
+    <div class="hint-text" id="q1hint">Look at your table: as the rheostat goes from 0 Ω up to 45 Ω, do the I and V values get bigger or smaller?</div>
+  </div>
+
+  <div class="step" id="stepPlot" style="display:none;">
+    <p><b>Step 4 — Plot your data.</b> The graph above is currently blank. Click on it to place each point from your table, in order.</p>
+    <p id="plotInstruction" style="font-weight:700;"></p>
+    <button class="hintbtn" id="hintPlotBtn">💡 Hint for this point</button>
+    <div class="hint-text" id="hintPlot"></div>
+    <ul class="checklist" id="plotChecklist"></ul>
+  </div>
+
+  <div class="step" id="stepFit" style="display:none;">
+    <p><b>Step 5 — Draw a line of best fit.</b> Drag the two orange handles on the graph so the line passes as close as possible to all your points.</p>
+    <button class="checkbtn" id="fitCheckBtn">Check my line</button>
+    <button class="hintbtn" id="fitHintBtn">💡 Hint</button>
+    <span class="feedback" id="fitFeedback"></span>
+    <span class="continuelink" id="fitContinueLink">Continue anyway →</span>
+    <div class="hint-text" id="fitHint">A good line of best fit doesn't need to touch every point — aim for roughly equal numbers of points above and below it, forming a straight line close to the origin.</div>
+  </div>
+
+  <div class="step" id="stepQ2" style="display:none;">
+    <p><b>Step 6 — Observe your graph.</b> What shape are your plotted points?</p>
+    <div class="mcq" id="q2mcq">
+      <label><input type="radio" name="q2" value="a"> A straight line through the origin</label>
+      <label><input type="radio" name="q2" value="b"> A curve that bends upward</label>
+      <label><input type="radio" name="q2" value="c"> A curve that bends downward</label>
+      <label><input type="radio" name="q2" value="d"> A flat horizontal line</label>
+    </div>
+    <span class="feedback" id="q2feedback"></span>
+    <button class="hintbtn" id="q2hintBtn">💡 Hint</button>
+    <div class="hint-text" id="q2hint">Look at the line of best fit you just drew — is it straight, and does it pass through (0,0)?</div>
+  </div>
+
+  <div class="step" id="stepQ3" style="display:none;">
+    <p><b>Step 7 — Interpret.</b> What does a straight line through the origin tell you about the relationship between voltage and current?</p>
+    <textarea id="q3answer" rows="2" placeholder="Type your answer..."></textarea><br>
+    <button class="checkbtn" id="q3check">Check answer</button>
+    <button class="hintbtn" id="q3hintBtn">💡 Hint</button>
+    <span class="feedback" id="q3feedback"></span>
+    <div class="hint-text" id="q3hint">If you double V, what happens to I? What single word describes two quantities that always increase in the same ratio like this?</div>
+  </div>
+
+  <div class="step" id="stepConclusion" style="display:none;">
+    <p><b>Step 8 — Conclusion.</b> Write a short conclusion for this investigation. Try to mention Ohm's Law and the equation V = IR.</p>
+    <textarea id="conclusionAnswer" rows="3" placeholder="Write your conclusion..."></textarea><br>
+    <button class="checkbtn" id="conclusionCheck">Check answer</button>
+    <button class="hintbtn" id="conclusionHintBtn">💡 Hint</button>
+    <span class="feedback" id="conclusionFeedback"></span>
+    <div class="hint-text" id="conclusionHint">A good conclusion mentions: Ohm's Law, the equation V = IR, that the graph is a straight line through the origin, and that current is directly proportional to voltage when resistance is constant.</div>
+  </div>
+
+  <div class="step" id="stepReveal">
+    <p><b>Step 9 — Reveal.</b> Ready to compare your line of best fit to the actual line?</p>
+    <button class="bigbtn" id="revealBtn" disabled>Reveal the Real Graph</button>
+    <div class="revealnote" id="revealNote">
+      🎉 Nice work! The blue line is the true I = V/R relationship for R = 5 Ω — your line and points should sit close to it.
+    </div>
+  </div>
+
+  <div class="step" id="stepGradient" style="display:none; border-bottom:none;">
+    <p><b>Step 10 — Investigate further.</b> So far, R has stayed fixed at 5 Ω throughout. Suppose you now increased R (keeping the supply and rheostat the same). What would happen to the <b>gradient</b> of the I–V line?</p>
+    <div class="mcq" id="gradientMcq">
+      <label><input type="radio" name="gradientQ" value="increase"> The gradient would increase</label>
+      <label><input type="radio" name="gradientQ" value="decrease"> The gradient would decrease</label>
+      <label><input type="radio" name="gradientQ" value="same"> The gradient would stay the same</label>
+    </div>
+    <span class="feedback" id="gradientFeedback"></span>
+    <button class="hintbtn" id="gradientHintBtn">💡 Hint</button>
+    <div class="hint-text" id="gradientHint">The gradient of this graph is I ÷ V, which equals 1 ÷ R. If R gets bigger, does 1 ÷ R get bigger or smaller?</div>
+
+    <div id="gradientTryBox" style="display:none; margin-top:16px;">
+      <p>Now try it yourself — the Resistor slider is unlocked below. Drag it and watch the line's gradient change on the graph above.</p>
+      <div class="ctrl" style="margin:0 auto; max-width:320px;">
+        <label>Resistor under test (R): <span class="val" id="rLabel">5</span> &Omega;</label>
+        <input type="range" id="resistanceSlider" min="5" max="100" step="1" value="5">
+      </div>
+      <p id="gradientConfirm" style="display:none; color:var(--green); font-weight:700; margin-top:10px;"></p>
+    </div>
+  </div>
+
+  <div class="step" id="stepSummary" style="display:none; border-bottom:none;">
+    <p><b>Step 11 — Your summary.</b> Enter your name, then generate a plain-text printout of your entries and results below. Copy it and paste it into the submission system.</p>
+    <div class="ctrl" style="margin:0 0 12px 0; max-width:320px;">
+      <label>Your name:</label>
+      <input type="text" id="studentName" placeholder="Type your name" style="font-family:'Kalam',cursive; font-size:16px; padding:6px; border:1.5px solid var(--ink); border-radius:6px;">
+    </div>
+    <button class="bigbtn" id="generateSummaryBtn">Generate My Summary</button>
+    <textarea id="summaryOutput" rows="22" readonly style="display:none; margin-top:14px; font-family:'Courier New',monospace; font-size:13px; background:#fbfbf6; white-space:pre;"></textarea>
+    <br>
+    <button class="checkbtn" id="copySummaryBtn" style="display:none; margin-top:8px;">📋 Copy to Clipboard</button>
+    <span class="feedback correct" id="summaryCopiedMsg" style="display:none;">✅ Copied! Paste it into the submission system.</span>
+  </div>
+</div>
+
+<div class="investigation" id="generaliseSection" style="display:none;">
+  <h2 class="section-title">🧮 Generalising Your Result</h2>
+  <p>You've now shown — through your own data, your own graph, and your own line of best fit — that current and voltage are directly proportional when resistance is constant. We can write this as a general equation for this circuit:</p>
+  <div class="equation">
+    I = V<sub>s</sub> ÷ (Rheostat + R) = <span class="num" id="eqVs">20.0</span> ÷ (<span class="num" id="eqRh">10</span> + <span class="num" id="eqR">5</span>) = <span class="num" id="eqI">1.33</span> A
+    <br>
+    V<sub>R</sub> (voltmeter) = I × R = <span class="num" id="eqI2">1.33</span> × <span class="num" id="eqR2">5</span> = <span class="num" id="eqVR">6.7</span> V
+  </div>
+  <p style="font-size:15px; color:#555; margin-top:14px;">Ideal circuit assumed: zero-resistance ammeter, rheostat wiper contact &amp; wires. The rheostat is the series resistor used to control the current; the voltmeter reads the p.d. across the resistor under test only.</p>
+  <p style="font-size:15px; color:#555;">Reminder: the Rheostat slider is on the circuit diagram, right next to the rheostat, and the fixed Resistor's slider was revealed above in Step 10 — feel free to keep exploring both.</p>
+</div>
+
+<script>
+window.addEventListener('load', function(){
+
+const rc = rough.svg(document.getElementById('circuit'), {
+  options: { stroke: '#1e1e1e', strokeWidth: 2.2, roughness: 1.6, bowing: 1.2 }
+});
+const circuitSvg = document.getElementById('circuit');
+const graphSvg = document.getElementById('graph');
+const rg = rough.svg(graphSvg, { options: { stroke: '#1e1e1e', strokeWidth: 2, roughness: 1.4 } });
+
+function add(svg, el){ svg.appendChild(el); return el; }
+function text(svg, x, y, str, cls, anchor, size){
+  const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+  t.setAttribute('x',x); t.setAttribute('y',y);
+  t.setAttribute('class', cls || 'wire-label');
+  t.setAttribute('text-anchor', anchor || 'middle');
+  if(size) t.setAttribute('font-size', size);
+  t.textContent = str;
+  svg.appendChild(t);
+  return t;
+}
+
+/* ---------------- CIRCUIT STATIC DRAWING ---------------- */
+const TL=[80,80], TR=[480,80], BR=[480,320], BL=[80,320];
+
+// --- Top wire with rheostat ---
+add(circuitSvg, rc.line(TL[0],TL[1], 232,80));
+add(circuitSvg, rc.line(328,80, TR[0],TR[1]));
+
+const rheoBox = {x:232, y:64, w:96, h:32};
+add(circuitSvg, rc.rectangle(rheoBox.x, rheoBox.y, rheoBox.w, rheoBox.h, {fill:'#e7f0ff', fillStyle:'solid', roughness:1.6}));
+// wiper arrow (diagonal through the box, with arrowhead)
+add(circuitSvg, rc.line(240,104, 322,50, {strokeWidth:2.4, roughness:1.3}));
+add(circuitSvg, rc.linearPath([[312,44],[326,48],[316,60]], {strokeWidth:1.8, roughness:1}));
+text(circuitSvg, 280, 42, 'Rheostat', 'part-label');
+text(circuitSvg, 280, 122, '(controls the current)', 'part-label', 'middle', 12);
+const rheoValLabel = text(circuitSvg, 280, 138, '10 Ω', 'readout');
+
+// interactive rheostat slider embedded right in the diagram
+const rheoFO = document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+rheoFO.setAttribute('x', 195); rheoFO.setAttribute('y', 148);
+rheoFO.setAttribute('width', 170); rheoFO.setAttribute('height', 30);
+rheoFO.innerHTML = '<div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;"><input type="range" id="rheostatSlider" min="0" max="50" step="1" value="10" style="width:100%; accent-color:#e8590c;"></div>';
+circuitSvg.appendChild(rheoFO);
+text(circuitSvg, 280, 196, 'drag to adjust', 'part-label', 'middle', 11);
+
+// --- Right wire: down to resistor ---
+add(circuitSvg, rc.line(480,80, 480,108));
+
+// --- Resistor (zigzag) ---
+const rZig = [[480,108],[480,120],[498,132],[462,148],[498,164],[462,180],[498,196],[462,212],[480,224],[480,236]];
+add(circuitSvg, rc.linearPath(rZig, {roughness:1.5, strokeWidth:2.2}));
+text(circuitSvg, 440, 172, 'R', 'part-label', 'end', 22);
+const rValLabel = text(circuitSvg, 440, 192, '20 Ω', 'readout', 'end');
+
+// wire from resistor down to ammeter
+add(circuitSvg, rc.line(480,236, 480,264));
+
+// --- Ammeter (series, right at the resistor) ---
+const amCenter=[480,290], mR=26;
+add(circuitSvg, rc.circle(amCenter[0], amCenter[1], mR*2, {fill:'#eaf4ff', fillStyle:'solid', roughness:1.6}));
+text(circuitSvg, amCenter[0], amCenter[1]+7, 'A', 'part-label', 'middle', 22);
+const ammeterReadout = text(circuitSvg, amCenter[0], amCenter[1]+50, '0.50 A', 'readout');
+
+add(circuitSvg, rc.line(480, amCenter[1]+mR, 480,320));
+
+// --- Bottom wire ---
+add(circuitSvg, rc.line(480,320, 80,320));
+
+// --- Left wire + battery ---
+add(circuitSvg, rc.line(80,320, 80,205));
+add(circuitSvg, rc.line(55,190, 105,190, {strokeWidth:2}));
+add(circuitSvg, rc.line(65,205, 95,205, {strokeWidth:7}));
+add(circuitSvg, rc.line(80,190, 80,80));
+text(circuitSvg, 40, 182, '+', 'part-label', 'middle', 20);
+text(circuitSvg, 40, 213, '−', 'part-label', 'middle', 20);
+text(circuitSvg, 30, 250, 'Battery', 'part-label', 'middle');
+const vSrcLabel = text(circuitSvg, 30, 268, '20.0 V', 'readout', 'middle');
+
+// --- Voltmeter, parallel across the resistor ---
+const tapTop=[480,108], tapBot=[480,236];
+const vmCenter=[590,172], vmR=26;
+add(circuitSvg, rc.line(tapTop[0],tapTop[1], 545,108, {strokeWidth:1.6, roughness:1.4}));
+add(circuitSvg, rc.line(545,108, 545,172, {strokeWidth:1.6, roughness:1.4}));
+add(circuitSvg, rc.line(545,172, vmCenter[0]-vmR, vmCenter[1], {strokeWidth:1.6, roughness:1.4}));
+add(circuitSvg, rc.line(tapBot[0],tapBot[1], 545,236, {strokeWidth:1.6, roughness:1.4}));
+add(circuitSvg, rc.line(545,236, 545,172, {strokeWidth:1.6, roughness:1.4}));
+add(circuitSvg, rc.circle(vmCenter[0], vmCenter[1], vmR*2, {fill:'#fff0f0', fillStyle:'solid', roughness:1.6}));
+text(circuitSvg, vmCenter[0], vmCenter[1]+7, 'V', 'part-label', 'middle', 22);
+text(circuitSvg, vmCenter[0], vmCenter[1]-42, 'Voltmeter', 'part-label');
+text(circuitSvg, vmCenter[0], vmCenter[1]-26, '(across R)', 'part-label', 'middle', 12);
+const voltmeterReadout = text(circuitSvg, vmCenter[0], vmCenter[1]+50, '13.3 V', 'readout');
+
+text(circuitSvg, 480, 240, 'Ammeter', 'part-label');
+text(circuitSvg, 480, 254, '(current thru R)', 'part-label', 'middle', 12);
+
+/* ---------------- CURRENT FLOW ANIMATION ---------------- */
+const flowPoints = [
+  [80,80],[480,80],
+  [480,236],[480,320],
+  [80,320],[80,80]
+];
+let cum=[0];
+for(let i=1;i<flowPoints.length;i++){
+  const [x1,y1]=flowPoints[i-1], [x2,y2]=flowPoints[i];
+  cum.push(cum[i-1]+Math.hypot(x2-x1,y2-y1));
+}
+const totalLen = cum[cum.length-1];
+function pointAt(dist){
+  dist = ((dist % totalLen) + totalLen) % totalLen;
+  for(let i=1;i<cum.length;i++){
+    if(dist<=cum[i]){
+      const t=(dist-cum[i-1])/(cum[i]-cum[i-1]);
+      const [x1,y1]=flowPoints[i-1], [x2,y2]=flowPoints[i];
+      return [x1+(x2-x1)*t, y1+(y2-y1)*t];
+    }
+  }
+  return flowPoints[0];
+}
+const NUM_DOTS=7;
+const flowGroup = document.createElementNS('http://www.w3.org/2000/svg','g');
+circuitSvg.appendChild(flowGroup);
+const dots=[];
+for(let i=0;i<NUM_DOTS;i++){
+  const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  c.setAttribute('r','4.5');
+  c.setAttribute('fill','#e8590c');
+  flowGroup.appendChild(c);
+  dots.push({el:c, offset:(totalLen/NUM_DOTS)*i});
+}
+let dotDistance=0, lastTs=null, currentSpeed=60;
+function animateFlow(ts){
+  if(lastTs==null) lastTs=ts;
+  const dt=(ts-lastTs)/1000;
+  lastTs=ts;
+  dotDistance += currentSpeed*dt;
+  dots.forEach(d=>{
+    const [x,y]=pointAt(dotDistance+d.offset);
+    d.el.setAttribute('cx',x); d.el.setAttribute('cy',y);
+  });
+  requestAnimationFrame(animateFlow);
+}
+requestAnimationFrame(animateFlow);
+
+/* ---------------- GRAPH STATIC DRAWING ---------------- */
+const Vmax=20, Imax=4;
+const plot = {x0:60, x1:400, y0:340, y1:30};
+function px(v){ return plot.x0 + (v/Vmax)*(plot.x1-plot.x0); }
+function py(i){ return plot.y0 - (i/Imax)*(plot.y0-plot.y1); }
+function vFromPx(x){ return (x-plot.x0)/(plot.x1-plot.x0)*Vmax; }
+function iFromPy(y){ return (plot.y0-y)/(plot.y0-plot.y1)*Imax; }
+
+add(graphSvg, rg.line(plot.x0, plot.y0, plot.x1+12, plot.y0));
+add(graphSvg, rg.line(plot.x0, plot.y0, plot.x0, plot.y1-12));
+add(graphSvg, rg.linearPath([[plot.x1+2,plot.y0-6],[plot.x1+12,plot.y0],[plot.x1+2,plot.y0+6]]));
+add(graphSvg, rg.linearPath([[plot.x0-6,plot.y1-2],[plot.x0,plot.y1-12],[plot.x0+6,plot.y1-2]]));
+
+text(graphSvg, (plot.x0+plot.x1)/2, 380, 'Voltage, V (volts)', 'axis-label');
+const yLabel = text(graphSvg, 18, (plot.y0+plot.y1)/2, 'Current, I (amps)', 'axis-label');
+yLabel.setAttribute('transform', `rotate(-90, 18, ${(plot.y0+plot.y1)/2})`);
+
+for(let v=0; v<=Vmax; v+=5){ text(graphSvg, px(v), plot.y0+18, String(v), 'axis-label', 'middle', 12); }
+for(let i=0; i<=Imax; i+=1){ text(graphSvg, plot.x0-14, py(i)+4, String(i), 'axis-label', 'end', 12); }
+
+for(let v=0; v<=Vmax; v+=5){
+  const gl=document.createElementNS('http://www.w3.org/2000/svg','line');
+  gl.setAttribute('x1',px(v)); gl.setAttribute('x2',px(v));
+  gl.setAttribute('y1',plot.y0); gl.setAttribute('y2',plot.y1);
+  gl.setAttribute('stroke','#e0d8bf'); gl.setAttribute('stroke-width','1');
+  graphSvg.insertBefore(gl, graphSvg.firstChild);
+}
+for(let i=0; i<=Imax; i+=1){
+  const gl=document.createElementNS('http://www.w3.org/2000/svg','line');
+  gl.setAttribute('x1',plot.x0); gl.setAttribute('x2',plot.x1);
+  gl.setAttribute('y1',py(i)); gl.setAttribute('y2',py(i));
+  gl.setAttribute('stroke','#e0d8bf'); gl.setAttribute('stroke-width','1');
+  graphSvg.insertBefore(gl, graphSvg.firstChild);
+}
+
+const plotCatcher = document.createElementNS('http://www.w3.org/2000/svg','rect');
+plotCatcher.setAttribute('id','plotCatcher');
+plotCatcher.setAttribute('x', plot.x0); plotCatcher.setAttribute('y', plot.y1-12);
+plotCatcher.setAttribute('width', (plot.x1+12)-plot.x0); plotCatcher.setAttribute('height', plot.y0-(plot.y1-12));
+plotCatcher.setAttribute('fill','transparent');
+plotCatcher.style.pointerEvents='none';
+graphSvg.appendChild(plotCatcher);
+
+let lineEl=null, dotEl=null, dotHalo=null;
+function clearGraphDynamic(){
+  if(lineEl){ lineEl.remove(); lineEl=null; }
+  if(dotEl){ dotEl.remove(); dotEl=null; }
+  if(dotHalo){ dotHalo.remove(); dotHalo=null; }
+}
+function drawGraphDynamic(V,R){
+  clearGraphDynamic();
+  let vEnd = Math.min(Vmax, Imax*R);
+  let iEnd = vEnd/R;
+  lineEl = rg.line(px(0),py(0), px(vEnd),py(iEnd), {stroke:'#1971c2', strokeWidth:2.6, roughness:1.3, seed:7});
+  graphSvg.appendChild(lineEl);
+  const I = V/R;
+  const cx=px(Math.min(V,Vmax)), cy=py(Math.min(I,Imax));
+  dotHalo = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  dotHalo.setAttribute('cx',cx); dotHalo.setAttribute('cy',cy); dotHalo.setAttribute('r',10);
+  dotHalo.setAttribute('fill','#e8590c'); dotHalo.setAttribute('opacity','0.25');
+  graphSvg.appendChild(dotHalo);
+  dotEl = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  dotEl.setAttribute('cx',cx); dotEl.setAttribute('cy',cy); dotEl.setAttribute('r',5.5);
+  dotEl.setAttribute('fill','#e8590c'); dotEl.setAttribute('stroke','#1e1e1e'); dotEl.setAttribute('stroke-width','1.2');
+  graphSvg.appendChild(dotEl);
+}
+
+/* ---------------- LIVE UPDATE LOGIC ---------------- */
+const voltageSlider = document.getElementById('voltageSlider');       // Vs (supply)
+const rheostatSlider = document.getElementById('rheostatSlider');     // Rh
+const resistanceSlider = document.getElementById('resistanceSlider'); // R under test
+const vLabel = document.getElementById('vLabel');
+const rLabel = document.getElementById('rLabel');
+const eqVs = document.getElementById('eqVs');
+const eqRh = document.getElementById('eqRh');
+const eqR = document.getElementById('eqR');
+const eqR2 = document.getElementById('eqR2');
+const eqI = document.getElementById('eqI');
+const eqI2 = document.getElementById('eqI2');
+const eqVR = document.getElementById('eqVR');
+const lockNoteV = document.getElementById('lockNoteV');
+
+let mode = 'explore'; // 'explore' | 'investigate' | 'revealed'
+
+function update(){
+  const Vs = parseFloat(voltageSlider.value);
+  const Rh = parseFloat(rheostatSlider.value);
+  const R  = parseFloat(resistanceSlider.value);
+  const I  = Vs/(Rh+R);
+  const VR = I*R;
+
+  vLabel.textContent = Vs.toFixed(1);
+  rLabel.textContent = R.toFixed(0);
+  eqVs.textContent = Vs.toFixed(1);
+  eqRh.textContent = Rh.toFixed(0);
+  eqR.textContent = R.toFixed(0);
+  eqR2.textContent = R.toFixed(0);
+  eqI.textContent = I.toFixed(2);
+  eqI2.textContent = I.toFixed(2);
+  eqVR.textContent = VR.toFixed(1);
+
+  vSrcLabel.textContent = Vs.toFixed(1)+' V';
+  rheoValLabel.textContent = Rh.toFixed(0)+' Ω';
+  rValLabel.textContent = R.toFixed(0)+' Ω';
+  ammeterReadout.textContent = I.toFixed(2)+' A';
+  voltmeterReadout.textContent = VR.toFixed(2)+' V';
+
+  currentSpeed = 15 + I*35;
+
+  if(mode === 'revealed'){
+    drawGraphDynamic(VR,R);
+  }
+}
+
+voltageSlider.addEventListener('input', update);
+rheostatSlider.addEventListener('input', update);
+resistanceSlider.addEventListener('input', update);
+update();
+
+/* =========================================================
+   INVESTIGATION LOGIC
+   ========================================================= */
+const investigationVs = 20;
+const investigationR = 5;
+const dataPoints = [
+  {rh:0,  i:4.0, v:20.0},
+  {rh:5,  i:2.0, v:10.0},
+  {rh:15, i:1.0, v:5.0},
+  {rh:20, i:0.8, v:4.0},
+  {rh:45, i:0.4, v:2.0}
+];
+
+let q1Result = {text:'', correct:false, attempted:false};
+let q3Result = {text:'', correct:false, attempted:false};
+let conclusionResult = {text:'', hits:0, attempted:false};
+let fitResult = {rFit:null, avgDist:null, passed:false, attempted:false};
+
+function setHintToggle(btnId, hintId){
+  document.getElementById(btnId).addEventListener('click', ()=>{
+    document.getElementById(hintId).classList.toggle('show');
+  });
+}
+
+// ---- Step 1: start ----
+document.getElementById('startInvestigationBtn').addEventListener('click', ()=>{
+  mode = 'investigate';
+  voltageSlider.value = investigationVs;
+  voltageSlider.disabled = true;
+  lockNoteV.textContent = 'Locked at 20 V for the investigation';
+  resistanceSlider.value = investigationR;
+  resistanceSlider.disabled = true;
+  rheostatSlider.value = 0;
+  update();
+  clearGraphDynamic();
+  document.getElementById('stepStart').querySelector('button').disabled = true;
+  document.getElementById('stepTable').style.display = 'block';
+  buildDataTable();
+  document.getElementById('stepTable').scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+// ---- Step 2: data table ----
+function buildDataTable(){
+  const tbody = document.getElementById('dataTableBody');
+  dataPoints.forEach((p, idx)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${idx+1}</td>
+      <td>${p.rh} Ω</td>
+      <td><input type="text" id="readingI${idx}" placeholder="A"></td>
+      <td><input type="text" id="readingV${idx}" placeholder="V"></td>
+      <td><button class="checkbtn" data-idx="${idx}">Check</button></td>
+      <td class="feedback" id="fb${idx}"></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('button.checkbtn').forEach(btn=>{
+    btn.addEventListener('click', ()=> checkReading(parseInt(btn.dataset.idx)));
+  });
+}
+let readingsCorrect = new Array(dataPoints.length).fill(false);
+function checkReading(idx){
+  const target = dataPoints[idx];
+  const currentRh = parseFloat(rheostatSlider.value);
+  const fb = document.getElementById('fb'+idx);
+  const inputI = document.getElementById('readingI'+idx);
+  const inputV = document.getElementById('readingV'+idx);
+  const enteredI = parseFloat(inputI.value);
+  const enteredV = parseFloat(inputV.value);
+
+  if(Math.abs(currentRh - target.rh) > 0.6){
+    fb.textContent = `Set the rheostat to ${target.rh} Ω first, then read both meters.`;
+    fb.className = 'feedback incorrect';
+    return;
+  }
+  if(isNaN(enteredI) || isNaN(enteredV)){
+    fb.textContent = 'Type both the ammeter and voltmeter readings.';
+    fb.className = 'feedback incorrect';
+    return;
+  }
+  const okI = Math.abs(enteredI - target.i) <= 0.05;
+  const okV = Math.abs(enteredV - target.v) <= 0.15;
+  if(okI && okV){
+    fb.textContent = '✅ Correct!';
+    fb.className = 'feedback correct';
+    inputI.disabled = true;
+    inputV.disabled = true;
+    readingsCorrect[idx] = true;
+  } else {
+    fb.textContent = `Not quite — re-check your meters. (Hint: I = Vs/(Rh+R), V = I×R)`;
+    fb.className = 'feedback incorrect';
+  }
+  maybeUnlockQ1();
+}
+function maybeUnlockQ1(){
+  if(readingsCorrect.every(x=>x)){
+    document.getElementById('tableCompleteMsg').style.display = 'block';
+    document.getElementById('stepQ1').style.display = 'block';
+  }
+}
+setHintToggle('hintTableBtn','hintTable');
+
+// ---- Step 3: Q1 observation ----
+function matchesAny(str, patterns){
+  const s = str.toLowerCase();
+  return patterns.some(p => s.includes(p));
+}
+document.getElementById('q1check').addEventListener('click', ()=>{
+  const val = document.getElementById('q1answer').value;
+  const fb = document.getElementById('q1feedback');
+  if(val.trim().length===0){ fb.textContent='Type an answer first.'; fb.className='feedback incorrect'; return; }
+  const q1ok = matchesAny(val, ['decrease','goes down','drop','smaller','lower','falls','reduce','less current','less p.d.']);
+  q1Result = {text: val, correct: q1ok, attempted: true};
+  if(q1ok){
+    fb.textContent = '✅ Yes — increasing the rheostat resistance reduces the current, which reduces the p.d. across R.';
+    fb.className = 'feedback correct';
+    document.getElementById('stepPlot').style.display = 'block';
+    startPlotting();
+  } else {
+    fb.textContent = 'Not quite — try again, or use the hint.';
+    fb.className = 'feedback incorrect';
+  }
+});
+setHintToggle('q1hintBtn','q1hint');
+
+// ---- Step 4: plotting ----
+let plotIndex = 0;
+let attempts = 0;
+function startPlotting(){
+  document.getElementById('plotChecklist').innerHTML = dataPoints.map((p,i)=>
+    `<li id="check${i}">Point ${i+1}: V = ${p.v} V, I = ${p.i} A — ⬜ not yet plotted</li>`).join('');
+  plotCatcher.style.pointerEvents = 'all';
+  updatePlotInstruction();
+  document.getElementById('stepPlot').scrollIntoView({behavior:'smooth', block:'start'});
+}
+function updatePlotInstruction(){
+  const el = document.getElementById('plotInstruction');
+  const hintEl = document.getElementById('hintPlot');
+  if(plotIndex >= dataPoints.length){
+    el.textContent = '🎉 All points plotted!';
+    plotCatcher.style.pointerEvents = 'none';
+    document.getElementById('stepFit').style.display = 'block';
+    startFitting();
+    return;
+  }
+  const p = dataPoints[plotIndex];
+  el.textContent = `Now plot Point ${plotIndex+1}: V = ${p.v} V, I = ${p.i} A`;
+  hintEl.textContent = `Find V = ${p.v} on the horizontal axis, then move straight up to I = ${p.i} on the vertical axis, and click there.`;
+  hintEl.classList.remove('show');
+  attempts = 0;
+}
+setHintToggle('hintPlotBtn','hintPlot');
+
+function svgCoordsFromEvent(evt){
+  const pt = graphSvg.createSVGPoint();
+  pt.x = evt.clientX; pt.y = evt.clientY;
+  const inv = graphSvg.getScreenCTM().inverse();
+  return pt.matrixTransform(inv);
+}
+plotCatcher.addEventListener('click', (evt)=>{
+  if(plotIndex >= dataPoints.length) return;
+  const p = svgCoordsFromEvent(evt);
+  const target = dataPoints[plotIndex];
+  const tx = px(target.v), ty = py(target.i);
+  const dist = Math.hypot(p.x-tx, p.y-ty);
+  const status = document.getElementById('plotStatus');
+
+  if(dist <= 22){
+    const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx', tx); dot.setAttribute('cy', ty); dot.setAttribute('r', 5.5);
+    dot.setAttribute('fill', '#2b8a3e'); dot.setAttribute('stroke','#1e1e1e'); dot.setAttribute('stroke-width','1');
+    dot.setAttribute('class','plotted-point');
+    graphSvg.appendChild(dot);
+    document.getElementById('check'+plotIndex).innerHTML = `Point ${plotIndex+1}: V = ${target.v} V, I = ${target.i} A — ✅ plotted correctly`;
+    document.getElementById('check'+plotIndex).classList.add('done');
+    status.textContent = 'Nice! Point plotted correctly.';
+    status.style.color = 'var(--green)';
+    plotIndex++;
+    updatePlotInstruction();
+    checkRevealGate();
+  } else {
+    attempts++;
+    const missX = document.createElementNS('http://www.w3.org/2000/svg','text');
+    missX.setAttribute('x', p.x); missX.setAttribute('y', p.y);
+    missX.setAttribute('text-anchor','middle');
+    missX.setAttribute('fill', '#c92a2a');
+    missX.setAttribute('font-size','18');
+    missX.setAttribute('font-weight','bold');
+    missX.textContent = '✕';
+    graphSvg.appendChild(missX);
+    setTimeout(()=> missX.remove(), 900);
+    status.textContent = 'Not quite — check the axes and try again.';
+    status.style.color = 'var(--red)';
+    if(attempts >= 2){
+      document.getElementById('hintPlot').classList.add('show');
+    }
+  }
+});
+
+// ---- Step 5: line of best fit ----
+let handleA, handleB, fitLine, fitDone=false, fitAttempts=0;
+function startFitting(){
+  handleA = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  handleB = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  [handleA,handleB].forEach(h=>{
+    h.setAttribute('r', 8);
+    h.setAttribute('fill', 'var(--accent)');
+    h.setAttribute('stroke', '#1e1e1e');
+    h.setAttribute('stroke-width','1.5');
+    h.style.cursor='grab';
+    h.style.touchAction='none';
+  });
+  handleA.setAttribute('cx', px(2)); handleA.setAttribute('cy', py(1));
+  handleB.setAttribute('cx', px(18)); handleB.setAttribute('cy', py(3));
+
+  fitLine = document.createElementNS('http://www.w3.org/2000/svg','line');
+  fitLine.setAttribute('stroke', 'var(--accent)');
+  fitLine.setAttribute('stroke-width', '3');
+  fitLine.setAttribute('stroke-dasharray','2 0');
+  updateFitLine();
+
+  graphSvg.appendChild(fitLine);
+  graphSvg.appendChild(handleA);
+  graphSvg.appendChild(handleB);
+
+  makeDraggable(handleA);
+  makeDraggable(handleB);
+  document.getElementById('stepFit').scrollIntoView({behavior:'smooth', block:'start'});
+}
+function updateFitLine(){
+  fitLine.setAttribute('x1', handleA.getAttribute('cx'));
+  fitLine.setAttribute('y1', handleA.getAttribute('cy'));
+  fitLine.setAttribute('x2', handleB.getAttribute('cx'));
+  fitLine.setAttribute('y2', handleB.getAttribute('cy'));
+}
+function makeDraggable(handle){
+  handle.addEventListener('pointerdown', (e)=>{
+    handle.setPointerCapture(e.pointerId);
+    handle._dragging = true;
+    handle.style.cursor='grabbing';
+  });
+  handle.addEventListener('pointermove', (e)=>{
+    if(!handle._dragging) return;
+    const p = svgCoordsFromEvent(e);
+    const x = Math.max(plot.x0, Math.min(plot.x1, p.x));
+    const y = Math.max(plot.y1, Math.min(plot.y0, p.y));
+    handle.setAttribute('cx', x);
+    handle.setAttribute('cy', y);
+    updateFitLine();
+  });
+  handle.addEventListener('pointerup', ()=>{ handle._dragging=false; handle.style.cursor='grab'; });
+  handle.addEventListener('pointercancel', ()=>{ handle._dragging=false; handle.style.cursor='grab'; });
+}
+function perpendicularDistance(x0,y0,x1,y1,x2,y2){
+  const num = Math.abs((y2-y1)*x0 - (x2-x1)*y0 + x2*y1 - y2*x1);
+  const den = Math.hypot(y2-y1, x2-x1) || 1;
+  return num/den;
+}
+document.getElementById('fitCheckBtn').addEventListener('click', ()=>{
+  fitAttempts++;
+  const x1=parseFloat(handleA.getAttribute('cx')), y1=parseFloat(handleA.getAttribute('cy'));
+  const x2=parseFloat(handleB.getAttribute('cx')), y2=parseFloat(handleB.getAttribute('cy'));
+  let totalDist=0;
+  dataPoints.forEach(p=>{
+    totalDist += perpendicularDistance(px(p.v), py(p.i), x1,y1,x2,y2);
+  });
+  const avgDist = totalDist/dataPoints.length;
+  const fb = document.getElementById('fitFeedback');
+  const v1=vFromPx(x1), i1=iFromPy(y1), v2=vFromPx(x2), i2=iFromPy(y2);
+  const rFit = (i2-i1)!==0 ? (v2-v1)/(i2-i1) : Infinity;
+  fitResult = {rFit: Math.abs(rFit), avgDist: avgDist, passed: avgDist<=14, attempted:true};
+
+  if(avgDist <= 14){
+    fb.textContent = `✅ Great line of best fit! Its gradient corresponds to R ≈ ${Math.abs(rFit).toFixed(1)} Ω (true value: 5 Ω).`;
+    fb.className = 'feedback correct';
+    fitDone = true;
+    document.getElementById('stepQ2').style.display = 'block';
+    checkRevealGate();
+  } else {
+    fb.textContent = 'Not quite — try adjusting the handles so the line passes closer to all your points.';
+    fb.className = 'feedback incorrect';
+    if(fitAttempts >= 2){
+      document.getElementById('fitContinueLink').style.display = 'inline';
+    }
+  }
+});
+document.getElementById('fitContinueLink').addEventListener('click', ()=>{
+  fitDone = true;
+  document.getElementById('fitFeedback').textContent = 'Okay — moving on with your current line.';
+  document.getElementById('fitFeedback').className = 'feedback';
+  document.getElementById('stepQ2').style.display = 'block';
+  checkRevealGate();
+});
+setHintToggle('fitHintBtn','fitHint');
+
+// ---- Step 6: Q2 MCQ ----
+let q2Correct = false;
+document.querySelectorAll('input[name="q2"]').forEach(radio=>{
+  radio.addEventListener('change', ()=>{
+    const fb = document.getElementById('q2feedback');
+    document.querySelectorAll('#q2mcq label').forEach(l=>l.classList.remove('correct-pick','incorrect-pick'));
+    const chosenLabel = radio.closest('label');
+    if(radio.value === 'a'){
+      fb.textContent = '✅ Correct — a straight line through the origin.';
+      fb.className = 'feedback correct';
+      chosenLabel.classList.add('correct-pick');
+      q2Correct = true;
+      document.getElementById('stepQ3').style.display = 'block';
+    } else {
+      fb.textContent = 'Not quite — look again at your line of best fit.';
+      fb.className = 'feedback incorrect';
+      chosenLabel.classList.add('incorrect-pick');
+      q2Correct = false;
+    }
+    checkRevealGate();
+  });
+});
+setHintToggle('q2hintBtn','q2hint');
+
+// ---- Step 7: Q3 ----
+document.getElementById('q3check').addEventListener('click', ()=>{
+  const val = document.getElementById('q3answer').value;
+  const fb = document.getElementById('q3feedback');
+  if(val.trim().length===0){ fb.textContent='Type an answer first.'; fb.className='feedback incorrect'; return; }
+  const q3ok = matchesAny(val, ['proportional','same ratio','constant ratio','directly proportional']);
+  q3Result = {text: val, correct: q3ok, attempted: true};
+  if(q3ok){
+    fb.textContent = '✅ Yes — voltage and current are directly proportional.';
+    fb.className = 'feedback correct';
+    document.getElementById('stepConclusion').style.display = 'block';
+  } else {
+    fb.textContent = 'Not quite — try again, or use the hint.';
+    fb.className = 'feedback incorrect';
+  }
+});
+setHintToggle('q3hintBtn','q3hint');
+
+// ---- Step 8: conclusion ----
+document.getElementById('conclusionCheck').addEventListener('click', ()=>{
+  const val = document.getElementById('conclusionAnswer').value;
+  const fb = document.getElementById('conclusionFeedback');
+  const s = val.toLowerCase();
+  const terms = ['ohm', 'v=ir', 'v = ir', 'proportional', 'resistance', 'constant', 'straight line'];
+  const hits = terms.filter(t => s.includes(t)).length;
+  if(val.trim().length===0){ fb.textContent='Write a conclusion first.'; fb.className='feedback incorrect'; return; }
+  conclusionResult = {text: val, hits: hits, attempted: true};
+  if(hits >= 2){
+    fb.textContent = '✅ Great conclusion — well linked to Ohm\'s Law!';
+    fb.className = 'feedback correct';
+  } else {
+    fb.textContent = 'Good start — try to mention more of: Ohm\'s Law, V = IR, proportional, constant resistance.';
+    fb.className = 'feedback incorrect';
+  }
+  document.getElementById('stepReveal').style.display = 'block';
+  checkRevealGate();
+});
+setHintToggle('conclusionHintBtn','conclusionHint');
+
+// ---- Step 9: reveal ----
+function checkRevealGate(){
+  const allPlotted = plotIndex >= dataPoints.length;
+  const revealBtn = document.getElementById('revealBtn');
+  if(allPlotted && fitDone && q2Correct){
+    revealBtn.disabled = false;
+  }
+}
+document.getElementById('revealBtn').addEventListener('click', ()=>{
+  mode = 'revealed';
+  voltageSlider.disabled = false;
+  lockNoteV.textContent = '';
+  const Vs = parseFloat(voltageSlider.value), Rh = parseFloat(rheostatSlider.value), R = parseFloat(resistanceSlider.value);
+  const I = Vs/(Rh+R), VR = I*R;
+  drawGraphDynamic(VR,R);
+  document.getElementById('graphLegend').style.display = 'block';
+  document.getElementById('revealNote').classList.add('show');
+  document.getElementById('revealBtn').disabled = true;
+  document.getElementById('revealBtn').textContent = 'Graph Revealed ✓';
+  document.getElementById('stepGradient').style.display = 'block';
+  document.getElementById('stepGradient').scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+// ---- Step 10: gradient question + unlock the fixed-resistor slider ----
+document.querySelectorAll('input[name="gradientQ"]').forEach(radio=>{
+  radio.addEventListener('change', ()=>{
+    const fb = document.getElementById('gradientFeedback');
+    document.querySelectorAll('#gradientMcq label').forEach(l=>l.classList.remove('correct-pick','incorrect-pick'));
+    const chosenLabel = radio.closest('label');
+    if(radio.value === 'decrease'){
+      fb.textContent = '✅ Correct — the gradient (I ÷ V = 1/R) gets smaller as R increases.';
+      fb.className = 'feedback correct';
+      chosenLabel.classList.add('correct-pick');
+    } else {
+      fb.textContent = 'Not quite — think about gradient = 1 ÷ R, then try it below.';
+      fb.className = 'feedback incorrect';
+      chosenLabel.classList.add('incorrect-pick');
+    }
+    resistanceSlider.disabled = false;
+    document.getElementById('gradientTryBox').style.display = 'block';
+    document.getElementById('stepSummary').style.display = 'block';
+    document.getElementById('generaliseSection').style.display = 'block';
+  });
+});
+setHintToggle('gradientHintBtn','gradientHint');
+
+let gradientExplored = false;
+const startingGradientR = 5;
+resistanceSlider.addEventListener('input', ()=>{
+  if(gradientExplored) return;
+  const R = parseFloat(resistanceSlider.value);
+  if(Math.abs(R - startingGradientR) < 3) return; // wait for a real drag
+  gradientExplored = true;
+  const msg = document.getElementById('gradientConfirm');
+  const direction = R > startingGradientR ? 'shallower (smaller gradient)' : 'steeper (bigger gradient)';
+  msg.textContent = `Notice how the line just got ${direction} — that confirms increasing R makes the gradient smaller, and decreasing R makes it bigger.`;
+  msg.style.display = 'block';
+});
+
+// ---- Step 11: printable summary ----
+function statusFor(attempted, correct, notCorrectLabel){
+  if(!attempted) return 'Not attempted';
+  return correct ? 'Correct' : (notCorrectLabel || 'Incorrect');
+}
+document.getElementById('generateSummaryBtn').addEventListener('click', ()=>{
+  const lines = [];
+  let correctCount = 0, totalCount = 0;
+  const name = document.getElementById('studentName').value.trim() || '(name not entered)';
+
+  lines.push("OHM'S LAW INVESTIGATION — STUDENT SUMMARY");
+  lines.push('Name: ' + name);
+  lines.push('Generated: ' + new Date().toLocaleString());
+  lines.push('Fixed conditions: Supply Vs = 20 V, Resistor under test R = 5 Ω');
+  lines.push('');
+  lines.push('DATA TABLE');
+  lines.push('#  Rheostat (Ω)  Ammeter I (A)  Voltmeter V (V)  Result');
+  dataPoints.forEach((p, idx)=>{
+    const iRaw = document.getElementById('readingI'+idx).value;
+    const vRaw = document.getElementById('readingV'+idx).value;
+    const iVal = iRaw || '(blank)';
+    const vVal = vRaw || '(blank)';
+    totalCount++;
+    let result;
+    if(readingsCorrect[idx]){ result = 'Correct'; correctCount++; }
+    else if(!iRaw && !vRaw){ result = 'Not attempted'; }
+    else { result = 'Incorrect'; }
+    lines.push(`${idx+1}  ${String(p.rh).padEnd(13)} ${String(iVal).padEnd(14)} ${String(vVal).padEnd(16)} ${result}`);
+  });
+  lines.push('');
+
+  function addItem(label, answerText, attempted, correct, notCorrectLabel){
+    totalCount++;
+    const status = statusFor(attempted, correct, notCorrectLabel);
+    if(status === 'Correct') correctCount++;
+    lines.push(label);
+    lines.push('Answer: ' + (attempted ? answerText : '(not answered)'));
+    lines.push('Result: ' + status);
+    lines.push('');
+  }
+
+  addItem('Q1 — Effect of increasing rheostat resistance on I and V:', q1Result.text, q1Result.attempted, q1Result.correct);
+
+  addItem('Line of best fit:',
+    fitResult.attempted ? `Line drawn, estimated resistance from gradient ≈ ${fitResult.rFit.toFixed(1)} Ω (true value: 5 Ω)` : '',
+    fitResult.attempted, fitResult.passed);
+
+  const q2Checked = document.querySelector('input[name="q2"]:checked');
+  addItem('Q2 — Shape of the graph:',
+    q2Checked ? q2Checked.closest('label').textContent.trim() : '',
+    !!q2Checked, !!(q2Checked && q2Checked.value === 'a'));
+
+  addItem('Q3 — Relationship between voltage and current:', q3Result.text, q3Result.attempted, q3Result.correct);
+
+  addItem('Conclusion:', conclusionResult.text, conclusionResult.attempted, conclusionResult.hits >= 2, 'Needs more detail');
+
+  const gradChecked = document.querySelector('input[name="gradientQ"]:checked');
+  addItem('Q — Effect of increasing R on the gradient:',
+    gradChecked ? gradChecked.closest('label').textContent.trim() : '',
+    !!gradChecked, !!(gradChecked && gradChecked.value === 'decrease'));
+
+  lines.push('---');
+  lines.push(`OVERALL: ${correctCount} / ${totalCount} correct`);
+
+  const summaryText = lines.join('\n');
+  const out = document.getElementById('summaryOutput');
+  out.value = summaryText;
+  out.style.display = 'block';
+  document.getElementById('copySummaryBtn').style.display = 'inline-block';
+  document.getElementById('summaryCopiedMsg').style.display = 'none';
+  out.scrollIntoView({behavior:'smooth', block:'center'});
+});
+
+document.getElementById('copySummaryBtn').addEventListener('click', ()=>{
+  const ta = document.getElementById('summaryOutput');
+  ta.focus();
+  ta.select();
+  ta.setSelectionRange(0, 999999);
+  let copied = false;
+  try{ copied = document.execCommand('copy'); }catch(e){ copied = false; }
+  const msg = document.getElementById('summaryCopiedMsg');
+  if(copied){
+    msg.textContent = '✅ Copied! Paste it into the submission system.';
+    msg.className = 'feedback correct';
+    msg.style.display = 'inline';
+    setTimeout(()=>{ msg.style.display = 'none'; }, 3000);
+  } else {
+    msg.textContent = 'Could not copy automatically — please select the text above and press Ctrl+C (Cmd+C on Mac).';
+    msg.className = 'feedback incorrect';
+    msg.style.display = 'inline';
+  }
+});
+
+});
+</script>
+</body>
+</html>

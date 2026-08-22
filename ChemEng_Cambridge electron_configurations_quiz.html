@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 3: Electron Configurations – Interactive Quiz</title>
+<style>
+  :root {
+    --primary: #00838f;
+    --primary-dark: #005f6b;
+    --secondary: #e65100;
+    --accent: #ffa000;
+    --bg: #f0f4f8;
+    --card: #ffffff;
+    --correct: #1b5e20;
+    --correct-bg: #e8f5e9;
+    --incorrect: #b71c1c;
+    --incorrect-bg: #ffebee;
+    --neutral-bg: #e3f2fd;
+    --text: #1a1a2e;
+    --text-light: #546e7a;
+    --border: #cfd8dc;
+    --shadow: 0 2px 12px rgba(0,0,0,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    color: white;
+    padding: 24px 32px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  }
+  header h1 { font-size: 1.35rem; font-weight: 700; letter-spacing: 0.02em; }
+  header p  { font-size: 0.85rem; opacity: 0.85; margin-top: 2px; }
+
+  .header-bottom {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 12px;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: #a5d6a7;
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .score-pill {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* ── NAV TABS ── */
+  nav {
+    background: white;
+    border-bottom: 2px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nav-inner {
+    display: flex;
+    padding: 0 16px;
+    gap: 2px;
+    min-width: max-content;
+  }
+  .nav-tab {
+    padding: 12px 18px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-light);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .nav-tab:hover { color: var(--primary); }
+  .nav-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+  .nav-tab .tab-count {
+    display: inline-block;
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 0.75rem;
+    margin-left: 6px;
+  }
+  .nav-tab.done .tab-count { background: #c8e6c9; color: var(--correct); }
+
+  /* ── MAIN CONTENT ── */
+  main {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  .section-panel { display: none; }
+  .section-panel.active { display: block; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .section-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: var(--primary);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; font-weight: 700; flex-shrink: 0;
+  }
+  .section-title h2 { font-size: 1.2rem; color: var(--primary-dark); font-weight: 700; }
+  .section-title p  { font-size: 0.82rem; color: var(--text-light); margin-top: 2px; }
+
+  /* ── KEY POINT BOXES ── */
+  .key-point {
+    background: #fff8e1;
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-size: 0.88rem;
+  }
+  .key-point strong { color: #e65100; display: block; margin-bottom: 4px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* ── QUESTION CARD ── */
+  .q-card {
+    background: var(--card);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 22px 24px;
+    margin-bottom: 18px;
+    border: 2px solid transparent;
+    transition: border-color 0.3s;
+  }
+  .q-card.answered-correct { border-color: #4caf50; }
+  .q-card.answered-incorrect { border-color: #ef5350; }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .q-num {
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
+  }
+  .q-type-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 10px;
+    background: #e3f2fd;
+    color: #1565c0;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .q-text {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    margin-bottom: 16px;
+  }
+  .q-text sup { font-size: 0.7em; }
+
+  /* MCQ Options */
+  .options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+
+  .option-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    user-select: none;
+  }
+  .option-label:hover { border-color: var(--primary); background: #e0f7fa; }
+  .option-label input[type="radio"] { display: none; }
+  .option-label .opt-letter {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    width: 22px; height: 22px;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    font-size: 0.78rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .option-label.selected { border-color: var(--primary); background: #e0f7fa; }
+  .option-label.selected .opt-letter { background: var(--primary); color: white; border-color: var(--primary); }
+  .option-label.correct  { border-color: var(--correct); background: var(--correct-bg); color: var(--correct); }
+  .option-label.correct .opt-letter { background: var(--correct); color: white; border-color: var(--correct); }
+  .option-label.incorrect { border-color: var(--incorrect); background: var(--incorrect-bg); color: var(--incorrect); }
+  .option-label.incorrect .opt-letter { background: var(--incorrect); color: white; border-color: var(--incorrect); }
+  .option-label.reveal-correct { border-color: var(--correct); background: var(--correct-bg); color: var(--correct); }
+  .option-label.reveal-correct .opt-letter { background: var(--correct); color: white; border-color: var(--correct); }
+
+  /* Text / Number inputs */
+  .text-input-wrap { display: flex; gap: 10px; margin-bottom: 14px; align-items: center; flex-wrap: wrap; }
+  .text-input-wrap input {
+    flex: 1;
+    min-width: 180px;
+    padding: 10px 14px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: 'Courier New', monospace;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .text-input-wrap input:focus { border-color: var(--primary); }
+  .text-input-wrap input.correct-input { border-color: var(--correct); background: var(--correct-bg); }
+  .text-input-wrap input.incorrect-input { border-color: var(--incorrect); background: var(--incorrect-bg); }
+  .input-hint { font-size: 0.8rem; color: var(--text-light); width: 100%; }
+
+  /* Buttons */
+  .btn-check {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 20px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-check:hover { background: var(--primary-dark); }
+  .btn-check:active { transform: scale(0.97); }
+  .btn-check:disabled { background: #b0bec5; cursor: not-allowed; transform: none; }
+
+  /* Feedback box */
+  .feedback {
+    display: none;
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+  .feedback.correct  { background: var(--correct-bg); color: var(--correct);   border-left: 4px solid #4caf50; }
+  .feedback.incorrect { background: var(--incorrect-bg); color: var(--incorrect); border-left: 4px solid #ef5350; }
+  .feedback.show { display: block; }
+  .feedback .fb-title { font-weight: 700; margin-bottom: 4px; }
+  .feedback .fb-detail { color: var(--text); margin-top: 6px; }
+
+  /* Worked example call-out */
+  .worked-eg {
+    background: linear-gradient(135deg, #e8eaf6, #e3f2fd);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 18px;
+    border-left: 4px solid #3f51b5;
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+  .worked-eg strong { display: block; color: #3f51b5; margin-bottom: 6px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .worked-eg .steps { margin-top: 8px; color: var(--text); }
+  .worked-eg .steps p { margin-top: 4px; }
+
+  /* Section nav buttons */
+  .section-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 32px;
+    gap: 12px;
+  }
+  .btn-nav {
+    background: white;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-nav:hover { background: var(--primary); color: white; }
+  .btn-nav.primary { background: var(--primary); color: white; }
+  .btn-nav.primary:hover { background: var(--primary-dark); }
+
+  /* ── FINAL SCORE ── */
+  #final-panel {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .trophy { font-size: 5rem; margin-bottom: 16px; }
+  #final-panel h2 { font-size: 1.8rem; color: var(--primary-dark); margin-bottom: 8px; }
+  #final-panel p { color: var(--text-light); margin-bottom: 24px; }
+  .final-score-big {
+    font-size: 4rem;
+    font-weight: 800;
+    color: var(--primary);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .score-bar-wrap { max-width: 400px; margin: 20px auto; }
+  .score-bar-track {
+    height: 16px;
+    background: var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--primary), #4caf50);
+    transition: width 1s ease;
+  }
+  .section-scores {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    max-width: 600px;
+    margin: 24px auto 32px;
+  }
+  .section-score-card {
+    background: white;
+    border-radius: 10px;
+    padding: 14px;
+    box-shadow: var(--shadow);
+    font-size: 0.85rem;
+  }
+  .section-score-card .ss-title { color: var(--text-light); margin-bottom: 4px; font-size: 0.78rem; }
+  .section-score-card .ss-val { font-size: 1.4rem; font-weight: 700; color: var(--primary); }
+  .btn-restart {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 13px 32px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-restart:hover { background: var(--primary-dark); }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    header { padding: 16px 16px 14px; }
+    main { padding: 20px 12px 60px; }
+    .q-card { padding: 16px 16px; }
+    .section-header { gap: 10px; }
+  }
+
+  /* Helpers */
+  .mono { font-family: 'Courier New', monospace; }
+  sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
+  .highlight { color: var(--secondary); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Chapter 3: Electron Configurations</h1>
+  <p>IB Chemistry – Interactive Self-Marking Quiz</p>
+  <div class="header-bottom">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="score-pill">Score: <span id="headerScore">0</span> / <span id="headerTotal">40</span></div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-inner">
+    <div class="nav-tab active" onclick="showSection(0)" id="tab0">3.1 EM Spectrum <span class="tab-count" id="tc0">5</span></div>
+    <div class="nav-tab" onclick="showSection(1)" id="tab1">3.2 H Spectrum <span class="tab-count" id="tc1">8</span></div>
+    <div class="nav-tab" onclick="showSection(2)" id="tab2">3.3 Configs <span class="tab-count" id="tc2">11</span></div>
+    <div class="nav-tab" onclick="showSection(3)" id="tab3">3.4 Orbitals <span class="tab-count" id="tc3">7</span></div>
+    <div class="nav-tab" onclick="showSection(4)" id="tab4">3.5 Ionisation <span class="tab-count" id="tc4">9</span></div>
+    <div class="nav-tab" onclick="showSection(5)" id="tab5">Results</div>
+  </div>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 0 – 3.1 The Electromagnetic Spectrum
+═══════════════════════════════════════════════════ -->
+<div class="section-panel active" id="panel0">
+  <div class="section-header">
+    <div class="section-icon">3.1</div>
+    <div class="section-title">
+      <h2>The Electromagnetic Spectrum</h2>
+      <p>Frequency, wavelength, energy & photons</p>
+    </div>
+  </div>
+
+  <div class="key-point">
+    <strong>Key Relationships</strong>
+    frequency ∝ 1/wavelength &nbsp;|&nbsp; frequency ∝ energy &nbsp;|&nbsp; energy ∝ 1/wavelength<br>
+    All EM radiation travels at <em>c</em> = 3.0 × 10<sup>8</sup> m s<sup>−1</sup> in a vacuum.
+  </div>
+
+  <!-- Q1 -->
+  <div class="q-card" id="qc1">
+    <div class="q-meta"><div class="q-num">1</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">Which of the following lists the regions of the electromagnetic spectrum in <strong>increasing order of energy</strong>?</p>
+    <div class="options" id="opts1">
+      <label class="option-label"><input type="radio" name="q1" value="a"><span class="opt-letter">A</span> Gamma rays → X-rays → Ultraviolet → Visible → Infrared → Microwaves → Radio waves</label>
+      <label class="option-label"><input type="radio" name="q1" value="b"><span class="opt-letter">B</span> Radio waves → Microwaves → Infrared → Visible → Ultraviolet → X-rays → Gamma rays</label>
+      <label class="option-label"><input type="radio" name="q1" value="c"><span class="opt-letter">C</span> Radio waves → Microwaves → Visible → Infrared → Ultraviolet → X-rays → Gamma rays</label>
+      <label class="option-label"><input type="radio" name="q1" value="d"><span class="opt-letter">D</span> Microwaves → Radio waves → Infrared → Visible → X-rays → Ultraviolet → Gamma rays</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(1,'b','Radio waves have the lowest frequency and therefore the lowest energy. Gamma rays have the highest frequency and energy. The full order (increasing energy) is: radio waves < microwaves < infrared < visible < ultraviolet < X-rays < gamma rays.')">Check Answer</button>
+    <div class="feedback" id="fb1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-card" id="qc2">
+    <div class="q-meta"><div class="q-num">2</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">Which statement correctly describes the relationship between <strong>frequency and wavelength</strong> of electromagnetic radiation?</p>
+    <div class="options" id="opts2">
+      <label class="option-label"><input type="radio" name="q2" value="a"><span class="opt-letter">A</span> Frequency is directly proportional to wavelength</label>
+      <label class="option-label"><input type="radio" name="q2" value="b"><span class="opt-letter">B</span> Frequency is inversely proportional to wavelength</label>
+      <label class="option-label"><input type="radio" name="q2" value="c"><span class="opt-letter">C</span> Frequency is proportional to wavelength squared</label>
+      <label class="option-label"><input type="radio" name="q2" value="d"><span class="opt-letter">D</span> Frequency is independent of wavelength</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(2,'b','frequency ∝ 1/wavelength. The longer the wavelength, the lower the frequency (and energy). This is why radio waves (long wavelength) are low energy, while gamma rays (very short wavelength) are high energy.')">Check Answer</button>
+    <div class="feedback" id="fb2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-card" id="qc3">
+    <div class="q-meta"><div class="q-num">3</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">Arrange the following in <strong>order of increasing energy</strong> (Test Your Understanding Q1a):<br><br>
+    ultraviolet radiation, infrared radiation, microwaves, orange light, green light</p>
+    <div class="options" id="opts3">
+      <label class="option-label"><input type="radio" name="q3" value="a"><span class="opt-letter">A</span> Infrared < Microwaves < Orange light < Green light < Ultraviolet</label>
+      <label class="option-label"><input type="radio" name="q3" value="b"><span class="opt-letter">B</span> Microwaves < Infrared < Orange light < Green light < Ultraviolet</label>
+      <label class="option-label"><input type="radio" name="q3" value="c"><span class="opt-letter">C</span> Ultraviolet < Green light < Orange light < Infrared < Microwaves</label>
+      <label class="option-label"><input type="radio" name="q3" value="d"><span class="opt-letter">D</span> Microwaves < Infrared < Green light < Orange light < Ultraviolet</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(3,'b','Microwaves < Infrared < Orange light < Green light < Ultraviolet. Within visible light: red < orange < yellow < green < blue < indigo < violet (increasing energy). Green has higher energy than orange. Microwaves have lower energy than infrared.')">Check Answer</button>
+    <div class="feedback" id="fb3"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="q-card" id="qc4">
+    <div class="q-meta"><div class="q-num">4</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">Arrange the following in <strong>order of decreasing wavelength</strong> (Test Your Understanding Q1b):<br><br>
+    ultraviolet radiation, infrared radiation, microwaves, orange light, green light</p>
+    <div class="options" id="opts4">
+      <label class="option-label"><input type="radio" name="q4" value="a"><span class="opt-letter">A</span> Ultraviolet > Green light > Orange light > Infrared > Microwaves</label>
+      <label class="option-label"><input type="radio" name="q4" value="b"><span class="opt-letter">B</span> Microwaves > Infrared > Orange light > Green light > Ultraviolet</label>
+      <label class="option-label"><input type="radio" name="q4" value="c"><span class="opt-letter">C</span> Microwaves > Infrared > Green light > Orange light > Ultraviolet</label>
+      <label class="option-label"><input type="radio" name="q4" value="d"><span class="opt-letter">D</span> Infrared > Microwaves > Orange light > Green light > Ultraviolet</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(4,'b','Decreasing wavelength is the same as increasing energy (in reverse). Since increasing energy = microwaves < infrared < orange < green < UV, decreasing wavelength = microwaves > infrared > orange > green > UV.')">Check Answer</button>
+    <div class="feedback" id="fb4"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="q-card" id="qc5">
+    <div class="q-meta"><div class="q-num">5</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">A photon has a higher energy than another photon of the same type of radiation. Compared to the lower-energy photon, the higher-energy photon has:</p>
+    <div class="options" id="opts5">
+      <label class="option-label"><input type="radio" name="q5" value="a"><span class="opt-letter">A</span> Higher frequency and longer wavelength</label>
+      <label class="option-label"><input type="radio" name="q5" value="b"><span class="opt-letter">B</span> Lower frequency and shorter wavelength</label>
+      <label class="option-label"><input type="radio" name="q5" value="c"><span class="opt-letter">C</span> Higher frequency and shorter wavelength</label>
+      <label class="option-label"><input type="radio" name="q5" value="d"><span class="opt-letter">D</span> Lower frequency and longer wavelength</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(5,'c','Energy of a photon ∝ frequency and energy ∝ 1/wavelength. So a higher energy photon has a higher frequency AND a shorter wavelength.')">Check Answer</button>
+    <div class="feedback" id="fb5"></div>
+  </div>
+
+  <div class="section-nav">
+    <span></span>
+    <button class="btn-nav primary" onclick="showSection(1)">Next: Hydrogen Spectrum →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 1 – 3.2 The Hydrogen Atom Spectrum
+═══════════════════════════════════════════════════ -->
+<div class="section-panel" id="panel1">
+  <div class="section-header">
+    <div class="section-icon">3.2</div>
+    <div class="section-title">
+      <h2>The Hydrogen Atom Spectrum</h2>
+      <p>Emission spectra, Bohr model, energy levels &amp; series</p>
+    </div>
+  </div>
+
+  <div class="key-point">
+    <strong>Key Points</strong>
+    Hydrogen produces a <em>line spectrum</em> – evidence that electrons occupy discrete energy levels.<br>
+    Each line comes from an electron falling from a higher to a lower energy level, emitting a photon.<br>
+    The <strong>ground state</strong> is n = 1 (lowest energy). The <strong>Lyman series</strong> (UV) falls to n = 1; <strong>Balmer series</strong> (visible) to n = 2; <strong>Paschen series</strong> (infrared) to n = 3.
+  </div>
+
+  <!-- Q6 -->
+  <div class="q-card" id="qc6">
+    <div class="q-meta"><div class="q-num">6</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">When hydrogen gas at low pressure is excited in a discharge tube, what type of spectrum is produced?</p>
+    <div class="options" id="opts6">
+      <label class="option-label"><input type="radio" name="q6" value="a"><span class="opt-letter">A</span> A continuous spectrum showing all wavelengths of light</label>
+      <label class="option-label"><input type="radio" name="q6" value="b"><span class="opt-letter">B</span> A line spectrum showing only certain specific wavelengths</label>
+      <label class="option-label"><input type="radio" name="q6" value="c"><span class="opt-letter">C</span> A band spectrum showing broad regions of wavelengths</label>
+      <label class="option-label"><input type="radio" name="q6" value="d"><span class="opt-letter">D</span> A dark-line absorption spectrum on a bright background</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(6,'b','Hydrogen produces a line (emission) spectrum – sharp, bright lines on a dark background. Only certain specific wavelengths are present because only certain electron transitions are possible between the discrete energy levels.')">Check Answer</button>
+    <div class="feedback" id="fb6"></div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="q-card" id="qc7">
+    <div class="q-meta"><div class="q-num">7</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">What is the <strong>ground state</strong> of a hydrogen atom?</p>
+    <div class="options" id="opts7">
+      <label class="option-label"><input type="radio" name="q7" value="a"><span class="opt-letter">A</span> The state where the electron has been completely removed from the atom</label>
+      <label class="option-label"><input type="radio" name="q7" value="b"><span class="opt-letter">B</span> The highest possible energy state of the electron</label>
+      <label class="option-label"><input type="radio" name="q7" value="c"><span class="opt-letter">C</span> The lowest possible energy state, with the electron in n = 1</label>
+      <label class="option-label"><input type="radio" name="q7" value="d"><span class="opt-letter">D</span> The state with the electron in n = 2</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(7,'c','The ground state is the lowest possible energy state for an atom. For hydrogen, this occurs when the electron is in the lowest energy level (n = 1), closest to the nucleus.')">Check Answer</button>
+    <div class="feedback" id="fb7"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="q-card" id="qc8">
+    <div class="q-meta"><div class="q-num">8</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">How does a line appear in the <strong>emission spectrum</strong> of hydrogen?</p>
+    <div class="options" id="opts8">
+      <label class="option-label"><input type="radio" name="q8" value="a"><span class="opt-letter">A</span> An electron in the ground state absorbs a photon and moves to a higher energy level</label>
+      <label class="option-label"><input type="radio" name="q8" value="b"><span class="opt-letter">B</span> An electron falls from a higher energy level to a lower energy level, emitting a photon of light</label>
+      <label class="option-label"><input type="radio" name="q8" value="c"><span class="opt-letter">C</span> An electron moves between orbitals within the same energy level</label>
+      <label class="option-label"><input type="radio" name="q8" value="d"><span class="opt-letter">D</span> The nucleus emits radiation as it decays</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(8,'b','Each line in the emission spectrum comes from the transition of an electron from a higher energy level (E₂) to a lower energy level (E₁). The photon emitted has energy equal to E₂ − E₁. In reality, many such transitions must occur to produce a visible line.')">Check Answer</button>
+    <div class="feedback" id="fb8"></div>
+  </div>
+
+  <!-- Q9 TYU Q2 -->
+  <div class="q-card" id="qc9">
+    <div class="q-meta"><div class="q-num">9</div><span class="q-type-badge">Short Answer</span></div>
+    <p class="q-text"><strong>Test Your Understanding Q2:</strong> Describe how a line in the <strong>Lyman series</strong> of the hydrogen atom spectrum arises. Which region of the EM spectrum does the Lyman series appear in?</p>
+    <div class="options" id="opts9">
+      <label class="option-label"><input type="radio" name="q9" value="a"><span class="opt-letter">A</span> An electron falls from a higher energy level (n ≥ 2) to n = 1, emitting a photon in the ultraviolet region</label>
+      <label class="option-label"><input type="radio" name="q9" value="b"><span class="opt-letter">B</span> An electron falls from a higher energy level (n ≥ 3) to n = 2, emitting a photon in the visible region</label>
+      <label class="option-label"><input type="radio" name="q9" value="c"><span class="opt-letter">C</span> An electron is excited from n = 1 to a higher level, absorbing UV radiation</label>
+      <label class="option-label"><input type="radio" name="q9" value="d"><span class="opt-letter">D</span> An electron falls from a higher energy level (n ≥ 4) to n = 3, emitting infrared radiation</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(9,'a','The Lyman series arises when electrons fall from higher energy levels (n = 2, 3, 4, …) down to n = 1. The energy difference between levels 1 and 2 (and higher) is large, so the photons emitted have high energy/high frequency – they appear in the ultraviolet (UV) region.')">Check Answer</button>
+    <div class="feedback" id="fb9"></div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="q-card" id="qc10">
+    <div class="q-meta"><div class="q-num">10</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">In the hydrogen emission spectrum, which series of lines appears in the <strong>visible region</strong>?</p>
+    <div class="options" id="opts10">
+      <label class="option-label"><input type="radio" name="q10" value="a"><span class="opt-letter">A</span> Lyman series (electrons fall to n = 1)</label>
+      <label class="option-label"><input type="radio" name="q10" value="b"><span class="opt-letter">B</span> Balmer series (electrons fall to n = 2)</label>
+      <label class="option-label"><input type="radio" name="q10" value="c"><span class="opt-letter">C</span> Paschen series (electrons fall to n = 3)</label>
+      <label class="option-label"><input type="radio" name="q10" value="d"><span class="opt-letter">D</span> All three series appear in the visible region</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(10,'b','The Balmer series (electrons falling to n = 2) produces lines in the visible region. The Lyman series is in the ultraviolet and the Paschen series is in the infrared.')">Check Answer</button>
+    <div class="feedback" id="fb10"></div>
+  </div>
+
+  <!-- Q11 -->
+  <div class="q-card" id="qc11">
+    <div class="q-meta"><div class="q-num">11</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">The lines in an emission spectrum <strong>converge</strong> (get closer together) at higher frequency/energy. What is the significance of the <strong>convergence limit</strong>?</p>
+    <div class="options" id="opts11">
+      <label class="option-label"><input type="radio" name="q11" value="a"><span class="opt-letter">A</span> Beyond this point, no more electron transitions are possible</label>
+      <label class="option-label"><input type="radio" name="q11" value="b"><span class="opt-letter">B</span> Beyond this point, the electron is free from the atom and can have any energy – this is ionisation</label>
+      <label class="option-label"><input type="radio" name="q11" value="c"><span class="opt-letter">C</span> This is where the spectrum changes from UV to visible light</label>
+      <label class="option-label"><input type="radio" name="q11" value="d"><span class="opt-letter">D</span> This is the point of maximum electron energy within the atom</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(11,'b','At the convergence limit, the lines merge to form a continuum. Beyond this point, the electron is no longer bound to the atom – it has been ionised. The frequency of the convergence limit in the Lyman series can be used to calculate the first ionisation energy of hydrogen.')">Check Answer</button>
+    <div class="feedback" id="fb11"></div>
+  </div>
+
+  <!-- Q12 -->
+  <div class="q-card" id="qc12">
+    <div class="q-meta"><div class="q-num">12</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">The fact that hydrogen produces a <strong>line spectrum</strong> rather than a continuous spectrum is evidence that:</p>
+    <div class="options" id="opts12">
+      <label class="option-label"><input type="radio" name="q12" value="a"><span class="opt-letter">A</span> Hydrogen atoms can only absorb certain wavelengths of light</label>
+      <label class="option-label"><input type="radio" name="q12" value="b"><span class="opt-letter">B</span> Electrons in atoms exist in discrete (quantised) energy levels</label>
+      <label class="option-label"><input type="radio" name="q12" value="c"><span class="opt-letter">C</span> Hydrogen atoms contain only one electron</label>
+      <label class="option-label"><input type="radio" name="q12" value="d"><span class="opt-letter">D</span> The Bohr model is the correct model of the atom</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(12,'b','If electrons could have any energy, all frequencies of light would be emitted, giving a continuous spectrum. The fact that only certain frequencies are emitted proves that electrons can only have certain (quantised) amounts of energy – they exist in discrete energy levels.')">Check Answer</button>
+    <div class="feedback" id="fb12"></div>
+  </div>
+
+  <!-- Q13 TYU Q3 -->
+  <div class="q-card" id="qc13">
+    <div class="q-meta"><div class="q-num">13</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text"><strong>Test Your Understanding Q3:</strong> In a hydrogen atom energy level diagram, which electron transition would give rise to a line in the <strong>infrared region</strong> of the spectrum?</p>
+    <div class="options" id="opts13">
+      <label class="option-label"><input type="radio" name="q13" value="a"><span class="opt-letter">A</span> n = 3 → n = 1</label>
+      <label class="option-label"><input type="radio" name="q13" value="b"><span class="opt-letter">B</span> n = 4 → n = 2</label>
+      <label class="option-label"><input type="radio" name="q13" value="c"><span class="opt-letter">C</span> n = 4 → n = 3</label>
+      <label class="option-label"><input type="radio" name="q13" value="d"><span class="opt-letter">D</span> n = 2 → n = 1</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(13,'c','The Paschen series (infrared) involves electrons falling to n = 3. Transitions to n = 1 are in the UV (Lyman series) and transitions to n = 2 are in the visible (Balmer series). So n = 4 → n = 3 gives an infrared photon.')">Check Answer</button>
+    <div class="feedback" id="fb13"></div>
+  </div>
+
+  <div class="section-nav">
+    <button class="btn-nav" onclick="showSection(0)">← EM Spectrum</button>
+    <button class="btn-nav primary" onclick="showSection(2)">Next: Electron Configs →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 2 – 3.3 Electron Configurations
+═══════════════════════════════════════════════════ -->
+<div class="section-panel" id="panel2">
+  <div class="section-header">
+    <div class="section-icon">3.3</div>
+    <div class="section-title">
+      <h2>Electron Configurations</h2>
+      <p>Sub-levels, Aufbau principle, full &amp; condensed configurations</p>
+    </div>
+  </div>
+
+  <div class="key-point">
+    <strong>Key Rules</strong>
+    Maximum electrons in energy level n = <strong>2n²</strong>. Sub-levels in order: s &lt; p &lt; d &lt; f.<br>
+    Electrons fill from the <em>lowest energy sub-level upward</em>. The 4s sub-level is lower in energy than 3d.<br>
+    Exceptions: <span class="highlight">Cr</span> = [Ar] 4s<sup>1</sup> 3d<sup>5</sup>, <span class="highlight">Cu</span> = [Ar] 4s<sup>1</sup> 3d<sup>10</sup>
+  </div>
+
+  <!-- Q14 -->
+  <div class="q-card" id="qc14">
+    <div class="q-meta"><div class="q-num">14</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">What is the <strong>maximum number of electrons</strong> that can occupy the third main energy level (n = 3)?</p>
+    <div class="options" id="opts14">
+      <label class="option-label"><input type="radio" name="q14" value="a"><span class="opt-letter">A</span> 6</label>
+      <label class="option-label"><input type="radio" name="q14" value="b"><span class="opt-letter">B</span> 8</label>
+      <label class="option-label"><input type="radio" name="q14" value="c"><span class="opt-letter">C</span> 18</label>
+      <label class="option-label"><input type="radio" name="q14" value="d"><span class="opt-letter">D</span> 32</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(14,'c','Using the formula 2n²: for n = 3, maximum electrons = 2 × 3² = 2 × 9 = 18. The 3rd energy level has sub-levels 3s (2e), 3p (6e) and 3d (10e) = 18 total.')">Check Answer</button>
+    <div class="feedback" id="fb14"></div>
+  </div>
+
+  <!-- Q15 -->
+  <div class="q-card" id="qc15">
+    <div class="q-meta"><div class="q-num">15</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">Why does potassium (Z = 19) have the electron configuration [Ar] 4s<sup>1</sup> rather than [Ar] 3d<sup>1</sup>?</p>
+    <div class="options" id="opts15">
+      <label class="option-label"><input type="radio" name="q15" value="a"><span class="opt-letter">A</span> The 3d sub-level does not exist for potassium</label>
+      <label class="option-label"><input type="radio" name="q15" value="b"><span class="opt-letter">B</span> The 4s sub-level is lower in energy than the 3d sub-level, so it fills first</label>
+      <label class="option-label"><input type="radio" name="q15" value="c"><span class="opt-letter">C</span> The 4s sub-level is higher in energy than the 3d sub-level</label>
+      <label class="option-label"><input type="radio" name="q15" value="d"><span class="opt-letter">D</span> The Pauli exclusion principle prevents electrons from entering 3d first</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(15,'b','Although 4s is in the 4th main energy level, its energy is lower than that of the 3d sub-level. Electrons always fill the lowest available energy sub-level first (Aufbau principle), so 4s fills before 3d.')">Check Answer</button>
+    <div class="feedback" id="fb15"></div>
+  </div>
+
+  <!-- Q16 TYU Q4a – full config of N -->
+  <div class="q-card" id="qc16">
+    <div class="q-meta"><div class="q-num">16</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text"><strong>Test Your Understanding Q4a:</strong> What is the full electron configuration of <strong>nitrogen</strong> (N, Z = 7)?</p>
+    <div class="options" id="opts16">
+      <label class="option-label"><input type="radio" name="q16" value="a"><span class="opt-letter">A</span> 1s² 2s² 2p¹</label>
+      <label class="option-label"><input type="radio" name="q16" value="b"><span class="opt-letter">B</span> 1s² 2s² 2p³</label>
+      <label class="option-label"><input type="radio" name="q16" value="c"><span class="opt-letter">C</span> 1s² 2s¹ 2p⁴</label>
+      <label class="option-label"><input type="radio" name="q16" value="d"><span class="opt-letter">D</span> 1s² 2s² 2p⁵</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(16,'b','N has 7 electrons. Fill in order: 1s² (2e) → 2s² (2e) → 2p³ (3e) = 7 total. Full config: 1s² 2s² 2p³')">Check Answer</button>
+    <div class="feedback" id="fb16"></div>
+  </div>
+
+  <!-- Q17 TYU Q4b – full config of Si -->
+  <div class="q-card" id="qc17">
+    <div class="q-meta"><div class="q-num">17</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text"><strong>Test Your Understanding Q4b:</strong> What is the full electron configuration of <strong>silicon</strong> (Si, Z = 14)?</p>
+    <div class="options" id="opts17">
+      <label class="option-label"><input type="radio" name="q17" value="a"><span class="opt-letter">A</span> 1s² 2s² 2p⁶ 3s² 3p⁶</label>
+      <label class="option-label"><input type="radio" name="q17" value="b"><span class="opt-letter">B</span> 1s² 2s² 2p⁶ 3s² 3p²</label>
+      <label class="option-label"><input type="radio" name="q17" value="c"><span class="opt-letter">C</span> 1s² 2s² 2p⁴ 3s² 3p⁴</label>
+      <label class="option-label"><input type="radio" name="q17" value="d"><span class="opt-letter">D</span> 1s² 2s² 2p⁶ 3s¹ 3p³</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(17,'b','Si has 14 electrons. Fill: 1s² (2) → 2s² (4) → 2p⁶ (10) → 3s² (12) → 3p² (14). Full config: 1s² 2s² 2p⁶ 3s² 3p²')">Check Answer</button>
+    <div class="feedback" id="fb17"></div>
+  </div>
+
+  <!-- Q18 TYU Q4c – full config of Ar -->
+  <div class="q-card" id="qc18">
+    <div class="q-meta"><div class="q-num">18</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text"><strong>Test Your Understanding Q4c:</strong> What is the full electron configuration of <strong>argon</strong> (Ar, Z = 18)?</p>
+    <div class="options" id="opts18">
+      <label class="option-label"><input type="radio" name="q18" value="a"><span class="opt-letter">A</span> 1s² 2s² 2p⁶ 3s²</label>
+      <label class="option-label"><input type="radio" name="q18" value="b"><span class="opt-letter">B</span> 1s² 2s² 2p⁶ 3s² 3p⁴</label>
+      <label class="option-label"><input type="radio" name="q18" value="c"><span class="opt-letter">C</span> 1s² 2s² 2p⁶ 3s² 3p⁶</label>
+      <label class="option-label"><input type="radio" name="q18" value="d"><span class="opt-letter">D</span> 1s² 2s² 2p⁶ 3s² 3p⁶ 3d²</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(18,'c','Ar has 18 electrons: 1s² 2s² 2p⁶ 3s² 3p⁶. This fills the first three main energy levels completely (up to 3p). Note that 3d is NOT filled in argon.')">Check Answer</button>
+    <div class="feedback" id="fb18"></div>
+  </div>
+
+  <!-- Q19 TYU Q4f – Cr (exception) -->
+  <div class="q-card" id="qc19">
+    <div class="q-meta"><div class="q-num">19</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text"><strong>Test Your Understanding Q4f:</strong> What is the full electron configuration of <strong>chromium</strong> (Cr, Z = 24)?</p>
+    <div class="options" id="opts19">
+      <label class="option-label"><input type="radio" name="q19" value="a"><span class="opt-letter">A</span> 1s² 2s² 2p⁶ 3s² 3p⁶ 4s² 3d⁴</label>
+      <label class="option-label"><input type="radio" name="q19" value="b"><span class="opt-letter">B</span> 1s² 2s² 2p⁶ 3s² 3p⁶ 4s¹ 3d⁵</label>
+      <label class="option-label"><input type="radio" name="q19" value="c"><span class="opt-letter">C</span> 1s² 2s² 2p⁶ 3s² 3p⁶ 4s² 3d⁶</label>
+      <label class="option-label"><input type="radio" name="q19" value="d"><span class="opt-letter">D</span> 1s² 2s² 2p⁶ 3s² 3p⁶ 3d⁶</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(19,'b','Cr is an exception! Instead of the expected [Ar] 4s² 3d⁴, chromium has [Ar] 4s¹ 3d⁵. A half-filled d sub-level (all 5 orbitals singly occupied with parallel spins) is particularly stable.')">Check Answer</button>
+    <div class="feedback" id="fb19"></div>
+  </div>
+
+  <!-- Q20 TYU Q5a – condensed config of O -->
+  <div class="q-card" id="qc20">
+    <div class="q-meta"><div class="q-num">20</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text"><strong>Test Your Understanding Q5a:</strong> What is the <strong>condensed</strong> electron configuration of <strong>oxygen</strong> (O, Z = 8)?</p>
+    <div class="options" id="opts20">
+      <label class="option-label"><input type="radio" name="q20" value="a"><span class="opt-letter">A</span> [He] 2s² 2p⁴</label>
+      <label class="option-label"><input type="radio" name="q20" value="b"><span class="opt-letter">B</span> [He] 2s² 2p⁶</label>
+      <label class="option-label"><input type="radio" name="q20" value="c"><span class="opt-letter">C</span> [Ne] 2s² 2p⁴</label>
+      <label class="option-label"><input type="radio" name="q20" value="d"><span class="opt-letter">D</span> [He] 2s⁴ 2p²</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(20,'a','O has 8 electrons. Full config: 1s² 2s² 2p⁴. The previous noble gas is helium (He) = 1s². Condensed: [He] 2s² 2p⁴')">Check Answer</button>
+    <div class="feedback" id="fb20"></div>
+  </div>
+
+  <!-- Q21 TYU Q5f – condensed config of Cu -->
+  <div class="q-card" id="qc21">
+    <div class="q-meta"><div class="q-num">21</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text"><strong>Test Your Understanding Q5f:</strong> What is the condensed electron configuration of <strong>copper</strong> (Cu, Z = 29)?</p>
+    <div class="options" id="opts21">
+      <label class="option-label"><input type="radio" name="q21" value="a"><span class="opt-letter">A</span> [Ar] 4s² 3d⁹</label>
+      <label class="option-label"><input type="radio" name="q21" value="b"><span class="opt-letter">B</span> [Ar] 4s² 3d¹⁰</label>
+      <label class="option-label"><input type="radio" name="q21" value="c"><span class="opt-letter">C</span> [Ar] 4s¹ 3d¹⁰</label>
+      <label class="option-label"><input type="radio" name="q21" value="d"><span class="opt-letter">D</span> [Ar] 4s¹ 3d⁹</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(21,'c','Cu is an exception! Instead of the expected [Ar] 4s² 3d⁹, copper has [Ar] 4s¹ 3d¹⁰. A fully-filled d sub-level (all 5 orbitals doubly occupied) is particularly stable, as is a half-filled d sub-level.')">Check Answer</button>
+    <div class="feedback" id="fb21"></div>
+  </div>
+
+  <!-- Q22 Worked Example 3.1 – config of Se -->
+  <div class="worked-eg">
+    <strong>Worked Example 3.1</strong>
+    <div class="steps">
+      <p>To find the electron configuration of selenium (Se, Z = 34), follow the periodic table from H:<br>
+      H→He: 1s² | Li→Be: 2s² | B→Ne: 2p⁶ | Na→Mg: 3s² | Al→Ar: 3p⁶ | K→Ca: 4s² | Sc→Zn: 3d¹⁰ | Ga→Se: 4p⁴<br>
+      Answer: <strong>1s² 2s² 2p⁶ 3s² 3p⁶ 4s² 3d¹⁰ 4p⁴</strong></p>
+    </div>
+  </div>
+
+  <div class="q-card" id="qc22">
+    <div class="q-meta"><div class="q-num">22</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">Using the method from Worked Example 3.1, what is the full electron configuration of <strong>arsenic</strong> (As, Z = 33)?</p>
+    <div class="options" id="opts22">
+      <label class="option-label"><input type="radio" name="q22" value="a"><span class="opt-letter">A</span> 1s² 2s² 2p⁶ 3s² 3p⁶ 4s² 3d¹⁰ 4p³</label>
+      <label class="option-label"><input type="radio" name="q22" value="b"><span class="opt-letter">B</span> 1s² 2s² 2p⁶ 3s² 3p⁶ 4s² 4d¹⁰ 4p³</label>
+      <label class="option-label"><input type="radio" name="q22" value="c"><span class="opt-letter">C</span> 1s² 2s² 2p⁶ 3s² 3p⁶ 4s² 3d¹⁰ 4p⁵</label>
+      <label class="option-label"><input type="radio" name="q22" value="d"><span class="opt-letter">D</span> 1s² 2s² 2p⁶ 3s² 3p⁶ 3d¹⁰ 4s² 4p⁵</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(22,'a','As (Z=33) is one before Se. Se has 4p⁴, so As has 4p³. Full config: 1s² 2s² 2p⁶ 3s² 3p⁶ 4s² 3d¹⁰ 4p³. Note: the d sub-level is 3d (not 4d) because in the periodic table d block, you go down 1 for the main energy level.')">Check Answer</button>
+    <div class="feedback" id="fb22"></div>
+  </div>
+
+  <!-- Q23 TYU Q4e – vanadium -->
+  <div class="q-card" id="qc23">
+    <div class="q-meta"><div class="q-num">23</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text"><strong>Test Your Understanding Q4e:</strong> What is the full electron configuration of <strong>vanadium</strong> (V, Z = 23)?</p>
+    <div class="options" id="opts23">
+      <label class="option-label"><input type="radio" name="q23" value="a"><span class="opt-letter">A</span> 1s² 2s² 2p⁶ 3s² 3p⁶ 4s² 3d²</label>
+      <label class="option-label"><input type="radio" name="q23" value="b"><span class="opt-letter">B</span> 1s² 2s² 2p⁶ 3s² 3p⁶ 4s² 3d³</label>
+      <label class="option-label"><input type="radio" name="q23" value="c"><span class="opt-letter">C</span> 1s² 2s² 2p⁶ 3s² 3p⁶ 4s¹ 3d⁴</label>
+      <label class="option-label"><input type="radio" name="q23" value="d"><span class="opt-letter">D</span> 1s² 2s² 2p⁶ 3s² 3p⁶ 3d⁵</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(23,'b','V (Z=23): K and Ca fill 4s² (20e), then Sc, Ti, V fill 3d (21, 22, 23e). V has 3 d-electrons. Config: 1s² 2s² 2p⁶ 3s² 3p⁶ 4s² 3d³ or written as [Ar] 4s² 3d³.')">Check Answer</button>
+    <div class="feedback" id="fb23"></div>
+  </div>
+
+  <!-- Q24 TYU Q8a – ions config -->
+  <div class="q-card" id="qc24">
+    <div class="q-meta"><div class="q-num">24</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text"><strong>Test Your Understanding Q8a:</strong> What is the full electron configuration of the <strong>fluoride ion</strong> (F<sup>−</sup>, from F Z = 9)?</p>
+    <div class="options" id="opts24">
+      <label class="option-label"><input type="radio" name="q24" value="a"><span class="opt-letter">A</span> 1s² 2s² 2p⁵</label>
+      <label class="option-label"><input type="radio" name="q24" value="b"><span class="opt-letter">B</span> 1s² 2s² 2p⁶</label>
+      <label class="option-label"><input type="radio" name="q24" value="c"><span class="opt-letter">C</span> 1s² 2s² 2p⁶ 3s¹</label>
+      <label class="option-label"><input type="radio" name="q24" value="d"><span class="opt-letter">D</span> 1s² 2s² 2p⁴</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(24,'b','F has 9 electrons. F⁻ has gained 1 electron, giving 10 electrons total. Following the Aufbau principle: 1s² 2s² 2p⁶. This is isoelectronic with neon (Ne).')">Check Answer</button>
+    <div class="feedback" id="fb24"></div>
+  </div>
+
+  <div class="section-nav">
+    <button class="btn-nav" onclick="showSection(1)">← H Spectrum</button>
+    <button class="btn-nav primary" onclick="showSection(3)">Next: Orbitals →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 3 – 3.4 Putting Electrons into Orbitals
+═══════════════════════════════════════════════════ -->
+<div class="section-panel" id="panel3">
+  <div class="section-header">
+    <div class="section-icon">3.4</div>
+    <div class="section-title">
+      <h2>Putting Electrons into Orbitals</h2>
+      <p>Pauli exclusion principle, Hund's rule &amp; orbital diagrams</p>
+    </div>
+  </div>
+
+  <div class="key-point">
+    <strong>Two Essential Rules</strong>
+    <strong>Pauli exclusion principle:</strong> max 2 electrons per orbital; if 2 are present, they must have opposite spins.<br>
+    <strong>Hund's rule:</strong> electrons fill degenerate orbitals singly (with parallel spins) before pairing.
+  </div>
+
+  <!-- Q25 -->
+  <div class="q-card" id="qc25">
+    <div class="q-meta"><div class="q-num">25</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">According to the <strong>Pauli exclusion principle</strong>, if two electrons occupy the same orbital, what must be true?</p>
+    <div class="options" id="opts25">
+      <label class="option-label"><input type="radio" name="q25" value="a"><span class="opt-letter">A</span> They must have the same spin</label>
+      <label class="option-label"><input type="radio" name="q25" value="b"><span class="opt-letter">B</span> They must have opposite spins</label>
+      <label class="option-label"><input type="radio" name="q25" value="c"><span class="opt-letter">C</span> One must have zero spin</label>
+      <label class="option-label"><input type="radio" name="q25" value="d"><span class="opt-letter">D</span> Both electrons must have no spin</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(25,'b','The Pauli exclusion principle states that the maximum number of electrons in an orbital is 2, and if there are two electrons in an orbital, they must have opposite spins (one ↑ and one ↓).')">Check Answer</button>
+    <div class="feedback" id="fb25"></div>
+  </div>
+
+  <!-- Q26 -->
+  <div class="q-card" id="qc26">
+    <div class="q-meta"><div class="q-num">26</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">What does <strong>Hund's rule</strong> state?</p>
+    <div class="options" id="opts26">
+      <label class="option-label"><input type="radio" name="q26" value="a"><span class="opt-letter">A</span> Electrons always fill the lowest energy orbital first</label>
+      <label class="option-label"><input type="radio" name="q26" value="b"><span class="opt-letter">B</span> No two electrons can have the same set of quantum numbers</label>
+      <label class="option-label"><input type="radio" name="q26" value="c"><span class="opt-letter">C</span> Electrons fill degenerate orbitals singly with parallel spins before any pairing occurs</label>
+      <label class="option-label"><input type="radio" name="q26" value="d"><span class="opt-letter">D</span> Each orbital can contain a maximum of two electrons</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(26,'c','Hund\'s rule states that electrons fill orbitals of the same energy (degenerate orbitals) to give the maximum number of electrons with the same spin. So for p³, each of the three 2p orbitals gets one electron (↑ ↑ ↑) before any pairing.')">Check Answer</button>
+    <div class="feedback" id="fb26"></div>
+  </div>
+
+  <!-- Q27 -->
+  <div class="q-card" id="qc27">
+    <div class="q-meta"><div class="q-num">27</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">What is the shape of an <strong>s orbital</strong>?</p>
+    <div class="options" id="opts27">
+      <label class="option-label"><input type="radio" name="q27" value="a"><span class="opt-letter">A</span> Dumb-bell (figure-8) shape</label>
+      <label class="option-label"><input type="radio" name="q27" value="b"><span class="opt-letter">B</span> Spherical</label>
+      <label class="option-label"><input type="radio" name="q27" value="c"><span class="opt-letter">C</span> Four-lobed (clover-leaf) shape</label>
+      <label class="option-label"><input type="radio" name="q27" value="d"><span class="opt-letter">D</span> Toroidal (doughnut) shape</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(27,'b','All s orbitals are spherical in shape. Each main energy level has one s orbital (1s, 2s, 3s, …). Each successive s orbital is larger but all are spherically symmetric around the nucleus.')">Check Answer</button>
+    <div class="feedback" id="fb27"></div>
+  </div>
+
+  <!-- Q28 -->
+  <div class="q-card" id="qc28">
+    <div class="q-meta"><div class="q-num">28</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">How many orbitals make up the <strong>3d sub-level</strong>, and what is the maximum number of electrons it can hold?</p>
+    <div class="options" id="opts28">
+      <label class="option-label"><input type="radio" name="q28" value="a"><span class="opt-letter">A</span> 3 orbitals, maximum 6 electrons</label>
+      <label class="option-label"><input type="radio" name="q28" value="b"><span class="opt-letter">B</span> 5 orbitals, maximum 10 electrons</label>
+      <label class="option-label"><input type="radio" name="q28" value="c"><span class="opt-letter">C</span> 5 orbitals, maximum 5 electrons</label>
+      <label class="option-label"><input type="radio" name="q28" value="d"><span class="opt-letter">D</span> 7 orbitals, maximum 14 electrons</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(28,'b','The d sub-level consists of 5 orbitals. Each orbital holds a maximum of 2 electrons, so the d sub-level can hold a maximum of 5 × 2 = 10 electrons. (The f sub-level has 7 orbitals, maximum 14 electrons.)')">Check Answer</button>
+    <div class="feedback" id="fb28"></div>
+  </div>
+
+  <!-- Q29 TYU Q7a – unpaired electrons in B -->
+  <div class="q-card" id="qc29">
+    <div class="q-meta"><div class="q-num">29</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text"><strong>Test Your Understanding Q7b:</strong> How many <strong>unpaired electrons</strong> are present in a phosphorus atom (P, Z = 15)?<br><small>Hint: P has the configuration 1s² 2s² 2p⁶ 3s² 3p³</small></p>
+    <div class="options" id="opts29">
+      <label class="option-label"><input type="radio" name="q29" value="a"><span class="opt-letter">A</span> 0 unpaired electrons</label>
+      <label class="option-label"><input type="radio" name="q29" value="b"><span class="opt-letter">B</span> 1 unpaired electron</label>
+      <label class="option-label"><input type="radio" name="q29" value="c"><span class="opt-letter">C</span> 3 unpaired electrons</label>
+      <label class="option-label"><input type="radio" name="q29" value="d"><span class="opt-letter">D</span> 5 unpaired electrons</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(29,'c','P has 3p³. By Hund\'s rule, each of the three 3p orbitals gets one electron before pairing: [↑][ ], [↑][ ], [↑][ ]. All 3 p-electrons are unpaired. So P has 3 unpaired electrons.')">Check Answer</button>
+    <div class="feedback" id="fb29"></div>
+  </div>
+
+  <!-- Q30 TYU Q7d – unpaired electrons in Mn -->
+  <div class="q-card" id="qc30">
+    <div class="q-meta"><div class="q-num">30</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text"><strong>Test Your Understanding Q7d:</strong> How many unpaired electrons are present in a <strong>manganese atom</strong> (Mn, Z = 25)?<br><small>Mn has the configuration [Ar] 4s² 3d⁵</small></p>
+    <div class="options" id="opts30">
+      <label class="option-label"><input type="radio" name="q30" value="a"><span class="opt-letter">A</span> 0</label>
+      <label class="option-label"><input type="radio" name="q30" value="b"><span class="opt-letter">B</span> 2</label>
+      <label class="option-label"><input type="radio" name="q30" value="c"><span class="opt-letter">C</span> 5</label>
+      <label class="option-label"><input type="radio" name="q30" value="d"><span class="opt-letter">D</span> 7</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(30,'c','Mn has 3d⁵. By Hund\'s rule, all 5 d-orbitals get one electron each before pairing: [↑][↑][↑][↑][↑]. All 5 d-electrons are unpaired. The 4s² electrons are paired. So Mn has 5 unpaired electrons.')">Check Answer</button>
+    <div class="feedback" id="fb30"></div>
+  </div>
+
+  <!-- Q31 TYU Q9 – condensed config of Zn2+ -->
+  <div class="q-card" id="qc31">
+    <div class="q-meta"><div class="q-num">31</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text"><strong>Test Your Understanding Q9c:</strong> What is the condensed electron configuration of the <strong>Zn<sup>2+</sup></strong> ion (Zn has Z = 30)?</p>
+    <div class="options" id="opts31">
+      <label class="option-label"><input type="radio" name="q31" value="a"><span class="opt-letter">A</span> [Ar] 4s² 3d⁸</label>
+      <label class="option-label"><input type="radio" name="q31" value="b"><span class="opt-letter">B</span> [Ar] 4s² 3d¹⁰</label>
+      <label class="option-label"><input type="radio" name="q31" value="c"><span class="opt-letter">C</span> [Ar] 3d¹⁰</label>
+      <label class="option-label"><input type="radio" name="q31" value="d"><span class="opt-letter">D</span> [Ar] 4s¹ 3d⁹</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(31,'c','Zn ([Ar] 4s² 3d¹⁰) loses 2 electrons to form Zn²⁺. The 4s electrons are removed first (highest energy / last in). Zn²⁺ = [Ar] 3d¹⁰. The 4s² electrons are lost, leaving the full 3d¹⁰.')">Check Answer</button>
+    <div class="feedback" id="fb31"></div>
+  </div>
+
+  <div class="section-nav">
+    <button class="btn-nav" onclick="showSection(2)">← Electron Configs</button>
+    <button class="btn-nav primary" onclick="showSection(4)">Next: Ionisation Energy →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 4 – 3.5 Ionisation Energy
+═══════════════════════════════════════════════════ -->
+<div class="section-panel" id="panel4">
+  <div class="section-header">
+    <div class="section-icon">3.5</div>
+    <div class="section-title">
+      <h2>Ionisation Energy</h2>
+      <p>Photon energy, IE calculations &amp; successive ionisation energies</p>
+    </div>
+  </div>
+
+  <div class="key-point">
+    <strong>Key Equations</strong>
+    E = hf &nbsp;|&nbsp; c = fλ &nbsp;|&nbsp; E = hc/λ<br>
+    h = 6.63 × 10<sup>−34</sup> J s &nbsp;|&nbsp; c = 3.00 × 10<sup>8</sup> m s<sup>−1</sup><br>
+    1<sup>st</sup> IE of H is found from the convergence limit of the <strong>Lyman series</strong>.
+  </div>
+
+  <!-- Q32 -->
+  <div class="q-card" id="qc32">
+    <div class="q-meta"><div class="q-num">32</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">Which formula correctly relates the <strong>energy of a photon</strong> to its frequency?</p>
+    <div class="options" id="opts32">
+      <label class="option-label"><input type="radio" name="q32" value="a"><span class="opt-letter">A</span> E = hλ</label>
+      <label class="option-label"><input type="radio" name="q32" value="b"><span class="opt-letter">B</span> E = hf</label>
+      <label class="option-label"><input type="radio" name="q32" value="c"><span class="opt-letter">C</span> E = cf</label>
+      <label class="option-label"><input type="radio" name="q32" value="d"><span class="opt-letter">D</span> E = h/f</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(32,'b','E = hf, where E is the energy of the photon (J), h is the Planck constant (6.63 × 10⁻³⁴ J s), and f is the frequency (Hz or s⁻¹). Combined with c = fλ, this gives E = hc/λ.')">Check Answer</button>
+    <div class="feedback" id="fb32"></div>
+  </div>
+
+  <!-- Q33 -->
+  <div class="q-card" id="qc33">
+    <div class="q-meta"><div class="q-num">33</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">The ionisation energy of hydrogen can be calculated using the emission spectrum. Which series and which feature must be used?</p>
+    <div class="options" id="opts33">
+      <label class="option-label"><input type="radio" name="q33" value="a"><span class="opt-letter">A</span> The first line in the Balmer series</label>
+      <label class="option-label"><input type="radio" name="q33" value="b"><span class="opt-letter">B</span> The convergence limit of the Lyman series</label>
+      <label class="option-label"><input type="radio" name="q33" value="c"><span class="opt-letter">C</span> Any line in the Paschen series</label>
+      <label class="option-label"><input type="radio" name="q33" value="d"><span class="opt-letter">D</span> The convergence limit of the Balmer series</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(33,'b','The first ionisation energy involves removing an electron from the ground state (n = 1) to infinity. This corresponds to the convergence limit of the Lyman series (electron falling from ∞ to n = 1). The Balmer series convergence gives the energy to remove an electron from n = 2, not the ground state.')">Check Answer</button>
+    <div class="feedback" id="fb33"></div>
+  </div>
+
+  <!-- Q34 Worked Example 3.2 – calculation step 1 -->
+  <div class="worked-eg">
+    <strong>Worked Example 3.2 – Step-by-step</strong>
+    <div class="steps">
+      <p>Wavelength of convergence limit = 91.46 nm = 91.46 × 10⁻⁹ m = 9.146 × 10⁻⁸ m</p>
+      <p>Step 1 → Find frequency: f = c/λ = (3.00 × 10⁸) / (9.146 × 10⁻⁸) = 3.28 × 10¹⁵ Hz</p>
+      <p>Step 2 → Find energy per photon: E = hf = 6.63 × 10⁻³⁴ × 3.28 × 10¹⁵ = 2.17 × 10⁻¹⁸ J</p>
+      <p>Step 3 → Multiply by Avogadro's constant: 2.17 × 10⁻¹⁸ × 6.02 × 10²³ = 1.31 × 10⁶ J mol⁻¹ = <strong>1310 kJ mol⁻¹</strong></p>
+    </div>
+  </div>
+
+  <div class="q-card" id="qc34">
+    <div class="q-meta"><div class="q-num">34</div><span class="q-type-badge">Calculation</span></div>
+    <p class="q-text"><strong>Test Your Understanding Q10:</strong> In the emission spectrum of deuterium (<sup>2</sup>H), the frequency of the convergence limit of the series where the electron falls to n = 1 is <strong>3.29 × 10<sup>15</sup> Hz</strong>.<br><br>
+    Calculate the <strong>ionisation energy of deuterium in kJ mol<sup>−1</sup></strong>.<br>
+    (h = 6.63 × 10<sup>−34</sup> J s; N<sub>A</sub> = 6.02 × 10<sup>23</sup> mol<sup>−1</sup>)</p>
+    <div class="options" id="opts34">
+      <label class="option-label"><input type="radio" name="q34" value="a"><span class="opt-letter">A</span> 218 kJ mol⁻¹</label>
+      <label class="option-label"><input type="radio" name="q34" value="b"><span class="opt-letter">B</span> 1312 kJ mol⁻¹</label>
+      <label class="option-label"><input type="radio" name="q34" value="c"><span class="opt-letter">C</span> 2.18 × 10⁻¹⁸ kJ mol⁻¹</label>
+      <label class="option-label"><input type="radio" name="q34" value="d"><span class="opt-letter">D</span> 131 kJ mol⁻¹</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(34,'b','E = hf = 6.63 × 10⁻³⁴ × 3.29 × 10¹⁵ = 2.18 × 10⁻¹⁸ J per atom. × Avogadro: 2.18 × 10⁻¹⁸ × 6.02 × 10²³ = 1.31 × 10⁶ J mol⁻¹ = 1312 kJ mol⁻¹. (Very similar to hydrogen – deuterium is an isotope with the same electronic structure.)')">Check Answer</button>
+    <div class="feedback" id="fb34"></div>
+  </div>
+
+  <!-- Q35 TYU Q11 – He+ calculation -->
+  <div class="q-card" id="qc35">
+    <div class="q-meta"><div class="q-num">35</div><span class="q-type-badge">Calculation</span></div>
+    <p class="q-text"><strong>Test Your Understanding Q11:</strong> In the emission spectrum of a helium ion (He<sup>+</sup>), the wavelength of the convergence limit in the series where the electron falls to n = 1 is <strong>22.81 nm</strong>.<br><br>
+    What is the ionisation energy of He<sup>+</sup> in kJ mol<sup>−1</sup>? (h = 6.63 × 10⁻³⁴ J s; c = 3.00 × 10⁸ m s⁻¹; N<sub>A</sub> = 6.02 × 10²³ mol⁻¹)</p>
+    <div class="options" id="opts35">
+      <label class="option-label"><input type="radio" name="q35" value="a"><span class="opt-letter">A</span> 1312 kJ mol⁻¹</label>
+      <label class="option-label"><input type="radio" name="q35" value="b"><span class="opt-letter">B</span> 2370 kJ mol⁻¹</label>
+      <label class="option-label"><input type="radio" name="q35" value="c"><span class="opt-letter">C</span> 5250 kJ mol⁻¹</label>
+      <label class="option-label"><input type="radio" name="q35" value="d"><span class="opt-letter">D</span> 8.72 × 10⁻¹⁸ kJ mol⁻¹</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(35,'c','λ = 22.81 nm = 22.81 × 10⁻⁹ m. f = c/λ = 3.00 × 10⁸ / 22.81 × 10⁻⁹ = 1.315 × 10¹⁶ Hz. E = hf = 6.63 × 10⁻³⁴ × 1.315 × 10¹⁶ = 8.72 × 10⁻¹⁸ J per atom. × Nₐ = 8.72 × 10⁻¹⁸ × 6.02 × 10²³ = 5.25 × 10⁶ J mol⁻¹ ≈ 5250 kJ mol⁻¹. He⁺ has more protons pulling on the same 1s electron, so much higher IE than H.')">Check Answer</button>
+    <div class="feedback" id="fb35"></div>
+  </div>
+
+  <!-- Q36 -->
+  <div class="q-card" id="qc36">
+    <div class="q-meta"><div class="q-num">36</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">Why is the <strong>second ionisation energy</strong> of an element always greater than the first?</p>
+    <div class="options" id="opts36">
+      <label class="option-label"><input type="radio" name="q36" value="a"><span class="opt-letter">A</span> The second electron is always in a higher-energy orbital</label>
+      <label class="option-label"><input type="radio" name="q36" value="b"><span class="opt-letter">B</span> After the first electron is removed, the remaining electrons experience greater nuclear attraction (less repulsion, closer to nucleus) and a net positive charge on the ion attracts electrons more strongly</label>
+      <label class="option-label"><input type="radio" name="q36" value="c"><span class="opt-letter">C</span> The nucleus becomes larger after the first ionisation</label>
+      <label class="option-label"><input type="radio" name="q36" value="d"><span class="opt-letter">D</span> The Pauli exclusion principle requires more energy for the second removal</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(36,'b','Two reasons: (1) The positive ion M⁺ attracts a negatively charged electron more strongly than a neutral atom. (2) With fewer electrons, there is less electron–electron repulsion, so the remaining electrons are pulled closer to the nucleus and are harder to remove.')">Check Answer</button>
+    <div class="feedback" id="fb36"></div>
+  </div>
+
+  <!-- Q37 -->
+  <div class="q-card" id="qc37">
+    <div class="q-meta"><div class="q-num">37</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">When transition metal atoms lose electrons to form ions, which electrons are removed first?</p>
+    <div class="options" id="opts37">
+      <label class="option-label"><input type="radio" name="q37" value="a"><span class="opt-letter">A</span> The 3d electrons are removed first</label>
+      <label class="option-label"><input type="radio" name="q37" value="b"><span class="opt-letter">B</span> The 3p electrons are removed first</label>
+      <label class="option-label"><input type="radio" name="q37" value="c"><span class="opt-letter">C</span> The 4s electrons are removed first</label>
+      <label class="option-label"><input type="radio" name="q37" value="d"><span class="opt-letter">D</span> Electrons are removed equally from 4s and 3d</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(37,'c','Although 4s fills before 3d (Aufbau principle), the 4s electrons are always removed BEFORE the 3d electrons when forming ions. For example, Fe ([Ar] 4s² 3d⁶) forms Fe²⁺ ([Ar] 3d⁶) by losing both 4s electrons.')">Check Answer</button>
+    <div class="feedback" id="fb37"></div>
+  </div>
+
+  <!-- Q38 TYU Q13 – group from IE data -->
+  <div class="q-card" id="qc38">
+    <div class="q-meta"><div class="q-num">38</div><span class="q-type-badge">Data Analysis</span></div>
+    <p class="q-text"><strong>Test Your Understanding Q13:</strong> The table below shows successive ionisation energies for <strong>Element X</strong>:<br><br>
+    IE₁ = 1085 &nbsp;|&nbsp; IE₂ = 2349 &nbsp;|&nbsp; IE₃ = 4612 &nbsp;|&nbsp; IE₄ = 6212 &nbsp;|&nbsp; IE₅ = 37 765 kJ mol⁻¹<br><br>
+    Which group of the periodic table is Element X in?</p>
+    <div class="options" id="opts38">
+      <label class="option-label"><input type="radio" name="q38" value="a"><span class="opt-letter">A</span> Group 1</label>
+      <label class="option-label"><input type="radio" name="q38" value="b"><span class="opt-letter">B</span> Group 2</label>
+      <label class="option-label"><input type="radio" name="q38" value="c"><span class="opt-letter">C</span> Group 3</label>
+      <label class="option-label"><input type="radio" name="q38" value="d"><span class="opt-letter">D</span> Group 4</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(38,'d','The huge jump occurs between IE₄ and IE₅ (from 6212 to 37 765 kJ mol⁻¹). This means the 5th electron is in a much lower, more strongly held energy level. Therefore there are 4 electrons in the outer shell, and the element is in Group 4. (It could be carbon, silicon, etc.)')">Check Answer</button>
+    <div class="feedback" id="fb38"></div>
+  </div>
+
+  <!-- Q39 TYU Q14 – identity from 9th-12th IEs -->
+  <div class="q-card" id="qc39">
+    <div class="q-meta"><div class="q-num">39</div><span class="q-type-badge">Data Analysis</span></div>
+    <p class="q-text"><strong>Test Your Understanding Q14:</strong> The 9th to 12th ionisation energies of two successive elements A and T are shown below:<br><br>
+    <strong>Element A:</strong> IE₉=32 000, IE₁₀=35 000, IE₁₁=<span class="highlight">170 000</span>, IE₁₂=190 000 kJ mol⁻¹<br>
+    <strong>Element T:</strong> IE₉=32 000, IE₁₀=38 000, IE₁₁=43 000, IE₁₂=<span class="highlight">200 000</span> kJ mol⁻¹<br><br>
+    Which groups do elements A and T belong to?</p>
+    <div class="options" id="opts39">
+      <label class="option-label"><input type="radio" name="q39" value="a"><span class="opt-letter">A</span> A is in Group 10 and T is in Group 11</label>
+      <label class="option-label"><input type="radio" name="q39" value="b"><span class="opt-letter">B</span> A is in Group 11 and T is in Group 12</label>
+      <label class="option-label"><input type="radio" name="q39" value="c"><span class="opt-letter">C</span> A is in Group 12 and T is in Group 13</label>
+      <label class="option-label"><input type="radio" name="q39" value="d"><span class="opt-letter">D</span> A is in Group 10 and T is in Group 12</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(39,'a','For A, the large jump is between IE₁₀ and IE₁₁, so 10 electrons are in the outer shells → Group 10. For T, the large jump is between IE₁₁ and IE₁₂, so 11 electrons are in the outer shells → Group 11. They are successive elements in the d-block.')">Check Answer</button>
+    <div class="feedback" id="fb39"></div>
+  </div>
+
+  <!-- Q40 -->
+  <div class="q-card" id="qc40">
+    <div class="q-meta"><div class="q-num">40</div><span class="q-type-badge">Multiple Choice</span></div>
+    <p class="q-text">What does <strong>shielding</strong> (screening) refer to in the context of atomic structure?</p>
+    <div class="options" id="opts40">
+      <label class="option-label"><input type="radio" name="q40" value="a"><span class="opt-letter">A</span> The repulsion between electrons in the same orbital</label>
+      <label class="option-label"><input type="radio" name="q40" value="b"><span class="opt-letter">B</span> The reduction in nuclear attraction experienced by outer electrons, caused by inner electrons partially cancelling the nuclear charge</label>
+      <label class="option-label"><input type="radio" name="q40" value="c"><span class="opt-letter">C</span> The attraction between the nucleus and outer electrons</label>
+      <label class="option-label"><input type="radio" name="q40" value="d"><span class="opt-letter">D</span> The blocking of visible light by electron clouds</label>
+    </div>
+    <button class="btn-check" onclick="checkMCQ(40,'b','Shielding: inner shells of electrons reduce the attractive force that the nucleus exerts on the outermost electrons. The outer electron experiences an effective nuclear charge that is lower than the actual nuclear charge because inner electrons partially cancel it out. This makes the outer electron easier to remove.')">Check Answer</button>
+    <div class="feedback" id="fb40"></div>
+  </div>
+
+  <div class="section-nav">
+    <button class="btn-nav" onclick="showSection(3)">← Orbitals</button>
+    <button class="btn-nav primary" onclick="showSection(5)">See Results →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 5 – RESULTS
+═══════════════════════════════════════════════════ -->
+<div class="section-panel" id="panel5">
+  <div id="final-panel">
+    <div class="trophy" id="trophyEmoji">🏆</div>
+    <h2 id="finalMessage">Quiz Complete!</h2>
+    <p id="finalSub">Here's how you did across all sections</p>
+
+    <div class="final-score-big" id="finalScoreBig">–</div>
+    <div style="color:var(--text-light);font-size:0.9rem;margin-bottom:12px;">out of 40 questions</div>
+
+    <div class="score-bar-wrap">
+      <div class="score-bar-track">
+        <div class="score-bar-fill" id="finalBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="section-scores">
+      <div class="section-score-card">
+        <div class="ss-title">3.1 EM Spectrum</div>
+        <div class="ss-val" id="ss0">–</div>
+        <div style="font-size:0.75rem;color:var(--text-light)">/ 5</div>
+      </div>
+      <div class="section-score-card">
+        <div class="ss-title">3.2 H Spectrum</div>
+        <div class="ss-val" id="ss1">–</div>
+        <div style="font-size:0.75rem;color:var(--text-light)">/ 8</div>
+      </div>
+      <div class="section-score-card">
+        <div class="ss-title">3.3 Configurations</div>
+        <div class="ss-val" id="ss2">–</div>
+        <div style="font-size:0.75rem;color:var(--text-light)">/ 11</div>
+      </div>
+      <div class="section-score-card">
+        <div class="ss-title">3.4 Orbitals</div>
+        <div class="ss-val" id="ss3">–</div>
+        <div style="font-size:0.75rem;color:var(--text-light)">/ 7</div>
+      </div>
+      <div class="section-score-card">
+        <div class="ss-title">3.5 Ionisation</div>
+        <div class="ss-val" id="ss4">–</div>
+        <div style="font-size:0.75rem;color:var(--text-light)">/ 9</div>
+      </div>
+    </div>
+
+    <button class="btn-restart" onclick="restartQuiz()">↺ Restart Quiz</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════
+// DATA
+// ═══════════════════════════════════
+// correct answer for each question 1-40
+const answers = {
+  1:'b', 2:'b', 3:'b', 4:'b', 5:'c',
+  6:'b', 7:'c', 8:'b', 9:'a', 10:'b', 11:'b', 12:'b', 13:'c',
+  14:'c', 15:'b', 16:'b', 17:'b', 18:'c', 19:'b', 20:'a', 21:'c', 22:'a', 23:'b', 24:'b',
+  25:'b', 26:'c', 27:'b', 28:'b', 29:'c', 30:'c', 31:'c',
+  32:'b', 33:'b', 34:'b', 35:'c', 36:'b', 37:'c', 38:'d', 39:'a', 40:'b'
+};
+
+// Which questions belong to which section (0-indexed sections)
+const sectionQs = [
+  [1,2,3,4,5],
+  [6,7,8,9,10,11,12,13],
+  [14,15,16,17,18,19,20,21,22,23,24],
+  [25,26,27,28,29,30,31],
+  [32,33,34,35,36,37,38,39,40]
+];
+
+const sectionMax = [5, 8, 11, 7, 9];
+
+// State
+let totalScore = 0;
+let answered = {}; // q# -> 'correct'|'incorrect'
+let sectionScores = [0, 0, 0, 0, 0];
+
+// ═══════════════════════════════════
+// MCQ CHECK
+// ═══════════════════════════════════
+function checkMCQ(qNum, correctVal, explanation) {
+  const sel = document.querySelector(`input[name="q${qNum}"]:checked`);
+  if (!sel) { alert('Please select an answer first.'); return; }
+
+  const chosen = sel.value;
+  const isCorrect = chosen === correctVal;
+
+  // Disable all radio options
+  document.querySelectorAll(`input[name="q${qNum}"]`).forEach(r => r.disabled = true);
+
+  // Style options
+  document.querySelectorAll(`#opts${qNum} .option-label`).forEach(label => {
+    const val = label.querySelector('input').value;
+    if (val === correctVal) label.classList.add('reveal-correct');
+    if (val === chosen && !isCorrect) label.classList.add('incorrect');
+  });
+
+  // Disable check button
+  const btn = document.querySelector(`#qc${qNum} .btn-check`);
+  btn.disabled = true;
+
+  // Score
+  const sIdx = getSectionIdx(qNum);
+  if (!answered[qNum]) {
+    answered[qNum] = isCorrect ? 'correct' : 'incorrect';
+    if (isCorrect) {
+      totalScore++;
+      sectionScores[sIdx]++;
+    }
+  }
+
+  // Card styling
+  const card = document.getElementById(`qc${qNum}`);
+  card.classList.add(isCorrect ? 'answered-correct' : 'answered-incorrect');
+
+  // Feedback
+  const fb = document.getElementById(`fb${qNum}`);
+  fb.className = 'feedback show ' + (isCorrect ? 'correct' : 'incorrect');
+  fb.innerHTML = `<div class="fb-title">${isCorrect ? '✓ Correct!' : '✗ Incorrect'}</div>
+    <div class="fb-detail">${explanation}</div>`;
+
+  updateHeader();
+  updateTabCounts();
+}
+
+function getSectionIdx(qNum) {
+  for (let i = 0; i < sectionQs.length; i++) {
+    if (sectionQs[i].includes(qNum)) return i;
+  }
+  return 0;
+}
+
+// ═══════════════════════════════════
+// HEADER & PROGRESS
+// ═══════════════════════════════════
+function updateHeader() {
+  const total = 40;
+  document.getElementById('headerScore').textContent = totalScore;
+  document.getElementById('headerTotal').textContent = total;
+  const pct = (Object.keys(answered).length / total) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function updateTabCounts() {
+  for (let i = 0; i < sectionQs.length; i++) {
+    const qs = sectionQs[i];
+    const done = qs.filter(q => answered[q]).length;
+    const tc = document.getElementById('tc' + i);
+    tc.textContent = done + '/' + qs.length;
+    if (done === qs.length) {
+      document.getElementById('tab' + i).classList.add('done');
+    }
+  }
+}
+
+// ═══════════════════════════════════
+// SECTION NAVIGATION
+// ═══════════════════════════════════
+function showSection(idx) {
+  document.querySelectorAll('.section-panel').forEach((p, i) => {
+    p.classList.toggle('active', i === idx);
+  });
+  document.querySelectorAll('.nav-tab').forEach((t, i) => {
+    t.classList.toggle('active', i === idx);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (idx === 5) buildResults();
+}
+
+// ═══════════════════════════════════
+// RESULTS
+// ═══════════════════════════════════
+function buildResults() {
+  const total = 40;
+  const pct = Math.round((totalScore / total) * 100);
+
+  document.getElementById('finalScoreBig').textContent = totalScore + '/' + total;
+  document.getElementById('finalBar').style.width = pct + '%';
+
+  const emoji = pct >= 80 ? '🏆' : pct >= 60 ? '🎯' : pct >= 40 ? '📚' : '💪';
+  document.getElementById('trophyEmoji').textContent = emoji;
+
+  const msg = pct >= 80 ? 'Excellent work!' : pct >= 60 ? 'Good effort!' : pct >= 40 ? 'Keep practising!' : 'Review the chapter and try again!';
+  document.getElementById('finalMessage').textContent = msg;
+  document.getElementById('finalSub').textContent = `${pct}% – you answered ${totalScore} out of ${total} questions correctly.`;
+
+  for (let i = 0; i < sectionQs.length; i++) {
+    document.getElementById('ss' + i).textContent = sectionScores[i];
+  }
+}
+
+// ═══════════════════════════════════
+// RESTART
+// ═══════════════════════════════════
+function restartQuiz() {
+  totalScore = 0;
+  answered = {};
+  sectionScores = [0, 0, 0, 0, 0];
+
+  // Reset all cards
+  document.querySelectorAll('.q-card').forEach(c => {
+    c.classList.remove('answered-correct', 'answered-incorrect');
+  });
+  document.querySelectorAll('.option-label').forEach(l => {
+    l.classList.remove('selected', 'correct', 'incorrect', 'reveal-correct');
+    const inp = l.querySelector('input');
+    if (inp) { inp.disabled = false; inp.checked = false; }
+  });
+  document.querySelectorAll('.feedback').forEach(f => {
+    f.className = 'feedback';
+    f.innerHTML = '';
+  });
+  document.querySelectorAll('.btn-check').forEach(b => b.disabled = false);
+  document.querySelectorAll('.text-input-wrap input').forEach(i => {
+    i.value = ''; i.classList.remove('correct-input', 'incorrect-input');
+  });
+
+  // Reset tabs
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('done'));
+  updateTabCounts();
+  updateHeader();
+  showSection(0);
+}
+
+// Option click highlighting
+document.querySelectorAll('.option-label').forEach(label => {
+  label.addEventListener('click', function() {
+    const name = this.querySelector('input')?.name;
+    if (!name) return;
+    document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+      if (!r.disabled) {
+        r.closest('.option-label').classList.remove('selected');
+      }
+    });
+    if (!this.querySelector('input').disabled) {
+      this.classList.add('selected');
+    }
+  });
+});
+
+// Init
+updateHeader();
+updateTabCounts();
+</script>
+</body>
+</html>

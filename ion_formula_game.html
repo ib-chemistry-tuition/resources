@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Formula Balance See-Saw</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+  }
+  #toolbar {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    padding: 12px 22px;
+    background: #111827;
+    border-bottom: 3px solid #334155;
+  }
+  #toolbar .title { font-size: 19px; font-weight: 800; color: #f8fafc; }
+  #stats { display: flex; gap: 16px; font-size: 14px; color: #cbd5e1; flex-wrap: wrap; }
+  #stats b { color: #fbbf24; }
+  .toolBtn {
+    background: #2563eb; color: white; border: none; border-radius: 8px;
+    padding: 8px 14px; font-size: 13.5px; font-weight: 700; cursor: pointer;
+  }
+  .toolBtn.secondary { background: #374151; }
+  .toolBtn:hover { filter: brightness(1.1); }
+  #main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 22px 18px 60px;
+  }
+  #targetBox {
+    text-align: center;
+    margin-bottom: 18px;
+  }
+  #targetBox .lead { font-size: 14px; color: #94a3b8; margin-bottom: 4px; }
+  #targetName { font-size: 28px; font-weight: 800; color: #fbbf24; }
+  #stage {
+    position: relative;
+    height: 300px;
+    margin: 0 auto 10px;
+    max-width: 720px;
+  }
+  #fulcrum {
+    position: absolute;
+    left: 50%; bottom: 30px;
+    width: 0; height: 0;
+    border-left: 34px solid transparent;
+    border-right: 34px solid transparent;
+    border-bottom: 60px solid #78350f;
+    transform: translateX(-50%);
+  }
+  #post {
+    position: absolute;
+    left: 50%; bottom: 84px;
+    width: 10px; height: 40px;
+    background: #78350f;
+    transform: translateX(-50%);
+  }
+  #beam {
+    position: absolute;
+    left: 50%; top: 118px;
+    width: 560px; height: 16px;
+    background: linear-gradient(#a16207, #78350f);
+    border-radius: 8px;
+    transform-origin: center center;
+    transform: translate(-50%, -50%) rotate(0deg);
+    transition: transform 0.25s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  }
+  .pan {
+    position: absolute;
+    top: -108px;
+    width: 250px;
+    min-height: 96px;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 5px;
+    padding: 8px;
+    background: rgba(255,255,255,0.06);
+    border: 2px dashed #64748b;
+    border-radius: 10px;
+  }
+  .pan.dragover { border-color: #22c55e; background: rgba(34,197,94,0.12); }
+  #leftPan { left: 6px; }
+  #rightPan { right: 6px; }
+  .chip {
+    position: relative;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px 18px 5px 8px;
+    border-radius: 7px;
+    border: 2px solid;
+    cursor: pointer;
+    line-height: 1.2;
+  }
+  .chip .rm {
+    position: absolute; right: 2px; top: 1px;
+    font-size: 11px; opacity: 0.7;
+  }
+  #readouts {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 14px;
+    font-size: 15px;
+  }
+  #readouts .side { min-width: 150px; text-align: center; }
+  #readouts .side b { font-size: 18px; }
+  #balancedTag {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 10px;
+    border-radius: 12px;
+    background: #16a34a;
+    color: white;
+    font-size: 12.5px;
+    font-weight: 800;
+    visibility: hidden;
+  }
+  #balancedTag.show { visibility: visible; }
+  #answerRow {
+    text-align: center;
+    margin: 26px auto 6px;
+  }
+  #answerRow input {
+    font-size: 18px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 2px solid #475569;
+    width: 220px;
+    text-align: center;
+    background: #1e293b;
+    color: #f8fafc;
+  }
+  #answerRow input:disabled { opacity: 0.4; }
+  #answerRow button {
+    margin-left: 10px;
+    font-size: 15px;
+    font-weight: 800;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: none;
+    background: #16a34a;
+    color: white;
+    cursor: pointer;
+  }
+  #answerRow button:disabled { background: #475569; cursor: not-allowed; }
+  #feedback { text-align: center; min-height: 26px; margin-top: 10px; font-size: 15px; font-weight: 700; }
+  #feedback.ok { color: #4ade80; }
+  #feedback.warn { color: #fbbf24; }
+  #feedback.bad { color: #f87171; }
+  #hint { text-align: center; color: #94a3b8; font-size: 12.5px; margin-top: 4px; }
+  #palette {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 36px;
+    flex-wrap: wrap;
+  }
+  .paletteCol { width: 420px; max-width: 100%; }
+  .paletteCol h3 { text-align: center; margin: 0 0 8px; color: #cbd5e1; font-size: 15px; }
+  .paletteGroup { margin-bottom: 10px; }
+  .paletteGroupLabel {
+    font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em;
+    color: #64748b; margin-bottom: 4px; text-align: center;
+  }
+  .paletteRow { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+  .tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 2px solid;
+    border-radius: 8px;
+    padding: 5px 8px;
+    cursor: grab;
+    min-width: 62px;
+    user-select: none;
+  }
+  .tile:active { cursor: grabbing; }
+  .tSym { font-size: 14px; font-weight: 800; }
+  .tName { font-size: 9.5px; opacity: 0.85; margin-top: 1px; text-align: center; }
+  #instructions {
+    max-width: 720px; margin: 0 auto 20px; font-size: 13px; color: #94a3b8;
+    text-align: center; line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <div class="title">&#9878;&#65039; Formula Balance See-Saw</div>
+  <div id="stats">
+    <span>Score: <b id="score">0</b></span>
+    <span>Solved: <b id="solvedCount">0</b></span>
+  </div>
+  <button class="toolBtn secondary" id="skipBtn">Skip</button>
+  <button class="toolBtn secondary" id="resetBtn">Reset pans</button>
+</div>
+
+<div id="main">
+  <p id="instructions">Drag ion tiles from the palette below onto the see-saw &#8212; cations (+) on the
+     left, anions (&#8722;) on the right &#8212; until the beam balances. Then type the formula for the
+     named compound and hit Check. (Some pairings below are invented purely for charge-balancing
+     practice, not necessarily compounds you'll meet in the lab!)</p>
+
+  <div id="targetBox">
+    <div class="lead">Build the formula for:</div>
+    <div id="targetName">&#8211;</div>
+  </div>
+
+  <div id="stage">
+    <div id="post"></div>
+    <div id="fulcrum"></div>
+    <div id="beam">
+      <div class="pan" id="leftPan"></div>
+      <div class="pan" id="rightPan"></div>
+    </div>
+  </div>
+
+  <div id="readouts">
+    <div class="side">Cations (left): <b id="leftTotal">0</b></div>
+    <div class="side">Anions (right): <b id="rightTotal">0</b><span id="balancedTag">BALANCED</span></div>
+  </div>
+
+  <div id="answerRow">
+    <input type="text" id="answerInput" placeholder="e.g. CaCl2" disabled>
+    <button id="checkBtn" disabled>Check</button>
+  </div>
+  <div id="feedback"></div>
+  <div id="hint">Tip: use plain numbers for subscripts (CaCl2), and brackets around a multi-atom ion used more than once, e.g. Ca(OH)2 or (NH4)2SO4.</div>
+
+  <div id="palette">
+    <div class="paletteCol">
+      <h3>Cations</h3>
+      <div class="paletteGroup"><div class="paletteGroupLabel">1+</div>
+<div class="paletteRow">
+<div class="tile" draggable="true" data-side="cation" data-id="Li" style="border-color:#1d4ed8;background:#dbeafe;color:#1e3a8a" title="lithium ion"><span class="tSym">Li⁺</span><span class="tName">lithium ion</span></div>
+<div class="tile" draggable="true" data-side="cation" data-id="Na" style="border-color:#1d4ed8;background:#dbeafe;color:#1e3a8a" title="sodium ion"><span class="tSym">Na⁺</span><span class="tName">sodium ion</span></div>
+<div class="tile" draggable="true" data-side="cation" data-id="K" style="border-color:#1d4ed8;background:#dbeafe;color:#1e3a8a" title="potassium ion"><span class="tSym">K⁺</span><span class="tName">potassium ion</span></div>
+<div class="tile" draggable="true" data-side="cation" data-id="Rb" style="border-color:#1d4ed8;background:#dbeafe;color:#1e3a8a" title="rubidium ion"><span class="tSym">Rb⁺</span><span class="tName">rubidium ion</span></div>
+<div class="tile" draggable="true" data-side="cation" data-id="Cs" style="border-color:#1d4ed8;background:#dbeafe;color:#1e3a8a" title="caesium ion"><span class="tSym">Cs⁺</span><span class="tName">caesium ion</span></div>
+<div class="tile" draggable="true" data-side="cation" data-id="NH4" style="border-color:#1d4ed8;background:#dbeafe;color:#1e3a8a" title="ammonium ion"><span class="tSym">NH₄⁺</span><span class="tName">ammonium ion</span></div>
+<div class="tile" draggable="true" data-side="cation" data-id="Ag" style="border-color:#1d4ed8;background:#dbeafe;color:#1e3a8a" title="silver ion"><span class="tSym">Ag⁺</span><span class="tName">silver ion</span></div>
+</div></div>
+<div class="paletteGroup"><div class="paletteGroupLabel">2+</div>
+<div class="paletteRow">
+<div class="tile" draggable="true" data-side="cation" data-id="Be" style="border-color:#7c3aed;background:#ede9fe;color:#4c1d95" title="beryllium ion"><span class="tSym">Be²⁺</span><span class="tName">beryllium ion</span></div>
+<div class="tile" draggable="true" data-side="cation" data-id="Mg" style="border-color:#7c3aed;background:#ede9fe;color:#4c1d95" title="magnesium ion"><span class="tSym">Mg²⁺</span><span class="tName">magnesium ion</span></div>
+<div class="tile" draggable="true" data-side="cation" data-id="Ca" style="border-color:#7c3aed;background:#ede9fe;color:#4c1d95" title="calcium ion"><span class="tSym">Ca²⁺</span><span class="tName">calcium ion</span></div>
+<div class="tile" draggable="true" data-side="cation" data-id="Sr" style="border-color:#7c3aed;background:#ede9fe;color:#4c1d95" title="strontium ion"><span class="tSym">Sr²⁺</span><span class="tName">strontium ion</span></div>
+<div class="tile" draggable="true" data-side="cation" data-id="Ba" style="border-color:#7c3aed;background:#ede9fe;color:#4c1d95" title="barium ion"><span class="tSym">Ba²⁺</span><span class="tName">barium ion</span></div>
+<div class="tile" draggable="true" data-side="cation" data-id="Cu" style="border-color:#7c3aed;background:#ede9fe;color:#4c1d95" title="copper(II) ion"><span class="tSym">Cu²⁺</span><span class="tName">copper(II) ion</span></div>
+<div class="tile" draggable="true" data-side="cation" data-id="Zn" style="border-color:#7c3aed;background:#ede9fe;color:#4c1d95" title="zinc ion"><span class="tSym">Zn²⁺</span><span class="tName">zinc ion</span></div>
+<div class="tile" draggable="true" data-side="cation" data-id="Fe2" style="border-color:#7c3aed;background:#ede9fe;color:#4c1d95" title="iron(II) ion"><span class="tSym">Fe²⁺</span><span class="tName">iron(II) ion</span></div>
+<div class="tile" draggable="true" data-side="cation" data-id="Mn" style="border-color:#7c3aed;background:#ede9fe;color:#4c1d95" title="manganese(II) ion"><span class="tSym">Mn²⁺</span><span class="tName">manganese(II) ion</span></div>
+</div></div>
+<div class="paletteGroup"><div class="paletteGroupLabel">3+</div>
+<div class="paletteRow">
+<div class="tile" draggable="true" data-side="cation" data-id="Al" style="border-color:#78350f;background:#f2d9b8;color:#5c2a0a" title="aluminium ion"><span class="tSym">Al³⁺</span><span class="tName">aluminium ion</span></div>
+<div class="tile" draggable="true" data-side="cation" data-id="Fe3" style="border-color:#78350f;background:#f2d9b8;color:#5c2a0a" title="iron(III) ion"><span class="tSym">Fe³⁺</span><span class="tName">iron(III) ion</span></div>
+</div></div>
+    </div>
+    <div class="paletteCol">
+      <h3>Anions</h3>
+      <div class="paletteGroup"><div class="paletteGroupLabel">1-</div>
+<div class="paletteRow">
+<div class="tile" draggable="true" data-side="anion" data-id="F" style="border-color:#dc2626;background:#fee2e2;color:#7f1d1d" title="fluoride ion"><span class="tSym">F⁻</span><span class="tName">fluoride ion</span></div>
+<div class="tile" draggable="true" data-side="anion" data-id="Cl" style="border-color:#dc2626;background:#fee2e2;color:#7f1d1d" title="chloride ion"><span class="tSym">Cl⁻</span><span class="tName">chloride ion</span></div>
+<div class="tile" draggable="true" data-side="anion" data-id="Br" style="border-color:#dc2626;background:#fee2e2;color:#7f1d1d" title="bromide ion"><span class="tSym">Br⁻</span><span class="tName">bromide ion</span></div>
+<div class="tile" draggable="true" data-side="anion" data-id="I" style="border-color:#dc2626;background:#fee2e2;color:#7f1d1d" title="iodide ion"><span class="tSym">I⁻</span><span class="tName">iodide ion</span></div>
+<div class="tile" draggable="true" data-side="anion" data-id="OH" style="border-color:#dc2626;background:#fee2e2;color:#7f1d1d" title="hydroxide ion"><span class="tSym">OH⁻</span><span class="tName">hydroxide ion</span></div>
+<div class="tile" draggable="true" data-side="anion" data-id="NO3" style="border-color:#dc2626;background:#fee2e2;color:#7f1d1d" title="nitrate ion"><span class="tSym">NO₃⁻</span><span class="tName">nitrate ion</span></div>
+<div class="tile" draggable="true" data-side="anion" data-id="HCO3" style="border-color:#dc2626;background:#fee2e2;color:#7f1d1d" title="hydrogencarbonate ion"><span class="tSym">HCO₃⁻</span><span class="tName">hydrogencarbonate ion</span></div>
+<div class="tile" draggable="true" data-side="anion" data-id="MnO4" style="border-color:#dc2626;background:#fee2e2;color:#7f1d1d" title="manganate(VII) ion"><span class="tSym">MnO₄⁻</span><span class="tName">manganate(VII) ion</span></div>
+<div class="tile" draggable="true" data-side="anion" data-id="CH3COO" style="border-color:#dc2626;background:#fee2e2;color:#7f1d1d" title="ethanoate ion"><span class="tSym">CH₃COO⁻</span><span class="tName">ethanoate ion</span></div>
+</div></div>
+<div class="paletteGroup"><div class="paletteGroupLabel">2-</div>
+<div class="paletteRow">
+<div class="tile" draggable="true" data-side="anion" data-id="O" style="border-color:#ea580c;background:#ffedd5;color:#7c2d12" title="oxide ion"><span class="tSym">O²⁻</span><span class="tName">oxide ion</span></div>
+<div class="tile" draggable="true" data-side="anion" data-id="S" style="border-color:#ea580c;background:#ffedd5;color:#7c2d12" title="sulfide ion"><span class="tSym">S²⁻</span><span class="tName">sulfide ion</span></div>
+<div class="tile" draggable="true" data-side="anion" data-id="CO3" style="border-color:#ea580c;background:#ffedd5;color:#7c2d12" title="carbonate ion"><span class="tSym">CO₃²⁻</span><span class="tName">carbonate ion</span></div>
+<div class="tile" draggable="true" data-side="anion" data-id="SO4" style="border-color:#ea580c;background:#ffedd5;color:#7c2d12" title="sulfate ion"><span class="tSym">SO₄²⁻</span><span class="tName">sulfate ion</span></div>
+</div></div>
+<div class="paletteGroup"><div class="paletteGroupLabel">3-</div>
+<div class="paletteRow">
+<div class="tile" draggable="true" data-side="anion" data-id="N" style="border-color:#ca8a04;background:#fef9c3;color:#713f12" title="nitride ion"><span class="tSym">N³⁻</span><span class="tName">nitride ion</span></div>
+<div class="tile" draggable="true" data-side="anion" data-id="P" style="border-color:#ca8a04;background:#fef9c3;color:#713f12" title="phosphide ion"><span class="tSym">P³⁻</span><span class="tName">phosphide ion</span></div>
+<div class="tile" draggable="true" data-side="anion" data-id="PO4" style="border-color:#ca8a04;background:#fef9c3;color:#713f12" title="phosphate ion"><span class="tSym">PO₄³⁻</span><span class="tName">phosphate ion</span></div>
+</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const COMPOUNDS = [{"name": "Lithium fluoride", "catId": "Li", "catCharge": 1, "anId": "F", "anCharge": -1, "m": 1, "n": 1, "ascii": "LiF", "asciiNoParens": "LiF", "unicode": "LiF"}, {"name": "Lithium chloride", "catId": "Li", "catCharge": 1, "anId": "Cl", "anCharge": -1, "m": 1, "n": 1, "ascii": "LiCl", "asciiNoParens": "LiCl", "unicode": "LiCl"}, {"name": "Lithium bromide", "catId": "Li", "catCharge": 1, "anId": "Br", "anCharge": -1, "m": 1, "n": 1, "ascii": "LiBr", "asciiNoParens": "LiBr", "unicode": "LiBr"}, {"name": "Lithium iodide", "catId": "Li", "catCharge": 1, "anId": "I", "anCharge": -1, "m": 1, "n": 1, "ascii": "LiI", "asciiNoParens": "LiI", "unicode": "LiI"}, {"name": "Lithium hydroxide", "catId": "Li", "catCharge": 1, "anId": "OH", "anCharge": -1, "m": 1, "n": 1, "ascii": "LiOH", "asciiNoParens": "LiOH", "unicode": "LiOH"}, {"name": "Lithium nitrate", "catId": "Li", "catCharge": 1, "anId": "NO3", "anCharge": -1, "m": 1, "n": 1, "ascii": "LiNO3", "asciiNoParens": "LiNO3", "unicode": "LiNO₃"}, {"name": "Lithium hydrogencarbonate", "catId": "Li", "catCharge": 1, "anId": "HCO3", "anCharge": -1, "m": 1, "n": 1, "ascii": "LiHCO3", "asciiNoParens": "LiHCO3", "unicode": "LiHCO₃"}, {"name": "Lithium manganate(VII)", "catId": "Li", "catCharge": 1, "anId": "MnO4", "anCharge": -1, "m": 1, "n": 1, "ascii": "LiMnO4", "asciiNoParens": "LiMnO4", "unicode": "LiMnO₄"}, {"name": "Lithium ethanoate", "catId": "Li", "catCharge": 1, "anId": "CH3COO", "anCharge": -1, "m": 1, "n": 1, "ascii": "LiCH3COO", "asciiNoParens": "LiCH3COO", "unicode": "LiCH₃COO"}, {"name": "Lithium oxide", "catId": "Li", "catCharge": 1, "anId": "O", "anCharge": -2, "m": 2, "n": 1, "ascii": "Li2O", "asciiNoParens": "Li2O", "unicode": "Li₂O"}, {"name": "Lithium sulfide", "catId": "Li", "catCharge": 1, "anId": "S", "anCharge": -2, "m": 2, "n": 1, "ascii": "Li2S", "asciiNoParens": "Li2S", "unicode": "Li₂S"}, {"name": "Lithium carbonate", "catId": "Li", "catCharge": 1, "anId": "CO3", "anCharge": -2, "m": 2, "n": 1, "ascii": "Li2CO3", "asciiNoParens": "Li2CO3", "unicode": "Li₂CO₃"}, {"name": "Lithium sulfate", "catId": "Li", "catCharge": 1, "anId": "SO4", "anCharge": -2, "m": 2, "n": 1, "ascii": "Li2SO4", "asciiNoParens": "Li2SO4", "unicode": "Li₂SO₄"}, {"name": "Lithium nitride", "catId": "Li", "catCharge": 1, "anId": "N", "anCharge": -3, "m": 3, "n": 1, "ascii": "Li3N", "asciiNoParens": "Li3N", "unicode": "Li₃N"}, {"name": "Lithium phosphide", "catId": "Li", "catCharge": 1, "anId": "P", "anCharge": -3, "m": 3, "n": 1, "ascii": "Li3P", "asciiNoParens": "Li3P", "unicode": "Li₃P"}, {"name": "Lithium phosphate", "catId": "Li", "catCharge": 1, "anId": "PO4", "anCharge": -3, "m": 3, "n": 1, "ascii": "Li3PO4", "asciiNoParens": "Li3PO4", "unicode": "Li₃PO₄"}, {"name": "Sodium fluoride", "catId": "Na", "catCharge": 1, "anId": "F", "anCharge": -1, "m": 1, "n": 1, "ascii": "NaF", "asciiNoParens": "NaF", "unicode": "NaF"}, {"name": "Sodium chloride", "catId": "Na", "catCharge": 1, "anId": "Cl", "anCharge": -1, "m": 1, "n": 1, "ascii": "NaCl", "asciiNoParens": "NaCl", "unicode": "NaCl"}, {"name": "Sodium bromide", "catId": "Na", "catCharge": 1, "anId": "Br", "anCharge": -1, "m": 1, "n": 1, "ascii": "NaBr", "asciiNoParens": "NaBr", "unicode": "NaBr"}, {"name": "Sodium iodide", "catId": "Na", "catCharge": 1, "anId": "I", "anCharge": -1, "m": 1, "n": 1, "ascii": "NaI", "asciiNoParens": "NaI", "unicode": "NaI"}, {"name": "Sodium hydroxide", "catId": "Na", "catCharge": 1, "anId": "OH", "anCharge": -1, "m": 1, "n": 1, "ascii": "NaOH", "asciiNoParens": "NaOH", "unicode": "NaOH"}, {"name": "Sodium nitrate", "catId": "Na", "catCharge": 1, "anId": "NO3", "anCharge": -1, "m": 1, "n": 1, "ascii": "NaNO3", "asciiNoParens": "NaNO3", "unicode": "NaNO₃"}, {"name": "Sodium hydrogencarbonate", "catId": "Na", "catCharge": 1, "anId": "HCO3", "anCharge": -1, "m": 1, "n": 1, "ascii": "NaHCO3", "asciiNoParens": "NaHCO3", "unicode": "NaHCO₃"}, {"name": "Sodium manganate(VII)", "catId": "Na", "catCharge": 1, "anId": "MnO4", "anCharge": -1, "m": 1, "n": 1, "ascii": "NaMnO4", "asciiNoParens": "NaMnO4", "unicode": "NaMnO₄"}, {"name": "Sodium ethanoate", "catId": "Na", "catCharge": 1, "anId": "CH3COO", "anCharge": -1, "m": 1, "n": 1, "ascii": "NaCH3COO", "asciiNoParens": "NaCH3COO", "unicode": "NaCH₃COO"}, {"name": "Sodium oxide", "catId": "Na", "catCharge": 1, "anId": "O", "anCharge": -2, "m": 2, "n": 1, "ascii": "Na2O", "asciiNoParens": "Na2O", "unicode": "Na₂O"}, {"name": "Sodium sulfide", "catId": "Na", "catCharge": 1, "anId": "S", "anCharge": -2, "m": 2, "n": 1, "ascii": "Na2S", "asciiNoParens": "Na2S", "unicode": "Na₂S"}, {"name": "Sodium carbonate", "catId": "Na", "catCharge": 1, "anId": "CO3", "anCharge": -2, "m": 2, "n": 1, "ascii": "Na2CO3", "asciiNoParens": "Na2CO3", "unicode": "Na₂CO₃"}, {"name": "Sodium sulfate", "catId": "Na", "catCharge": 1, "anId": "SO4", "anCharge": -2, "m": 2, "n": 1, "ascii": "Na2SO4", "asciiNoParens": "Na2SO4", "unicode": "Na₂SO₄"}, {"name": "Sodium nitride", "catId": "Na", "catCharge": 1, "anId": "N", "anCharge": -3, "m": 3, "n": 1, "ascii": "Na3N", "asciiNoParens": "Na3N", "unicode": "Na₃N"}, {"name": "Sodium phosphide", "catId": "Na", "catCharge": 1, "anId": "P", "anCharge": -3, "m": 3, "n": 1, "ascii": "Na3P", "asciiNoParens": "Na3P", "unicode": "Na₃P"}, {"name": "Sodium phosphate", "catId": "Na", "catCharge": 1, "anId": "PO4", "anCharge": -3, "m": 3, "n": 1, "ascii": "Na3PO4", "asciiNoParens": "Na3PO4", "unicode": "Na₃PO₄"}, {"name": "Potassium fluoride", "catId": "K", "catCharge": 1, "anId": "F", "anCharge": -1, "m": 1, "n": 1, "ascii": "KF", "asciiNoParens": "KF", "unicode": "KF"}, {"name": "Potassium chloride", "catId": "K", "catCharge": 1, "anId": "Cl", "anCharge": -1, "m": 1, "n": 1, "ascii": "KCl", "asciiNoParens": "KCl", "unicode": "KCl"}, {"name": "Potassium bromide", "catId": "K", "catCharge": 1, "anId": "Br", "anCharge": -1, "m": 1, "n": 1, "ascii": "KBr", "asciiNoParens": "KBr", "unicode": "KBr"}, {"name": "Potassium iodide", "catId": "K", "catCharge": 1, "anId": "I", "anCharge": -1, "m": 1, "n": 1, "ascii": "KI", "asciiNoParens": "KI", "unicode": "KI"}, {"name": "Potassium hydroxide", "catId": "K", "catCharge": 1, "anId": "OH", "anCharge": -1, "m": 1, "n": 1, "ascii": "KOH", "asciiNoParens": "KOH", "unicode": "KOH"}, {"name": "Potassium nitrate", "catId": "K", "catCharge": 1, "anId": "NO3", "anCharge": -1, "m": 1, "n": 1, "ascii": "KNO3", "asciiNoParens": "KNO3", "unicode": "KNO₃"}, {"name": "Potassium hydrogencarbonate", "catId": "K", "catCharge": 1, "anId": "HCO3", "anCharge": -1, "m": 1, "n": 1, "ascii": "KHCO3", "asciiNoParens": "KHCO3", "unicode": "KHCO₃"}, {"name": "Potassium manganate(VII)", "catId": "K", "catCharge": 1, "anId": "MnO4", "anCharge": -1, "m": 1, "n": 1, "ascii": "KMnO4", "asciiNoParens": "KMnO4", "unicode": "KMnO₄"}, {"name": "Potassium ethanoate", "catId": "K", "catCharge": 1, "anId": "CH3COO", "anCharge": -1, "m": 1, "n": 1, "ascii": "KCH3COO", "asciiNoParens": "KCH3COO", "unicode": "KCH₃COO"}, {"name": "Potassium oxide", "catId": "K", "catCharge": 1, "anId": "O", "anCharge": -2, "m": 2, "n": 1, "ascii": "K2O", "asciiNoParens": "K2O", "unicode": "K₂O"}, {"name": "Potassium sulfide", "catId": "K", "catCharge": 1, "anId": "S", "anCharge": -2, "m": 2, "n": 1, "ascii": "K2S", "asciiNoParens": "K2S", "unicode": "K₂S"}, {"name": "Potassium carbonate", "catId": "K", "catCharge": 1, "anId": "CO3", "anCharge": -2, "m": 2, "n": 1, "ascii": "K2CO3", "asciiNoParens": "K2CO3", "unicode": "K₂CO₃"}, {"name": "Potassium sulfate", "catId": "K", "catCharge": 1, "anId": "SO4", "anCharge": -2, "m": 2, "n": 1, "ascii": "K2SO4", "asciiNoParens": "K2SO4", "unicode": "K₂SO₄"}, {"name": "Potassium nitride", "catId": "K", "catCharge": 1, "anId": "N", "anCharge": -3, "m": 3, "n": 1, "ascii": "K3N", "asciiNoParens": "K3N", "unicode": "K₃N"}, {"name": "Potassium phosphide", "catId": "K", "catCharge": 1, "anId": "P", "anCharge": -3, "m": 3, "n": 1, "ascii": "K3P", "asciiNoParens": "K3P", "unicode": "K₃P"}, {"name": "Potassium phosphate", "catId": "K", "catCharge": 1, "anId": "PO4", "anCharge": -3, "m": 3, "n": 1, "ascii": "K3PO4", "asciiNoParens": "K3PO4", "unicode": "K₃PO₄"}, {"name": "Rubidium fluoride", "catId": "Rb", "catCharge": 1, "anId": "F", "anCharge": -1, "m": 1, "n": 1, "ascii": "RbF", "asciiNoParens": "RbF", "unicode": "RbF"}, {"name": "Rubidium chloride", "catId": "Rb", "catCharge": 1, "anId": "Cl", "anCharge": -1, "m": 1, "n": 1, "ascii": "RbCl", "asciiNoParens": "RbCl", "unicode": "RbCl"}, {"name": "Rubidium bromide", "catId": "Rb", "catCharge": 1, "anId": "Br", "anCharge": -1, "m": 1, "n": 1, "ascii": "RbBr", "asciiNoParens": "RbBr", "unicode": "RbBr"}, {"name": "Rubidium iodide", "catId": "Rb", "catCharge": 1, "anId": "I", "anCharge": -1, "m": 1, "n": 1, "ascii": "RbI", "asciiNoParens": "RbI", "unicode": "RbI"}, {"name": "Rubidium hydroxide", "catId": "Rb", "catCharge": 1, "anId": "OH", "anCharge": -1, "m": 1, "n": 1, "ascii": "RbOH", "asciiNoParens": "RbOH", "unicode": "RbOH"}, {"name": "Rubidium nitrate", "catId": "Rb", "catCharge": 1, "anId": "NO3", "anCharge": -1, "m": 1, "n": 1, "ascii": "RbNO3", "asciiNoParens": "RbNO3", "unicode": "RbNO₃"}, {"name": "Rubidium hydrogencarbonate", "catId": "Rb", "catCharge": 1, "anId": "HCO3", "anCharge": -1, "m": 1, "n": 1, "ascii": "RbHCO3", "asciiNoParens": "RbHCO3", "unicode": "RbHCO₃"}, {"name": "Rubidium manganate(VII)", "catId": "Rb", "catCharge": 1, "anId": "MnO4", "anCharge": -1, "m": 1, "n": 1, "ascii": "RbMnO4", "asciiNoParens": "RbMnO4", "unicode": "RbMnO₄"}, {"name": "Rubidium ethanoate", "catId": "Rb", "catCharge": 1, "anId": "CH3COO", "anCharge": -1, "m": 1, "n": 1, "ascii": "RbCH3COO", "asciiNoParens": "RbCH3COO", "unicode": "RbCH₃COO"}, {"name": "Rubidium oxide", "catId": "Rb", "catCharge": 1, "anId": "O", "anCharge": -2, "m": 2, "n": 1, "ascii": "Rb2O", "asciiNoParens": "Rb2O", "unicode": "Rb₂O"}, {"name": "Rubidium sulfide", "catId": "Rb", "catCharge": 1, "anId": "S", "anCharge": -2, "m": 2, "n": 1, "ascii": "Rb2S", "asciiNoParens": "Rb2S", "unicode": "Rb₂S"}, {"name": "Rubidium carbonate", "catId": "Rb", "catCharge": 1, "anId": "CO3", "anCharge": -2, "m": 2, "n": 1, "ascii": "Rb2CO3", "asciiNoParens": "Rb2CO3", "unicode": "Rb₂CO₃"}, {"name": "Rubidium sulfate", "catId": "Rb", "catCharge": 1, "anId": "SO4", "anCharge": -2, "m": 2, "n": 1, "ascii": "Rb2SO4", "asciiNoParens": "Rb2SO4", "unicode": "Rb₂SO₄"}, {"name": "Rubidium nitride", "catId": "Rb", "catCharge": 1, "anId": "N", "anCharge": -3, "m": 3, "n": 1, "ascii": "Rb3N", "asciiNoParens": "Rb3N", "unicode": "Rb₃N"}, {"name": "Rubidium phosphide", "catId": "Rb", "catCharge": 1, "anId": "P", "anCharge": -3, "m": 3, "n": 1, "ascii": "Rb3P", "asciiNoParens": "Rb3P", "unicode": "Rb₃P"}, {"name": "Rubidium phosphate", "catId": "Rb", "catCharge": 1, "anId": "PO4", "anCharge": -3, "m": 3, "n": 1, "ascii": "Rb3PO4", "asciiNoParens": "Rb3PO4", "unicode": "Rb₃PO₄"}, {"name": "Caesium fluoride", "catId": "Cs", "catCharge": 1, "anId": "F", "anCharge": -1, "m": 1, "n": 1, "ascii": "CsF", "asciiNoParens": "CsF", "unicode": "CsF"}, {"name": "Caesium chloride", "catId": "Cs", "catCharge": 1, "anId": "Cl", "anCharge": -1, "m": 1, "n": 1, "ascii": "CsCl", "asciiNoParens": "CsCl", "unicode": "CsCl"}, {"name": "Caesium bromide", "catId": "Cs", "catCharge": 1, "anId": "Br", "anCharge": -1, "m": 1, "n": 1, "ascii": "CsBr", "asciiNoParens": "CsBr", "unicode": "CsBr"}, {"name": "Caesium iodide", "catId": "Cs", "catCharge": 1, "anId": "I", "anCharge": -1, "m": 1, "n": 1, "ascii": "CsI", "asciiNoParens": "CsI", "unicode": "CsI"}, {"name": "Caesium hydroxide", "catId": "Cs", "catCharge": 1, "anId": "OH", "anCharge": -1, "m": 1, "n": 1, "ascii": "CsOH", "asciiNoParens": "CsOH", "unicode": "CsOH"}, {"name": "Caesium nitrate", "catId": "Cs", "catCharge": 1, "anId": "NO3", "anCharge": -1, "m": 1, "n": 1, "ascii": "CsNO3", "asciiNoParens": "CsNO3", "unicode": "CsNO₃"}, {"name": "Caesium hydrogencarbonate", "catId": "Cs", "catCharge": 1, "anId": "HCO3", "anCharge": -1, "m": 1, "n": 1, "ascii": "CsHCO3", "asciiNoParens": "CsHCO3", "unicode": "CsHCO₃"}, {"name": "Caesium manganate(VII)", "catId": "Cs", "catCharge": 1, "anId": "MnO4", "anCharge": -1, "m": 1, "n": 1, "ascii": "CsMnO4", "asciiNoParens": "CsMnO4", "unicode": "CsMnO₄"}, {"name": "Caesium ethanoate", "catId": "Cs", "catCharge": 1, "anId": "CH3COO", "anCharge": -1, "m": 1, "n": 1, "ascii": "CsCH3COO", "asciiNoParens": "CsCH3COO", "unicode": "CsCH₃COO"}, {"name": "Caesium oxide", "catId": "Cs", "catCharge": 1, "anId": "O", "anCharge": -2, "m": 2, "n": 1, "ascii": "Cs2O", "asciiNoParens": "Cs2O", "unicode": "Cs₂O"}, {"name": "Caesium sulfide", "catId": "Cs", "catCharge": 1, "anId": "S", "anCharge": -2, "m": 2, "n": 1, "ascii": "Cs2S", "asciiNoParens": "Cs2S", "unicode": "Cs₂S"}, {"name": "Caesium carbonate", "catId": "Cs", "catCharge": 1, "anId": "CO3", "anCharge": -2, "m": 2, "n": 1, "ascii": "Cs2CO3", "asciiNoParens": "Cs2CO3", "unicode": "Cs₂CO₃"}, {"name": "Caesium sulfate", "catId": "Cs", "catCharge": 1, "anId": "SO4", "anCharge": -2, "m": 2, "n": 1, "ascii": "Cs2SO4", "asciiNoParens": "Cs2SO4", "unicode": "Cs₂SO₄"}, {"name": "Caesium nitride", "catId": "Cs", "catCharge": 1, "anId": "N", "anCharge": -3, "m": 3, "n": 1, "ascii": "Cs3N", "asciiNoParens": "Cs3N", "unicode": "Cs₃N"}, {"name": "Caesium phosphide", "catId": "Cs", "catCharge": 1, "anId": "P", "anCharge": -3, "m": 3, "n": 1, "ascii": "Cs3P", "asciiNoParens": "Cs3P", "unicode": "Cs₃P"}, {"name": "Caesium phosphate", "catId": "Cs", "catCharge": 1, "anId": "PO4", "anCharge": -3, "m": 3, "n": 1, "ascii": "Cs3PO4", "asciiNoParens": "Cs3PO4", "unicode": "Cs₃PO₄"}, {"name": "Ammonium fluoride", "catId": "NH4", "catCharge": 1, "anId": "F", "anCharge": -1, "m": 1, "n": 1, "ascii": "NH4F", "asciiNoParens": "NH4F", "unicode": "NH₄F"}, {"name": "Ammonium chloride", "catId": "NH4", "catCharge": 1, "anId": "Cl", "anCharge": -1, "m": 1, "n": 1, "ascii": "NH4Cl", "asciiNoParens": "NH4Cl", "unicode": "NH₄Cl"}, {"name": "Ammonium bromide", "catId": "NH4", "catCharge": 1, "anId": "Br", "anCharge": -1, "m": 1, "n": 1, "ascii": "NH4Br", "asciiNoParens": "NH4Br", "unicode": "NH₄Br"}, {"name": "Ammonium iodide", "catId": "NH4", "catCharge": 1, "anId": "I", "anCharge": -1, "m": 1, "n": 1, "ascii": "NH4I", "asciiNoParens": "NH4I", "unicode": "NH₄I"}, {"name": "Ammonium hydroxide", "catId": "NH4", "catCharge": 1, "anId": "OH", "anCharge": -1, "m": 1, "n": 1, "ascii": "NH4OH", "asciiNoParens": "NH4OH", "unicode": "NH₄OH"}, {"name": "Ammonium nitrate", "catId": "NH4", "catCharge": 1, "anId": "NO3", "anCharge": -1, "m": 1, "n": 1, "ascii": "NH4NO3", "asciiNoParens": "NH4NO3", "unicode": "NH₄NO₃"}, {"name": "Ammonium hydrogencarbonate", "catId": "NH4", "catCharge": 1, "anId": "HCO3", "anCharge": -1, "m": 1, "n": 1, "ascii": "NH4HCO3", "asciiNoParens": "NH4HCO3", "unicode": "NH₄HCO₃"}, {"name": "Ammonium manganate(VII)", "catId": "NH4", "catCharge": 1, "anId": "MnO4", "anCharge": -1, "m": 1, "n": 1, "ascii": "NH4MnO4", "asciiNoParens": "NH4MnO4", "unicode": "NH₄MnO₄"}, {"name": "Ammonium ethanoate", "catId": "NH4", "catCharge": 1, "anId": "CH3COO", "anCharge": -1, "m": 1, "n": 1, "ascii": "NH4CH3COO", "asciiNoParens": "NH4CH3COO", "unicode": "NH₄CH₃COO"}, {"name": "Ammonium oxide", "catId": "NH4", "catCharge": 1, "anId": "O", "anCharge": -2, "m": 2, "n": 1, "ascii": "(NH4)2O", "asciiNoParens": "NH42O", "unicode": "(NH₄)₂O"}, {"name": "Ammonium sulfide", "catId": "NH4", "catCharge": 1, "anId": "S", "anCharge": -2, "m": 2, "n": 1, "ascii": "(NH4)2S", "asciiNoParens": "NH42S", "unicode": "(NH₄)₂S"}, {"name": "Ammonium carbonate", "catId": "NH4", "catCharge": 1, "anId": "CO3", "anCharge": -2, "m": 2, "n": 1, "ascii": "(NH4)2CO3", "asciiNoParens": "NH42CO3", "unicode": "(NH₄)₂CO₃"}, {"name": "Ammonium sulfate", "catId": "NH4", "catCharge": 1, "anId": "SO4", "anCharge": -2, "m": 2, "n": 1, "ascii": "(NH4)2SO4", "asciiNoParens": "NH42SO4", "unicode": "(NH₄)₂SO₄"}, {"name": "Ammonium nitride", "catId": "NH4", "catCharge": 1, "anId": "N", "anCharge": -3, "m": 3, "n": 1, "ascii": "(NH4)3N", "asciiNoParens": "NH43N", "unicode": "(NH₄)₃N"}, {"name": "Ammonium phosphide", "catId": "NH4", "catCharge": 1, "anId": "P", "anCharge": -3, "m": 3, "n": 1, "ascii": "(NH4)3P", "asciiNoParens": "NH43P", "unicode": "(NH₄)₃P"}, {"name": "Ammonium phosphate", "catId": "NH4", "catCharge": 1, "anId": "PO4", "anCharge": -3, "m": 3, "n": 1, "ascii": "(NH4)3PO4", "asciiNoParens": "NH43PO4", "unicode": "(NH₄)₃PO₄"}, {"name": "Silver fluoride", "catId": "Ag", "catCharge": 1, "anId": "F", "anCharge": -1, "m": 1, "n": 1, "ascii": "AgF", "asciiNoParens": "AgF", "unicode": "AgF"}, {"name": "Silver chloride", "catId": "Ag", "catCharge": 1, "anId": "Cl", "anCharge": -1, "m": 1, "n": 1, "ascii": "AgCl", "asciiNoParens": "AgCl", "unicode": "AgCl"}, {"name": "Silver bromide", "catId": "Ag", "catCharge": 1, "anId": "Br", "anCharge": -1, "m": 1, "n": 1, "ascii": "AgBr", "asciiNoParens": "AgBr", "unicode": "AgBr"}, {"name": "Silver iodide", "catId": "Ag", "catCharge": 1, "anId": "I", "anCharge": -1, "m": 1, "n": 1, "ascii": "AgI", "asciiNoParens": "AgI", "unicode": "AgI"}, {"name": "Silver hydroxide", "catId": "Ag", "catCharge": 1, "anId": "OH", "anCharge": -1, "m": 1, "n": 1, "ascii": "AgOH", "asciiNoParens": "AgOH", "unicode": "AgOH"}, {"name": "Silver nitrate", "catId": "Ag", "catCharge": 1, "anId": "NO3", "anCharge": -1, "m": 1, "n": 1, "ascii": "AgNO3", "asciiNoParens": "AgNO3", "unicode": "AgNO₃"}, {"name": "Silver hydrogencarbonate", "catId": "Ag", "catCharge": 1, "anId": "HCO3", "anCharge": -1, "m": 1, "n": 1, "ascii": "AgHCO3", "asciiNoParens": "AgHCO3", "unicode": "AgHCO₃"}, {"name": "Silver manganate(VII)", "catId": "Ag", "catCharge": 1, "anId": "MnO4", "anCharge": -1, "m": 1, "n": 1, "ascii": "AgMnO4", "asciiNoParens": "AgMnO4", "unicode": "AgMnO₄"}, {"name": "Silver ethanoate", "catId": "Ag", "catCharge": 1, "anId": "CH3COO", "anCharge": -1, "m": 1, "n": 1, "ascii": "AgCH3COO", "asciiNoParens": "AgCH3COO", "unicode": "AgCH₃COO"}, {"name": "Silver oxide", "catId": "Ag", "catCharge": 1, "anId": "O", "anCharge": -2, "m": 2, "n": 1, "ascii": "Ag2O", "asciiNoParens": "Ag2O", "unicode": "Ag₂O"}, {"name": "Silver sulfide", "catId": "Ag", "catCharge": 1, "anId": "S", "anCharge": -2, "m": 2, "n": 1, "ascii": "Ag2S", "asciiNoParens": "Ag2S", "unicode": "Ag₂S"}, {"name": "Silver carbonate", "catId": "Ag", "catCharge": 1, "anId": "CO3", "anCharge": -2, "m": 2, "n": 1, "ascii": "Ag2CO3", "asciiNoParens": "Ag2CO3", "unicode": "Ag₂CO₃"}, {"name": "Silver sulfate", "catId": "Ag", "catCharge": 1, "anId": "SO4", "anCharge": -2, "m": 2, "n": 1, "ascii": "Ag2SO4", "asciiNoParens": "Ag2SO4", "unicode": "Ag₂SO₄"}, {"name": "Silver nitride", "catId": "Ag", "catCharge": 1, "anId": "N", "anCharge": -3, "m": 3, "n": 1, "ascii": "Ag3N", "asciiNoParens": "Ag3N", "unicode": "Ag₃N"}, {"name": "Silver phosphide", "catId": "Ag", "catCharge": 1, "anId": "P", "anCharge": -3, "m": 3, "n": 1, "ascii": "Ag3P", "asciiNoParens": "Ag3P", "unicode": "Ag₃P"}, {"name": "Silver phosphate", "catId": "Ag", "catCharge": 1, "anId": "PO4", "anCharge": -3, "m": 3, "n": 1, "ascii": "Ag3PO4", "asciiNoParens": "Ag3PO4", "unicode": "Ag₃PO₄"}, {"name": "Beryllium fluoride", "catId": "Be", "catCharge": 2, "anId": "F", "anCharge": -1, "m": 1, "n": 2, "ascii": "BeF2", "asciiNoParens": "BeF2", "unicode": "BeF₂"}, {"name": "Beryllium chloride", "catId": "Be", "catCharge": 2, "anId": "Cl", "anCharge": -1, "m": 1, "n": 2, "ascii": "BeCl2", "asciiNoParens": "BeCl2", "unicode": "BeCl₂"}, {"name": "Beryllium bromide", "catId": "Be", "catCharge": 2, "anId": "Br", "anCharge": -1, "m": 1, "n": 2, "ascii": "BeBr2", "asciiNoParens": "BeBr2", "unicode": "BeBr₂"}, {"name": "Beryllium iodide", "catId": "Be", "catCharge": 2, "anId": "I", "anCharge": -1, "m": 1, "n": 2, "ascii": "BeI2", "asciiNoParens": "BeI2", "unicode": "BeI₂"}, {"name": "Beryllium hydroxide", "catId": "Be", "catCharge": 2, "anId": "OH", "anCharge": -1, "m": 1, "n": 2, "ascii": "Be(OH)2", "asciiNoParens": "BeOH2", "unicode": "Be(OH)₂"}, {"name": "Beryllium nitrate", "catId": "Be", "catCharge": 2, "anId": "NO3", "anCharge": -1, "m": 1, "n": 2, "ascii": "Be(NO3)2", "asciiNoParens": "BeNO32", "unicode": "Be(NO₃)₂"}, {"name": "Beryllium hydrogencarbonate", "catId": "Be", "catCharge": 2, "anId": "HCO3", "anCharge": -1, "m": 1, "n": 2, "ascii": "Be(HCO3)2", "asciiNoParens": "BeHCO32", "unicode": "Be(HCO₃)₂"}, {"name": "Beryllium manganate(VII)", "catId": "Be", "catCharge": 2, "anId": "MnO4", "anCharge": -1, "m": 1, "n": 2, "ascii": "Be(MnO4)2", "asciiNoParens": "BeMnO42", "unicode": "Be(MnO₄)₂"}, {"name": "Beryllium ethanoate", "catId": "Be", "catCharge": 2, "anId": "CH3COO", "anCharge": -1, "m": 1, "n": 2, "ascii": "Be(CH3COO)2", "asciiNoParens": "BeCH3COO2", "unicode": "Be(CH₃COO)₂"}, {"name": "Beryllium oxide", "catId": "Be", "catCharge": 2, "anId": "O", "anCharge": -2, "m": 1, "n": 1, "ascii": "BeO", "asciiNoParens": "BeO", "unicode": "BeO"}, {"name": "Beryllium sulfide", "catId": "Be", "catCharge": 2, "anId": "S", "anCharge": -2, "m": 1, "n": 1, "ascii": "BeS", "asciiNoParens": "BeS", "unicode": "BeS"}, {"name": "Beryllium carbonate", "catId": "Be", "catCharge": 2, "anId": "CO3", "anCharge": -2, "m": 1, "n": 1, "ascii": "BeCO3", "asciiNoParens": "BeCO3", "unicode": "BeCO₃"}, {"name": "Beryllium sulfate", "catId": "Be", "catCharge": 2, "anId": "SO4", "anCharge": -2, "m": 1, "n": 1, "ascii": "BeSO4", "asciiNoParens": "BeSO4", "unicode": "BeSO₄"}, {"name": "Beryllium nitride", "catId": "Be", "catCharge": 2, "anId": "N", "anCharge": -3, "m": 3, "n": 2, "ascii": "Be3N2", "asciiNoParens": "Be3N2", "unicode": "Be₃N₂"}, {"name": "Beryllium phosphide", "catId": "Be", "catCharge": 2, "anId": "P", "anCharge": -3, "m": 3, "n": 2, "ascii": "Be3P2", "asciiNoParens": "Be3P2", "unicode": "Be₃P₂"}, {"name": "Beryllium phosphate", "catId": "Be", "catCharge": 2, "anId": "PO4", "anCharge": -3, "m": 3, "n": 2, "ascii": "Be3(PO4)2", "asciiNoParens": "Be3PO42", "unicode": "Be₃(PO₄)₂"}, {"name": "Magnesium fluoride", "catId": "Mg", "catCharge": 2, "anId": "F", "anCharge": -1, "m": 1, "n": 2, "ascii": "MgF2", "asciiNoParens": "MgF2", "unicode": "MgF₂"}, {"name": "Magnesium chloride", "catId": "Mg", "catCharge": 2, "anId": "Cl", "anCharge": -1, "m": 1, "n": 2, "ascii": "MgCl2", "asciiNoParens": "MgCl2", "unicode": "MgCl₂"}, {"name": "Magnesium bromide", "catId": "Mg", "catCharge": 2, "anId": "Br", "anCharge": -1, "m": 1, "n": 2, "ascii": "MgBr2", "asciiNoParens": "MgBr2", "unicode": "MgBr₂"}, {"name": "Magnesium iodide", "catId": "Mg", "catCharge": 2, "anId": "I", "anCharge": -1, "m": 1, "n": 2, "ascii": "MgI2", "asciiNoParens": "MgI2", "unicode": "MgI₂"}, {"name": "Magnesium hydroxide", "catId": "Mg", "catCharge": 2, "anId": "OH", "anCharge": -1, "m": 1, "n": 2, "ascii": "Mg(OH)2", "asciiNoParens": "MgOH2", "unicode": "Mg(OH)₂"}, {"name": "Magnesium nitrate", "catId": "Mg", "catCharge": 2, "anId": "NO3", "anCharge": -1, "m": 1, "n": 2, "ascii": "Mg(NO3)2", "asciiNoParens": "MgNO32", "unicode": "Mg(NO₃)₂"}, {"name": "Magnesium hydrogencarbonate", "catId": "Mg", "catCharge": 2, "anId": "HCO3", "anCharge": -1, "m": 1, "n": 2, "ascii": "Mg(HCO3)2", "asciiNoParens": "MgHCO32", "unicode": "Mg(HCO₃)₂"}, {"name": "Magnesium manganate(VII)", "catId": "Mg", "catCharge": 2, "anId": "MnO4", "anCharge": -1, "m": 1, "n": 2, "ascii": "Mg(MnO4)2", "asciiNoParens": "MgMnO42", "unicode": "Mg(MnO₄)₂"}, {"name": "Magnesium ethanoate", "catId": "Mg", "catCharge": 2, "anId": "CH3COO", "anCharge": -1, "m": 1, "n": 2, "ascii": "Mg(CH3COO)2", "asciiNoParens": "MgCH3COO2", "unicode": "Mg(CH₃COO)₂"}, {"name": "Magnesium oxide", "catId": "Mg", "catCharge": 2, "anId": "O", "anCharge": -2, "m": 1, "n": 1, "ascii": "MgO", "asciiNoParens": "MgO", "unicode": "MgO"}, {"name": "Magnesium sulfide", "catId": "Mg", "catCharge": 2, "anId": "S", "anCharge": -2, "m": 1, "n": 1, "ascii": "MgS", "asciiNoParens": "MgS", "unicode": "MgS"}, {"name": "Magnesium carbonate", "catId": "Mg", "catCharge": 2, "anId": "CO3", "anCharge": -2, "m": 1, "n": 1, "ascii": "MgCO3", "asciiNoParens": "MgCO3", "unicode": "MgCO₃"}, {"name": "Magnesium sulfate", "catId": "Mg", "catCharge": 2, "anId": "SO4", "anCharge": -2, "m": 1, "n": 1, "ascii": "MgSO4", "asciiNoParens": "MgSO4", "unicode": "MgSO₄"}, {"name": "Magnesium nitride", "catId": "Mg", "catCharge": 2, "anId": "N", "anCharge": -3, "m": 3, "n": 2, "ascii": "Mg3N2", "asciiNoParens": "Mg3N2", "unicode": "Mg₃N₂"}, {"name": "Magnesium phosphide", "catId": "Mg", "catCharge": 2, "anId": "P", "anCharge": -3, "m": 3, "n": 2, "ascii": "Mg3P2", "asciiNoParens": "Mg3P2", "unicode": "Mg₃P₂"}, {"name": "Magnesium phosphate", "catId": "Mg", "catCharge": 2, "anId": "PO4", "anCharge": -3, "m": 3, "n": 2, "ascii": "Mg3(PO4)2", "asciiNoParens": "Mg3PO42", "unicode": "Mg₃(PO₄)₂"}, {"name": "Calcium fluoride", "catId": "Ca", "catCharge": 2, "anId": "F", "anCharge": -1, "m": 1, "n": 2, "ascii": "CaF2", "asciiNoParens": "CaF2", "unicode": "CaF₂"}, {"name": "Calcium chloride", "catId": "Ca", "catCharge": 2, "anId": "Cl", "anCharge": -1, "m": 1, "n": 2, "ascii": "CaCl2", "asciiNoParens": "CaCl2", "unicode": "CaCl₂"}, {"name": "Calcium bromide", "catId": "Ca", "catCharge": 2, "anId": "Br", "anCharge": -1, "m": 1, "n": 2, "ascii": "CaBr2", "asciiNoParens": "CaBr2", "unicode": "CaBr₂"}, {"name": "Calcium iodide", "catId": "Ca", "catCharge": 2, "anId": "I", "anCharge": -1, "m": 1, "n": 2, "ascii": "CaI2", "asciiNoParens": "CaI2", "unicode": "CaI₂"}, {"name": "Calcium hydroxide", "catId": "Ca", "catCharge": 2, "anId": "OH", "anCharge": -1, "m": 1, "n": 2, "ascii": "Ca(OH)2", "asciiNoParens": "CaOH2", "unicode": "Ca(OH)₂"}, {"name": "Calcium nitrate", "catId": "Ca", "catCharge": 2, "anId": "NO3", "anCharge": -1, "m": 1, "n": 2, "ascii": "Ca(NO3)2", "asciiNoParens": "CaNO32", "unicode": "Ca(NO₃)₂"}, {"name": "Calcium hydrogencarbonate", "catId": "Ca", "catCharge": 2, "anId": "HCO3", "anCharge": -1, "m": 1, "n": 2, "ascii": "Ca(HCO3)2", "asciiNoParens": "CaHCO32", "unicode": "Ca(HCO₃)₂"}, {"name": "Calcium manganate(VII)", "catId": "Ca", "catCharge": 2, "anId": "MnO4", "anCharge": -1, "m": 1, "n": 2, "ascii": "Ca(MnO4)2", "asciiNoParens": "CaMnO42", "unicode": "Ca(MnO₄)₂"}, {"name": "Calcium ethanoate", "catId": "Ca", "catCharge": 2, "anId": "CH3COO", "anCharge": -1, "m": 1, "n": 2, "ascii": "Ca(CH3COO)2", "asciiNoParens": "CaCH3COO2", "unicode": "Ca(CH₃COO)₂"}, {"name": "Calcium oxide", "catId": "Ca", "catCharge": 2, "anId": "O", "anCharge": -2, "m": 1, "n": 1, "ascii": "CaO", "asciiNoParens": "CaO", "unicode": "CaO"}, {"name": "Calcium sulfide", "catId": "Ca", "catCharge": 2, "anId": "S", "anCharge": -2, "m": 1, "n": 1, "ascii": "CaS", "asciiNoParens": "CaS", "unicode": "CaS"}, {"name": "Calcium carbonate", "catId": "Ca", "catCharge": 2, "anId": "CO3", "anCharge": -2, "m": 1, "n": 1, "ascii": "CaCO3", "asciiNoParens": "CaCO3", "unicode": "CaCO₃"}, {"name": "Calcium sulfate", "catId": "Ca", "catCharge": 2, "anId": "SO4", "anCharge": -2, "m": 1, "n": 1, "ascii": "CaSO4", "asciiNoParens": "CaSO4", "unicode": "CaSO₄"}, {"name": "Calcium nitride", "catId": "Ca", "catCharge": 2, "anId": "N", "anCharge": -3, "m": 3, "n": 2, "ascii": "Ca3N2", "asciiNoParens": "Ca3N2", "unicode": "Ca₃N₂"}, {"name": "Calcium phosphide", "catId": "Ca", "catCharge": 2, "anId": "P", "anCharge": -3, "m": 3, "n": 2, "ascii": "Ca3P2", "asciiNoParens": "Ca3P2", "unicode": "Ca₃P₂"}, {"name": "Calcium phosphate", "catId": "Ca", "catCharge": 2, "anId": "PO4", "anCharge": -3, "m": 3, "n": 2, "ascii": "Ca3(PO4)2", "asciiNoParens": "Ca3PO42", "unicode": "Ca₃(PO₄)₂"}, {"name": "Strontium fluoride", "catId": "Sr", "catCharge": 2, "anId": "F", "anCharge": -1, "m": 1, "n": 2, "ascii": "SrF2", "asciiNoParens": "SrF2", "unicode": "SrF₂"}, {"name": "Strontium chloride", "catId": "Sr", "catCharge": 2, "anId": "Cl", "anCharge": -1, "m": 1, "n": 2, "ascii": "SrCl2", "asciiNoParens": "SrCl2", "unicode": "SrCl₂"}, {"name": "Strontium bromide", "catId": "Sr", "catCharge": 2, "anId": "Br", "anCharge": -1, "m": 1, "n": 2, "ascii": "SrBr2", "asciiNoParens": "SrBr2", "unicode": "SrBr₂"}, {"name": "Strontium iodide", "catId": "Sr", "catCharge": 2, "anId": "I", "anCharge": -1, "m": 1, "n": 2, "ascii": "SrI2", "asciiNoParens": "SrI2", "unicode": "SrI₂"}, {"name": "Strontium hydroxide", "catId": "Sr", "catCharge": 2, "anId": "OH", "anCharge": -1, "m": 1, "n": 2, "ascii": "Sr(OH)2", "asciiNoParens": "SrOH2", "unicode": "Sr(OH)₂"}, {"name": "Strontium nitrate", "catId": "Sr", "catCharge": 2, "anId": "NO3", "anCharge": -1, "m": 1, "n": 2, "ascii": "Sr(NO3)2", "asciiNoParens": "SrNO32", "unicode": "Sr(NO₃)₂"}, {"name": "Strontium hydrogencarbonate", "catId": "Sr", "catCharge": 2, "anId": "HCO3", "anCharge": -1, "m": 1, "n": 2, "ascii": "Sr(HCO3)2", "asciiNoParens": "SrHCO32", "unicode": "Sr(HCO₃)₂"}, {"name": "Strontium manganate(VII)", "catId": "Sr", "catCharge": 2, "anId": "MnO4", "anCharge": -1, "m": 1, "n": 2, "ascii": "Sr(MnO4)2", "asciiNoParens": "SrMnO42", "unicode": "Sr(MnO₄)₂"}, {"name": "Strontium ethanoate", "catId": "Sr", "catCharge": 2, "anId": "CH3COO", "anCharge": -1, "m": 1, "n": 2, "ascii": "Sr(CH3COO)2", "asciiNoParens": "SrCH3COO2", "unicode": "Sr(CH₃COO)₂"}, {"name": "Strontium oxide", "catId": "Sr", "catCharge": 2, "anId": "O", "anCharge": -2, "m": 1, "n": 1, "ascii": "SrO", "asciiNoParens": "SrO", "unicode": "SrO"}, {"name": "Strontium sulfide", "catId": "Sr", "catCharge": 2, "anId": "S", "anCharge": -2, "m": 1, "n": 1, "ascii": "SrS", "asciiNoParens": "SrS", "unicode": "SrS"}, {"name": "Strontium carbonate", "catId": "Sr", "catCharge": 2, "anId": "CO3", "anCharge": -2, "m": 1, "n": 1, "ascii": "SrCO3", "asciiNoParens": "SrCO3", "unicode": "SrCO₃"}, {"name": "Strontium sulfate", "catId": "Sr", "catCharge": 2, "anId": "SO4", "anCharge": -2, "m": 1, "n": 1, "ascii": "SrSO4", "asciiNoParens": "SrSO4", "unicode": "SrSO₄"}, {"name": "Strontium nitride", "catId": "Sr", "catCharge": 2, "anId": "N", "anCharge": -3, "m": 3, "n": 2, "ascii": "Sr3N2", "asciiNoParens": "Sr3N2", "unicode": "Sr₃N₂"}, {"name": "Strontium phosphide", "catId": "Sr", "catCharge": 2, "anId": "P", "anCharge": -3, "m": 3, "n": 2, "ascii": "Sr3P2", "asciiNoParens": "Sr3P2", "unicode": "Sr₃P₂"}, {"name": "Strontium phosphate", "catId": "Sr", "catCharge": 2, "anId": "PO4", "anCharge": -3, "m": 3, "n": 2, "ascii": "Sr3(PO4)2", "asciiNoParens": "Sr3PO42", "unicode": "Sr₃(PO₄)₂"}, {"name": "Barium fluoride", "catId": "Ba", "catCharge": 2, "anId": "F", "anCharge": -1, "m": 1, "n": 2, "ascii": "BaF2", "asciiNoParens": "BaF2", "unicode": "BaF₂"}, {"name": "Barium chloride", "catId": "Ba", "catCharge": 2, "anId": "Cl", "anCharge": -1, "m": 1, "n": 2, "ascii": "BaCl2", "asciiNoParens": "BaCl2", "unicode": "BaCl₂"}, {"name": "Barium bromide", "catId": "Ba", "catCharge": 2, "anId": "Br", "anCharge": -1, "m": 1, "n": 2, "ascii": "BaBr2", "asciiNoParens": "BaBr2", "unicode": "BaBr₂"}, {"name": "Barium iodide", "catId": "Ba", "catCharge": 2, "anId": "I", "anCharge": -1, "m": 1, "n": 2, "ascii": "BaI2", "asciiNoParens": "BaI2", "unicode": "BaI₂"}, {"name": "Barium hydroxide", "catId": "Ba", "catCharge": 2, "anId": "OH", "anCharge": -1, "m": 1, "n": 2, "ascii": "Ba(OH)2", "asciiNoParens": "BaOH2", "unicode": "Ba(OH)₂"}, {"name": "Barium nitrate", "catId": "Ba", "catCharge": 2, "anId": "NO3", "anCharge": -1, "m": 1, "n": 2, "ascii": "Ba(NO3)2", "asciiNoParens": "BaNO32", "unicode": "Ba(NO₃)₂"}, {"name": "Barium hydrogencarbonate", "catId": "Ba", "catCharge": 2, "anId": "HCO3", "anCharge": -1, "m": 1, "n": 2, "ascii": "Ba(HCO3)2", "asciiNoParens": "BaHCO32", "unicode": "Ba(HCO₃)₂"}, {"name": "Barium manganate(VII)", "catId": "Ba", "catCharge": 2, "anId": "MnO4", "anCharge": -1, "m": 1, "n": 2, "ascii": "Ba(MnO4)2", "asciiNoParens": "BaMnO42", "unicode": "Ba(MnO₄)₂"}, {"name": "Barium ethanoate", "catId": "Ba", "catCharge": 2, "anId": "CH3COO", "anCharge": -1, "m": 1, "n": 2, "ascii": "Ba(CH3COO)2", "asciiNoParens": "BaCH3COO2", "unicode": "Ba(CH₃COO)₂"}, {"name": "Barium oxide", "catId": "Ba", "catCharge": 2, "anId": "O", "anCharge": -2, "m": 1, "n": 1, "ascii": "BaO", "asciiNoParens": "BaO", "unicode": "BaO"}, {"name": "Barium sulfide", "catId": "Ba", "catCharge": 2, "anId": "S", "anCharge": -2, "m": 1, "n": 1, "ascii": "BaS", "asciiNoParens": "BaS", "unicode": "BaS"}, {"name": "Barium carbonate", "catId": "Ba", "catCharge": 2, "anId": "CO3", "anCharge": -2, "m": 1, "n": 1, "ascii": "BaCO3", "asciiNoParens": "BaCO3", "unicode": "BaCO₃"}, {"name": "Barium sulfate", "catId": "Ba", "catCharge": 2, "anId": "SO4", "anCharge": -2, "m": 1, "n": 1, "ascii": "BaSO4", "asciiNoParens": "BaSO4", "unicode": "BaSO₄"}, {"name": "Barium nitride", "catId": "Ba", "catCharge": 2, "anId": "N", "anCharge": -3, "m": 3, "n": 2, "ascii": "Ba3N2", "asciiNoParens": "Ba3N2", "unicode": "Ba₃N₂"}, {"name": "Barium phosphide", "catId": "Ba", "catCharge": 2, "anId": "P", "anCharge": -3, "m": 3, "n": 2, "ascii": "Ba3P2", "asciiNoParens": "Ba3P2", "unicode": "Ba₃P₂"}, {"name": "Barium phosphate", "catId": "Ba", "catCharge": 2, "anId": "PO4", "anCharge": -3, "m": 3, "n": 2, "ascii": "Ba3(PO4)2", "asciiNoParens": "Ba3PO42", "unicode": "Ba₃(PO₄)₂"}, {"name": "Copper(II) fluoride", "catId": "Cu", "catCharge": 2, "anId": "F", "anCharge": -1, "m": 1, "n": 2, "ascii": "CuF2", "asciiNoParens": "CuF2", "unicode": "CuF₂"}, {"name": "Copper(II) chloride", "catId": "Cu", "catCharge": 2, "anId": "Cl", "anCharge": -1, "m": 1, "n": 2, "ascii": "CuCl2", "asciiNoParens": "CuCl2", "unicode": "CuCl₂"}, {"name": "Copper(II) bromide", "catId": "Cu", "catCharge": 2, "anId": "Br", "anCharge": -1, "m": 1, "n": 2, "ascii": "CuBr2", "asciiNoParens": "CuBr2", "unicode": "CuBr₂"}, {"name": "Copper(II) iodide", "catId": "Cu", "catCharge": 2, "anId": "I", "anCharge": -1, "m": 1, "n": 2, "ascii": "CuI2", "asciiNoParens": "CuI2", "unicode": "CuI₂"}, {"name": "Copper(II) hydroxide", "catId": "Cu", "catCharge": 2, "anId": "OH", "anCharge": -1, "m": 1, "n": 2, "ascii": "Cu(OH)2", "asciiNoParens": "CuOH2", "unicode": "Cu(OH)₂"}, {"name": "Copper(II) nitrate", "catId": "Cu", "catCharge": 2, "anId": "NO3", "anCharge": -1, "m": 1, "n": 2, "ascii": "Cu(NO3)2", "asciiNoParens": "CuNO32", "unicode": "Cu(NO₃)₂"}, {"name": "Copper(II) hydrogencarbonate", "catId": "Cu", "catCharge": 2, "anId": "HCO3", "anCharge": -1, "m": 1, "n": 2, "ascii": "Cu(HCO3)2", "asciiNoParens": "CuHCO32", "unicode": "Cu(HCO₃)₂"}, {"name": "Copper(II) manganate(VII)", "catId": "Cu", "catCharge": 2, "anId": "MnO4", "anCharge": -1, "m": 1, "n": 2, "ascii": "Cu(MnO4)2", "asciiNoParens": "CuMnO42", "unicode": "Cu(MnO₄)₂"}, {"name": "Copper(II) ethanoate", "catId": "Cu", "catCharge": 2, "anId": "CH3COO", "anCharge": -1, "m": 1, "n": 2, "ascii": "Cu(CH3COO)2", "asciiNoParens": "CuCH3COO2", "unicode": "Cu(CH₃COO)₂"}, {"name": "Copper(II) oxide", "catId": "Cu", "catCharge": 2, "anId": "O", "anCharge": -2, "m": 1, "n": 1, "ascii": "CuO", "asciiNoParens": "CuO", "unicode": "CuO"}, {"name": "Copper(II) sulfide", "catId": "Cu", "catCharge": 2, "anId": "S", "anCharge": -2, "m": 1, "n": 1, "ascii": "CuS", "asciiNoParens": "CuS", "unicode": "CuS"}, {"name": "Copper(II) carbonate", "catId": "Cu", "catCharge": 2, "anId": "CO3", "anCharge": -2, "m": 1, "n": 1, "ascii": "CuCO3", "asciiNoParens": "CuCO3", "unicode": "CuCO₃"}, {"name": "Copper(II) sulfate", "catId": "Cu", "catCharge": 2, "anId": "SO4", "anCharge": -2, "m": 1, "n": 1, "ascii": "CuSO4", "asciiNoParens": "CuSO4", "unicode": "CuSO₄"}, {"name": "Copper(II) nitride", "catId": "Cu", "catCharge": 2, "anId": "N", "anCharge": -3, "m": 3, "n": 2, "ascii": "Cu3N2", "asciiNoParens": "Cu3N2", "unicode": "Cu₃N₂"}, {"name": "Copper(II) phosphide", "catId": "Cu", "catCharge": 2, "anId": "P", "anCharge": -3, "m": 3, "n": 2, "ascii": "Cu3P2", "asciiNoParens": "Cu3P2", "unicode": "Cu₃P₂"}, {"name": "Copper(II) phosphate", "catId": "Cu", "catCharge": 2, "anId": "PO4", "anCharge": -3, "m": 3, "n": 2, "ascii": "Cu3(PO4)2", "asciiNoParens": "Cu3PO42", "unicode": "Cu₃(PO₄)₂"}, {"name": "Zinc fluoride", "catId": "Zn", "catCharge": 2, "anId": "F", "anCharge": -1, "m": 1, "n": 2, "ascii": "ZnF2", "asciiNoParens": "ZnF2", "unicode": "ZnF₂"}, {"name": "Zinc chloride", "catId": "Zn", "catCharge": 2, "anId": "Cl", "anCharge": -1, "m": 1, "n": 2, "ascii": "ZnCl2", "asciiNoParens": "ZnCl2", "unicode": "ZnCl₂"}, {"name": "Zinc bromide", "catId": "Zn", "catCharge": 2, "anId": "Br", "anCharge": -1, "m": 1, "n": 2, "ascii": "ZnBr2", "asciiNoParens": "ZnBr2", "unicode": "ZnBr₂"}, {"name": "Zinc iodide", "catId": "Zn", "catCharge": 2, "anId": "I", "anCharge": -1, "m": 1, "n": 2, "ascii": "ZnI2", "asciiNoParens": "ZnI2", "unicode": "ZnI₂"}, {"name": "Zinc hydroxide", "catId": "Zn", "catCharge": 2, "anId": "OH", "anCharge": -1, "m": 1, "n": 2, "ascii": "Zn(OH)2", "asciiNoParens": "ZnOH2", "unicode": "Zn(OH)₂"}, {"name": "Zinc nitrate", "catId": "Zn", "catCharge": 2, "anId": "NO3", "anCharge": -1, "m": 1, "n": 2, "ascii": "Zn(NO3)2", "asciiNoParens": "ZnNO32", "unicode": "Zn(NO₃)₂"}, {"name": "Zinc hydrogencarbonate", "catId": "Zn", "catCharge": 2, "anId": "HCO3", "anCharge": -1, "m": 1, "n": 2, "ascii": "Zn(HCO3)2", "asciiNoParens": "ZnHCO32", "unicode": "Zn(HCO₃)₂"}, {"name": "Zinc manganate(VII)", "catId": "Zn", "catCharge": 2, "anId": "MnO4", "anCharge": -1, "m": 1, "n": 2, "ascii": "Zn(MnO4)2", "asciiNoParens": "ZnMnO42", "unicode": "Zn(MnO₄)₂"}, {"name": "Zinc ethanoate", "catId": "Zn", "catCharge": 2, "anId": "CH3COO", "anCharge": -1, "m": 1, "n": 2, "ascii": "Zn(CH3COO)2", "asciiNoParens": "ZnCH3COO2", "unicode": "Zn(CH₃COO)₂"}, {"name": "Zinc oxide", "catId": "Zn", "catCharge": 2, "anId": "O", "anCharge": -2, "m": 1, "n": 1, "ascii": "ZnO", "asciiNoParens": "ZnO", "unicode": "ZnO"}, {"name": "Zinc sulfide", "catId": "Zn", "catCharge": 2, "anId": "S", "anCharge": -2, "m": 1, "n": 1, "ascii": "ZnS", "asciiNoParens": "ZnS", "unicode": "ZnS"}, {"name": "Zinc carbonate", "catId": "Zn", "catCharge": 2, "anId": "CO3", "anCharge": -2, "m": 1, "n": 1, "ascii": "ZnCO3", "asciiNoParens": "ZnCO3", "unicode": "ZnCO₃"}, {"name": "Zinc sulfate", "catId": "Zn", "catCharge": 2, "anId": "SO4", "anCharge": -2, "m": 1, "n": 1, "ascii": "ZnSO4", "asciiNoParens": "ZnSO4", "unicode": "ZnSO₄"}, {"name": "Zinc nitride", "catId": "Zn", "catCharge": 2, "anId": "N", "anCharge": -3, "m": 3, "n": 2, "ascii": "Zn3N2", "asciiNoParens": "Zn3N2", "unicode": "Zn₃N₂"}, {"name": "Zinc phosphide", "catId": "Zn", "catCharge": 2, "anId": "P", "anCharge": -3, "m": 3, "n": 2, "ascii": "Zn3P2", "asciiNoParens": "Zn3P2", "unicode": "Zn₃P₂"}, {"name": "Zinc phosphate", "catId": "Zn", "catCharge": 2, "anId": "PO4", "anCharge": -3, "m": 3, "n": 2, "ascii": "Zn3(PO4)2", "asciiNoParens": "Zn3PO42", "unicode": "Zn₃(PO₄)₂"}, {"name": "Iron(II) fluoride", "catId": "Fe2", "catCharge": 2, "anId": "F", "anCharge": -1, "m": 1, "n": 2, "ascii": "FeF2", "asciiNoParens": "FeF2", "unicode": "FeF₂"}, {"name": "Iron(II) chloride", "catId": "Fe2", "catCharge": 2, "anId": "Cl", "anCharge": -1, "m": 1, "n": 2, "ascii": "FeCl2", "asciiNoParens": "FeCl2", "unicode": "FeCl₂"}, {"name": "Iron(II) bromide", "catId": "Fe2", "catCharge": 2, "anId": "Br", "anCharge": -1, "m": 1, "n": 2, "ascii": "FeBr2", "asciiNoParens": "FeBr2", "unicode": "FeBr₂"}, {"name": "Iron(II) iodide", "catId": "Fe2", "catCharge": 2, "anId": "I", "anCharge": -1, "m": 1, "n": 2, "ascii": "FeI2", "asciiNoParens": "FeI2", "unicode": "FeI₂"}, {"name": "Iron(II) hydroxide", "catId": "Fe2", "catCharge": 2, "anId": "OH", "anCharge": -1, "m": 1, "n": 2, "ascii": "Fe(OH)2", "asciiNoParens": "FeOH2", "unicode": "Fe(OH)₂"}, {"name": "Iron(II) nitrate", "catId": "Fe2", "catCharge": 2, "anId": "NO3", "anCharge": -1, "m": 1, "n": 2, "ascii": "Fe(NO3)2", "asciiNoParens": "FeNO32", "unicode": "Fe(NO₃)₂"}, {"name": "Iron(II) hydrogencarbonate", "catId": "Fe2", "catCharge": 2, "anId": "HCO3", "anCharge": -1, "m": 1, "n": 2, "ascii": "Fe(HCO3)2", "asciiNoParens": "FeHCO32", "unicode": "Fe(HCO₃)₂"}, {"name": "Iron(II) manganate(VII)", "catId": "Fe2", "catCharge": 2, "anId": "MnO4", "anCharge": -1, "m": 1, "n": 2, "ascii": "Fe(MnO4)2", "asciiNoParens": "FeMnO42", "unicode": "Fe(MnO₄)₂"}, {"name": "Iron(II) ethanoate", "catId": "Fe2", "catCharge": 2, "anId": "CH3COO", "anCharge": -1, "m": 1, "n": 2, "ascii": "Fe(CH3COO)2", "asciiNoParens": "FeCH3COO2", "unicode": "Fe(CH₃COO)₂"}, {"name": "Iron(II) oxide", "catId": "Fe2", "catCharge": 2, "anId": "O", "anCharge": -2, "m": 1, "n": 1, "ascii": "FeO", "asciiNoParens": "FeO", "unicode": "FeO"}, {"name": "Iron(II) sulfide", "catId": "Fe2", "catCharge": 2, "anId": "S", "anCharge": -2, "m": 1, "n": 1, "ascii": "FeS", "asciiNoParens": "FeS", "unicode": "FeS"}, {"name": "Iron(II) carbonate", "catId": "Fe2", "catCharge": 2, "anId": "CO3", "anCharge": -2, "m": 1, "n": 1, "ascii": "FeCO3", "asciiNoParens": "FeCO3", "unicode": "FeCO₃"}, {"name": "Iron(II) sulfate", "catId": "Fe2", "catCharge": 2, "anId": "SO4", "anCharge": -2, "m": 1, "n": 1, "ascii": "FeSO4", "asciiNoParens": "FeSO4", "unicode": "FeSO₄"}, {"name": "Iron(II) nitride", "catId": "Fe2", "catCharge": 2, "anId": "N", "anCharge": -3, "m": 3, "n": 2, "ascii": "Fe3N2", "asciiNoParens": "Fe3N2", "unicode": "Fe₃N₂"}, {"name": "Iron(II) phosphide", "catId": "Fe2", "catCharge": 2, "anId": "P", "anCharge": -3, "m": 3, "n": 2, "ascii": "Fe3P2", "asciiNoParens": "Fe3P2", "unicode": "Fe₃P₂"}, {"name": "Iron(II) phosphate", "catId": "Fe2", "catCharge": 2, "anId": "PO4", "anCharge": -3, "m": 3, "n": 2, "ascii": "Fe3(PO4)2", "asciiNoParens": "Fe3PO42", "unicode": "Fe₃(PO₄)₂"}, {"name": "Manganese(II) fluoride", "catId": "Mn", "catCharge": 2, "anId": "F", "anCharge": -1, "m": 1, "n": 2, "ascii": "MnF2", "asciiNoParens": "MnF2", "unicode": "MnF₂"}, {"name": "Manganese(II) chloride", "catId": "Mn", "catCharge": 2, "anId": "Cl", "anCharge": -1, "m": 1, "n": 2, "ascii": "MnCl2", "asciiNoParens": "MnCl2", "unicode": "MnCl₂"}, {"name": "Manganese(II) bromide", "catId": "Mn", "catCharge": 2, "anId": "Br", "anCharge": -1, "m": 1, "n": 2, "ascii": "MnBr2", "asciiNoParens": "MnBr2", "unicode": "MnBr₂"}, {"name": "Manganese(II) iodide", "catId": "Mn", "catCharge": 2, "anId": "I", "anCharge": -1, "m": 1, "n": 2, "ascii": "MnI2", "asciiNoParens": "MnI2", "unicode": "MnI₂"}, {"name": "Manganese(II) hydroxide", "catId": "Mn", "catCharge": 2, "anId": "OH", "anCharge": -1, "m": 1, "n": 2, "ascii": "Mn(OH)2", "asciiNoParens": "MnOH2", "unicode": "Mn(OH)₂"}, {"name": "Manganese(II) nitrate", "catId": "Mn", "catCharge": 2, "anId": "NO3", "anCharge": -1, "m": 1, "n": 2, "ascii": "Mn(NO3)2", "asciiNoParens": "MnNO32", "unicode": "Mn(NO₃)₂"}, {"name": "Manganese(II) hydrogencarbonate", "catId": "Mn", "catCharge": 2, "anId": "HCO3", "anCharge": -1, "m": 1, "n": 2, "ascii": "Mn(HCO3)2", "asciiNoParens": "MnHCO32", "unicode": "Mn(HCO₃)₂"}, {"name": "Manganese(II) manganate(VII)", "catId": "Mn", "catCharge": 2, "anId": "MnO4", "anCharge": -1, "m": 1, "n": 2, "ascii": "Mn(MnO4)2", "asciiNoParens": "MnMnO42", "unicode": "Mn(MnO₄)₂"}, {"name": "Manganese(II) ethanoate", "catId": "Mn", "catCharge": 2, "anId": "CH3COO", "anCharge": -1, "m": 1, "n": 2, "ascii": "Mn(CH3COO)2", "asciiNoParens": "MnCH3COO2", "unicode": "Mn(CH₃COO)₂"}, {"name": "Manganese(II) oxide", "catId": "Mn", "catCharge": 2, "anId": "O", "anCharge": -2, "m": 1, "n": 1, "ascii": "MnO", "asciiNoParens": "MnO", "unicode": "MnO"}, {"name": "Manganese(II) sulfide", "catId": "Mn", "catCharge": 2, "anId": "S", "anCharge": -2, "m": 1, "n": 1, "ascii": "MnS", "asciiNoParens": "MnS", "unicode": "MnS"}, {"name": "Manganese(II) carbonate", "catId": "Mn", "catCharge": 2, "anId": "CO3", "anCharge": -2, "m": 1, "n": 1, "ascii": "MnCO3", "asciiNoParens": "MnCO3", "unicode": "MnCO₃"}, {"name": "Manganese(II) sulfate", "catId": "Mn", "catCharge": 2, "anId": "SO4", "anCharge": -2, "m": 1, "n": 1, "ascii": "MnSO4", "asciiNoParens": "MnSO4", "unicode": "MnSO₄"}, {"name": "Manganese(II) nitride", "catId": "Mn", "catCharge": 2, "anId": "N", "anCharge": -3, "m": 3, "n": 2, "ascii": "Mn3N2", "asciiNoParens": "Mn3N2", "unicode": "Mn₃N₂"}, {"name": "Manganese(II) phosphide", "catId": "Mn", "catCharge": 2, "anId": "P", "anCharge": -3, "m": 3, "n": 2, "ascii": "Mn3P2", "asciiNoParens": "Mn3P2", "unicode": "Mn₃P₂"}, {"name": "Manganese(II) phosphate", "catId": "Mn", "catCharge": 2, "anId": "PO4", "anCharge": -3, "m": 3, "n": 2, "ascii": "Mn3(PO4)2", "asciiNoParens": "Mn3PO42", "unicode": "Mn₃(PO₄)₂"}, {"name": "Aluminium fluoride", "catId": "Al", "catCharge": 3, "anId": "F", "anCharge": -1, "m": 1, "n": 3, "ascii": "AlF3", "asciiNoParens": "AlF3", "unicode": "AlF₃"}, {"name": "Aluminium chloride", "catId": "Al", "catCharge": 3, "anId": "Cl", "anCharge": -1, "m": 1, "n": 3, "ascii": "AlCl3", "asciiNoParens": "AlCl3", "unicode": "AlCl₃"}, {"name": "Aluminium bromide", "catId": "Al", "catCharge": 3, "anId": "Br", "anCharge": -1, "m": 1, "n": 3, "ascii": "AlBr3", "asciiNoParens": "AlBr3", "unicode": "AlBr₃"}, {"name": "Aluminium iodide", "catId": "Al", "catCharge": 3, "anId": "I", "anCharge": -1, "m": 1, "n": 3, "ascii": "AlI3", "asciiNoParens": "AlI3", "unicode": "AlI₃"}, {"name": "Aluminium hydroxide", "catId": "Al", "catCharge": 3, "anId": "OH", "anCharge": -1, "m": 1, "n": 3, "ascii": "Al(OH)3", "asciiNoParens": "AlOH3", "unicode": "Al(OH)₃"}, {"name": "Aluminium nitrate", "catId": "Al", "catCharge": 3, "anId": "NO3", "anCharge": -1, "m": 1, "n": 3, "ascii": "Al(NO3)3", "asciiNoParens": "AlNO33", "unicode": "Al(NO₃)₃"}, {"name": "Aluminium hydrogencarbonate", "catId": "Al", "catCharge": 3, "anId": "HCO3", "anCharge": -1, "m": 1, "n": 3, "ascii": "Al(HCO3)3", "asciiNoParens": "AlHCO33", "unicode": "Al(HCO₃)₃"}, {"name": "Aluminium manganate(VII)", "catId": "Al", "catCharge": 3, "anId": "MnO4", "anCharge": -1, "m": 1, "n": 3, "ascii": "Al(MnO4)3", "asciiNoParens": "AlMnO43", "unicode": "Al(MnO₄)₃"}, {"name": "Aluminium ethanoate", "catId": "Al", "catCharge": 3, "anId": "CH3COO", "anCharge": -1, "m": 1, "n": 3, "ascii": "Al(CH3COO)3", "asciiNoParens": "AlCH3COO3", "unicode": "Al(CH₃COO)₃"}, {"name": "Aluminium oxide", "catId": "Al", "catCharge": 3, "anId": "O", "anCharge": -2, "m": 2, "n": 3, "ascii": "Al2O3", "asciiNoParens": "Al2O3", "unicode": "Al₂O₃"}, {"name": "Aluminium sulfide", "catId": "Al", "catCharge": 3, "anId": "S", "anCharge": -2, "m": 2, "n": 3, "ascii": "Al2S3", "asciiNoParens": "Al2S3", "unicode": "Al₂S₃"}, {"name": "Aluminium carbonate", "catId": "Al", "catCharge": 3, "anId": "CO3", "anCharge": -2, "m": 2, "n": 3, "ascii": "Al2(CO3)3", "asciiNoParens": "Al2CO33", "unicode": "Al₂(CO₃)₃"}, {"name": "Aluminium sulfate", "catId": "Al", "catCharge": 3, "anId": "SO4", "anCharge": -2, "m": 2, "n": 3, "ascii": "Al2(SO4)3", "asciiNoParens": "Al2SO43", "unicode": "Al₂(SO₄)₃"}, {"name": "Aluminium nitride", "catId": "Al", "catCharge": 3, "anId": "N", "anCharge": -3, "m": 1, "n": 1, "ascii": "AlN", "asciiNoParens": "AlN", "unicode": "AlN"}, {"name": "Aluminium phosphide", "catId": "Al", "catCharge": 3, "anId": "P", "anCharge": -3, "m": 1, "n": 1, "ascii": "AlP", "asciiNoParens": "AlP", "unicode": "AlP"}, {"name": "Aluminium phosphate", "catId": "Al", "catCharge": 3, "anId": "PO4", "anCharge": -3, "m": 1, "n": 1, "ascii": "AlPO4", "asciiNoParens": "AlPO4", "unicode": "AlPO₄"}, {"name": "Iron(III) fluoride", "catId": "Fe3", "catCharge": 3, "anId": "F", "anCharge": -1, "m": 1, "n": 3, "ascii": "FeF3", "asciiNoParens": "FeF3", "unicode": "FeF₃"}, {"name": "Iron(III) chloride", "catId": "Fe3", "catCharge": 3, "anId": "Cl", "anCharge": -1, "m": 1, "n": 3, "ascii": "FeCl3", "asciiNoParens": "FeCl3", "unicode": "FeCl₃"}, {"name": "Iron(III) bromide", "catId": "Fe3", "catCharge": 3, "anId": "Br", "anCharge": -1, "m": 1, "n": 3, "ascii": "FeBr3", "asciiNoParens": "FeBr3", "unicode": "FeBr₃"}, {"name": "Iron(III) iodide", "catId": "Fe3", "catCharge": 3, "anId": "I", "anCharge": -1, "m": 1, "n": 3, "ascii": "FeI3", "asciiNoParens": "FeI3", "unicode": "FeI₃"}, {"name": "Iron(III) hydroxide", "catId": "Fe3", "catCharge": 3, "anId": "OH", "anCharge": -1, "m": 1, "n": 3, "ascii": "Fe(OH)3", "asciiNoParens": "FeOH3", "unicode": "Fe(OH)₃"}, {"name": "Iron(III) nitrate", "catId": "Fe3", "catCharge": 3, "anId": "NO3", "anCharge": -1, "m": 1, "n": 3, "ascii": "Fe(NO3)3", "asciiNoParens": "FeNO33", "unicode": "Fe(NO₃)₃"}, {"name": "Iron(III) hydrogencarbonate", "catId": "Fe3", "catCharge": 3, "anId": "HCO3", "anCharge": -1, "m": 1, "n": 3, "ascii": "Fe(HCO3)3", "asciiNoParens": "FeHCO33", "unicode": "Fe(HCO₃)₃"}, {"name": "Iron(III) manganate(VII)", "catId": "Fe3", "catCharge": 3, "anId": "MnO4", "anCharge": -1, "m": 1, "n": 3, "ascii": "Fe(MnO4)3", "asciiNoParens": "FeMnO43", "unicode": "Fe(MnO₄)₃"}, {"name": "Iron(III) ethanoate", "catId": "Fe3", "catCharge": 3, "anId": "CH3COO", "anCharge": -1, "m": 1, "n": 3, "ascii": "Fe(CH3COO)3", "asciiNoParens": "FeCH3COO3", "unicode": "Fe(CH₃COO)₃"}, {"name": "Iron(III) oxide", "catId": "Fe3", "catCharge": 3, "anId": "O", "anCharge": -2, "m": 2, "n": 3, "ascii": "Fe2O3", "asciiNoParens": "Fe2O3", "unicode": "Fe₂O₃"}, {"name": "Iron(III) sulfide", "catId": "Fe3", "catCharge": 3, "anId": "S", "anCharge": -2, "m": 2, "n": 3, "ascii": "Fe2S3", "asciiNoParens": "Fe2S3", "unicode": "Fe₂S₃"}, {"name": "Iron(III) carbonate", "catId": "Fe3", "catCharge": 3, "anId": "CO3", "anCharge": -2, "m": 2, "n": 3, "ascii": "Fe2(CO3)3", "asciiNoParens": "Fe2CO33", "unicode": "Fe₂(CO₃)₃"}, {"name": "Iron(III) sulfate", "catId": "Fe3", "catCharge": 3, "anId": "SO4", "anCharge": -2, "m": 2, "n": 3, "ascii": "Fe2(SO4)3", "asciiNoParens": "Fe2SO43", "unicode": "Fe₂(SO₄)₃"}, {"name": "Iron(III) nitride", "catId": "Fe3", "catCharge": 3, "anId": "N", "anCharge": -3, "m": 1, "n": 1, "ascii": "FeN", "asciiNoParens": "FeN", "unicode": "FeN"}, {"name": "Iron(III) phosphide", "catId": "Fe3", "catCharge": 3, "anId": "P", "anCharge": -3, "m": 1, "n": 1, "ascii": "FeP", "asciiNoParens": "FeP", "unicode": "FeP"}, {"name": "Iron(III) phosphate", "catId": "Fe3", "catCharge": 3, "anId": "PO4", "anCharge": -3, "m": 1, "n": 1, "ascii": "FePO4", "asciiNoParens": "FePO4", "unicode": "FePO₄"}];
+const CATION_TILES = [{"id": "Li", "bare": "Li", "charge": 1, "label": "Li⁺", "name": "lithium ion", "cat": "1+", "border_symbol": "Li"}, {"id": "Na", "bare": "Na", "charge": 1, "label": "Na⁺", "name": "sodium ion", "cat": "1+", "border_symbol": "Na"}, {"id": "K", "bare": "K", "charge": 1, "label": "K⁺", "name": "potassium ion", "cat": "1+", "border_symbol": "K"}, {"id": "Rb", "bare": "Rb", "charge": 1, "label": "Rb⁺", "name": "rubidium ion", "cat": "1+", "border_symbol": "Rb"}, {"id": "Cs", "bare": "Cs", "charge": 1, "label": "Cs⁺", "name": "caesium ion", "cat": "1+", "border_symbol": "Cs"}, {"id": "NH4", "bare": "NH₄", "charge": 1, "label": "NH₄⁺", "name": "ammonium ion", "cat": "1+", "border_symbol": "NH4"}, {"id": "Ag", "bare": "Ag", "charge": 1, "label": "Ag⁺", "name": "silver ion", "cat": "1+", "border_symbol": "Ag"}, {"id": "Be", "bare": "Be", "charge": 2, "label": "Be²⁺", "name": "beryllium ion", "cat": "2+", "border_symbol": "Be"}, {"id": "Mg", "bare": "Mg", "charge": 2, "label": "Mg²⁺", "name": "magnesium ion", "cat": "2+", "border_symbol": "Mg"}, {"id": "Ca", "bare": "Ca", "charge": 2, "label": "Ca²⁺", "name": "calcium ion", "cat": "2+", "border_symbol": "Ca"}, {"id": "Sr", "bare": "Sr", "charge": 2, "label": "Sr²⁺", "name": "strontium ion", "cat": "2+", "border_symbol": "Sr"}, {"id": "Ba", "bare": "Ba", "charge": 2, "label": "Ba²⁺", "name": "barium ion", "cat": "2+", "border_symbol": "Ba"}, {"id": "Cu", "bare": "Cu", "charge": 2, "label": "Cu²⁺", "name": "copper(II) ion", "cat": "2+", "border_symbol": "Cu"}, {"id": "Zn", "bare": "Zn", "charge": 2, "label": "Zn²⁺", "name": "zinc ion", "cat": "2+", "border_symbol": "Zn"}, {"id": "Fe2", "bare": "Fe", "charge": 2, "label": "Fe²⁺", "name": "iron(II) ion", "cat": "2+", "border_symbol": "Fe"}, {"id": "Mn", "bare": "Mn", "charge": 2, "label": "Mn²⁺", "name": "manganese(II) ion", "cat": "2+", "border_symbol": "Mn"}, {"id": "Al", "bare": "Al", "charge": 3, "label": "Al³⁺", "name": "aluminium ion", "cat": "3+", "border_symbol": "Al"}, {"id": "Fe3", "bare": "Fe", "charge": 3, "label": "Fe³⁺", "name": "iron(III) ion", "cat": "3+", "border_symbol": "Fe"}];
+const ANION_TILES = [{"id": "F", "bare": "F", "charge": -1, "label": "F⁻", "name": "fluoride ion", "cat": "1-", "border_symbol": "F"}, {"id": "Cl", "bare": "Cl", "charge": -1, "label": "Cl⁻", "name": "chloride ion", "cat": "1-", "border_symbol": "Cl"}, {"id": "Br", "bare": "Br", "charge": -1, "label": "Br⁻", "name": "bromide ion", "cat": "1-", "border_symbol": "Br"}, {"id": "I", "bare": "I", "charge": -1, "label": "I⁻", "name": "iodide ion", "cat": "1-", "border_symbol": "I"}, {"id": "OH", "bare": "OH", "charge": -1, "label": "OH⁻", "name": "hydroxide ion", "cat": "1-", "border_symbol": "OH"}, {"id": "NO3", "bare": "NO₃", "charge": -1, "label": "NO₃⁻", "name": "nitrate ion", "cat": "1-", "border_symbol": "NO"}, {"id": "HCO3", "bare": "HCO₃", "charge": -1, "label": "HCO₃⁻", "name": "hydrogencarbonate ion", "cat": "1-", "border_symbol": "HCO"}, {"id": "MnO4", "bare": "MnO₄", "charge": -1, "label": "MnO₄⁻", "name": "manganate(VII) ion", "cat": "1-", "border_symbol": "MnO4"}, {"id": "CH3COO", "bare": "CH₃COO", "charge": -1, "label": "CH₃COO⁻", "name": "ethanoate ion", "cat": "1-", "border_symbol": "CH3COO"}, {"id": "O", "bare": "O", "charge": -2, "label": "O²⁻", "name": "oxide ion", "cat": "2-", "border_symbol": "O"}, {"id": "S", "bare": "S", "charge": -2, "label": "S²⁻", "name": "sulfide ion", "cat": "2-", "border_symbol": "S"}, {"id": "CO3", "bare": "CO₃", "charge": -2, "label": "CO₃²⁻", "name": "carbonate ion", "cat": "2-", "border_symbol": "CO"}, {"id": "SO4", "bare": "SO₄", "charge": -2, "label": "SO₄²⁻", "name": "sulfate ion", "cat": "2-", "border_symbol": "SO4"}, {"id": "N", "bare": "N", "charge": -3, "label": "N³⁻", "name": "nitride ion", "cat": "3-", "border_symbol": "N"}, {"id": "P", "bare": "P", "charge": -3, "label": "P³⁻", "name": "phosphide ion", "cat": "3-", "border_symbol": "P"}, {"id": "PO4", "bare": "PO₄", "charge": -3, "label": "PO₄³⁻", "name": "phosphate ion", "cat": "3-", "border_symbol": "PO4"}];
+
+const cationById = {};
+CATION_TILES.forEach(t => cationById[t.id] = t);
+const anionById = {};
+ANION_TILES.forEach(t => anionById[t.id] = t);
+
+let queue = [];
+let current = null;
+let leftItems = [];   // array of cation tile ids currently on the left pan
+let rightItems = [];  // array of anion tile ids currently on the right pan
+let score = 0;
+let solvedCount = 0;
+let solvedThisRound = false;
+
+const leftPan = document.getElementById('leftPan');
+const rightPan = document.getElementById('rightPan');
+const beam = document.getElementById('beam');
+const leftTotalEl = document.getElementById('leftTotal');
+const rightTotalEl = document.getElementById('rightTotal');
+const balancedTag = document.getElementById('balancedTag');
+const targetNameEl = document.getElementById('targetName');
+const answerInput = document.getElementById('answerInput');
+const checkBtn = document.getElementById('checkBtn');
+const feedbackEl = document.getElementById('feedback');
+const scoreEl = document.getElementById('score');
+const solvedCountEl = document.getElementById('solvedCount');
+
+function shuffledQueue() {
+  const idx = COMPOUNDS.map((_, i) => i);
+  for (let i = idx.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [idx[i], idx[j]] = [idx[j], idx[i]];
+  }
+  return idx;
+}
+
+function nextCompound() {
+  if (queue.length === 0) queue = shuffledQueue();
+  const i = queue.shift();
+  current = COMPOUNDS[i];
+  leftItems = [];
+  rightItems = [];
+  solvedThisRound = false;
+  targetNameEl.textContent = current.name;
+  answerInput.value = '';
+  answerInput.disabled = true;
+  checkBtn.disabled = true;
+  feedbackEl.textContent = '';
+  feedbackEl.className = '';
+  renderPans();
+}
+
+function renderPans() {
+  leftPan.innerHTML = '';
+  rightPan.innerHTML = '';
+  leftItems.forEach((id, i) => {
+    const t = cationById[id];
+    leftPan.appendChild(makeChip(t, i, 'cation'));
+  });
+  rightItems.forEach((id, i) => {
+    const t = anionById[id];
+    rightPan.appendChild(makeChip(t, i, 'anion'));
+  });
+  updateBalance();
+}
+
+function makeChip(t, index, side) {
+  const div = document.createElement('div');
+  div.className = 'chip';
+  const c = { '1+': ['#1d4ed8', '#dbeafe', '#1e3a8a'], '2+': ['#7c3aed', '#ede9fe', '#4c1d95'],
+               '3+': ['#78350f', '#f2d9b8', '#5c2a0a'], '1-': ['#dc2626', '#fee2e2', '#7f1d1d'],
+               '2-': ['#ea580c', '#ffedd5', '#7c2d12'], '3-': ['#ca8a04', '#fef9c3', '#713f12'] }[t.cat];
+  div.style.borderColor = c[0];
+  div.style.background = c[1];
+  div.style.color = c[2];
+  div.innerHTML = t.label + '<span class="rm">&#10005;</span>';
+  div.title = 'Click to remove';
+  div.addEventListener('click', () => {
+    if (side === 'cation') leftItems.splice(index, 1);
+    else rightItems.splice(index, 1);
+    renderPans();
+  });
+  return div;
+}
+
+function totals() {
+  const left = leftItems.reduce((s, id) => s + cationById[id].charge, 0);
+  const right = rightItems.reduce((s, id) => s + Math.abs(anionById[id].charge), 0);
+  return { left, right };
+}
+
+function updateBalance() {
+  const { left, right } = totals();
+  leftTotalEl.textContent = '+' + left;
+  rightTotalEl.textContent = '−' + right;
+  // Positive CSS rotation turns the right end down, so the heavier side must
+  // set the angle's sign accordingly: a heavier LEFT pan needs a NEGATIVE
+  // angle (left end down), a heavier RIGHT pan needs a POSITIVE angle.
+  const diff = right - left;
+  const angle = Math.max(-16, Math.min(16, diff * 3));
+  beam.style.transform = 'translate(-50%, -50%) rotate(' + angle + 'deg)';
+  const balanced = left > 0 && right > 0 && left === right;
+  balancedTag.classList.toggle('show', balanced);
+  answerInput.disabled = !balanced;
+  checkBtn.disabled = !balanced;
+  if (!balanced) {
+    feedbackEl.textContent = '';
+    feedbackEl.className = '';
+  }
+}
+
+function addIon(side, id) {
+  if (side === 'cation') leftItems.push(id);
+  else rightItems.push(id);
+  renderPans();
+}
+
+// --- Drag and drop ---
+document.querySelectorAll('.tile').forEach(tile => {
+  tile.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', JSON.stringify({ side: tile.dataset.side, id: tile.dataset.id }));
+  });
+  // Click also adds an instance, so the game works on touch devices too.
+  tile.addEventListener('click', () => addIon(tile.dataset.side, tile.dataset.id));
+});
+
+[[leftPan, 'cation'], [rightPan, 'anion']].forEach(([pan, side]) => {
+  pan.addEventListener('dragover', e => { e.preventDefault(); pan.classList.add('dragover'); });
+  pan.addEventListener('dragleave', () => pan.classList.remove('dragover'));
+  pan.addEventListener('drop', e => {
+    e.preventDefault();
+    pan.classList.remove('dragover');
+    let data;
+    try { data = JSON.parse(e.dataTransfer.getData('text/plain')); } catch (err) { return; }
+    if (data.side !== side) return; // wrong side, ignore the drop
+    addIon(data.side, data.id);
+  });
+});
+
+// --- Answer checking ---
+const SUB_MAP = { '₀':'0','₁':'1','₂':'2','₃':'3','₄':'4',
+                   '₅':'5','₆':'6','₇':'7','₈':'8','₉':'9' };
+function normalize(str) {
+  return str.trim().replace(/\s+/g, '').replace(/[₀-₉]/g, ch => SUB_MAP[ch]);
+}
+
+function checkAnswer() {
+  const typed = normalize(answerInput.value);
+  if (!typed) return;
+  if (typed === current.ascii) {
+    feedbackEl.textContent = 'Correct! ✔️';
+    feedbackEl.className = 'ok';
+    if (!solvedThisRound) {
+      score += 10;
+      solvedCount += 1;
+      scoreEl.textContent = score;
+      solvedCountEl.textContent = solvedCount;
+      solvedThisRound = true;
+    }
+    setTimeout(nextCompound, 1100);
+  } else if (typed === current.asciiNoParens && current.ascii !== current.asciiNoParens) {
+    feedbackEl.textContent = 'Almost! The ratio is right — don\'t forget the brackets: ' + current.ascii;
+    feedbackEl.className = 'warn';
+  } else {
+    feedbackEl.textContent = 'Not quite. Check which ions "' + current.name.toLowerCase() + '" contains, and the ratio needed to balance the charges.';
+    feedbackEl.className = 'bad';
+  }
+}
+
+checkBtn.addEventListener('click', checkAnswer);
+answerInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !checkBtn.disabled) checkAnswer(); });
+document.getElementById('skipBtn').addEventListener('click', nextCompound);
+document.getElementById('resetBtn').addEventListener('click', () => { leftItems = []; rightItems = []; renderPans(); });
+
+queue = shuffledQueue();
+nextCompound();
+</script>
+</body>
+</html>

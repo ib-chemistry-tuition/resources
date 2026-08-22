@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UK Brexit Financial Model</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f1117;
+    color: #e2e8f0;
+    min-height: 100vh;
+  }
+
+  header {
+    background: linear-gradient(135deg, #1a1f2e 0%, #0d1520 100%);
+    border-bottom: 1px solid #2d3748;
+    padding: 22px 40px;
+  }
+
+  .header-top { display: flex; align-items: center; gap: 16px; margin-bottom: 4px; }
+  .flag { font-size: 30px; }
+  h1 { font-size: 24px; font-weight: 700; color: #f7fafc; letter-spacing: -0.5px; }
+  .subtitle { color: #718096; font-size: 12px; margin-left: 46px; }
+
+  .kpi-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    padding: 18px 40px;
+    background: #141821;
+    border-bottom: 1px solid #2d3748;
+  }
+
+  .kpi {
+    background: #1a2035;
+    border: 1px solid #2d3748;
+    border-radius: 10px;
+    padding: 14px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kpi::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .kpi.red::before { background: #fc8181; }
+  .kpi.orange::before { background: #f6ad55; }
+  .kpi.blue::before { background: #63b3ed; }
+  .kpi.purple::before { background: #b794f4; }
+
+  .kpi-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: #718096; margin-bottom: 6px; }
+  .kpi-value { font-size: 24px; font-weight: 700; line-height: 1; margin-bottom: 3px; }
+  .kpi.red .kpi-value { color: #fc8181; }
+  .kpi.orange .kpi-value { color: #f6ad55; }
+  .kpi.blue .kpi-value { color: #63b3ed; }
+  .kpi.purple .kpi-value { color: #b794f4; }
+  .kpi-sub { font-size: 10px; color: #4a5568; }
+
+  /* ============================================
+     CHANCELLOR'S CONTROL BAR
+  ============================================ */
+  .chancellor-bar {
+    background: linear-gradient(135deg, #3d0a0a 0%, #2d0505 100%);
+    border-bottom: 2px solid #c53030;
+    padding: 0 40px 20px;
+    position: relative;
+  }
+
+  .chancellor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0 16px;
+    border-bottom: 1px solid rgba(197,48,48,0.4);
+    margin-bottom: 16px;
+  }
+
+  .chancellor-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .chancellor-badge {
+    background: #c53030;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .chancellor-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fed7d7;
+    letter-spacing: 0.02em;
+  }
+
+  .chancellor-sublabel {
+    font-size: 11px;
+    color: #fc8181;
+    opacity: 0.7;
+  }
+
+  .reset-btn {
+    background: rgba(197,48,48,0.3);
+    border: 1px solid #c53030;
+    color: #fc8181;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.04em;
+  }
+
+  .reset-btn:hover { background: rgba(197,48,48,0.5); color: #fff; }
+
+  .controls-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  .control-group {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(197,48,48,0.3);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+
+  .control-name {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #fc8181;
+    margin-bottom: 3px;
+    font-weight: 600;
+  }
+
+  .control-desc {
+    font-size: 10px;
+    color: rgba(252,129,129,0.55);
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+
+  .control-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .control-value {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    min-width: 52px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(197,48,48,0.35);
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fc8181;
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 0 0 4px rgba(252,129,129,0.6);
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fc8181;
+    cursor: pointer;
+    border: 2px solid #fff;
+  }
+
+  select.control-select {
+    flex: 1;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(197,48,48,0.4);
+    border-radius: 5px;
+    color: #fff;
+    font-size: 11px;
+    padding: 5px 8px;
+    cursor: pointer;
+    outline: none;
+  }
+
+  select.control-select:focus { border-color: #fc8181; }
+
+  .range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: rgba(252,129,129,0.45);
+    margin-top: 4px;
+  }
+
+  /* ============================================
+     TABS & PANELS
+  ============================================ */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    padding: 18px 40px 0;
+    background: #0f1117;
+    border-bottom: 1px solid #2d3748;
+    flex-wrap: wrap;
+  }
+
+  .tab {
+    padding: 9px 18px;
+    border-radius: 8px 8px 0 0;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-bottom: none;
+    color: #718096;
+    background: transparent;
+    transition: all 0.15s;
+  }
+
+  .tab:hover { color: #a0aec0; background: #1a2035; }
+  .tab.active {
+    background: #1a2035;
+    color: #f7fafc;
+    border-color: #2d3748;
+    border-bottom-color: #1a2035;
+    position: relative;
+    top: 1px;
+  }
+
+  .tab.outlook-tab { color: #fc8181; border-color: transparent; }
+  .tab.outlook-tab:hover { background: rgba(252,129,129,0.08); color: #fc8181; }
+  .tab.outlook-tab.active { background: #1a2035; color: #fc8181; border-color: #c53030; border-bottom-color: #1a2035; }
+
+  .tab-icon { margin-right: 5px; }
+
+  .content {
+    padding: 28px 40px;
+    background: #0f1117;
+  }
+
+  .panel { display: none; }
+  .panel.active { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .panel.active.wide { grid-template-columns: 3fr 2fr; }
+  .panel.active.quad { grid-template-columns: 1fr 1fr; }
+
+  .card {
+    background: #1a2035;
+    border: 1px solid #2d3748;
+    border-radius: 12px;
+    padding: 22px;
+  }
+
+  .card-title { font-size: 12px; font-weight: 600; color: #a0aec0; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+  .card-subtitle { font-size: 11px; color: #4a5568; margin-bottom: 18px; }
+
+  .chart-wrap { position: relative; height: 230px; }
+  .chart-wrap.tall { height: 290px; }
+  .chart-wrap.med { height: 200px; }
+
+  .insight-box {
+    background: #0f1117;
+    border-radius: 8px;
+    padding: 14px;
+    margin-top: 14px;
+    border-left: 3px solid #4a5568;
+  }
+
+  .insight-box.red { border-left-color: #fc8181; }
+  .insight-box.orange { border-left-color: #f6ad55; }
+  .insight-box.blue { border-left-color: #63b3ed; }
+  .insight-box.purple { border-left-color: #b794f4; }
+
+  .insight-title { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: #718096; margin-bottom: 5px; }
+  .insight-text { font-size: 12px; color: #cbd5e0; line-height: 1.6; }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+
+  .stat-item {
+    background: #0f1117;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .stat-num { font-size: 20px; font-weight: 700; display: block; line-height: 1; margin-bottom: 3px; }
+  .stat-label { font-size: 10px; color: #718096; }
+  .stat-num.red { color: #fc8181; }
+  .stat-num.orange { color: #f6ad55; }
+  .stat-num.blue { color: #63b3ed; }
+  .stat-num.purple { color: #b794f4; }
+  .stat-num.green { color: #68d391; }
+
+  .timeline-line { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #2d3748; font-size: 11px; }
+  .timeline-line:last-child { border-bottom: none; }
+  .tl-year { width: 38px; font-weight: 700; color: #63b3ed; flex-shrink: 0; }
+  .tl-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .tl-text { color: #a0aec0; flex: 1; }
+
+  /* Outlook output KPIs */
+  .outlook-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .out-kpi {
+    background: #0f1117;
+    border: 1px solid #2d3748;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .out-kpi-label { font-size: 10px; color: #718096; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .out-kpi-value { font-size: 20px; font-weight: 700; line-height: 1; }
+  .out-kpi-value.green { color: #68d391; }
+  .out-kpi-value.red { color: #fc8181; }
+  .out-kpi-value.orange { color: #f6ad55; }
+  .out-kpi-value.blue { color: #63b3ed; }
+
+  /* Outlook full-width card */
+  .card.full { grid-column: 1 / -1; }
+
+  footer {
+    padding: 18px 40px;
+    border-top: 1px solid #2d3748;
+    font-size: 10px;
+    color: #4a5568;
+    background: #0d1117;
+  }
+
+  footer a { color: #4a7fa5; text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-top">
+    <span class="flag">🇬🇧</span>
+    <h1>UK Brexit Financial Model</h1>
+  </div>
+  <div class="subtitle">Economic impact analysis across GDP, Trade, FDI, Labour &amp; Interest Rates · Data through 2025 · Sources: OBR, CER, ONS, EY, BoE</div>
+</header>
+
+<!-- SUMMARY KPIs -->
+<div class="kpi-bar">
+  <div class="kpi red">
+    <div class="kpi-label">GDP Cost vs Counterfactual</div>
+    <div class="kpi-value">−4–6%</div>
+    <div class="kpi-sub">of GDP per OBR &amp; CER estimates</div>
+  </div>
+  <div class="kpi orange">
+    <div class="kpi-label">Trade Reduction (Goods)</div>
+    <div class="kpi-value">−15%</div>
+    <div class="kpi-sub">UK-EU goods trade vs counterfactual</div>
+  </div>
+  <div class="kpi blue">
+    <div class="kpi-label">FDI Global Share Drop</div>
+    <div class="kpi-value">−1.6pp</div>
+    <div class="kpi-sub">from 3.9% pre-Brexit to 2.3% post</div>
+  </div>
+  <div class="kpi purple">
+    <div class="kpi-label">EU Workers Lost</div>
+    <div class="kpi-value">~750K</div>
+    <div class="kpi-sub">fewer EU-origin employees since 2019</div>
+  </div>
+</div>
+
+<!-- ============================================
+     CHANCELLOR'S POLICY LEVERS
+============================================ -->
+<div class="chancellor-bar">
+  <div class="chancellor-header">
+    <div class="chancellor-title">
+      <span class="chancellor-badge">HM Treasury</span>
+      <span class="chancellor-label">Chancellor's Policy Levers</span>
+      <span class="chancellor-sublabel">&nbsp;· Adjust to update the 10-Year Outlook</span>
+    </div>
+    <button class="reset-btn" onclick="resetControls()">↺ Reset to Baseline</button>
+  </div>
+  <div class="controls-grid">
+
+    <!-- EU Integration -->
+    <div class="control-group">
+      <div class="control-name">EU Integration Level</div>
+      <div class="control-desc">0 = TCA status quo · 50 = Customs Union · 100 = Single Market</div>
+      <div class="control-row">
+        <input type="range" id="ctrl-eu" min="0" max="100" value="0" step="5" oninput="updateControl(this,'val-eu','%')">
+        <span class="control-value" id="val-eu">0%</span>
+      </div>
+      <div class="range-labels"><span>TCA</span><span>Customs Union</span><span>Single Mkt</span></div>
+    </div>
+
+    <!-- GBP Rate -->
+    <div class="control-group">
+      <div class="control-name">GBP / EUR Target Rate</div>
+      <div class="control-desc">Current ~1.17 · Pre-Brexit peak ~1.40 · Weaker GBP = more inflation</div>
+      <div class="control-row">
+        <input type="range" id="ctrl-gbp" min="0.95" max="1.40" value="1.17" step="0.01" oninput="updateControl(this,'val-gbp','')">
+        <span class="control-value" id="val-gbp">1.17</span>
+      </div>
+      <div class="range-labels"><span>Weak (0.95)</span><span>Current (1.17)</span><span>Strong (1.40)</span></div>
+    </div>
+
+    <!-- Corp Tax -->
+    <div class="control-group">
+      <div class="control-name">Corporation Tax Rate</div>
+      <div class="control-desc">Current 25% · Lower rate attracts FDI; higher rate raises receipts</div>
+      <div class="control-row">
+        <input type="range" id="ctrl-ct" min="15" max="30" value="25" step="1" oninput="updateControl(this,'val-ct','%')">
+        <span class="control-value" id="val-ct">25%</span>
+      </div>
+      <div class="range-labels"><span>15%</span><span>25% (now)</span><span>30%</span></div>
+    </div>
+
+    <!-- US Tariff -->
+    <div class="control-group">
+      <div class="control-name">US Tariff Scenario</div>
+      <div class="control-desc">UK is more exposed post-Brexit — no EU bloc to negotiate behind</div>
+      <div class="control-row" style="margin-top:4px">
+        <select class="control-select" id="ctrl-us" onchange="updateSelectControl(this,'val-us')">
+          <option value="0">None — baseline</option>
+          <option value="1">Mild — 10% universal tariff</option>
+          <option value="2">Severe — 25%+ tariffs</option>
+        </select>
+        <span class="control-value" id="val-us" style="display:none"></span>
+      </div>
+    </div>
+
+    <!-- Capital Spend -->
+    <div class="control-group">
+      <div class="control-name">Capital / R&amp;D Spend (% GDP)</div>
+      <div class="control-desc">Current ~2.5% · Each +1pp GDP boosts long-run productivity</div>
+      <div class="control-row">
+        <input type="range" id="ctrl-capex" min="1.0" max="4.5" value="2.5" step="0.1" oninput="updateControl(this,'val-capex','% GDP')">
+        <span class="control-value" id="val-capex">2.5% GDP</span>
+      </div>
+      <div class="range-labels"><span>1.0%</span><span>2.5% (now)</span><span>4.5%</span></div>
+    </div>
+
+    <!-- Migration -->
+    <div class="control-group">
+      <div class="control-name">Net Annual Migration (000s)</div>
+      <div class="control-desc">Current ~450k · More workers → higher GDP, tax receipts &amp; public services demand</div>
+      <div class="control-row">
+        <input type="range" id="ctrl-mig" min="0" max="700" value="450" step="25" oninput="updateControl(this,'val-mig','k')">
+        <span class="control-value" id="val-mig">450k</span>
+      </div>
+      <div class="range-labels"><span>Zero</span><span>450k (now)</span><span>700k</span></div>
+    </div>
+
+    <!-- FDI Recovery -->
+    <div class="control-group">
+      <div class="control-name">FDI Recovery Target</div>
+      <div class="control-desc">0 = stay at 2.3% share · 100 = return to 3.9% pre-Brexit level</div>
+      <div class="control-row">
+        <input type="range" id="ctrl-fdi" min="0" max="100" value="0" step="5" oninput="updateControl(this,'val-fdi','%')">
+        <span class="control-value" id="val-fdi">0%</span>
+      </div>
+      <div class="range-labels"><span>None</span><span>Partial</span><span>Full recovery</span></div>
+    </div>
+
+    <!-- BoE Rate Path -->
+    <div class="control-group">
+      <div class="control-name">BoE Rate Path Assumption</div>
+      <div class="control-desc">Affects debt servicing costs and mortgage burden on households</div>
+      <div class="control-row" style="margin-top:4px">
+        <select class="control-select" id="ctrl-boe" onchange="updateSelectControl(this,'val-boe')">
+          <option value="0">Neutral — gradual cuts to ~2.5%</option>
+          <option value="1">Hawkish — held at ~3.5%</option>
+          <option value="2">Dovish — rapid cuts to ~1.5%</option>
+        </select>
+        <span class="control-value" id="val-boe" style="display:none"></span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="showTab('gdp',this)"><span class="tab-icon">📈</span>GDP &amp; Growth</button>
+  <button class="tab" onclick="showTab('trade',this)"><span class="tab-icon">🚢</span>Trade &amp; Exports</button>
+  <button class="tab" onclick="showTab('fdi',this)"><span class="tab-icon">💼</span>FDI &amp; Investment</button>
+  <button class="tab" onclick="showTab('labour',this)"><span class="tab-icon">👷</span>Labour Market</button>
+  <button class="tab" onclick="showTab('rates',this)"><span class="tab-icon">🏦</span>Interest Rates</button>
+  <button class="tab outlook-tab" onclick="showTab('outlook',this)"><span class="tab-icon">🎯</span>10-Year Outlook</button>
+</div>
+
+<div class="content">
+
+<!-- GDP TAB -->
+<div class="panel active wide" id="panel-gdp">
+  <div class="card">
+    <div class="card-title">UK GDP Index vs Brexit Counterfactual</div>
+    <div class="card-subtitle">Index: 2016 = 100 · Counterfactual modelled by CER "doppelgänger" method</div>
+    <div class="chart-wrap tall"><canvas id="gdpChart"></canvas></div>
+    <div class="insight-box red">
+      <div class="insight-title">Key Finding</div>
+      <div class="insight-text">The OBR estimates Brexit has permanently reduced UK GDP by ~4% vs remaining in the EU. The CER's doppelgänger model puts the gap at 5–6% by 2025, equivalent to roughly <strong>£100–130bn lost output per year</strong>.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Annual GDP Growth Rate (%)</div>
+    <div class="card-subtitle">UK actual GDP growth, 2012–2025</div>
+    <div class="chart-wrap"><canvas id="gdpGrowthChart"></canvas></div>
+    <div class="stat-grid">
+      <div class="stat-item"><span class="stat-num red">−4%</span><span class="stat-label">OBR GDP haircut</span></div>
+      <div class="stat-item"><span class="stat-num orange">£40bn</span><span class="stat-label">Extra tax rises needed (CER)</span></div>
+      <div class="stat-item"><span class="stat-num red">−3–4%</span><span class="stat-label">Productivity shortfall</span></div>
+      <div class="stat-item"><span class="stat-num orange">0.9%</span><span class="stat-label">UK GDP growth 2024</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- TRADE TAB -->
+<div class="panel" id="panel-trade">
+  <div class="card">
+    <div class="card-title">UK–EU Trade Volumes (£bn)</div>
+    <div class="card-subtitle">Annual exports to EU and imports from EU, 2015–2025</div>
+    <div class="chart-wrap tall"><canvas id="tradeChart"></canvas></div>
+    <div class="insight-box orange">
+      <div class="insight-title">Trade Deficit</div>
+      <div class="insight-text">The UK ran a <strong>£88.7bn trade deficit with the EU in 2025</strong>. Exports to the EU fell 23% from 2017–2024. The EU now accounts for 41% of UK exports and 50% of UK imports — down from 46% of exports pre-Brexit.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Brexit Trade Impact Analysis</div>
+    <div class="card-subtitle">Structural changes in UK trade composition</div>
+    <div class="chart-wrap"><canvas id="tradeShareChart"></canvas></div>
+    <div style="margin-top:14px">
+      <div class="timeline-line">
+        <span class="tl-year">2016</span><span class="tl-dot" style="background:#63b3ed"></span>
+        <span class="tl-text">Referendum. GBP falls 10–15%. Trade uncertainty begins.</span>
+      </div>
+      <div class="timeline-line">
+        <span class="tl-year">2021</span><span class="tl-dot" style="background:#f6ad55"></span>
+        <span class="tl-text">TCA in force. Non-tariff barriers introduced. UK goods exports to EU fall sharply.</span>
+      </div>
+      <div class="timeline-line">
+        <span class="tl-year">2022</span><span class="tl-dot" style="background:#fc8181"></span>
+        <span class="tl-text">OBR confirms 15% long-run reduction in trade intensity vs remain.</span>
+      </div>
+      <div class="timeline-line">
+        <span class="tl-year">2025</span><span class="tl-dot" style="background:#b794f4"></span>
+        <span class="tl-text">UK–EU "reset" talks ongoing; Windsor Framework stabilises NI trade.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FDI TAB -->
+<div class="panel" id="panel-fdi">
+  <div class="card">
+    <div class="card-title">UK Share of Global FDI (%)</div>
+    <div class="card-subtitle">UK inward FDI as % of global total</div>
+    <div class="chart-wrap tall"><canvas id="fdiChart"></canvas></div>
+    <div class="insight-box blue">
+      <div class="insight-title">Structural Shift</div>
+      <div class="insight-text">The UK averaged a <strong>3.9% share of global FDI</strong> in the eight years before Brexit. In the eight years since, the average dropped to <strong>2.3%</strong>. In 2023–24, inward FDI turned negative.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">FDI Project Count – UK vs Germany</div>
+    <div class="card-subtitle">Announced FDI projects, 2018–2024</div>
+    <div class="chart-wrap"><canvas id="fdiProjectsChart"></canvas></div>
+    <div class="stat-grid">
+      <div class="stat-item"><span class="stat-num blue">853</span><span class="stat-label">FDI projects in UK (2024)</span></div>
+      <div class="stat-item"><span class="stat-num red">−13%</span><span class="stat-label">YoY project decline 2024</span></div>
+      <div class="stat-item"><span class="stat-num orange">15.8%</span><span class="stat-label">UK share of European FDI</span></div>
+      <div class="stat-item"><span class="stat-num red">−31%</span><span class="stat-label">London FDI project drop</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- LABOUR TAB -->
+<div class="panel" id="panel-labour">
+  <div class="card">
+    <div class="card-title">EU &amp; Non-EU Workers in UK Payrolls (millions)</div>
+    <div class="card-subtitle">Composition of foreign-born workforce by origin, 2016–2024</div>
+    <div class="chart-wrap tall"><canvas id="labourChart"></canvas></div>
+    <div class="insight-box purple">
+      <div class="insight-title">Migration Shift</div>
+      <div class="insight-text">EU-origin workers fell ~750,000 from peak (2019), while non-EU workers surged. <strong>Labour shortages emerged in agriculture, hospitality, construction</strong> and care.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Sector Labour Shortfall by Industry</div>
+    <div class="card-subtitle">Estimated EU worker decline by sector post-Brexit</div>
+    <div class="chart-wrap"><canvas id="sectorChart"></canvas></div>
+    <div class="stat-grid">
+      <div class="stat-item"><span class="stat-num purple">2.3m</span><span class="stat-label">EU nationals employed (2024)</span></div>
+      <div class="stat-item"><span class="stat-num red">−13%</span><span class="stat-label">Drop from Nov 2019 peak</span></div>
+      <div class="stat-item"><span class="stat-num green">82%</span><span class="stat-label">EU-born employment rate</span></div>
+      <div class="stat-item"><span class="stat-num orange">£31.1k</span><span class="stat-label">Median EU worker salary (2024)</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- INTEREST RATES TAB -->
+<div class="panel" id="panel-rates">
+  <div class="card">
+    <div class="card-title">BoE Base Rate: Actual vs Counterfactual (%)</div>
+    <div class="card-subtitle">Year-end rate · Counterfactual = no-Brexit inflation &amp; uncertainty path</div>
+    <div class="chart-wrap tall"><canvas id="ratesChart"></canvas></div>
+    <div class="insight-box red">
+      <div class="insight-title">Key Driver: Brexit-Induced Inflation</div>
+      <div class="insight-text">Brexit pushed up UK inflation by an estimated <strong>1.7–2.9 percentage points</strong> through sterling depreciation and trade friction, forcing the BoE to peak at 5.25% rather than ~3.75%. The BoE's emergency cut to <strong>0.25% in August 2016</strong> was made explicitly due to the referendum result.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Rate Differential: Brexit Premium (pp)</div>
+    <div class="card-subtitle">Actual rate minus counterfactual — positive = Brexit caused higher rates</div>
+    <div class="chart-wrap"><canvas id="rateDiffChart"></canvas></div>
+    <div class="stat-grid">
+      <div class="stat-item"><span class="stat-num red">−0.25pp</span><span class="stat-label">Emergency cut, Aug 2016</span></div>
+      <div class="stat-item"><span class="stat-num orange">+1.5pp</span><span class="stat-label">Brexit premium at 2023 peak</span></div>
+      <div class="stat-item"><span class="stat-num blue">~2.9%</span><span class="stat-label">Extra inflation from GBP fall</span></div>
+      <div class="stat-item"><span class="stat-num purple">3.75%</span><span class="stat-label">Current BoE rate (June 2026)</span></div>
+    </div>
+    <div class="insight-box orange" style="margin-top:14px">
+      <div class="insight-title">Methodology Note</div>
+      <div class="insight-text">Counterfactual rates estimated via IMF (2024) and CEP (LSE) frameworks. Bond yield research finds a 1.2pp Brexit-induced differential in 10-year yields, consistent with these estimates.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 10-YEAR OUTLOOK TAB -->
+<div class="panel quad" id="panel-outlook">
+
+  <!-- Output KPI strip (full width) -->
+  <div class="card full">
+    <div class="card-title" style="color:#fc8181">📊 10-Year Forecast Output (2026–2035) · Updates with Chancellor's Levers Above</div>
+    <div class="card-subtitle">All projections are illustrative model estimates, not official forecasts</div>
+    <div class="outlook-kpis">
+      <div class="out-kpi">
+        <div class="out-kpi-label">Avg Annual GDP Growth</div>
+        <div class="out-kpi-value green" id="out-gdp">1.3%</div>
+      </div>
+      <div class="out-kpi">
+        <div class="out-kpi-label">Debt / GDP by 2035</div>
+        <div class="out-kpi-value red" id="out-debt">105%</div>
+      </div>
+      <div class="out-kpi">
+        <div class="out-kpi-label">Tax Receipts 2035 (£bn)</div>
+        <div class="out-kpi-value blue" id="out-tax">£1,180bn</div>
+      </div>
+      <div class="out-kpi">
+        <div class="out-kpi-label">Real HH Income Growth (10yr)</div>
+        <div class="out-kpi-value orange" id="out-hh">+7.4%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GDP Projection -->
+  <div class="card">
+    <div class="card-title">Projected GDP Growth Rate (%)</div>
+    <div class="card-subtitle">Annual growth 2026–2035 under current lever settings</div>
+    <div class="chart-wrap med"><canvas id="outGdpChart"></canvas></div>
+  </div>
+
+  <!-- Debt to GDP -->
+  <div class="card">
+    <div class="card-title">Debt-to-GDP Trajectory (%)</div>
+    <div class="card-subtitle">Public sector net debt as % of GDP, 2025–2035</div>
+    <div class="chart-wrap med"><canvas id="outDebtChart"></canvas></div>
+  </div>
+
+  <!-- Tax Receipts -->
+  <div class="card">
+    <div class="card-title">Annual Tax Receipts (£bn)</div>
+    <div class="card-subtitle">Total HMRC receipts projection, 2026–2035</div>
+    <div class="chart-wrap med"><canvas id="outTaxChart"></canvas></div>
+  </div>
+
+  <!-- Real HH Income -->
+  <div class="card">
+    <div class="card-title">Real Household Disposable Income</div>
+    <div class="card-subtitle">Index: 2026 = 100 · After inflation and tax</div>
+    <div class="chart-wrap med"><canvas id="outHhChart"></canvas></div>
+  </div>
+
+</div>
+</div><!-- end content -->
+
+<footer>
+  Sources: <a href="https://www.cer.eu/research/cost-of-brexit">CER – Cost of Brexit</a> ·
+  <a href="https://commonslibrary.parliament.uk/research-briefings/cbp-7851/">Commons Library – UK–EU Trade</a> ·
+  <a href="https://www.ey.com/en_uk/newsroom/2025/05/uk-fdi-projects-second-in-europe">EY FDI Report 2025</a> ·
+  <a href="https://migrationobservatory.ox.ac.uk/resources/briefings/eu-citizens-in-the-uk-labour-market/">Migration Observatory</a> ·
+  <a href="https://www.bankofengland.co.uk/boeapps/database/Bank-Rate.asp">Bank of England Rate History</a> ·
+  <a href="https://www.elibrary.imf.org/view/journals/001/2024/160/article-A001-en.xml">IMF – BoE &amp; Brexit (2024)</a> ·
+  <a href="https://cep.lse.ac.uk/pubs/download/brexit11.pdf">CEP/LSE – Brexit &amp; Inflation</a> · OBR Economic Outlook 2022
+  <span style="float:right">Model built June 2026 · Illustrative planning tool</span>
+</footer>
+
+<script>
+// ============================================================
+// CHART DEFAULTS
+// ============================================================
+const C = Chart.defaults;
+C.color = '#718096';
+C.borderColor = '#2d3748';
+C.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+C.font.size = 11;
+
+const gridColor = 'rgba(45,55,72,0.55)';
+
+const baseOpts = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { labels: { color: '#a0aec0', boxWidth: 11, padding: 14, font: { size: 10 } } },
+    tooltip: {
+      backgroundColor: '#1a2035',
+      borderColor: '#2d3748',
+      borderWidth: 1,
+      titleColor: '#e2e8f0',
+      bodyColor: '#a0aec0',
+      padding: 9
+    }
+  },
+  scales: {
+    x: { grid: { color: gridColor }, ticks: { color: '#718096', font: { size: 10 } } },
+    y: { grid: { color: gridColor }, ticks: { color: '#718096', font: { size: 10 } } }
+  }
+};
+
+// ============================================================
+// HISTORICAL CHARTS (unchanged)
+// ============================================================
+
+// GDP Index
+const gdpYears = ['2012','2013','2014','2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025'];
+const gdpActual =      [87, 89, 92, 94, 100, 101.7, 103.0, 104.6, 95.0, 102.9, 107.3, 107.4, 108.4, 109.6];
+const gdpCounterfact = [87, 89, 92, 94, 100, 103.2, 106.1, 109.5, 100.2, 108.9, 115.5, 116.2, 117.8, 119.5];
+
+new Chart(document.getElementById('gdpChart'), {
+  type: 'line',
+  data: {
+    labels: gdpYears,
+    datasets: [
+      { label: 'UK Actual GDP (Index)', data: gdpActual, borderColor: '#63b3ed', backgroundColor: 'rgba(99,179,237,0.08)', fill: true, tension: 0.3, borderWidth: 2.5, pointRadius: 3 },
+      { label: 'Counterfactual (No Brexit)', data: gdpCounterfact, borderColor: '#fc8181', borderDash: [6, 4], backgroundColor: 'rgba(252,129,129,0.05)', fill: true, tension: 0.3, borderWidth: 2, pointRadius: 3 }
+    ]
+  },
+  options: { ...baseOpts, scales: { ...baseOpts.scales, y: { ...baseOpts.scales.y, min: 80, title: { display: true, text: 'GDP Index (2016=100)', color: '#4a5568' } } } }
+});
+
+// GDP Growth Bars
+const growthVals = [1.5, 2.1, 2.6, 2.4, 1.9, 1.7, 1.3, 1.6, -9.3, 8.7, 4.3, 0.1, 0.9, 1.1];
+new Chart(document.getElementById('gdpGrowthChart'), {
+  type: 'bar',
+  data: {
+    labels: ['2012','2013','2014','2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025e'],
+    datasets: [{
+      label: 'GDP Growth (%)',
+      data: growthVals,
+      backgroundColor: growthVals.map(v => v < 0 ? 'rgba(252,129,129,0.7)' : v < 1 ? 'rgba(246,173,85,0.7)' : 'rgba(99,179,237,0.7)'),
+      borderColor: growthVals.map(v => v < 0 ? '#fc8181' : v < 1 ? '#f6ad55' : '#63b3ed'),
+      borderWidth: 1
+    }]
+  },
+  options: { ...baseOpts, plugins: { ...baseOpts.plugins, legend: { display: false } }, scales: { ...baseOpts.scales, y: { ...baseOpts.scales.y, title: { display: true, text: 'Annual Growth (%)', color: '#4a5568' } } } }
+});
+
+// Trade volumes
+new Chart(document.getElementById('tradeChart'), {
+  type: 'line',
+  data: {
+    labels: ['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025'],
+    datasets: [
+      { label: 'UK Exports to EU (£bn)', data: [228,236,274,294,300,268,294,340,358,372,384], borderColor: '#68d391', backgroundColor: 'rgba(104,211,145,0.08)', fill: true, tension: 0.3, borderWidth: 2.5, pointRadius: 3 },
+      { label: 'UK Imports from EU (£bn)', data: [278,290,341,357,370,330,371,430,452,460,472], borderColor: '#fc8181', backgroundColor: 'rgba(252,129,129,0.08)', fill: true, tension: 0.3, borderWidth: 2.5, pointRadius: 3 }
+    ]
+  },
+  options: { ...baseOpts, scales: { ...baseOpts.scales, y: { ...baseOpts.scales.y, title: { display: true, text: '£ Billion', color: '#4a5568' } } } }
+});
+
+// Trade share
+new Chart(document.getElementById('tradeShareChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Exports to EU', 'Exports Non-EU', 'Imports from EU', 'Imports Non-EU'],
+    datasets: [
+      { label: 'Pre-Brexit (2015–16 avg, %)', data: [46,54,52,48], backgroundColor: 'rgba(99,179,237,0.5)', borderColor: '#63b3ed', borderWidth: 1 },
+      { label: 'Post-Brexit (2025, %)', data: [41,59,50,50], backgroundColor: 'rgba(252,129,129,0.5)', borderColor: '#fc8181', borderWidth: 1 }
+    ]
+  },
+  options: { ...baseOpts, indexAxis: 'y', scales: { ...baseOpts.scales, x: { ...baseOpts.scales.x, title: { display: true, text: 'Share (%)', color: '#4a5568' }, max: 70 } } }
+});
+
+// FDI share
+const fdiYears = ['2009','2010','2011','2012','2013','2014','2015','2016','2017','2018','2019','2020','2021','2022','2023','2024'];
+const fdiShare = [4.1,3.8,4.0,4.2,3.7,3.9,4.1,3.8,3.2,2.8,2.4,1.9,2.5,2.3,1.8,2.1];
+new Chart(document.getElementById('fdiChart'), {
+  type: 'line',
+  data: {
+    labels: fdiYears,
+    datasets: [
+      { label: 'UK FDI Share of Global Total (%)', data: fdiShare, borderColor: '#63b3ed', backgroundColor: 'rgba(99,179,237,0.1)', fill: true, tension: 0.3, borderWidth: 2.5, pointRadius: 3 },
+      { label: 'Pre-Brexit Avg (3.9%)', data: Array(8).fill(3.9).concat(Array(8).fill(null)), borderColor: '#68d391', borderDash: [5,4], borderWidth: 2, pointRadius: 0, fill: false },
+      { label: 'Post-Brexit Avg (2.3%)', data: Array(8).fill(null).concat(Array(8).fill(2.3)), borderColor: '#fc8181', borderDash: [5,4], borderWidth: 2, pointRadius: 0, fill: false }
+    ]
+  },
+  options: { ...baseOpts, scales: { ...baseOpts.scales, y: { ...baseOpts.scales.y, title: { display: true, text: '% of Global FDI', color: '#4a5568' }, min: 0 } } }
+});
+
+// FDI projects
+new Chart(document.getElementById('fdiProjectsChart'), {
+  type: 'bar',
+  data: {
+    labels: ['2018','2019','2020','2021','2022','2023','2024'],
+    datasets: [
+      { label: 'UK FDI Projects', data: [1009,980,810,929,993,985,853], backgroundColor: 'rgba(99,179,237,0.6)', borderColor: '#63b3ed', borderWidth: 1 },
+      { label: 'Germany FDI Projects', data: [780,810,695,755,820,880,920], backgroundColor: 'rgba(183,148,244,0.6)', borderColor: '#b794f4', borderWidth: 1 }
+    ]
+  },
+  options: { ...baseOpts, scales: { ...baseOpts.scales, y: { ...baseOpts.scales.y, title: { display: true, text: 'Announced Projects', color: '#4a5568' } } } }
+});
+
+// Labour stacked
+new Chart(document.getElementById('labourChart'), {
+  type: 'bar',
+  data: {
+    labels: ['2016','2017','2018','2019','2020','2021','2022','2023','2024'],
+    datasets: [
+      { label: 'EU-origin Workers (m)', data: [2.38,2.52,2.62,2.65,2.45,2.30,2.25,2.27,2.30], backgroundColor: 'rgba(99,179,237,0.7)', borderColor: '#63b3ed', borderWidth: 1 },
+      { label: 'Non-EU Foreign-born Workers (m)', data: [1.40,1.45,1.55,1.65,1.70,1.92,2.10,2.35,2.50], backgroundColor: 'rgba(183,148,244,0.7)', borderColor: '#b794f4', borderWidth: 1 }
+    ]
+  },
+  options: { ...baseOpts, scales: { ...baseOpts.scales, x: { ...baseOpts.scales.x, stacked: true }, y: { ...baseOpts.scales.y, stacked: true, title: { display: true, text: 'Workers (millions)', color: '#4a5568' } } } }
+});
+
+// Sector chart
+new Chart(document.getElementById('sectorChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Hospitality','Agriculture','Construction','Manufacturing','Transport','Healthcare','Retail'],
+    datasets: [
+      { label: 'EU Worker Decline (thousands)', data: [-145,-85,-110,-95,-75,-55,-80], backgroundColor: 'rgba(252,129,129,0.65)', borderColor: '#fc8181', borderWidth: 1 },
+      { label: 'Non-EU Worker Gain (thousands)', data: [60,20,45,30,35,80,40], backgroundColor: 'rgba(104,211,145,0.65)', borderColor: '#68d391', borderWidth: 1 }
+    ]
+  },
+  options: { ...baseOpts, indexAxis: 'y', scales: { ...baseOpts.scales, x: { ...baseOpts.scales.x, title: { display: true, text: 'Workers (thousands)', color: '#4a5568' } } } }
+});
+
+// Interest rates
+const rateYears = ['2012','2013','2014','2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025'];
+const actualRates = [0.50,0.50,0.50,0.50,0.25,0.50,0.75,0.75,0.10,0.25,3.50,5.25,4.75,4.00];
+const cfRates     = [0.50,0.50,0.50,0.50,0.50,0.75,1.00,1.25,0.25,0.50,2.50,3.75,3.00,2.50];
+
+new Chart(document.getElementById('ratesChart'), {
+  type: 'line',
+  data: {
+    labels: rateYears,
+    datasets: [
+      { label: 'BoE Base Rate – Actual (%)', data: actualRates, borderColor: '#fc8181', backgroundColor: 'rgba(252,129,129,0.08)', fill: true, tension: 0.25, borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#fc8181' },
+      { label: 'Counterfactual – No Brexit (%)', data: cfRates, borderColor: '#68d391', borderDash: [6,4], backgroundColor: 'rgba(104,211,145,0.06)', fill: true, tension: 0.25, borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#68d391' }
+    ]
+  },
+  options: {
+    ...baseOpts,
+    scales: { ...baseOpts.scales, y: { ...baseOpts.scales.y, min: 0, title: { display: true, text: 'Rate (%)', color: '#4a5568' }, ticks: { ...baseOpts.scales.y.ticks, callback: v => v.toFixed(2) + '%' } } }
+  }
+});
+
+const rateDiff = actualRates.map((r,i) => +(r - cfRates[i]).toFixed(2));
+new Chart(document.getElementById('rateDiffChart'), {
+  type: 'bar',
+  data: {
+    labels: rateYears,
+    datasets: [{
+      label: 'Rate differential (Actual − Counterfactual, pp)',
+      data: rateDiff,
+      backgroundColor: rateDiff.map(v => v > 0 ? 'rgba(252,129,129,0.7)' : 'rgba(104,211,145,0.7)'),
+      borderColor: rateDiff.map(v => v > 0 ? '#fc8181' : '#68d391'),
+      borderWidth: 1
+    }]
+  },
+  options: { ...baseOpts, plugins: { ...baseOpts.plugins, legend: { display: false } }, scales: { ...baseOpts.scales, y: { ...baseOpts.scales.y, title: { display: true, text: 'Percentage points', color: '#4a5568' }, ticks: { ...baseOpts.scales.y.ticks, callback: v => (v > 0 ? '+' : '') + v + 'pp' } } } }
+});
+
+// ============================================================
+// 10-YEAR OUTLOOK — LIVE FORECAST MODEL
+// ============================================================
+const projLabels = ['2026','2027','2028','2029','2030','2031','2032','2033','2034','2035'];
+
+// Base GDP trajectory (absent any policy changes)
+// Incorporates current Brexit drag, ~1.3% trend growth
+const baseGdpGrowth = [1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3, 1.3];
+
+// BoE rate paths (year by year 2026-2035)
+const boePaths = {
+  0: [3.50, 3.00, 2.75, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50, 2.50], // Neutral
+  1: [3.75, 3.75, 3.50, 3.50, 3.50, 3.50, 3.50, 3.50, 3.50, 3.50], // Hawkish
+  2: [3.00, 2.25, 1.75, 1.50, 1.50, 1.50, 1.50, 1.50, 1.50, 1.50]  // Dovish
+};
+
+// US tariff penalties on GDP growth per year
+const usPenalties = { 0: 0, 1: -0.25, 2: -0.55 };
+
+let outGdpChart, outDebtChart, outTaxChart, outHhChart;
+
+function buildOutlookCharts() {
+  const opts = (title, unit) => ({
+    ...baseOpts,
+    plugins: { ...baseOpts.plugins, legend: { display: false } },
+    scales: {
+      ...baseOpts.scales,
+      y: { ...baseOpts.scales.y, title: { display: true, text: title, color: '#4a5568' },
+           ticks: { ...baseOpts.scales.y.ticks, callback: v => unit === '%' ? v.toFixed(1)+'%' : unit === '£bn' ? '£'+v+'bn' : v.toFixed(1) } }
+    }
+  });
+
+  outGdpChart = new Chart(document.getElementById('outGdpChart'), {
+    type: 'bar',
+    data: { labels: projLabels, datasets: [{ label: 'GDP Growth (%)', data: Array(10).fill(1.3), backgroundColor: Array(10).fill('rgba(99,179,237,0.7)'), borderColor: Array(10).fill('#63b3ed'), borderWidth: 1 }] },
+    options: opts('Annual Growth (%)', '%')
+  });
+
+  outDebtChart = new Chart(document.getElementById('outDebtChart'), {
+    type: 'line',
+    data: {
+      labels: projLabels,
+      datasets: [
+        { label: 'Debt/GDP (%)', data: Array(10).fill(97), borderColor: '#fc8181', backgroundColor: 'rgba(252,129,129,0.1)', fill: true, tension: 0.3, borderWidth: 2.5, pointRadius: 3 },
+        { label: 'Baseline (no change)', data: Array(10).fill(97), borderColor: '#4a5568', borderDash: [4,4], borderWidth: 1.5, pointRadius: 0, fill: false }
+      ]
+    },
+    options: { ...baseOpts, scales: { ...baseOpts.scales, y: { ...baseOpts.scales.y, title: { display: true, text: 'Debt/GDP (%)', color: '#4a5568' }, ticks: { ...baseOpts.scales.y.ticks, callback: v => v+'%' } } } }
+  });
+
+  outTaxChart = new Chart(document.getElementById('outTaxChart'), {
+    type: 'line',
+    data: {
+      labels: projLabels,
+      datasets: [
+        { label: 'Tax Receipts (£bn)', data: Array(10).fill(1100), borderColor: '#63b3ed', backgroundColor: 'rgba(99,179,237,0.1)', fill: true, tension: 0.3, borderWidth: 2.5, pointRadius: 3 },
+        { label: 'Baseline', data: Array(10).fill(1100), borderColor: '#4a5568', borderDash: [4,4], borderWidth: 1.5, pointRadius: 0, fill: false }
+      ]
+    },
+    options: { ...baseOpts, scales: { ...baseOpts.scales, y: { ...baseOpts.scales.y, title: { display: true, text: '£ Billion', color: '#4a5568' }, ticks: { ...baseOpts.scales.y.ticks, callback: v => '£'+Math.round(v)+'bn' } } } }
+  });
+
+  outHhChart = new Chart(document.getElementById('outHhChart'), {
+    type: 'line',
+    data: {
+      labels: projLabels,
+      datasets: [
+        { label: 'Real HH Income (Index)', data: Array(10).fill(100), borderColor: '#68d391', backgroundColor: 'rgba(104,211,145,0.1)', fill: true, tension: 0.3, borderWidth: 2.5, pointRadius: 3 },
+        { label: 'Baseline', data: Array(10).fill(100), borderColor: '#4a5568', borderDash: [4,4], borderWidth: 1.5, pointRadius: 0, fill: false }
+      ]
+    },
+    options: { ...baseOpts, scales: { ...baseOpts.scales, y: { ...baseOpts.scales.y, title: { display: true, text: 'Index (2026=100)', color: '#4a5568' } } } }
+  });
+
+  updateOutlook(); // run once with defaults
+}
+
+function computeOutlook() {
+  const euInt     = +document.getElementById('ctrl-eu').value;       // 0–100
+  const gbp       = +document.getElementById('ctrl-gbp').value;      // 0.95–1.40
+  const ct        = +document.getElementById('ctrl-ct').value;       // 15–30 (%)
+  const usTariff  = +document.getElementById('ctrl-us').value;       // 0,1,2
+  const capex     = +document.getElementById('ctrl-capex').value;    // 1.0–4.5 (% GDP)
+  const mig       = +document.getElementById('ctrl-mig').value;      // 0–700k
+  const fdiRec    = +document.getElementById('ctrl-fdi').value;      // 0–100
+  const boeMode   = +document.getElementById('ctrl-boe').value;      // 0,1,2
+
+  // GDP growth modifiers (annual additive, in percentage points)
+  const euBonus     = (euInt / 100) * 0.40;       // max +0.40pp pa from trade restoration
+  const gbpBonus    = (gbp - 1.17) * 0.50;        // each 0.10 stronger GBP ≈ +0.05pp
+  const ctBonus     = (25 - ct) * 0.012;          // lower CT attracts FDI → growth (each 1pp cut ≈ +0.012pp GDP)
+  const usPenalty   = usPenalties[usTariff];
+  const capexBonus  = (capex - 2.5) * 0.14;       // each +1pp GDP capex ≈ +0.14pp growth
+  const migBonus    = ((mig - 450) / 100) * 0.18; // each 100k above 450k ≈ +0.18pp
+  const fdiBonus    = (fdiRec / 100) * 0.28;      // full recovery ≈ +0.28pp pa
+
+  // BoE impact on growth (lower rates boost investment/consumption)
+  const boeMultiplier = boeMode === 2 ? 0.10 : boeMode === 1 ? -0.08 : 0;
+
+  const annualGdpBoost = euBonus + gbpBonus + ctBonus + usPenalty + capexBonus + migBonus + fdiBonus + boeMultiplier;
+
+  // Per-year GDP growth (starts at current ~1.3% trend)
+  const gdpGrowthArr = projLabels.map((_, i) => {
+    // Effect phases in over first 3 years
+    const phase = Math.min(1, (i + 1) / 3);
+    return +(1.3 + annualGdpBoost * phase).toFixed(2);
+  });
+
+  // Baseline debt starts at ~97% of GDP; rises ~1pp/year at trend growth
+  const debtBase = projLabels.map((_, i) => +(97 + i * 1.0).toFixed(1));
+
+  // Debt modifier:
+  // Higher growth reduces debt/GDP; capex adds to it short-term
+  const debtArr = projLabels.map((_, i) => {
+    const growthEffect = -annualGdpBoost * (i + 1) * 0.8;   // better growth = lower debt ratio
+    const capexEffect  = Math.max(0, (capex - 2.5)) * 1.2 * Math.min(1, (i + 1) / 5); // capex adds debt early
+    const boeEffect    = boeMode === 1 ? (i + 1) * 0.5 : boeMode === 2 ? -(i + 1) * 0.3 : 0;
+    return +(debtBase[i] + growthEffect + capexEffect + boeEffect).toFixed(1);
+  });
+
+  // Tax receipts: baseline ~£1,100bn growing at ~3.5% nominal pa
+  // CT change: each 1pp ≈ ±£3bn direct; growth effect much larger
+  const taxArr = projLabels.map((_, i) => {
+    const nominal = 1100 * Math.pow(1.035 + annualGdpBoost * 0.7 / 100, i + 1);
+    const ctDelta  = (ct - 25) * 3;       // corp tax direct effect
+    const migDelta = ((mig - 450) / 100) * 5 * (i + 1); // extra workers → extra receipts
+    return Math.round(nominal + ctDelta + migDelta);
+  });
+
+  // Real HH income: index starting at 100
+  // Boosted by growth, lower BoE rates, stronger GBP (cheaper imports); hit by higher CT slightly
+  const boeRates = boePaths[boeMode];
+  const hhArr = projLabels.map((_, i) => {
+    const cumulGrowth = gdpGrowthArr.slice(0, i + 1).reduce((a, b) => a + b, 0);
+    const rateEffect  = (3.75 - boeRates[i]) * 0.6;  // each 1pp lower rate ≈ +0.6 on HH index over time
+    const gbpEffect   = (gbp - 1.17) * 8;             // stronger GBP = cheaper imports
+    return +(100 + cumulGrowth * 0.65 + rateEffect + gbpEffect - Math.max(0, ct - 25) * 0.3).toFixed(1);
+  });
+
+  // Baseline series (no lever changes)
+  const baseDebt = debtBase;
+  const baseTax  = projLabels.map((_, i) => Math.round(1100 * Math.pow(1.035, i + 1)));
+  const baseHh   = projLabels.map((_, i) => +(100 + (i + 1) * 1.3 * 0.65).toFixed(1));
+
+  return { gdpGrowthArr, debtArr, taxArr, hhArr, baseDebt, baseTax, baseHh };
+}
+
+function updateOutlook() {
+  const { gdpGrowthArr, debtArr, taxArr, hhArr, baseDebt, baseTax, baseHh } = computeOutlook();
+
+  // GDP growth bars
+  outGdpChart.data.datasets[0].data = gdpGrowthArr;
+  outGdpChart.data.datasets[0].backgroundColor = gdpGrowthArr.map(v => v >= 2.0 ? 'rgba(104,211,145,0.75)' : v >= 1.3 ? 'rgba(99,179,237,0.75)' : v >= 0.5 ? 'rgba(246,173,85,0.75)' : 'rgba(252,129,129,0.75)');
+  outGdpChart.data.datasets[0].borderColor = gdpGrowthArr.map(v => v >= 2.0 ? '#68d391' : v >= 1.3 ? '#63b3ed' : v >= 0.5 ? '#f6ad55' : '#fc8181');
+  outGdpChart.update();
+
+  // Debt
+  outDebtChart.data.datasets[0].data = debtArr;
+  outDebtChart.data.datasets[1].data = baseDebt;
+  outDebtChart.update();
+
+  // Tax
+  outTaxChart.data.datasets[0].data = taxArr;
+  outTaxChart.data.datasets[1].data = baseTax;
+  outTaxChart.update();
+
+  // HH income
+  outHhChart.data.datasets[0].data = hhArr;
+  outHhChart.data.datasets[1].data = baseHh;
+  outHhChart.update();
+
+  // Summary KPIs
+  const avgGdp = (gdpGrowthArr.reduce((a,b) => a+b, 0) / 10).toFixed(1);
+  const finalDebt = debtArr[9].toFixed(0);
+  const finalTax = taxArr[9];
+  const totalHh = (hhArr[9] - 100).toFixed(1);
+
+  document.getElementById('out-gdp').textContent = avgGdp + '%';
+  document.getElementById('out-gdp').className = 'out-kpi-value ' + (avgGdp >= 2 ? 'green' : avgGdp >= 1.3 ? 'blue' : 'orange');
+
+  document.getElementById('out-debt').textContent = finalDebt + '%';
+  document.getElementById('out-debt').className = 'out-kpi-value ' + (finalDebt > 110 ? 'red' : finalDebt > 100 ? 'orange' : 'green');
+
+  document.getElementById('out-tax').textContent = '£' + finalTax + 'bn';
+
+  document.getElementById('out-hh').textContent = (totalHh >= 0 ? '+' : '') + totalHh + '%';
+  document.getElementById('out-hh').className = 'out-kpi-value ' + (totalHh >= 15 ? 'green' : totalHh >= 7 ? 'blue' : totalHh >= 0 ? 'orange' : 'red');
+}
+
+// ============================================================
+// CONTROL HANDLERS
+// ============================================================
+function updateControl(input, valId, suffix) {
+  const raw = parseFloat(input.value);
+  const display = suffix === 'k' ? raw + 'k' : suffix === '% GDP' ? raw.toFixed(1) + '% GDP' : Number.isInteger(raw) ? raw + suffix : raw.toFixed(2) + suffix;
+  document.getElementById(valId).textContent = display;
+  updateOutlook();
+}
+
+function updateSelectControl(select, valId) {
+  updateOutlook();
+}
+
+function resetControls() {
+  document.getElementById('ctrl-eu').value = 0;    document.getElementById('val-eu').textContent = '0%';
+  document.getElementById('ctrl-gbp').value = 1.17; document.getElementById('val-gbp').textContent = '1.17';
+  document.getElementById('ctrl-ct').value = 25;   document.getElementById('val-ct').textContent = '25%';
+  document.getElementById('ctrl-us').value = 0;
+  document.getElementById('ctrl-capex').value = 2.5; document.getElementById('val-capex').textContent = '2.5% GDP';
+  document.getElementById('ctrl-mig').value = 450;  document.getElementById('val-mig').textContent = '450k';
+  document.getElementById('ctrl-fdi').value = 0;    document.getElementById('val-fdi').textContent = '0%';
+  document.getElementById('ctrl-boe').value = 0;
+  updateOutlook();
+}
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+let outlookBuilt = false;
+
+function showTab(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+
+  if (name === 'outlook' && !outlookBuilt) {
+    buildOutlookCharts();
+    outlookBuilt = true;
+  }
+}
+</script>
+</body>
+</html>

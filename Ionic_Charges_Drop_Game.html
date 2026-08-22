@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ionic Charges Drop! — Common Ionic Charges Chart Game</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #0f172a;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #111827;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 16px;
+  }
+  #toolbar {
+    width: 100%;
+    max-width: 1650px;
+    background: #111827;
+    color: white;
+    border-radius: 12px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  #toolbar .title {
+    font-size: 20px;
+    font-weight: 800;
+  }
+  #stats {
+    display: flex;
+    gap: 22px;
+    font-size: 15px;
+    align-items: center;
+  }
+  #stats b { font-size: 17px; }
+  #lives { letter-spacing: 2px; }
+  #nextPreview {
+    display: inline-block;
+    min-width: 60px;
+    text-align: center;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.12);
+  }
+  button.gameBtn {
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  button.gameBtn:hover { background: #1d4ed8; }
+
+  #stageOuter {
+    width: 100%;
+    max-width: 1650px;
+    display: flex;
+    justify-content: center;
+  }
+  #stage {
+    position: relative;
+    overflow: hidden;
+    border-radius: 14px;
+    background: white;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+  }
+  #world {
+    position: relative;
+    width: 1650px;
+    height: 800px;
+    transform-origin: top left;
+    background: white;
+  }
+
+  .boardTitle {
+    position: absolute;
+    left: 0; top: 8px; width: 100%;
+    text-align: center;
+    font-size: 26px;
+    font-weight: 800;
+    color: #111827;
+  }
+  .boardSub {
+    position: absolute;
+    left: 0; top: 40px; width: 100%;
+    text-align: center;
+    font-size: 13px;
+    color: #4b5563;
+  }
+  .groupLabel {
+    position: absolute;
+    width: 130px;
+    text-align: center;
+    font-size: 12px;
+    color: #6b7280;
+  }
+  .chargeLabel {
+    position: absolute;
+    width: 130px;
+    text-align: center;
+    font-size: 21px;
+    font-weight: 800;
+  }
+  .legendBox {
+    position: absolute;
+    border: 2.5px solid;
+    border-radius: 14px;
+  }
+  .legendTitle {
+    position: absolute;
+    left: 0; top: 10px; width: 100%;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 800;
+  }
+
+  .slot {
+    position: absolute;
+    border: 2.5px dashed;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.25s, border-style 0.25s, transform 0.2s;
+  }
+  .slot .slotTag {
+    position: absolute;
+    top: 3px; left: 6px;
+    font-size: 9px;
+    font-weight: 700;
+    opacity: 0.55;
+  }
+  .slotContent {
+    text-align: center;
+    line-height: 1.15;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity 0.25s, transform 0.25s;
+  }
+  .slot.filled {
+    border-style: solid;
+  }
+  .slot.filled .slotContent {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .slot.flash {
+    animation: flashGreen 0.6s ease;
+  }
+  @keyframes flashGreen {
+    0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.7); }
+    60% { box-shadow: 0 0 0 14px rgba(34,197,94,0); }
+    100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+  }
+  .slotContent .f { font-size: 17px; font-weight: 700; }
+  .slotContent .m { font-size: 11px; font-weight: 600; }
+  .slotContent .n { font-size: 8px; opacity: 0.85; }
+
+  .lanePreview {
+    position: absolute;
+    top: 60px;
+    width: 130px;
+    bottom: 0;
+    background: rgba(37,99,235,0.06);
+    pointer-events: none;
+    border-radius: 8px;
+  }
+
+  .piece {
+    position: absolute;
+    width: 116px;
+    height: 56px;
+    margin-left: -58px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.15;
+    padding: 2px 6px;
+    font-size: 19px;
+    font-weight: 800;
+    border: 2.5px solid;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+  }
+  .piece.wide {
+    width: 190px;
+    height: 60px;
+    margin-left: -95px;
+  }
+  .piece.paused {
+    animation: pausePulse 0.5s ease-in-out infinite alternate;
+  }
+  @keyframes pausePulse {
+    from { box-shadow: 0 0 0 0 rgba(250,204,21,0.0); }
+    to { box-shadow: 0 0 0 6px rgba(250,204,21,0.55); }
+  }
+
+  #overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.82);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+  }
+  #overlay.hidden { display: none; }
+  #overlayBox {
+    background: white;
+    border-radius: 14px;
+    padding: 32px 36px;
+    max-width: 440px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  }
+  #overlayBox h2 { margin-top: 0; }
+  #overlayBox p { color: #374151; font-size: 14.5px; line-height: 1.5; }
+  #overlayBox .stat { font-size: 15px; margin: 6px 0; }
+  .levelRow {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  button.levelBtn {
+    flex: 1 1 170px;
+    background: #f3f4f6;
+    color: #111827;
+    border: 2px solid #d1d5db;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: left;
+  }
+  button.levelBtn small {
+    display: block;
+    font-weight: 400;
+    color: #6b7280;
+    font-size: 11.5px;
+    margin-top: 3px;
+  }
+  button.levelBtn:hover { border-color: #2563eb; background: #eff6ff; }
+  #levelTag {
+    padding: 2px 9px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.12);
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <div class="title">&#9889; Ionic Charges Drop!</div>
+  <div id="stats">
+    <span>Level: <span id="levelTag">1</span></span>
+    <span>Score: <b id="score">0</b></span>
+    <span>Lives: <span id="lives">&#10084;&#65039;&#10084;&#65039;&#10084;&#65039;&#10084;&#65039;&#10084;&#65039;</span></span>
+    <span>Next: <span id="nextPreview">&#8211;</span></span>
+  </div>
+  <button class="gameBtn" id="restartBtn">Restart</button>
+</div>
+
+<div id="stageOuter">
+  <div id="stage">
+    <div id="world">
+<div class="boardTitle">Common Ionic Charges &#8212; Drop Game</div>
+<div class="boardSub">Groups 1, 2 &amp; 3 form positive ions equal to the group number &#8226; Groups 5, 6 &amp; 7 form negative ions equal to (8 &#8722; group number)</div>
+<div class="groupLabel" style="left:44.0px;top:108px;">Group 1</div>
+<div class="groupLabel" style="left:179.0px;top:108px;">Group 2</div>
+<div class="groupLabel" style="left:314.0px;top:496px;">Group 3</div>
+<div class="groupLabel" style="left:1139.0px;top:496px;">Group 5</div>
+<div class="groupLabel" style="left:1274.0px;top:306px;">Group 6</div>
+<div class="groupLabel" style="left:1409.0px;top:108px;">Group 7</div>
+<div class="chargeLabel" style="left:44.0px;top:80px;color:#7f1d1d;">1+</div>
+<div class="chargeLabel" style="left:179.0px;top:80px;color:#7f1d1d;">2+</div>
+<div class="chargeLabel" style="left:314.0px;top:468px;color:#450a0a;">3+</div>
+<div class="chargeLabel" style="left:1139.0px;top:468px;color:#172554;">3&#8722;</div>
+<div class="chargeLabel" style="left:1274.0px;top:278px;color:#1e3a8a;">2&#8722;</div>
+<div class="chargeLabel" style="left:1409.0px;top:80px;color:#1e3a8a;">1&#8722;</div>
+<div class="legendBox" style="left:480px;top:140px;width:315px;height:185px;border-color:#f87171;background:#fee2e2;"><div class="legendTitle" style="color:#7f1d1d;">Common 1+ ions</div></div>
+<div class="legendBox" style="left:480px;top:335px;width:315px;height:185px;border-color:#dc2626;background:#fecaca;"><div class="legendTitle" style="color:#7f1d1d;">Common 2+ ions</div></div>
+<div class="legendBox" style="left:480px;top:530px;width:315px;height:185px;border-color:#7f1d1d;background:#fca5a5;"><div class="legendTitle" style="color:#450a0a;">Common 3+ ion</div></div>
+<div class="legendBox" style="left:810px;top:140px;width:315px;height:185px;border-color:#60a5fa;background:#dbeafe;"><div class="legendTitle" style="color:#1e3a8a;">Common 1&#8722; ions</div></div>
+<div class="legendBox" style="left:810px;top:335px;width:315px;height:185px;border-color:#2563eb;background:#bfdbfe;"><div class="legendTitle" style="color:#1e3a8a;">Common 2&#8722; ions</div></div>
+<div class="legendBox" style="left:810px;top:530px;width:315px;height:185px;border-color:#1e3a8a;background:#93c5fd;"><div class="legendTitle" style="color:#172554;">Common 3&#8722; ion</div></div>
+<div class="legendBox" style="left:1269.0px;top:560px;width:275px;height:185px;border-color:#60a5fa;background:#dbeafe;"><div class="legendTitle" style="color:#1e3a8a;">Common Organic 1&#8722; ions</div></div>
+<div class="slot" id="slot-H" data-id="H" style="left:55.0px;top:140.0px;width:108px;height:84px;border-color:#f87171;"><span class="slotTag" style="color:#f87171;">1+</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-Li" data-id="Li" style="left:55.0px;top:234.0px;width:108px;height:84px;border-color:#f87171;"><span class="slotTag" style="color:#f87171;">1+</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-Na" data-id="Na" style="left:55.0px;top:328.0px;width:108px;height:84px;border-color:#f87171;"><span class="slotTag" style="color:#f87171;">1+</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-K" data-id="K" style="left:55.0px;top:422.0px;width:108px;height:84px;border-color:#f87171;"><span class="slotTag" style="color:#f87171;">1+</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-Rb" data-id="Rb" style="left:55.0px;top:516.0px;width:108px;height:84px;border-color:#f87171;"><span class="slotTag" style="color:#f87171;">1+</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-Cs" data-id="Cs" style="left:55.0px;top:610.0px;width:108px;height:84px;border-color:#f87171;"><span class="slotTag" style="color:#f87171;">1+</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-Be" data-id="Be" style="left:190.0px;top:234.0px;width:108px;height:84px;border-color:#dc2626;"><span class="slotTag" style="color:#dc2626;">2+</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-Mg" data-id="Mg" style="left:190.0px;top:328.0px;width:108px;height:84px;border-color:#dc2626;"><span class="slotTag" style="color:#dc2626;">2+</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-Ca" data-id="Ca" style="left:190.0px;top:422.0px;width:108px;height:84px;border-color:#dc2626;"><span class="slotTag" style="color:#dc2626;">2+</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-Sr" data-id="Sr" style="left:190.0px;top:516.0px;width:108px;height:84px;border-color:#dc2626;"><span class="slotTag" style="color:#dc2626;">2+</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-Ba" data-id="Ba" style="left:190.0px;top:610.0px;width:108px;height:84px;border-color:#dc2626;"><span class="slotTag" style="color:#dc2626;">2+</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-Al" data-id="Al" style="left:325.0px;top:580.5px;width:108px;height:84px;border-color:#7f1d1d;"><span class="slotTag" style="color:#7f1d1d;">3+</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-N" data-id="N" style="left:1150.0px;top:545.0px;width:108px;height:84px;border-color:#1e3a8a;"><span class="slotTag" style="color:#1e3a8a;">3&#8722;</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-P" data-id="P" style="left:1150.0px;top:639.0px;width:108px;height:84px;border-color:#1e3a8a;"><span class="slotTag" style="color:#1e3a8a;">3&#8722;</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-O" data-id="O" style="left:1285.0px;top:350.0px;width:108px;height:84px;border-color:#2563eb;"><span class="slotTag" style="color:#2563eb;">2&#8722;</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-S" data-id="S" style="left:1285.0px;top:444.0px;width:108px;height:84px;border-color:#2563eb;"><span class="slotTag" style="color:#2563eb;">2&#8722;</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-F" data-id="F" style="left:1420.0px;top:140.0px;width:108px;height:84px;border-color:#60a5fa;"><span class="slotTag" style="color:#60a5fa;">1&#8722;</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-Cl" data-id="Cl" style="left:1420.0px;top:234.0px;width:108px;height:84px;border-color:#60a5fa;"><span class="slotTag" style="color:#60a5fa;">1&#8722;</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-Br" data-id="Br" style="left:1420.0px;top:328.0px;width:108px;height:84px;border-color:#60a5fa;"><span class="slotTag" style="color:#60a5fa;">1&#8722;</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-I" data-id="I" style="left:1420.0px;top:422.0px;width:108px;height:84px;border-color:#60a5fa;"><span class="slotTag" style="color:#60a5fa;">1&#8722;</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-NH4" data-id="NH4" style="left:493.79999999999995px;top:186.0px;width:130px;height:64px;border-color:#f87171;"><span class="slotTag" style="color:#f87171;">1+</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-Ag" data-id="Ag" style="left:651.2px;top:186.0px;width:130px;height:64px;border-color:#f87171;"><span class="slotTag" style="color:#f87171;">1+</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-Cu" data-id="Cu" style="left:493.79999999999995px;top:381.0px;width:130px;height:64px;border-color:#dc2626;"><span class="slotTag" style="color:#dc2626;">2+</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-Zn" data-id="Zn" style="left:651.2px;top:381.0px;width:130px;height:64px;border-color:#dc2626;"><span class="slotTag" style="color:#dc2626;">2+</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-Fe2" data-id="Fe2" style="left:493.79999999999995px;top:453.0px;width:130px;height:64px;border-color:#dc2626;"><span class="slotTag" style="color:#dc2626;">2+</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-Mn" data-id="Mn" style="left:651.2px;top:453.0px;width:130px;height:64px;border-color:#dc2626;"><span class="slotTag" style="color:#dc2626;">2+</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-Fe3" data-id="Fe3" style="left:572.5px;top:576.0px;width:130px;height:64px;border-color:#7f1d1d;"><span class="slotTag" style="color:#7f1d1d;">3+</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-OH" data-id="OH" style="left:823.8px;top:186.0px;width:130px;height:64px;border-color:#60a5fa;"><span class="slotTag" style="color:#60a5fa;">1&#8722;</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-NO3" data-id="NO3" style="left:981.2px;top:186.0px;width:130px;height:64px;border-color:#60a5fa;"><span class="slotTag" style="color:#60a5fa;">1&#8722;</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-HCO3" data-id="HCO3" style="left:823.8px;top:258.0px;width:130px;height:64px;border-color:#60a5fa;"><span class="slotTag" style="color:#60a5fa;">1&#8722;</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-MnO4" data-id="MnO4" style="left:981.2px;top:258.0px;width:130px;height:64px;border-color:#60a5fa;"><span class="slotTag" style="color:#60a5fa;">1&#8722;</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-CO3" data-id="CO3" style="left:823.8px;top:381.0px;width:130px;height:64px;border-color:#2563eb;"><span class="slotTag" style="color:#2563eb;">2&#8722;</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-SO4" data-id="SO4" style="left:981.2px;top:381.0px;width:130px;height:64px;border-color:#2563eb;"><span class="slotTag" style="color:#2563eb;">2&#8722;</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-PO4" data-id="PO4" style="left:902.5px;top:576.0px;width:130px;height:64px;border-color:#1e3a8a;"><span class="slotTag" style="color:#1e3a8a;">3&#8722;</span><div class="slotContent"></div></div>
+<div class="slot" id="slot-CH3COO" data-id="CH3COO" style="left:1341.5px;top:596.0px;width:130px;height:64px;border-color:#60a5fa;"><span class="slotTag" style="color:#60a5fa;">1&#8722;</span><div class="slotContent"></div></div>
+      <div id="pieceLayer"></div>
+    </div>
+  </div>
+</div>
+
+<div id="overlay">
+  <div id="overlayBox">
+    <h2 id="overlayTitle">Ionic Charges Drop!</h2>
+    <p>An ion formula falls from the top of the board. Use <b>&#8592; &#8594;</b> to slide it into the correct
+       lane, and <b>&#8595;</b> to drop it faster. It locks in place only when it reaches its own correct box —
+       so if you're in the wrong lane, just keep watching and try the next one!</p>
+    <p>Match all 35 ions before you run out of lives to complete the chart. Correct placements score +10 with a
+       "ping"; a miss costs &#8722;50 points and a life, with a very different buzz.</p>
+    <div class="levelRow">
+      <button class="gameBtn levelBtn" id="startLevel1">Level 1 &#8212; Standard
+        <small>Falling ions show their charge (e.g. Na&#8314;)</small>
+      </button>
+      <button class="gameBtn levelBtn" id="startLevel2">Level 2 &#8212; Hard
+        <small>Falling ions show no charge (e.g. Na) &#8212; you must know it</small>
+      </button>
+      <button class="gameBtn levelBtn" id="startLevel3">Level 3 &#8212; Expert
+        <small>Falling ions show only their name (e.g. "hydroxide ion")</small>
+      </button>
+      <button class="gameBtn levelBtn" id="startLevel4">Level 4 &#8212; Chaos
+        <small>Each piece is randomly symbol OR name &#8212; and it falls faster</small>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SLOTS = [{"id": "H", "label": "H\u207a", "bare": "H", "mass": "1", "name": "hydrogen ion", "cat": "1+", "x": 109.0, "y": 182.0, "w": 108, "h": 84, "group": "H", "fallLabel": null}, {"id": "Li", "label": "Li\u207a", "bare": "Li", "mass": "7", "name": "lithium ion", "cat": "1+", "x": 109.0, "y": 276.0, "w": 108, "h": 84, "group": "Li", "fallLabel": null}, {"id": "Na", "label": "Na\u207a", "bare": "Na", "mass": "23", "name": "sodium ion", "cat": "1+", "x": 109.0, "y": 370.0, "w": 108, "h": 84, "group": "Na", "fallLabel": null}, {"id": "K", "label": "K\u207a", "bare": "K", "mass": "39", "name": "potassium ion", "cat": "1+", "x": 109.0, "y": 464.0, "w": 108, "h": 84, "group": "K", "fallLabel": null}, {"id": "Rb", "label": "Rb\u207a", "bare": "Rb", "mass": "85", "name": "rubidium ion", "cat": "1+", "x": 109.0, "y": 558.0, "w": 108, "h": 84, "group": "Rb", "fallLabel": null}, {"id": "Cs", "label": "Cs\u207a", "bare": "Cs", "mass": "133", "name": "caesium ion", "cat": "1+", "x": 109.0, "y": 652.0, "w": 108, "h": 84, "group": "Cs", "fallLabel": null}, {"id": "Be", "label": "Be\u00b2\u207a", "bare": "Be", "mass": "9", "name": "beryllium ion", "cat": "2+", "x": 244.0, "y": 276.0, "w": 108, "h": 84, "group": "Be", "fallLabel": null}, {"id": "Mg", "label": "Mg\u00b2\u207a", "bare": "Mg", "mass": "24", "name": "magnesium ion", "cat": "2+", "x": 244.0, "y": 370.0, "w": 108, "h": 84, "group": "Mg", "fallLabel": null}, {"id": "Ca", "label": "Ca\u00b2\u207a", "bare": "Ca", "mass": "40", "name": "calcium ion", "cat": "2+", "x": 244.0, "y": 464.0, "w": 108, "h": 84, "group": "Ca", "fallLabel": null}, {"id": "Sr", "label": "Sr\u00b2\u207a", "bare": "Sr", "mass": "88", "name": "strontium ion", "cat": "2+", "x": 244.0, "y": 558.0, "w": 108, "h": 84, "group": "Sr", "fallLabel": null}, {"id": "Ba", "label": "Ba\u00b2\u207a", "bare": "Ba", "mass": "137", "name": "barium ion", "cat": "2+", "x": 244.0, "y": 652.0, "w": 108, "h": 84, "group": "Ba", "fallLabel": null}, {"id": "Al", "label": "Al\u00b3\u207a", "bare": "Al", "mass": "27", "name": "aluminium ion", "cat": "3+", "x": 379.0, "y": 622.5, "w": 108, "h": 84, "group": "Al", "fallLabel": null}, {"id": "N", "label": "N\u00b3\u207b", "bare": "N", "mass": "14", "name": "nitride ion", "cat": "3-", "x": 1204.0, "y": 587.0, "w": 108, "h": 84, "group": "N", "fallLabel": null}, {"id": "P", "label": "P\u00b3\u207b", "bare": "P", "mass": "31", "name": "phosphide ion", "cat": "3-", "x": 1204.0, "y": 681.0, "w": 108, "h": 84, "group": "P", "fallLabel": null}, {"id": "O", "label": "O\u00b2\u207b", "bare": "O", "mass": "16", "name": "oxide ion", "cat": "2-", "x": 1339.0, "y": 392.0, "w": 108, "h": 84, "group": "O", "fallLabel": null}, {"id": "S", "label": "S\u00b2\u207b", "bare": "S", "mass": "32", "name": "sulfide ion", "cat": "2-", "x": 1339.0, "y": 486.0, "w": 108, "h": 84, "group": "S", "fallLabel": null}, {"id": "F", "label": "F\u207b", "bare": "F", "mass": "19", "name": "fluoride ion", "cat": "1-", "x": 1474.0, "y": 182.0, "w": 108, "h": 84, "group": "F", "fallLabel": null}, {"id": "Cl", "label": "Cl\u207b", "bare": "Cl", "mass": "35.5", "name": "chloride ion", "cat": "1-", "x": 1474.0, "y": 276.0, "w": 108, "h": 84, "group": "Cl", "fallLabel": null}, {"id": "Br", "label": "Br\u207b", "bare": "Br", "mass": "80", "name": "bromide ion", "cat": "1-", "x": 1474.0, "y": 370.0, "w": 108, "h": 84, "group": "Br", "fallLabel": null}, {"id": "I", "label": "I\u207b", "bare": "I", "mass": "127", "name": "iodide ion", "cat": "1-", "x": 1474.0, "y": 464.0, "w": 108, "h": 84, "group": "I", "fallLabel": null}, {"id": "NH4", "label": "NH\u2084\u207a", "bare": "NH\u2084", "mass": "18", "name": "ammonium ion", "cat": "1+", "x": 558.8, "y": 218, "w": 130, "h": 64, "group": "cat1", "fallLabel": null}, {"id": "Ag", "label": "Ag\u207a", "bare": "Ag", "mass": "108", "name": "silver ion", "cat": "1+", "x": 716.2, "y": 218, "w": 130, "h": 64, "group": "cat1", "fallLabel": null}, {"id": "Cu", "label": "Cu\u00b2\u207a", "bare": "Cu", "mass": "64", "name": "copper(II) ion", "cat": "2+", "x": 558.8, "y": 413, "w": 130, "h": 64, "group": "cat2", "fallLabel": null}, {"id": "Zn", "label": "Zn\u00b2\u207a", "bare": "Zn", "mass": "65", "name": "zinc ion", "cat": "2+", "x": 716.2, "y": 413, "w": 130, "h": 64, "group": "cat2", "fallLabel": null}, {"id": "Fe2", "label": "Fe\u00b2\u207a", "bare": "Fe", "mass": "56", "name": "iron(II) ion", "cat": "2+", "x": 558.8, "y": 485, "w": 130, "h": 64, "group": "cat2", "fallLabel": "Iron(II)"}, {"id": "Mn", "label": "Mn\u00b2\u207a", "bare": "Mn", "mass": "55", "name": "manganese(II) ion", "cat": "2+", "x": 716.2, "y": 485, "w": 130, "h": 64, "group": "cat2", "fallLabel": null}, {"id": "Fe3", "label": "Fe\u00b3\u207a", "bare": "Fe", "mass": "56", "name": "iron(III) ion", "cat": "3+", "x": 637.5, "y": 608, "w": 130, "h": 64, "group": "Fe3", "fallLabel": "Iron(III)"}, {"id": "OH", "label": "OH\u207b", "bare": "OH", "mass": "17", "name": "hydroxide ion", "cat": "1-", "x": 888.8, "y": 218, "w": 130, "h": 64, "group": "an1", "fallLabel": null}, {"id": "NO3", "label": "NO\u2083\u207b", "bare": "NO\u2083", "mass": "62", "name": "nitrate ion", "cat": "1-", "x": 1046.2, "y": 218, "w": 130, "h": 64, "group": "an1", "fallLabel": null}, {"id": "HCO3", "label": "HCO\u2083\u207b", "bare": "HCO\u2083", "mass": "61", "name": "hydrogencarbonate ion", "cat": "1-", "x": 888.8, "y": 290, "w": 130, "h": 64, "group": "an1", "fallLabel": null}, {"id": "MnO4", "label": "MnO\u2084\u207b", "bare": "MnO\u2084", "mass": "119", "name": "manganate(VII) ion", "cat": "1-", "x": 1046.2, "y": 290, "w": 130, "h": 64, "group": "an1", "fallLabel": null}, {"id": "CO3", "label": "CO\u2083\u00b2\u207b", "bare": "CO\u2083", "mass": "60", "name": "carbonate ion", "cat": "2-", "x": 888.8, "y": 413, "w": 130, "h": 64, "group": "an2", "fallLabel": null}, {"id": "SO4", "label": "SO\u2084\u00b2\u207b", "bare": "SO\u2084", "mass": "96", "name": "sulfate ion", "cat": "2-", "x": 1046.2, "y": 413, "w": 130, "h": 64, "group": "an2", "fallLabel": null}, {"id": "PO4", "label": "PO\u2084\u00b3\u207b", "bare": "PO\u2084", "mass": "95", "name": "phosphate ion", "cat": "3-", "x": 967.5, "y": 608, "w": 130, "h": 64, "group": "PO4", "fallLabel": null}, {"id": "CH3COO", "label": "CH\u2083COO\u207b", "bare": "CH\u2083COO", "mass": "59", "name": "ethanoate ion", "cat": "1-", "x": 1406.5, "y": 628, "w": 130, "h": 64, "group": "CH3COO", "fallLabel": null}];
+const LANES = [{"x": 109, "slots": ["H", "Li", "Na", "K", "Rb", "Cs"]}, {"x": 244, "slots": ["Be", "Mg", "Ca", "Sr", "Ba"]}, {"x": 379, "slots": ["Al"]}, {"x": 559, "slots": ["NH4", "Cu", "Fe2"]}, {"x": 638, "slots": ["Fe3"]}, {"x": 716, "slots": ["Ag", "Zn", "Mn"]}, {"x": 889, "slots": ["OH", "HCO3", "CO3"]}, {"x": 968, "slots": ["PO4"]}, {"x": 1046, "slots": ["NO3", "MnO4", "SO4"]}, {"x": 1204, "slots": ["N", "P"]}, {"x": 1339, "slots": ["O", "S"]}, {"x": 1406, "slots": ["CH3COO"]}, {"x": 1474, "slots": ["F", "Cl", "Br", "I"]}];
+const COLORS = {"1+": {"border": "#f87171", "fill": "#fee2e2", "dark": "#7f1d1d"}, "2+": {"border": "#dc2626", "fill": "#fecaca", "dark": "#7f1d1d"}, "3+": {"border": "#7f1d1d", "fill": "#fca5a5", "dark": "#450a0a"}, "1-": {"border": "#60a5fa", "fill": "#dbeafe", "dark": "#1e3a8a"}, "2-": {"border": "#2563eb", "fill": "#bfdbfe", "dark": "#1e3a8a"}, "3-": {"border": "#1e3a8a", "fill": "#93c5fd", "dark": "#172554"}};
+const WORLD_W = 1650;
+const WORLD_H = 800;
+
+const slotById = {};
+SLOTS.forEach(s => slotById[s.id] = s);
+
+// Sort lanes left-to-right; each lane keeps its ordered (top-to-bottom) slot id list
+LANES.sort((a, b) => a.x - b.x);
+
+let laneIndex = 0;
+let queue = [];
+let currentPiece = null;
+let filled = {};
+let score = 0;
+let lives = 5;
+let running = false;
+let level = 1;
+let fallSpeed = 1.4;   // px per tick (normal)
+let dropSpeed = 7;     // px per tick (soft drop)
+let softDropping = false;
+
+// Level 4 ("Chaos") falls noticeably faster than the other levels.
+const LEVEL_FALL_SPEED = { 1: 1.4, 2: 1.4, 3: 1.4, 4: 2.2 };
+const LEVEL_DROP_SPEED = { 1: 7, 2: 7, 3: 7, 4: 10 };
+
+// --- Sound effects (WebAudio, no external files needed) ---
+let audioCtx = null;
+function ensureAudio() {
+  if (!audioCtx) {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (Ctx) audioCtx = new Ctx();
+  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}
+function playTone(freq, start, dur, type, gainVal) {
+  if (!audioCtx) return;
+  const t0 = audioCtx.currentTime + start;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, t0);
+  gain.gain.setValueAtTime(0, t0);
+  gain.gain.linearRampToValueAtTime(gainVal, t0 + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.03);
+}
+function playCorrectSound() {
+  // A bright, cheerful two-note "ping"
+  playTone(880, 0, 0.12, 'sine', 0.2);
+  playTone(1320, 0.09, 0.16, 'sine', 0.18);
+}
+function playWrongSound() {
+  // A very different low, buzzy tone for a miss
+  playTone(160, 0, 0.30, 'sawtooth', 0.22);
+  playTone(100, 0.14, 0.32, 'sawtooth', 0.20);
+}
+let tickHandle = null;
+
+const pieceLayer = document.getElementById('pieceLayer');
+const scoreEl = document.getElementById('score');
+const livesEl = document.getElementById('lives');
+const nextPreviewEl = document.getElementById('nextPreview');
+const overlay = document.getElementById('overlay');
+const overlayBox = document.getElementById('overlayBox');
+const overlayTitle = document.getElementById('overlayTitle');
+
+function shuffledSlotIds() {
+  const ids = SLOTS.map(s => s.id);
+  for (let i = ids.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [ids[i], ids[j]] = [ids[j], ids[i]];
+  }
+  return ids;
+}
+
+function resetBoard() {
+  document.querySelectorAll('.slot').forEach(el => {
+    el.classList.remove('filled', 'flash');
+    el.querySelector('.slotContent').innerHTML = '';
+  });
+  filled = {};
+  score = 0;
+  lives = 5;
+  scoreEl.textContent = '0';
+  updateLives();
+  queue = shuffledSlotIds().map(id => ({ id, mode: pickMode() }));
+  laneIndex = 0;
+  if (currentPiece && currentPiece.el) currentPiece.el.remove();
+  currentPiece = null;
+}
+
+function updateLives() {
+  livesEl.textContent = '&#10084;&#65039;'.repeat(Math.max(lives, 0)) + '&#183;'.repeat(Math.max(5 - lives, 0));
+}
+
+function laneXForSlotId(id) {
+  for (const lane of LANES) {
+    if (lane.slots.includes(id)) return lane.x;
+  }
+  return WORLD_W / 2;
+}
+
+function laneIndexForX(x) {
+  let best = 0, bestDist = Infinity;
+  LANES.forEach((lane, i) => {
+    const d = Math.abs(lane.x - x);
+    if (d < bestDist) { bestDist = d; best = i; }
+  });
+  return best;
+}
+
+// Decide the display "mode" for one falling piece: 'symbol' (with charge),
+// 'bare' (symbol, no charge) or 'name'. Levels 1-3 use a fixed mode for every
+// piece; Level 4 ("Chaos") picks randomly per piece, so students can't just
+// tune out and wait for a symbol.
+function pickMode() {
+  if (level === 4) {
+    const modes = ['symbol', 'bare', 'name'];
+    return modes[Math.floor(Math.random() * modes.length)];
+  }
+  if (level === 3) return 'name';
+  if (level === 2) return 'bare';
+  return 'symbol';
+}
+
+// H and F sit at the very top of their columns, so there's almost no fall
+// distance to react in. Give these two a 1-second pause at spawn before they
+// start falling, so there's actually time to slide them into place.
+const PAUSE_AT_SPAWN = { H: 1000, F: 1000 };
+
+// What to print on a falling piece (or the "next" preview), given its mode.
+// Ions that share an ambiguous bare symbol (iron(II) vs iron(III), both "Fe")
+// always show their name instead of "symbol"/"bare", so they're never confused
+// mid-fall — the "name" mode itself is already unambiguous.
+function fallingText(slot, mode) {
+  if (mode === 'name') return slot.name;
+  if (slot.fallLabel) return slot.fallLabel;
+  return mode === 'bare' ? slot.bare : slot.label;
+}
+
+function spawnNext() {
+  if (queue.length === 0) {
+    endGame(true);
+    return;
+  }
+  const item = queue.shift();
+  const slot = slotById[item.id];
+  const c = COLORS[slot.cat];
+  const el = document.createElement('div');
+  const txt = fallingText(slot, item.mode);
+  const isName = (item.mode === 'name') || !!slot.fallLabel;
+  el.className = 'piece' + (isName ? ' wide' : '');
+  el.style.borderColor = c.border;
+  el.style.background = c.fill;
+  el.style.color = c.dark;
+  el.innerHTML = txt;
+  el.style.fontSize = (item.mode === 'name' ? '13px' : (slot.fallLabel ? '14px' : '19px'));
+  pieceLayer.appendChild(el);
+
+  laneIndex = Math.floor(LANES.length / 2); // always start in a middle lane
+  const pauseMs = PAUSE_AT_SPAWN[slot.id] || 0;
+  currentPiece = {
+    id: item.id, slot, el, x: LANES[laneIndex].x, y: 66,
+    pauseUntil: pauseMs ? Date.now() + pauseMs : 0,
+  };
+  el.style.left = currentPiece.x + 'px';
+  el.style.top = currentPiece.y + 'px';
+  if (pauseMs) el.classList.add('paused');
+
+  const nextItem = queue.length ? queue[0] : null;
+  nextPreviewEl.textContent = nextItem ? fallingText(slotById[nextItem.id], nextItem.mode) : '–';
+}
+
+function tick() {
+  if (!running || !currentPiece) return;
+  if (currentPiece.pauseUntil) {
+    if (Date.now() < currentPiece.pauseUntil) return; // still holding at spawn
+    currentPiece.pauseUntil = 0;
+    currentPiece.el.classList.remove('paused');
+  }
+  const speed = softDropping ? dropSpeed : fallSpeed;
+  currentPiece.y += speed;
+  currentPiece.el.style.top = currentPiece.y + 'px';
+
+  const lane = LANES[laneIndex];
+  for (const sid of lane.slots) {
+    if (filled[sid]) continue;
+    const s = slotById[sid];
+    const slotTop = s.y - s.h / 2;
+    const slotBottom = s.y + s.h / 2;
+    const pieceCenter = currentPiece.y + 28;
+    if (pieceCenter >= slotTop && pieceCenter <= slotBottom) {
+      // Any box that shares this piece's "group" counts as correct — grouped
+      // boxes (e.g. the oxoanion sets) are interchangeable positions, only an
+      // element's own specific periodic-table box has to match by id.
+      if (s.group === currentPiece.slot.group) {
+        lockPiece(s, currentPiece.slot);
+      }
+      break; // either it locks, or this lane's next unfilled slot is still further down
+    }
+  }
+
+  if (currentPiece && currentPiece.y > WORLD_H - 40) {
+    missPiece();
+  }
+}
+
+function lockPiece(targetSlot, pieceData) {
+  filled[targetSlot.id] = true;
+  const el = document.getElementById('slot-' + targetSlot.id);
+  el.classList.add('filled', 'flash');
+  el.querySelector('.slotContent').innerHTML =
+    '<div class="f">' + pieceData.label + '</div><div class="m">' + pieceData.mass + '</div><div class="n">' + pieceData.name + '</div>';
+  setTimeout(() => el.classList.remove('flash'), 650);
+  playCorrectSound();
+  score += 10;
+  scoreEl.textContent = score;
+  currentPiece.el.remove();
+  currentPiece = null;
+  softDropping = false;
+  setTimeout(spawnNext, 180);
+}
+
+function missPiece() {
+  if (!currentPiece) return;
+  currentPiece.el.style.transition = 'opacity 0.3s';
+  currentPiece.el.style.opacity = '0';
+  const dead = currentPiece.el;
+  setTimeout(() => dead.remove(), 300);
+  currentPiece = null;
+  softDropping = false;
+  playWrongSound();
+  score = Math.max(0, score - 50);
+  scoreEl.textContent = score;
+  lives -= 1;
+  updateLives();
+  if (lives <= 0) {
+    endGame(false);
+    return;
+  }
+  setTimeout(spawnNext, 250);
+}
+
+function endGame(won) {
+  running = false;
+  clearInterval(tickHandle);
+  overlay.classList.remove('hidden');
+  overlayTitle.textContent = won ? 'Chart complete!' : 'Game over';
+  overlayBox.querySelectorAll('p.stat').forEach(p => p.remove());
+  const p = document.createElement('p');
+  p.className = 'stat';
+  p.innerHTML = (won
+    ? 'You matched every ion to its correct box.'
+    : 'Out of lives &#8212; but you can jump straight back in.') +
+    '<br>Final score: <b>' + score + '</b>';
+  overlayBox.insertBefore(p, overlayBox.querySelector('.levelRow'));
+}
+
+function startGame(chosenLevel) {
+  if (chosenLevel) level = chosenLevel;
+  fallSpeed = LEVEL_FALL_SPEED[level];
+  dropSpeed = LEVEL_DROP_SPEED[level];
+  document.getElementById('levelTag').textContent = level;
+  resetBoard();
+  ensureAudio();
+  overlay.classList.add('hidden');
+  running = true;
+  spawnNext();
+  clearInterval(tickHandle);
+  tickHandle = setInterval(tick, 30);
+}
+
+document.getElementById('startLevel1').addEventListener('click', () => startGame(1));
+document.getElementById('startLevel2').addEventListener('click', () => startGame(2));
+document.getElementById('startLevel3').addEventListener('click', () => startGame(3));
+document.getElementById('startLevel4').addEventListener('click', () => startGame(4));
+document.getElementById('restartBtn').addEventListener('click', () => startGame());
+
+window.addEventListener('keydown', (e) => {
+  if (!running || !currentPiece) return;
+  if (e.key === 'ArrowLeft') {
+    laneIndex = Math.max(0, laneIndex - 1);
+    currentPiece.x = LANES[laneIndex].x;
+    currentPiece.el.style.left = currentPiece.x + 'px';
+    e.preventDefault();
+  } else if (e.key === 'ArrowRight') {
+    laneIndex = Math.min(LANES.length - 1, laneIndex + 1);
+    currentPiece.x = LANES[laneIndex].x;
+    currentPiece.el.style.left = currentPiece.x + 'px';
+    e.preventDefault();
+  } else if (e.key === 'ArrowDown') {
+    softDropping = true;
+    e.preventDefault();
+  }
+});
+window.addEventListener('keyup', (e) => {
+  if (e.key === 'ArrowDown') softDropping = false;
+});
+
+// --- Responsive scaling of the fixed-size world into the available width ---
+function rescale() {
+  const outer = document.getElementById('stageOuter');
+  const stage = document.getElementById('stage');
+  const world = document.getElementById('world');
+  const scale = Math.min(1, (outer.clientWidth - 4) / WORLD_W);
+  world.style.transform = 'scale(' + scale + ')';
+  stage.style.width = (WORLD_W * scale) + 'px';
+  stage.style.height = (WORLD_H * scale) + 'px';
+}
+window.addEventListener('resize', rescale);
+rescale();
+resetBoard();
+</script>
+</body>
+</html>

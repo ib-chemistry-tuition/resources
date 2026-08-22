@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Learning Approaches to Chemistry for Curious Minds</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#1c4b8c;
+    --blue-dark:#0d2c5c;
+    --blue-light:#dbe8fa;
+    --blue-pale:#e7f0fb;
+    --ink:#152a4a;
+    --muted:#4a6086;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background: radial-gradient(circle at 50% 0%, #eef4fc 0%, #d5e4f7 45%, #b7d0ef 100%);
+    font-family:'Source Sans 3','Segoe UI',sans-serif;
+    color:var(--ink);
+  }
+  .wrap{max-width:1000px;margin:0 auto;padding:24px 20px 70px;position:relative;z-index:1;}
+
+  .bg-scene{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    overflow:hidden;
+    pointer-events:none;
+  }
+  .bg-scene svg{width:100%;height:100%;display:block;}
+
+  header{
+    text-align:center;
+    padding:6px 0 26px;
+    margin-bottom:34px;
+    position:relative;
+  }
+  h1{
+    font-family:'Gill Sans Narrow','Gill Sans MT Condensed','Gill Sans MT','Gill Sans',Calibri,sans-serif;
+    font-weight:700;
+    font-size:clamp(26px,4.8vw,41px);
+    margin:0;
+    color:var(--blue-dark);
+    letter-spacing:.3px;
+    line-height:1.3;
+  }
+  .subtitle{
+    font-size:12px;
+    color:var(--blue);
+    letter-spacing:2.5px;
+    text-transform:uppercase;
+    margin-top:14px;
+    font-weight:600;
+  }
+  header::after{
+    content:"";
+    display:block;
+    width:min(360px,70%);
+    height:0;
+    margin:20px auto 0;
+    border-bottom:3px double var(--blue);
+  }
+
+  h2.section{
+    font-family:'Gill Sans Narrow','Gill Sans MT Condensed','Gill Sans MT','Gill Sans',Calibri,sans-serif;
+    font-weight:700;
+    font-size:21px;
+    color:var(--blue-dark);
+    border-bottom:1px solid var(--blue);
+    padding-bottom:9px;
+    margin:44px 0 18px;
+    letter-spacing:.3px;
+    line-height:1.4;
+    scroll-margin-top:16px;
+  }
+
+  h3.subsection{
+    scroll-margin-top:16px;
+  }
+
+  .section-sub{
+    font-family:'Gill Sans Narrow','Gill Sans MT Condensed','Gill Sans MT','Gill Sans',Calibri,sans-serif;
+    font-style:italic;
+    font-size:14px;
+    color:var(--blue);
+    margin:-14px 0 18px;
+  }
+  h3.subsection{
+    font-family:'Gill Sans Narrow','Gill Sans MT Condensed','Gill Sans MT','Gill Sans',Calibri,sans-serif;
+    font-size:13.5px;
+    font-weight:700;
+    color:var(--blue);
+    text-transform:uppercase;
+    letter-spacing:2px;
+    margin:24px 0 12px;
+    padding-left:10px;
+    border-left:3px solid var(--blue);
+  }
+
+  .card-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
+    gap:14px;
+  }
+  a.card{
+    display:block;
+    background:#f7fafe;
+    border:1.5px solid var(--blue);
+    border-radius:16px;
+    padding:14px 16px;
+    text-decoration:none;
+    color:var(--ink);
+    box-shadow:0 4px 10px rgba(13,44,92,.18);
+    transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+  }
+  a.card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 20px rgba(13,44,92,.28);
+    background:var(--blue-pale);
+    border-color:var(--blue-dark);
+  }
+  .card-title{
+    font-family:'Source Sans 3',sans-serif;
+    font-size:14.5px;
+    font-weight:700;
+    color:var(--blue-dark);
+    margin-bottom:5px;
+  }
+  .card-desc{
+    font-size:13px;
+    color:var(--muted);
+    line-height:1.5;
+  }
+
+  .card-title-row{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:8px;
+    margin-bottom:5px;
+  }
+  .card-title-row .card-title{margin-bottom:0;}
+  .info-trigger{
+    flex:0 0 auto;
+    width:19px;
+    height:19px;
+    border-radius:50%;
+    border:1.5px solid var(--blue);
+    background:#fff;
+    color:var(--blue);
+    font-family:'Source Sans 3',sans-serif;
+    font-size:12px;
+    font-weight:700;
+    line-height:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    position:relative;
+    margin-top:1px;
+  }
+  .info-trigger:hover,
+  .info-trigger:focus,
+  .info-trigger.open{
+    background:var(--blue);
+    color:#fff;
+    outline:none;
+  }
+  .info-popover{
+    display:none;
+    position:absolute;
+    right:-8px;
+    top:calc(100% + 8px);
+    width:min(300px,86vw);
+    z-index:5;
+    background:#fff;
+    border:1.5px solid var(--blue);
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:12.5px;
+    line-height:1.55;
+    color:var(--ink);
+    box-shadow:0 10px 24px rgba(13,44,92,.32);
+    text-align:left;
+    white-space:normal;
+    font-weight:400;
+  }
+  .info-popover strong{
+    color:var(--blue-dark);
+    font-weight:700;
+  }
+  .info-trigger:hover .info-popover,
+  .info-trigger:focus .info-popover,
+  .info-trigger.open .info-popover{
+    display:block;
+  }
+
+  footer{
+    text-align:center;
+    font-size:11px;
+    color:var(--blue);
+    text-transform:uppercase;
+    letter-spacing:2px;
+    margin-top:56px;
+    padding-top:20px;
+    border-top:3px double var(--blue);
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-scene" aria-hidden="true">
+  <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="bpgrid" width="40" height="40" patternUnits="userSpaceOnUse">
+        <path d="M40,0 L0,0 0,40" fill="none" stroke="#1c4b8c" stroke-width="0.5"/>
+      </pattern>
+      <marker id="flow" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 Z" fill="#1c4b8c"/>
+      </marker>
+      <g id="valve">
+        <polygon points="-10,-8 10,8 10,-8 -10,8"/>
+      </g>
+      <g id="gauge">
+        <circle r="13"/>
+        <line x1="0" y1="0" x2="7" y2="-9"/>
+      </g>
+    </defs>
+
+    <!-- blueprint grid -->
+    <rect width="1200" height="800" fill="url(#bpgrid)" opacity="0.07"/>
+
+    <!-- process equipment -->
+    <g fill="none" stroke="#1c4b8c" stroke-width="2" opacity="0.16">
+      <!-- distillation column T-101 -->
+      <rect x="130" y="150" width="70" height="480" rx="4"/>
+      <ellipse cx="165" cy="150" rx="35" ry="10"/>
+      <ellipse cx="165" cy="630" rx="35" ry="10"/>
+      <line x1="130" y1="220" x2="200" y2="220"/>
+      <line x1="130" y1="290" x2="200" y2="290"/>
+      <line x1="130" y1="360" x2="200" y2="360"/>
+      <line x1="130" y1="430" x2="200" y2="430"/>
+      <line x1="130" y1="500" x2="200" y2="500"/>
+      <line x1="130" y1="570" x2="200" y2="570"/>
+
+      <!-- CSTR reactor R-201 -->
+      <rect x="380" y="420" width="130" height="200" rx="6"/>
+      <ellipse cx="445" cy="420" rx="65" ry="16"/>
+      <ellipse cx="445" cy="620" rx="65" ry="16"/>
+      <rect x="425" y="360" width="40" height="60"/>
+      <line x1="445" y1="420" x2="445" y2="580"/>
+      <line x1="415" y1="580" x2="475" y2="580"/>
+      <line x1="420" y1="565" x2="470" y2="595"/>
+      <line x1="470" y1="565" x2="420" y2="595"/>
+
+      <!-- heat exchanger E-301 -->
+      <rect x="640" y="280" width="220" height="70" rx="10"/>
+      <path d="M655,315 L678,295 L701,335 L724,295 L747,335 L770,295 L793,335 L816,295 L839,315"/>
+
+      <!-- storage tank TK-401 -->
+      <rect x="930" y="480" width="120" height="180"/>
+      <path d="M930,480 Q990,425 1050,480 Z"/>
+      <line x1="950" y1="660" x2="950" y2="690"/>
+      <line x1="1030" y1="660" x2="1030" y2="690"/>
+
+      <!-- pump P-501 -->
+      <circle cx="560" cy="700" r="20"/>
+      <polygon points="552,690 552,710 572,700" fill="#1c4b8c" stroke="none"/>
+    </g>
+
+    <!-- interconnecting pipework -->
+    <g fill="none" stroke="#1c4b8c" stroke-width="1.8" opacity="0.18">
+      <path d="M200,260 H320 V335 H380" marker-end="url(#flow)"/>
+      <path d="M510,470 H600 V315 H640" marker-end="url(#flow)"/>
+      <path d="M860,315 H900 V570 H930" marker-end="url(#flow)"/>
+      <path d="M930,600 H700 V700 H580" marker-end="url(#flow)"/>
+      <path d="M540,700 H300 V500 H165 V630" marker-end="url(#flow)"/>
+    </g>
+
+    <!-- valves + gauges -->
+    <g fill="none" stroke="#1c4b8c" stroke-width="1.4" opacity="0.2">
+      <use href="#valve" transform="translate(320,300)"/>
+      <use href="#valve" transform="translate(600,390)"/>
+      <use href="#valve" transform="translate(900,470)"/>
+      <use href="#gauge" transform="translate(165,190)"/>
+      <use href="#gauge" transform="translate(760,280)"/>
+    </g>
+
+    <!-- dimension / callout lines -->
+    <g stroke="#1c4b8c" stroke-width="1" opacity="0.14" stroke-dasharray="5 4">
+      <line x1="130" y1="700" x2="200" y2="700"/>
+      <line x1="380" y1="660" x2="510" y2="660"/>
+      <line x1="930" y1="710" x2="1050" y2="710"/>
+    </g>
+
+    <!-- equipment tags -->
+    <g font-family="'Source Sans 3',monospace" font-size="12" fill="#1c4b8c" opacity="0.3">
+      <text x="120" y="700">T-101</text>
+      <text x="400" y="655">R-201</text>
+      <text x="700" y="270">E-301</text>
+      <text x="945" y="705">TK-401</text>
+      <text x="540" y="735">P-501</text>
+    </g>
+
+    <!-- corner title block -->
+    <g stroke="#1c4b8c" stroke-width="1" opacity="0.16" fill="none">
+      <rect x="960" y="720" width="220" height="60"/>
+      <line x1="960" y1="748" x2="1180" y2="748"/>
+      <line x1="1070" y1="748" x2="1070" y2="780"/>
+    </g>
+    <g font-family="'Source Sans 3',monospace" font-size="11" fill="#1c4b8c" opacity="0.28">
+      <text x="972" y="740">PROCESS FLOW DIAGRAM</text>
+      <text x="972" y="770">SHEET 1</text>
+      <text x="1082" y="770">REV. A</text>
+    </g>
+  </svg>
+</div>
+
+<div class="wrap">
+  <header>
+    <h1>Learning Approaches to Chemistry for Curious Minds</h1>
+    <div class="subtitle">Interactive Simulations · Worksheets · Maps · Games</div>
+  </header>
+
+  <h2 class="section" id="recently-added-apps">Recently Added Apps</h2>
+  <div class="card-grid">
+    <a class="card" href="zn_cu_galvanic_cell_experiment.html">
+      <div class="card-title-row">
+        <div class="card-title">Preparing for the depth of IA Investigations (Part I)</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">In this guided Exploration (using the separate online worksheet for support, hints and feedback) you will learn what to expect from creating a battery using two standard half-cells. What is the effect of changing the metal electrode, changing the aqueous ion concentration and changing the temperature on the cell EMF, and more importantly on the half-cell potential? [Advanced] Background learning: The Nernst Equation, and Van't Hoff and Entropy Change</span></span>
+      </div>
+      <div class="card-desc">A guided galvanic-cell exploration — electrode, concentration and temperature effects on cell EMF, with background on the Nernst Equation.</div>
+    </a>
+    <a class="card" href="reactivity_series_intro_worksheet.html">
+      <div class="card-title-row">
+        <div class="card-title">Worksheet 1: Getting Started — Reactivity Series &amp; Cell EMF</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">The first of several worksheets built around the galvanic cell simulation above. Explore different electrode pairs to find the highest cell EMF, spot the pattern on the Reactivity Series, and see how 1.10 V for the classic Zn-Cu cell comes straight from the two half-cell potentials. Lots of hints, self-marked questions, and a Canvas-ready progress report at the end.</span></span>
+      </div>
+      <div class="card-desc">The first worksheet in the galvanic-cell series — explore electrode pairs, spot the Reactivity Series pattern, and see where 1.10 V for Zn-Cu comes from.</div>
+    </a>
+  </div>
+
+  <h2 class="section" id="summer-studies-2026">Summer Studies 2026</h2>
+  <p class="section-sub">19th Century studies in Art, Ornithology and the History of Science</p>
+  <div class="card-grid">
+    <a class="card" href="https://gouldianknot.github.io/birds-of-great-britain/index.html" target="_blank" rel="noopener">
+      <div class="card-title-row">
+        <div class="card-title">Ornithology and art in the early 19th Century: John Gould's five-volume "The Birds of Europe" (1832&ndash;37)</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">An online gallery of all <strong>463 species</strong> across John Gould's five-volume "The Birds of Europe" (1832&ndash;37), named in English, German, French and Latin, with <strong>click-to-zoom high-resolution plates</strong> and notes on the <strong>etymology</strong> for both common and Latin scientific names. Includes notes on how Gould's 1830s classifications have held up since, and full credit to <strong>Elizabeth Gould</strong>, who drew nearly every plate. Alongside the gallery sits a set of companion essays &mdash; on the artists, the history of hand-illustration, taxonomy and <strong>Darwin's ideas about Evolution</strong>, and who actually subscribed to Gould's work. A further essay follows what <strong>Andrea Wulf</strong> called von Humboldt's &ldquo;<strong>invention of Nature</strong>&rdquo; to ask how Britain, continental Europe and America each set out to catalogue the natural world, shaped by their different cultural motivations.</span></span>
+      </div>
+      <div class="card-desc">A browsable, searchable gallery of all 463 species across Gould's five-volume masterwork, with click-to-zoom high-resolution plates and etymology tooltips.</div>
+    </a>
+    <a class="card" href="https://gouldianknot.github.io/voices" target="_blank" rel="noopener">
+      <div class="card-title-row">
+        <div class="card-title">"Voices" — a Summer Study in nineteenth-century Natural History</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">The curious intersection of ideas — History of Science, Art and Romanticism — as seen through the eyes of Elizabeth Gould (1804&ndash;1841), the hidden illustrator behind John Gould's publishing works in Ornithology. A collection of research notes from a German forest. 2026.</span></span>
+      </div>
+      <div class="card-desc"><em>The voices of Elizabeth Gould, bird illustrator and other Ornithologists of the 19th Century</em><br>The curious intersection of History of Science, Art and Romanticism, seen through the eyes of Elizabeth Gould (1804&ndash;1841) — a collection of research notes from a German forest. 2026.</div>
+    </a>
+    <a class="card" href="https://gouldianknot.github.io/birds-of-great-britain/gould_library_gb.html" target="_blank" rel="noopener">
+      <div class="card-title">Gould Library — Birds of Great Britain</div>
+      <div class="card-desc">A bibliography of John Gould's works and related sources for The Birds of Great Britain.</div>
+    </a>
+    <a class="card" href="https://gouldianknot.github.io/birds-of-great-britain/citations_database/index.html" target="_blank" rel="noopener">
+      <div class="card-title">Citations Database — Birds of Great Britain</div>
+      <div class="card-desc">A searchable database of citations and sources underpinning the Birds of Great Britain project.</div>
+    </a>
+  </div>
+
+  <h2 class="section" id="grade-10-industrial-chemistry">Grade 10 Industrial Chemistry</h2>
+  <p class="section-sub">Course materials for the Grade 10 Industrial Chemistry course</p>
+  <div class="card-grid">
+    <a class="card" href="Industrial%20Chemistry%20%E2%80%94%20Course%20Overview.html">
+      <div class="card-title-row">
+        <div class="card-title">Course Overview &mdash; the five units, from the blast furnace to the ammonia plant</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">The full course overview for Grade 10 Industrial Chemistry, with the weekly timetable embedded at the top. <strong>Unit 1</strong> reviews the four tools you need all year &mdash; equations and moles, thermochemistry, kinetics and equilibrium. <strong>Unit 2</strong> takes you through the Industrial Revolution and the railway explosion: metallic and ionic bonding, alloys, the reactivity series, the blast furnace, aluminium from bauxite, corrosion, redox, and a first look at reactors and process flow diagrams. <strong>Unit 3</strong> builds acid&ndash;base theory from Arrhenius to Br&oslash;nsted&ndash;Lowry, with titration, pH probes and LoggerPro, ammonia and the transition-metal complexes. <strong>Unit 4</strong> runs from Newlands&rsquo; octaves of 1866 through Mendeleev to electron configuration, Aufbau and periodicity. <strong>Unit 5</strong> puts the whole lot to work on Haber&ndash;Bosch and the Contact process, and on the chemical corridor of the Rhine and Main. Every section links straight through to the matching resources on Canvas.</span></span>
+      </div>
+      <div class="card-desc">The five units of the course set out in full &mdash; what each one covers, how they build on one another, and links to every resource on Canvas. With the weekly timetable embedded at the top.</div>
+    </a>
+  </div>
+
+  <h2 class="section" id="periodic-tables-with-integrated-molar-mass-calculators">Periodic Tables with integrated molar mass calculators</h2>
+  <div class="card-grid">
+    <a class="card" href="molar_mass_calculator_for_IB_Chemistry.html">
+      <div class="card-title">Molar Mass Calculator — IB Periodic Table Edition</div>
+      <div class="card-desc">An interactive molar mass calculator built around the IB data-booklet periodic table — enter a formula and click elements to build up the total molar mass.</div>
+    </a>
+    <a class="card" href="MolarMassCalculatorBasedOnCambridgePeriodicTable.html">
+      <div class="card-title">Molar Mass Calculator — Cambridge Periodic Table Edition</div>
+      <div class="card-desc">An all-purpose Molar Mass Calculator which uses the simple integer atomic masses in the Cambridge UCLES papers, which are rather more memorable, and entirely suitable for Grade 9 and Grade 10 student learning.</div>
+    </a>
+  </div>
+
+  <h2 class="section" id="industrial-chemistry-process-simulations-and-worksheets">Industrial Chemistry — Process Simulations and Worksheets</h2>
+
+  <h3 class="subsection" id="the-contact-process-sulfuric-acid">The Contact Process (Sulfuric Acid)</h3>
+  <div class="card-grid">
+    <a class="card" href="contact_process_v5.html">
+      <div class="card-title">Contact Process — Interactive Flowsheet</div>
+      <div class="card-desc">Full interactive equilibrium flowsheet for H₂SO₄ manufacture (V₂O₅ catalyst). Basis: 1,000 kg/hr liquid sulfur — adjust temperature and pressure on a T–P map to optimize SO₂ conversion yield.</div>
+    </a>
+    <a class="card" href="contact_process_v5_worksheet.html">
+      <div class="card-title">Contact Process v5 — Student Worksheet</div>
+      <div class="card-desc">Companion worksheet for the flowsheet above: label the five unit operations and match each of the 8 numbered process streams to its main components.</div>
+    </a>
+    <a class="card" href="contact_process_monsanto.html">
+      <div class="card-title">Contact Process — Monsanto Single-Absorption Plant</div>
+      <div class="card-desc">A second interactive flowsheet modelling the classic Monsanto single-absorption design (basis: 1,000 kg/hr liquid sulfur), for comparing plant configurations.</div>
+    </a>
+    <a class="card" href="contact_process_worksheet.html">
+      <div class="card-title">Contact Process — Interactive Student Worksheet</div>
+      <div class="card-desc">A general interactive worksheet on the Contact Process, working through the reaction conditions and stages of sulfuric acid production.</div>
+    </a>
+    <a class="card" href="ChemEng_contact_process%20v2.html">
+      <div class="card-title">Contact Process — Interactive Flowsheet (ChemEng v2)</div>
+      <div class="card-desc">The ChemEng-course version of the interactive H₂SO₄ manufacture flowsheet.</div>
+    </a>
+    <a class="card" href="ChemEng_contact_process_worksheet.html">
+      <div class="card-title">Contact Process — Interactive Student Worksheet (ChemEng)</div>
+      <div class="card-desc">The ChemEng-course version of the Contact Process student worksheet.</div>
+    </a>
+    <a class="card" href="ChemEng_contact_process_answers.html">
+      <div class="card-title">Contact Process Worksheet — Answer Key &amp; Mark Scheme</div>
+      <div class="card-desc">Full answer key and mark scheme for the ChemEng Contact Process worksheet above.</div>
+    </a>
+  </div>
+
+  <h3 class="subsection" id="the-haber-bosch-process-ammonia">The Haber-Bosch Process (Ammonia)</h3>
+  <div class="card-grid">
+    <a class="card" href="haber_bosch_simulator.html">
+      <div class="card-title">Haber-Bosch Process Simulator</div>
+      <div class="card-desc">Interactive simulator for N₂ + 3H₂ ⇌ 2NH₃. Explore how temperature, pressure and catalyst affect equilibrium yield and reaction rate in ammonia synthesis.</div>
+    </a>
+    <a class="card" href="haber_bosch_worksheet_interactive.html">
+      <div class="card-title">Haber-Bosch Process — Interactive Worksheet</div>
+      <div class="card-desc">"Finding the Optimum" — a simulation-based investigation worksheet that guides students through balancing yield, rate and cost to find the best operating conditions.</div>
+    </a>
+    <a class="card" href="ChemEng_haber_bosch_worksheet_interactive%20v1.html">
+      <div class="card-title">Haber-Bosch Process — Interactive Worksheet (ChemEng v1)</div>
+      <div class="card-desc">The ChemEng-course v1 build of the Haber-Bosch investigation worksheet.</div>
+    </a>
+    <a class="card" href="ChemEng_haber_bosch_worksheet_interactive%20v2.html">
+      <div class="card-title">Haber-Bosch Process — Interactive Worksheet (ChemEng v2)</div>
+      <div class="card-desc">The ChemEng-course v2 build of the Haber-Bosch investigation worksheet, with revisions on v1.</div>
+    </a>
+  </div>
+
+  <h3 class="subsection" id="germany-s-chemical-industry-interactive-maps">Germany's Chemical Industry — Interactive Maps</h3>
+  <div class="card-grid">
+    <a class="card" href="Historical%20development%20of%20the%20chemical%20industries%20in%20Germany_chemical_map.html">
+      <div class="card-title">Historical Development of the Chemical Industries in Germany</div>
+      <div class="card-desc">The fuller version of the river map, adding a toggleable historical timeline of events alongside the chemical industry sites — see how the industry grew over time.</div>
+    </a>
+    <a class="card" href="All_Rivers_chemical_map.html">
+      <div class="card-title">Germany's Rivers — Chemical Industry Map (earlier version)</div>
+      <div class="card-desc">An interactive map plotting chemical industry sites along Germany's major rivers, filterable by river. An earlier, simpler build of the map above.</div>
+    </a>
+    <a class="card" href="ChemEng_Historical%20development%20of%20the%20chemical%20industries%20in%20Germany_chemical_map.html">
+      <div class="card-title">Historical Development of the Chemical Industries in Germany (ChemEng)</div>
+      <div class="card-desc">The ChemEng-course build of the river map with the toggleable historical timeline of events alongside the chemical industry sites.</div>
+    </a>
+    <a class="card" href="ChemEng_All_Rivers_chemical_map%20copy.html">
+      <div class="card-title">Germany's Rivers — Chemical Industry Map (ChemEng copy)</div>
+      <div class="card-desc">The ChemEng-course copy of the rivers map, filterable by river.</div>
+    </a>
+    <a class="card" href="ChemEng_Map%20of%20Germany's_Rivers_with%20locations%20of%20chemical_works.html">
+      <div class="card-title">Map of Germany's Rivers with Locations of Chemical Works</div>
+      <div class="card-desc">Another build of the interactive rivers map, focused on plotting the locations of chemical works.</div>
+    </a>
+    <a class="card" href="ChemEng_Explore%20the%20largest%20chemical%20industries%20along%20the%20Rhine%20and%20Main_map.html">
+      <div class="card-title">Rhine &amp; Main Rivers — Chemical Industry Map</div>
+      <div class="card-desc">A focused interactive map of the largest chemical industry sites along the Rhine and Main rivers specifically.</div>
+    </a>
+    <a class="card" href="ChemEng_Map%20of%20Germany's_River_Canalization_Projects_History.html">
+      <div class="card-title">Germany's Rivers — Canalization History</div>
+      <div class="card-desc">An interactive map covering the history of river canalization projects in Germany, which enabled the growth of riverside chemical industry.</div>
+    </a>
+    <a class="card" href="ChemEng_Student%20Activity%20(Resource)%20frankfurt_industries_1920s.html">
+      <div class="card-title">Frankfurt · Taunus · Wiesbaden — Industrie &amp; Güterverkehr 1920–1935</div>
+      <div class="card-desc">A student activity map of industrial sites and freight transport around Frankfurt, Taunus and Wiesbaden in the 1920s-30s — click markers for history and Google Maps links.</div>
+    </a>
+  </div>
+
+  <h2 class="section" id="the-nature-of-science">The Nature of Science</h2>
+  <p class="section-sub">Summer studies and projects for recreation</p>
+  <div class="card-grid">
+    <a class="card" href="timelinesNaturalHistory.html">
+      <div class="card-title-row">
+        <div class="card-title">The Great Age of Natural History — Portal</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A portal of pioneering Natural Historians (Naturforscher): their biographies, signatures and major works, in English, French and German. The aim here is to show a timeline of ideas stretching through the 18th and 19th Centuries. We open with the voyages of many explorers sent on missions to catalogue all the Species. Alexander von Humboldt was among them in 1800, and published his findings on his return to Berlin and Paris over five volumes. These same volumes would later accompany Charles Darwin to the Galapagos Islands, as Darwin assimilated von Humboldt's ideas about 'Nature' as a system of underlying systems.</span></span>
+      </div>
+      <div class="card-desc">A portal of pioneering Natural Historians — biographies, signatures and major works spanning the 18th and 19th Centuries, in English, French and German.</div>
+    </a>
+    <a class="card" href="thome.html">
+      <div class="card-title">Art in Science</div>
+      <div class="card-desc">Thomés classic "Flora von Deutschland" scientific illustrations brought together as a browsable/searchable gallery with flashcards and learning tools — in English, French or German.</div>
+    </a>
+    <a class="card" href="https://gouldianknot.github.io/birds-of-great-britain/index.html" target="_blank" rel="noopener">
+      <div class="card-title-row">
+        <div class="card-title">The Birds of Europe — John Gould, in Five Volumes</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A browsable, searchable gallery of all 463 species across John Gould's five-volume Birds of Europe (1832&ndash;37), named in English, German, French and Latin, with click-to-zoom high-resolution plates. Cards carry genus descriptions, hoverable etymology for both common and scientific names, and notes on how Gould's 1830s classifications have held up &mdash; or changed &mdash; since, crediting Elizabeth Gould, who drew nearly every plate.</span></span>
+      </div>
+      <div class="card-desc">A browsable gallery of all 463 species across Gould's five-volume Birds of Europe, with etymology tooltips and click-to-zoom plates.</div>
+    </a>
+    <a class="card" href="HeroesInScience.html">
+      <div class="card-title-row">
+        <div class="card-title">The role of "The Character" in the History of Science</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">I am always struck by the nature of "The Characters" who pioneered science from the 17th to the 20th Century. The great adventurers and discoverers, the possessors of such insight who could make intuitive leaps into the unknown, often taking extreme risks... Was it Nature, or was it Nurture? What sort of people were they? There is a strange place in the English culture for "The Character", often eccentric and fiercely independent, not abiding by society's Norms of the period. They appear throughout English Culture whether literature (e.g. Conan Doyle's Sherlock Holmes, GK Chesterton's Father Brown, Agatha Christie's characters, John Buchan's Robert Hannay, Orwell, TE Lawrence, Gertrude Bell and the Durrells), in music (e.g. Ruth Gipps, Ethel Smythe, and other rediscovered female composers), and they continue to appear. The History of Science is full of Newtons, Darwins, Roscoes, Faradays, Cavendishes, Perkins... it's a roll-call of Characters of obsessive scientific rigour and immense intellectual firepower, and in no sense "Ordinary". Sometimes lovable, especially in their mistakes, but often not so, as they are often quite 'difficult' characters. What is it that made these amazing few tread quite lonely paths, and what desires and passions drove them?<br><br>Please note: This is a work in very early progress!</span></span>
+      </div>
+      <div class="card-desc">A reflection on the eccentric, driven personalities — from Newton to Darwin — who shaped the History of Science. (Work in early progress.)</div>
+    </a>
+    <a class="card" href="https://gouldianknot.github.io/voices" target="_blank" rel="noopener">
+      <div class="card-title-row">
+        <div class="card-title">"Voices" — a Summer Study in nineteenth-century Natural History</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">The curious intersection of ideas — History of Science, Art and Romanticism — as seen through the eyes of Elizabeth Gould (1804&ndash;1841), the hidden illustrator behind John Gould's publishing works in Ornithology. A collection of research notes from a German forest. 2026.</span></span>
+      </div>
+      <div class="card-desc"><em>The voices of Elizabeth Gould, bird illustrator and other Ornithologists of the 19th Century</em><br>The curious intersection of History of Science, Art and Romanticism, seen through the eyes of Elizabeth Gould (1804&ndash;1841) — a collection of research notes from a German forest. 2026.</div>
+    </a>
+  </div>
+
+  <h2 class="section" id="atomic-structure-electron-configuration">Atomic Structure &amp; Electron Configuration</h2>
+  <div class="card-grid">
+    <a class="card" href="ChemEng_Cambridge%20electron_configurations_quiz.html">
+      <div class="card-title">Chapter 3: Electron Configurations — Interactive Quiz</div>
+      <div class="card-desc">An interactive quiz on writing and interpreting electron configurations.</div>
+    </a>
+    <a class="card" href="ChemEng_Resource%20-%20electronic_structure.html">
+      <div class="card-title">Electronic Structure &amp; Evidence — IB Chemistry HL</div>
+      <div class="card-desc">IB Chemistry HL, Structure 1.3: explore successive ionization energies element by element, and how the pattern of IE jumps gives evidence for electron sub-shells.</div>
+    </a>
+  </div>
+
+  <h2 class="section" id="oxidation-numbers-redox">Oxidation Numbers &amp; Redox</h2>
+  <div class="card-grid">
+    <a class="card" href="ChemEng_Oxidation_Numbers_Activity.html">
+      <div class="card-title">Oxidation Numbers — Interactive Learning Activity</div>
+      <div class="card-desc">A guided interactive activity for learning the rules for assigning oxidation numbers.</div>
+    </a>
+    <a class="card" href="ChemEng_oxidation_numbers_worksheet%20with%20cheat-sheets_v2.html">
+      <div class="card-title">Oxidation Numbers &amp; Redox — Worksheet v2 (with cheat-sheets)</div>
+      <div class="card-desc">Practice worksheet on oxidation numbers and redox processes, with built-in cheat-sheets for reference.</div>
+    </a>
+    <a class="card" href="ChemEng_oxidation_numbers_Practice_test.html">
+      <div class="card-title">Oxidation Numbers &amp; Redox Processes — Practice Test</div>
+      <div class="card-desc">A self-marking practice test covering oxidation numbers and redox processes.</div>
+    </a>
+    <a class="card" href="ChemEng_oxidation_numbers_test_v3H.html">
+      <div class="card-title">Redox Through History — Chemistry Test v3</div>
+      <div class="card-desc">An oxidation numbers and redox test framed around historical redox reactions.</div>
+    </a>
+    <a class="card" href="ChemEng_oxidation_numbers_test_v4_great_reactions.html">
+      <div class="card-title">The Greatest Redox Reactions in History — v4</div>
+      <div class="card-desc">A revised version of the historically-themed redox test, built around famous redox reactions.</div>
+    </a>
+    <a class="card" href="ChemEng_Redox_Exercise9A_Interactive_Textbook%20Examples%20and%20Questions%20IBID2.html">
+      <div class="card-title">Exercise 9-A — Redox Processes</div>
+      <div class="card-desc">Interactive textbook-style worksheet for Exercise 9-A: 8 pages, 5 multiple-choice questions, 10 oxidation number calculations, and 3 extended questions.</div>
+    </a>
+    <a class="card" href="IB_Chemistry_Redox_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Redox Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A one-page visual summary of Reactivity 3.2 "Electron transfer reactions": oxidation states and half-equations, redox trends and reactivity, electrochemical cells, organic redox reactions, and — for HL — standard electrode potentials, Gibbs energy and electrolysis applications.</span></span>
+      </div>
+      <div class="card-desc">A one-page visual summary of Reactivity 3.2 "Electron transfer reactions".</div>
+    </a>
+    <a class="card" href="IB_Chemistry_Redox_Practical_Labs_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Redox Practical Labs Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A companion mind map of lab experiments and IA ideas for Reactivity 3.2: displacement, electrolysis and organic redox demonstrations, redox titrations, and — for HL — voltaic cell construction, predicting electrolysis products, electroplating and Faraday's law.</span></span>
+      </div>
+      <div class="card-desc">A companion mind map of lab experiments and IA ideas for Reactivity 3.2.</div>
+    </a>
+  </div>
+
+  <h2 class="section" id="equilibrium">Equilibrium</h2>
+  <div class="card-grid">
+    <a class="card" href="IB_Chemistry_Equilibrium_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry — Equilibrium Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A one-page visual summary of Reactivity 2.3 ("How far? The extent of chemical change"): dynamic equilibrium, the equilibrium law and K, Le Chatelier's principle, reaction quotient Q, and — for HL — quantifying equilibrium and ΔG⊖ &amp; K.</span></span>
+      </div>
+      <div class="card-desc">A one-page visual summary of Reactivity 2.3 ("How far? The extent of chemical change").</div>
+    </a>
+    <a class="card" href="IB_Chemistry_Equilibrium_PracticalLabs_MindMap.svg">
+      <div class="card-title">IB Chemistry HL — Equilibrium Practical Labs Mind Map</div>
+      <div class="card-desc">A companion mind map of lab experiments and IA ideas for Reactivity 2.3: qualitative Le Chatelier demonstrations (concentration, temperature, pressure shifts) alongside quantitative Kc/Q labs and extension ideas for HL.</div>
+    </a>
+  </div>
+
+  <h2 class="section" id="quantitative-chemistry">Quantitative Chemistry</h2>
+  <div class="card-grid">
+    <a class="card" href="A_Molar_Mass_Calculator.html">
+      <div class="card-title">Molar Mass Calculator — Whiteboard Edition</div>
+      <div class="card-desc">It is a very simple molar mass calculator, for screen and whiteboard use to introduce the idea of molar mass and formulae.</div>
+    </a>
+    <a class="card" href="molar_mass_calculator_for_IB_Chemistry.html">
+      <div class="card-title">Molar Mass Calculator — IB Periodic Table Edition</div>
+      <div class="card-desc">An interactive molar mass calculator built around the IB data-booklet periodic table — enter a formula and click elements to build up the total molar mass.</div>
+    </a>
+    <a class="card" href="MolarMassCalculatorBasedOnCambridgePeriodicTable.html">
+      <div class="card-title">Molar Mass Calculator — Cambridge Periodic Table Edition</div>
+      <div class="card-desc">An all-purpose Molar Mass Calculator which uses the simple integer atomic masses in the Cambridge UCLES papers, which are rather more memorable, and entirely suitable for Grade 9 and Grade 10 student learning.</div>
+    </a>
+    <a class="card" href="Empirical_Formula_Interactive.html">
+      <div class="card-title">Finding an Empirical Formula from % Composition by Mass</div>
+      <div class="card-desc">A step-by-step interactive walkthrough: convert percentage composition to moles, find the simplest whole-number ratio, and arrive at the empirical formula.</div>
+    </a>
+    <a class="card" href="ion_formula_game.html">
+      <div class="card-title">Ionic Formula Builder — Learning Game</div>
+      <div class="card-desc">Practice combining cations and anions into correctly balanced, correctly charged ionic formulas.</div>
+    </a>
+    <a class="card" href="CommonIonicChargesChartv24.html">
+      <div class="card-title">Common Ionic Charges — Patterns Across the Periodic Table</div>
+      <div class="card-desc">A visual reference chart: Groups 1, 2 &amp; 3 form cations equal to the group number; Groups 5, 6 &amp; 7 form anions equal to (8 − group number).</div>
+    </a>
+    <a class="card" href="Ionic_Charges_Drop_Game.html">
+      <div class="card-title">Tetris Game for Learning Common Ionic Charges</div>
+      <div class="card-desc">A Tetris-style falling-block game for practising and memorising the common ionic charges of elements across the periodic table.</div>
+    </a>
+  </div>
+
+  <h2 class="section" id="explorations-collision-theory-and-molecular-energies-used-to-model-chemical-phenomena">Explorations: Collision Theory and Molecular Energies Used to Model Chemical Phenomena</h2>
+  <div class="card-grid">
+    <a class="card" href="ammonia_equilibrium_simulation.html">
+      <div class="card-title-row">
+        <div class="card-title">Ammonia Equilibrium Simulator — Particle-Level Le Chatelier</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A hand-drawn, particle-level model of N₂ + 3H₂ ⇌ 2NH₃ grounded in collision theory. Adjust temperature, pressure, concentration and catalyst, and watch activation energy, the Maxwell–Boltzmann distribution, and forward/reverse reaction rates explain — not just show — why the equilibrium shifts.</span></span>
+      </div>
+      <div class="card-desc">A hand-drawn, particle-level model of the Haber process equilibrium — adjust conditions and watch collision theory explain the shift.</div>
+    </a>
+  </div>
+
+  <h2 class="section" id="why-do-english-bells-sound-so-different-to-european-bells">Why Do English Bells Sound So Different to European Bells?</h2>
+  <div class="card-grid">
+    <a class="card" href="bell_acoustics_learning.html">
+      <div class="card-title-row">
+        <div class="card-title">Bell Acoustics — A Learning Sequence</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A staged introduction to bell acoustics: the anatomy of a bell's sound, the "virtual pitch" paradox behind the note we hear, and why upper partials can't be tuned independently — using bells like Erfurt's Gloriosa as examples.</span></span>
+      </div>
+      <div class="card-desc">A staged look at bell acoustics — a bell's anatomy of sound, the “virtual pitch” paradox, and why upper partials resist tuning.</div>
+    </a>
+    <a class="card" href="gloriosa_bell.html">
+      <div class="card-title">Bell Beat Frequencies — Great Bells of Europe & America</div>
+      <div class="card-desc">Compares beat frequencies of famous bells (including Big Ben and the Gloriosa) to show how partials interact and beat against each other, shaping each bell's distinctive character.</div>
+    </a>
+  </div>
+
+  <h2 class="section" id="learning-tools-for-element-locations-and-symbols-in-the-periodic-table">Learning Tools for Element Locations and Symbols in the Periodic Table</h2>
+
+  <div class="card-grid">
+    <a class="card" href="Learners_Guide_to_the_Element_Symbols_and_Locations.html">
+      <div class="card-title">Learner's Guide to the Element Symbols and their Locations</div>
+      <div class="card-desc">The hub page for the whole "Periodic Table Tetris" game series below — start here to pick a game by period, block, or difficulty.</div>
+    </a>
+    <a class="card" href="elements_flip_cards_curious.html">
+      <div class="card-title">Periodic Table Flip Cards — Curious Chemist's Edition</div>
+      <div class="card-desc">Flip-card study tool: the front shows an element's name and a full write-up of its properties, the back reveals its symbol and location on the table.</div>
+    </a>
+    <a class="card" href="CambridgePTAdaptedForWhiteboard.html">
+      <div class="card-title-row">
+        <div class="card-title">The Periodic Table — Whiteboard Edition</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">Based on the UCLES Periodic Table with integer masses, used for courses up to Grade 10. A hand-drawn, Noteworthy-styled periodic table built for the classroom whiteboard. Hover or click any element to pop it out in a large focus banner — perfect for pointing out an element to the whole room.</span></span>
+      </div>
+      <div class="card-desc">A hand-drawn UCLES periodic table (integer masses) for the classroom whiteboard — hover or click any element to pop it out.</div>
+    </a>
+    <a class="card" href="periodic_table_with_more_accurate_atomic_masses.html">
+      <div class="card-title-row">
+        <div class="card-title">The Periodic Table — For More Accurate Use in Calculations at IB SL &amp; HL</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">The full IB data-booklet periodic table (all 118 elements, atomic numbers and relative atomic masses), redrawn in an Excalidraw-style hand-drawn look with the Noteworthy font. Hover or click an element for a large pop-out focus banner that repositions itself away from the cursor.</span></span>
+      </div>
+      <div class="card-desc">The full IB data-booklet periodic table, hand-drawn — hover or click an element for a pop-out focus banner.</div>
+    </a>
+  </div>
+
+  <h3 class="subsection" id="periodic-table-tetris-single-period-games">Periodic Table Tetris — Single Period Games</h3>
+  <div class="card-grid">
+    <a class="card" href="period-2-drop.html">
+      <div class="card-title">Learn the Element symbols for Period 2</div>
+      <div class="card-desc">Lithium through Neon — 8 elements across the second row.</div>
+    </a>
+    <a class="card" href="period-3-drop.html">
+      <div class="card-title">Learn the Element symbols for Period 3</div>
+      <div class="card-desc">Sodium through Argon — 8 elements across the third row.</div>
+    </a>
+    <a class="card" href="period-4-drop.html">
+      <div class="card-title">Learn the Element symbols for Period 4</div>
+      <div class="card-desc">Potassium through Krypton — the first row with transition metals.</div>
+    </a>
+    <a class="card" href="period-5-drop.html">
+      <div class="card-title">Learn the Element symbols for Period 5</div>
+      <div class="card-desc">Rubidium through Xenon — 18 elements across the fifth row.</div>
+    </a>
+    <a class="card" href="period-6-drop.html">
+      <div class="card-title">Learn the Element symbols for Period 6</div>
+      <div class="card-desc">Caesium through Radon — 32 elements, including the Lanthanide gap.</div>
+    </a>
+    <a class="card" href="periodic-table-tetris.html">
+      <div class="card-title">Learn the Element symbols for Period 7</div>
+      <div class="card-desc">Francium through Oganesson — the final row, including the Actinide gap.</div>
+    </a>
+  </div>
+
+  <h3 class="subsection" id="periodic-table-tetris-f-block-series">Periodic Table Tetris — f-Block Series</h3>
+  <div class="card-grid">
+    <a class="card" href="f-block-1-lanthanides-drop.html">
+      <div class="card-title">f-Block Part 1: The Lanthanide Series</div>
+      <div class="card-desc">Cerium through Lutetium — 14 elements, with the Actinide Series shown as reference.</div>
+    </a>
+    <a class="card" href="f-block-2-actinides-drop.html">
+      <div class="card-title">f-Block Part 2: The Actinide Series</div>
+      <div class="card-desc">Thorium through Lawrencium — 14 elements, with the Lanthanide Series shown as reference.</div>
+    </a>
+  </div>
+
+  <h3 class="subsection" id="periodic-table-tetris-multi-period-complete-table-games">Periodic Table Tetris — Multi-Period & Complete Table Games</h3>
+  <div class="card-grid">
+    <a class="card" href="periods-1-2-3-drop.html">
+      <div class="card-title">Periods 1-3</div>
+      <div class="card-desc">Period 1, then Period 2, then Period 3 — 18 elements, one row at a time.</div>
+    </a>
+    <a class="card" href="periods-1-2-3-random-drop.html">
+      <div class="card-title">Periods 1-3: The Expert's Version</div>
+      <div class="card-desc">The same 18 elements, but shuffled together and dropped in random order.</div>
+    </a>
+    <a class="card" href="periods-1-7-drop.html">
+      <div class="card-title">Periods 1-7</div>
+      <div class="card-desc">Every main period in sequence, for advanced students — with an escalating score bonus.</div>
+    </a>
+    <a class="card" href="complete-periodic-table-drop.html">
+      <div class="card-title">Learn the Complete Periodic Table!</div>
+      <div class="card-desc">All 118 elements — every period plus the Lanthanide and Actinide Series, in sequence.</div>
+    </a>
+    <a class="card" href="complete-periodic-table-random-drop.html">
+      <div class="card-title">Random Element! Expert Edition</div>
+      <div class="card-desc">All 118 elements shuffled together, falling in completely random order across the whole table.</div>
+    </a>
+  </div>
+
+  <h2 class="section" id="exploring-ideas-from-p-w">Exploring Ideas from P.W.</h2>
+  <div class="card-grid">
+    <a class="card" href="ohms_law_simulation.html">
+      <div class="card-title-row">
+        <div class="card-title">Exploring Ohm's Law — Interactive Circuit & Guided Investigation</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A hand-drawn circuit (battery, rheostat, resistor, ammeter, voltmeter) with live sliders, plus a guided investigation: collect readings, plot your own points, draw a line of best fit, answer hinted questions, and generate a summary to submit on Canvas.</span></span>
+      </div>
+      <div class="card-desc">A hand-drawn circuit with live sliders for a guided Ohm's Law investigation — collect readings, plot, and generate a Canvas summary.</div>
+    </a>
+  </div>
+
+  <h2 class="section" id="other">Other</h2>
+  <div class="card-grid">
+    <a class="card" href="Reading_List_of_faber_authors_An_Exploration.html">
+      <div class="card-title">Faber & Faber Authors — A Reading List Exploration</div>
+      <div class="card-desc">An exploration of 359 authors published by Faber & Faber, with short biographies. Not chemistry-related — kept here since it didn't fit the categories above.</div>
+    </a>
+    <a class="card" href="kanji_game.html">
+      <div class="card-title">Kanji Quest — JLPT N5</div>
+      <div class="card-desc">A learning game for practising JLPT N5-level kanji. Not chemistry-related — kept here since it didn't fit the categories above.</div>
+    </a>
+  </div>
+
+  <h3 class="subsection" id="apps-i-wrote-while-on-a-railway-holiday-in-the-vuklaneifel-mountains">Apps I wrote while on a railway holiday in the VuklanEifel Mountains</h3>
+  <div class="card-grid">
+    <a class="card" href="morse-elements.html">
+      <div class="card-title">Morse × Elements — Signal Lab</div>
+      <div class="card-desc">A Morse code trainer themed around the chemical elements — learn to send and decode signals built from element symbols.</div>
+    </a>
+    <a class="card" href="buchstabier-trainer.html">
+      <div class="card-title">Buchstabier-Trainer · DIN 5009</div>
+      <div class="card-desc">A German spelling-alphabet (NATO-style) trainer using the new DIN 5009 city-name table (2022) — tap a sign to hear it, or spell out a word letter by letter.</div>
+    </a>
+    <a class="card" href="vokabeln.html">
+      <div class="card-title">Most common 6000 words trainer</div>
+      <div class="card-desc">A word frequency tool to help me learn common vocabulary (English/German/French)</div>
+    </a>
+    <a class="card" href="eifelbahn-profile.html">
+      <div class="card-title">Eifelbahn · Trier → Köln · Elevation Profile</div>
+      <div class="card-desc">An interactive elevation profile of the Eifelbahn railway line between Trier and Köln, through the Vulkaneifel.</div>
+    </a>
+  </div>
+
+  <h2 class="section" id="ib-chemistry-hl-topic-mind-maps-tools">IB Chemistry — HL Topic Mind Maps &amp; Tools</h2>
+
+  <h3 class="subsection" id="stoichiometry-chemical-calculations">Stoichiometry — Chemical Calculations</h3>
+  <div class="card-grid">
+    <a class="card" href="IB_Chemistry_Stoichiometry_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Stoichiometry Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A one-page visual summary of Structure 1.4 "Counting particles by mass: The mole", Structure 1.5 "Ideal gases" and Reactivity 2.1 "The amount of chemical change": moles, Avogadro's constant &amp; molar mass, empirical/molecular formulas, molar concentration, Avogadro's law &amp; gas stoichiometry, the ideal gas model, gas laws &amp; molar volume, the ideal gas equation, balancing equations &amp; reacting quantities, limiting reactant &amp; yield, and atom economy.</span></span>
+      </div>
+      <div class="card-desc">A one-page visual summary of Structure 1.4 "Counting particles by mass: The mole", Structure 1.5 "Ideal gases" and Reactivity 2.1 "The amount of chemical change".</div>
+    </a>
+    <a class="card" href="IB_Chemistry_Stoichiometry_PracticalLabs_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Stoichiometry Practical Labs Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A companion mind map of practical &amp; simulation work for Structure 1.4-1.5 and Reactivity 2.1: determining empirical formula, molar volume of a gas, titration technique &amp; standard solutions, gravimetric analysis, percentage yield &amp; purity determination and ideal gas law investigations, alongside virtual simulations (PhET Concentration/Gas Properties/Reactants-Products-Leftovers, ChemCollective, Beyond Labz/Labster).</span></span>
+      </div>
+      <div class="card-desc">A companion mind map of practical &amp; simulation work for Structure 1.4-1.5 and Reactivity 2.1.</div>
+    </a>
+  </div>
+
+  <h3 class="subsection" id="measurement">Measurement</h3>
+  <div class="card-grid">
+    <a class="card" href="IB_Chemistry_Measurement_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Measurement Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A one-page visual summary of the "Tools for Chemistry" skills framework (experimental techniques, technology and mathematics) applied throughout SL and HL: qualitative vs quantitative data, recording and propagating uncertainties, random vs systematic errors, percentage error, graphing and linearization, apparatus selection and precision, technology in data collection, significant figures and data-booklet values, and experimental design/IA skills.</span></span>
+      </div>
+      <div class="card-desc">A one-page visual summary of the "Tools for Chemistry" skills framework (experimental techniques, technology and mathematics) applied throughout SL and HL.</div>
+    </a>
+    <a class="card" href="IB_Chemistry_Measurement_PracticalLabs_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Measurement Practical Labs Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A companion mind map of practical &amp; simulation work for measurement and uncertainty skills: apparatus precision comparison, graphing &amp; linearization exercises, percentage error investigations, uncertainty propagation practice, data-logger experiments and measuring a physical quantity, alongside virtual simulations (PhET Estimation, Vernier Graphical Analysis, Desmos/Google Sheets, virtual data-loggers).</span></span>
+      </div>
+      <div class="card-desc">A companion mind map of practical &amp; simulation work for measurement and uncertainty skills.</div>
+    </a>
+  </div>
+
+  <h3 class="subsection" id="atomic-electronic-structure">Atomic &amp; Electronic Structure</h3>
+  <div class="card-grid">
+    <a class="card" href="IB_Chemistry_AtomicElectronicStructure_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Atomic &amp; Electronic Structure Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A one-page visual summary of Structure 1.2 "The nuclear atom" and Structure 1.3 "Electron configurations": the nuclear atom and isotopes, emission and hydrogen spectra, energy levels/sub-levels and the Aufbau principle, and — for HL — mass spectrometry, the convergence limit/ionization energy, and successive ionization energies.</span></span>
+      </div>
+      <div class="card-desc">A one-page visual summary of Structure 1.2 "The nuclear atom" and Structure 1.3 "Electron configurations".</div>
+    </a>
+    <a class="card" href="IB_Chemistry_AtomicElectronicStructure_PracticalLabs_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Atomic &amp; Electronic Structure Practical Labs Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A companion mind map of practical and data-based work for Structure 1.2 and 1.3: viewing emission spectra, isotope abundance calculations, electron configuration modelling and determining atomic/molar mass, alongside HL mass spectrum interpretation, ionization energy from spectral data, and successive IE graphing/IA ideas.</span></span>
+      </div>
+      <div class="card-desc">A companion mind map of practical and data-based work for Structure 1.2 and 1.3.</div>
+    </a>
+  </div>
+
+  <h3 class="subsection" id="chemical-bonding">Chemical Bonding</h3>
+  <div class="card-grid">
+    <a class="card" href="IB_Chemistry_ChemicalBonding_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Chemical Bonding Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A one-page visual summary of Structure 2.1-2.4 "Models of bonding and structure": ionic bonding, metallic bonding, covalent bonding basics, VSEPR/polarity/intermolecular forces, and the bonding continuum, alloys &amp; polymers, plus — for HL — resonance &amp; expanded octets, formal charge/sigma-pi bonds/hybridization, and transition metal metallic bonding.</span></span>
+      </div>
+      <div class="card-desc">A one-page visual summary of Structure 2.1-2.4 "Models of bonding and structure".</div>
+    </a>
+    <a class="card" href="IB_Chemistry_ChemicalBonding_PracticalLabs_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Chemical Bonding Practical Labs Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A companion mind map of practical, modelling and simulation work for Structure 2.1-2.4: ionic conductivity, VSEPR model-building, intermolecular force investigations and metals/chromatography, alongside HL advanced bonding models, formal charge analysis, the bonding triangle/polymer synthesis, and virtual simulations (PhET, MolView, ChemTube3D).</span></span>
+      </div>
+      <div class="card-desc">A companion mind map of practical, modelling and simulation work for Structure 2.1-2.4.</div>
+    </a>
+  </div>
+
+  <h3 class="subsection" id="organic-chemistry">Organic Chemistry</h3>
+  <div class="card-grid">
+    <a class="card" href="IB_Chemistry_OrganicChemistry_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Organic Chemistry Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A one-page visual summary of Structure 3.2 "Functional groups: Classification of organic compounds" and Reactivity 3.3-3.4 "Electron sharing / electron-pair sharing reactions": formulas &amp; molecular models, functional groups, homologous series &amp; trends, IUPAC nomenclature, structural isomerism, radical substitution and SL-level nucleophilic/electrophilic reactions, and — for HL — stereoisomerism, MS/IR/NMR structural elucidation, Lewis acids/bases &amp; complex ions, SN1/SN2 mechanisms, electrophilic addition mechanisms and electrophilic substitution of benzene.</span></span>
+      </div>
+      <div class="card-desc">A one-page visual summary of Structure 3.2 "Functional groups: Classification of organic compounds" and Reactivity 3.3-3.4 "Electron sharing / electron-pair sharing reactions".</div>
+    </a>
+    <a class="card" href="IB_Chemistry_OrganicChemistry_PracticalLabs_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Organic Chemistry Practical Labs Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A companion mind map of practical, synthesis &amp; simulation work for Structure 3.2 and Reactivity 3.3-3.4: functional group tests, distillation &amp; purification, esterification &amp; derivative prep, alcohol oxidation, chromatography &amp; extraction and hydrolysis-rate investigations, alongside HL multi-step synthesis (IA ideas), spectroscopic data analysis, polymer synthesis, stereochemistry/polarimetry, and virtual simulations (ChemCollective, MolView, ChemDoodle, nmrdb, SDBS, PhET).</span></span>
+      </div>
+      <div class="card-desc">A companion mind map of practical, synthesis &amp; simulation work for Structure 3.2 and Reactivity 3.3-3.4.</div>
+    </a>
+  </div>
+
+  <h3 class="subsection" id="spectroscopy">Spectroscopy</h3>
+  <div class="card-grid">
+    <a class="card" href="IB_Chemistry_Spectroscopy_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Spectroscopy Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A one-page visual summary of Structure 3.2.8-3.2.12 "Structural determination" (HL-only): mass spectrometry, infrared spectroscopy, 1H NMR chemical environments &amp; shift, 1H NMR splitting patterns, combined structural analysis, degree of unsaturation (IHD), using the data-booklet tables, and a problem-solving strategy for identifying unknown structures.</span></span>
+      </div>
+      <div class="card-desc">A one-page visual summary of Structure 3.2.8-3.2.12 "Structural determination" (HL-only).</div>
+    </a>
+    <a class="card" href="IB_Chemistry_Spectroscopy_PracticalLabs_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Spectroscopy Practical Labs Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A companion mind map of data-based practical &amp; simulation work for Structure 3.2.8-3.2.12: interpreting real IR/MS/1H NMR spectra, an unknown-compound identification workshop, spectral database research, and data-booklet table drills, alongside virtual simulations (nmrdb.org, SDBS, NIST WebBook, ChemDraw/ChemDoodle, MolView).</span></span>
+      </div>
+      <div class="card-desc">A companion mind map of data-based practical &amp; simulation work for Structure 3.2.8-3.2.12.</div>
+    </a>
+  </div>
+
+  <h3 class="subsection" id="thermochemistry">Thermochemistry</h3>
+  <div class="card-grid">
+    <a class="card" href="IB_Chemistry_Thermochemistry_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Thermochemistry Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A one-page visual summary of Reactivity 1 ("What drives chemical reactions?"): measuring enthalpy changes, bond enthalpies &amp; Hess's Law, combustion and fuels, and — for HL — ΔHf°/ΔHc° calculations, Born-Haber cycles, entropy and Gibbs energy.</span></span>
+      </div>
+      <div class="card-desc">A one-page visual summary of Reactivity 1 ("What drives chemical reactions?").</div>
+    </a>
+    <a class="card" href="IB_Chemistry_Thermochemistry_PracticalLabs_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Thermochemistry Practical Labs Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A companion mind map of lab experiments and IA ideas for Reactivity 1: core calorimetry techniques (neutralization, combustion, Hess's Law verification, calibration) alongside HL entropy/spontaneity demonstrations and extension ideas.</span></span>
+      </div>
+      <div class="card-desc">A companion mind map of lab experiments and IA ideas for Reactivity 1.</div>
+    </a>
+  </div>
+
+  <h3 class="subsection" id="redox">Redox</h3>
+  <div class="card-grid">
+    <a class="card" href="IB_Chemistry_Redox_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Redox Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A one-page visual summary of Reactivity 3.2 "Electron transfer reactions": oxidation states and half-equations, redox trends and reactivity, electrochemical cells, organic redox reactions, and — for HL — standard electrode potentials, Gibbs energy and electrolysis applications.</span></span>
+      </div>
+      <div class="card-desc">A one-page visual summary of Reactivity 3.2 "Electron transfer reactions".</div>
+    </a>
+    <a class="card" href="IB_Chemistry_Redox_Practical_Labs_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Redox Practical Labs Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A companion mind map of lab experiments and IA ideas for Reactivity 3.2: displacement, electrolysis and organic redox demonstrations, redox titrations, and — for HL — voltaic cell construction, predicting electrolysis products, electroplating and Faraday's law.</span></span>
+      </div>
+      <div class="card-desc">A companion mind map of lab experiments and IA ideas for Reactivity 3.2.</div>
+    </a>
+  </div>
+
+  <h3 class="subsection" id="equilibrium-2">Equilibrium</h3>
+  <div class="card-grid">
+    <a class="card" href="IB_Chemistry_Equilibrium_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry — Equilibrium Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A one-page visual summary of Reactivity 2.3 ("How far? The extent of chemical change"): dynamic equilibrium, the equilibrium law and K, Le Chatelier's principle, reaction quotient Q, and — for HL — quantifying equilibrium and ΔG⊖ &amp; K.</span></span>
+      </div>
+      <div class="card-desc">A one-page visual summary of Reactivity 2.3 ("How far? The extent of chemical change").</div>
+    </a>
+    <a class="card" href="IB_Chemistry_Equilibrium_PracticalLabs_MindMap.svg">
+      <div class="card-title">IB Chemistry HL — Equilibrium Practical Labs Mind Map</div>
+      <div class="card-desc">A companion mind map of lab experiments and IA ideas for Reactivity 2.3: qualitative Le Chatelier demonstrations (concentration, temperature, pressure shifts) alongside quantitative Kc/Q labs and extension ideas for HL.</div>
+    </a>
+  </div>
+
+  <h3 class="subsection" id="kinetics">Kinetics</h3>
+  <div class="card-grid">
+    <a class="card" href="IB_Chemistry_Kinetics_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Kinetics Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A one-page visual summary of Reactivity 2.2 ("How fast? The rate of chemical change"): measuring rate, collision theory, factors affecting rate, activation energy and catalysts, and — for HL — reaction mechanisms, rate equations and order, the rate constant k, and the Arrhenius equation.</span></span>
+      </div>
+      <div class="card-desc">A one-page visual summary of Reactivity 2.2 ("How fast? The rate of chemical change").</div>
+    </a>
+    <a class="card" href="IB_Chemistry_Kinetics_PracticalLabs_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Kinetics Practical Labs Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A companion mind map of lab experiments and IA ideas for Reactivity 2.2: rate-measuring methods, concentration/surface-area/temperature effects and catalysis demos, alongside HL methods for determining reaction order, Arrhenius investigations and mechanism-based IA ideas.</span></span>
+      </div>
+      <div class="card-desc">A companion mind map of lab experiments and IA ideas for Reactivity 2.2.</div>
+    </a>
+  </div>
+
+  <h3 class="subsection" id="acids-bases">Acids &amp; Bases</h3>
+  <div class="card-grid">
+    <a class="card" href="IB_Chemistry_AcidsBases_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Acids and Bases Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A one-page visual summary of Reactivity 3.1 "Proton transfer reactions": Brønsted-Lowry theory, the pH scale and Kw, strong vs weak acids/bases, neutralization and pH curves, and — for HL — pOH, Ka/Kb, salt hydrolysis, pH curves and indicators, and buffer solutions.</span></span>
+      </div>
+      <div class="card-desc">A one-page visual summary of Reactivity 3.1 "Proton transfer reactions".</div>
+    </a>
+    <a class="card" href="IB_Chemistry_AcidsBases_PracticalLabs_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Acids and Bases Practical Labs Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A companion mind map of lab experiments and IA ideas for Reactivity 3.1: pH measurement, strong-vs-weak comparisons, titration technique and neutralization demos, alongside HL titration curves, experimental Ka/pKa determination, indicator selection and buffer preparation.</span></span>
+      </div>
+      <div class="card-desc">A companion mind map of lab experiments and IA ideas for Reactivity 3.1.</div>
+    </a>
+  </div>
+
+  <h3 class="subsection" id="periodicity">Periodicity</h3>
+  <div class="card-grid">
+    <a class="card" href="IB_Chemistry_Periodicity_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Periodicity Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A one-page visual summary of Structure 3.1 "The periodic table: Classification of elements": table structure, periodicity trends, group reactivity, metallic character and oxidation states, and — for HL — first ionization energy discontinuities, transition element properties, variable oxidation states and complex ion colour.</span></span>
+      </div>
+      <div class="card-desc">A one-page visual summary of Structure 3.1 "The periodic table: Classification of elements".</div>
+    </a>
+    <a class="card" href="IB_Chemistry_Periodicity_PracticalLabs_MindMap.svg">
+      <div class="card-title-row">
+        <div class="card-title">IB Chemistry HL — Periodicity Practical Labs Mind Map</div>
+        <span class="info-trigger" tabindex="0" role="button" aria-label="More detail">i<span class="info-popover">A companion mind map of lab experiments and IA ideas for Structure 3.1: flame tests, group 1/17 reactivity and oxide acidity demos, alongside HL transition-metal complex colour &amp; colorimetry, variable oxidation state demonstrations, catalysis and complex ion formation.</span></span>
+      </div>
+      <div class="card-desc">A companion mind map of lab experiments and IA ideas for Structure 3.1.</div>
+    </a>
+  </div>
+
+  <h2 class="section" id="a-simple-note-taking-app">A Simple Note taking App</h2>
+  <div class="card-grid">
+    <a class="card" href="Notes-for-iPad.html">
+      <div class="card-title">Notes — for iPad</div>
+      <div class="card-desc">A lightweight, self-contained note-taking app with search, tags, sorting, and autosave — your notes stay in your own browser or file, never sent anywhere else. Sized for a wider screen.</div>
+    </a>
+    <a class="card" href="Notes-for-Cellphone.html">
+      <div class="card-title">Notes — for Cellphone</div>
+      <div class="card-desc">The same note-taking app, laid out for a phone screen: browse your notes as a single list, tap one to open it, then tap "‹ Notes" to go back.</div>
+    </a>
+    <a class="card" href="MyChemistryDefinitions-for-Notes.csv" download>
+      <div class="card-title">Chemistry Definitions — ready-made notes file</div>
+      <div class="card-desc">A set of key Chemistry definitions, formatted so you can open it straight in the Notes app above (File ▾ → open this file) to browse, search and tag them for revision.</div>
+    </a>
+    <a class="card" href="DefinitionsAndNotesWriter.zip" download>
+      <div class="card-title">Download both — zip Archive</div>
+      <div class="card-desc">The Notes app and the Chemistry Definitions notes file together in one zip archive, for saving to your own device.</div>
+    </a>
+  </div>
+
+  <footer>Learning Approaches to Chemistry for Curious Minds — An Interactive Project Index</footer>
+
+  <section style="max-width:720px;margin:48px auto 0;padding:0 20px;font-size:14px;line-height:1.7;color:#444;">
+    <h2 class="section" id="on-this-archive-and-ai">On this archive and AI</h2>
+    <p>I build The GouldianKnot with Claude, an AI assistant made by Anthropic. Since that shapes what you are reading, it seems only fair to say how.</p>
+    <p>Some of what appears here was drafted by Claude — research notes, the author-and-significance write-ups in Gould&rsquo;s Library, the occasional essay. Some of it is mine. All of it passes through me before it is published: I read it, check it, and correct it rather more often than you might expect. Where a claim rests on a source, the source is named. Where something is inference rather than evidence, the page says so.</p>
+    <p>I take responsibility for every word here, including the words I did not write myself. I work this way for the pleasure of it, and because it has made the archive more comprehensive and more detailed than I could have managed alone.</p>
+  </section>
+</div>
+
+<script>
+  // Info-trigger popovers on card tiles: hover/focus already reveal them via
+  // CSS, this adds tap-to-toggle for touch devices and stops a tap on the
+  // (i) badge from following the card's own link through to the page.
+  document.querySelectorAll('.info-popover').forEach(function(popover){
+    // let clicks inside the popover (e.g. selecting text) stay open
+    popover.addEventListener('click', function(e){ e.stopPropagation(); });
+  });
+  document.querySelectorAll('.info-trigger').forEach(function(trigger){
+    trigger.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      var wasOpen = trigger.classList.contains('open');
+      document.querySelectorAll('.info-trigger.open').forEach(function(t){ t.classList.remove('open'); });
+      if(!wasOpen){ trigger.classList.add('open'); }
+    });
+    trigger.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        trigger.click();
+      }
+    });
+  });
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('.info-trigger')){
+      document.querySelectorAll('.info-trigger.open').forEach(function(t){ t.classList.remove('open'); });
+    }
+  });
+</script>
+</body>
+</html>

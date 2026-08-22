@@ -1,0 +1,503 @@
+<svg viewBox="0 0 1880 1120" xmlns="http://www.w3.org/2000/svg" font-family="Comic Sans MS, Comic Neue, cursive">
+<rect width="100%" height="100%" fill="white"/>
+<text x="60" y="50" font-size="34">The Periodic Table for more accurate use in calculations at IB SL &amp; HL</text>
+<text x="110.0" y="125" font-size="22" text-anchor="middle">1</text>
+<text x="210.0" y="125" font-size="22" text-anchor="middle">2</text>
+<text x="310.0" y="125" font-size="22" text-anchor="middle">3</text>
+<text x="410.0" y="125" font-size="22" text-anchor="middle">4</text>
+<text x="510.0" y="125" font-size="22" text-anchor="middle">5</text>
+<text x="610.0" y="125" font-size="22" text-anchor="middle">6</text>
+<text x="710.0" y="125" font-size="22" text-anchor="middle">7</text>
+<text x="810.0" y="125" font-size="22" text-anchor="middle">8</text>
+<text x="910.0" y="125" font-size="22" text-anchor="middle">9</text>
+<text x="1010.0" y="125" font-size="22" text-anchor="middle">10</text>
+<text x="1110.0" y="125" font-size="22" text-anchor="middle">11</text>
+<text x="1210.0" y="125" font-size="22" text-anchor="middle">12</text>
+<text x="1310.0" y="125" font-size="22" text-anchor="middle">13</text>
+<text x="1410.0" y="125" font-size="22" text-anchor="middle">14</text>
+<text x="1510.0" y="125" font-size="22" text-anchor="middle">15</text>
+<text x="1610.0" y="125" font-size="22" text-anchor="middle">16</text>
+<text x="1710.0" y="125" font-size="22" text-anchor="middle">17</text>
+<text x="1810.0" y="125" font-size="22" text-anchor="middle">18</text>
+<text x="30" y="198.0" font-size="22" text-anchor="middle">1</text>
+<text x="30" y="298.0" font-size="22" text-anchor="middle">2</text>
+<text x="30" y="398.0" font-size="22" text-anchor="middle">3</text>
+<text x="30" y="498.0" font-size="22" text-anchor="middle">4</text>
+<text x="30" y="598.0" font-size="22" text-anchor="middle">5</text>
+<text x="30" y="698.0" font-size="22" text-anchor="middle">6</text>
+<text x="30" y="798.0" font-size="22" text-anchor="middle">7</text>
+<rect x="60" y="140" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="66" y="158" font-size="13">1</text>
+<text x="110.0" y="185" font-size="26" text-anchor="middle">H</text>
+<text x="110.0" y="222" font-size="26" text-anchor="middle" font-weight="bold">1.01</text>
+<rect x="1760" y="140" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1766" y="158" font-size="13">2</text>
+<text x="1810.0" y="185" font-size="26" text-anchor="middle">He</text>
+<text x="1810.0" y="222" font-size="26" text-anchor="middle" font-weight="bold">4.00</text>
+<rect x="60" y="240" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="66" y="258" font-size="13">3</text>
+<text x="110.0" y="285" font-size="26" text-anchor="middle">Li</text>
+<text x="110.0" y="322" font-size="26" text-anchor="middle" font-weight="bold">6.94</text>
+<rect x="160" y="240" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="166" y="258" font-size="13">4</text>
+<text x="210.0" y="285" font-size="26" text-anchor="middle">Be</text>
+<text x="210.0" y="322" font-size="26" text-anchor="middle" font-weight="bold">9.01</text>
+<rect x="1260" y="240" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1266" y="258" font-size="13">5</text>
+<text x="1310.0" y="285" font-size="26" text-anchor="middle">B</text>
+<text x="1310.0" y="322" font-size="26" text-anchor="middle" font-weight="bold">10.81</text>
+<rect x="1360" y="240" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1366" y="258" font-size="13">6</text>
+<text x="1410.0" y="285" font-size="26" text-anchor="middle">C</text>
+<text x="1410.0" y="322" font-size="26" text-anchor="middle" font-weight="bold">12.01</text>
+<rect x="1460" y="240" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1466" y="258" font-size="13">7</text>
+<text x="1510.0" y="285" font-size="26" text-anchor="middle">N</text>
+<text x="1510.0" y="322" font-size="26" text-anchor="middle" font-weight="bold">14.01</text>
+<rect x="1560" y="240" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1566" y="258" font-size="13">8</text>
+<text x="1610.0" y="285" font-size="26" text-anchor="middle">O</text>
+<text x="1610.0" y="322" font-size="26" text-anchor="middle" font-weight="bold">16.00</text>
+<rect x="1660" y="240" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1666" y="258" font-size="13">9</text>
+<text x="1710.0" y="285" font-size="26" text-anchor="middle">F</text>
+<text x="1710.0" y="322" font-size="26" text-anchor="middle" font-weight="bold">19.00</text>
+<rect x="1760" y="240" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1766" y="258" font-size="13">10</text>
+<text x="1810.0" y="285" font-size="26" text-anchor="middle">Ne</text>
+<text x="1810.0" y="322" font-size="26" text-anchor="middle" font-weight="bold">20.18</text>
+<rect x="60" y="340" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="66" y="358" font-size="13">11</text>
+<text x="110.0" y="385" font-size="26" text-anchor="middle">Na</text>
+<text x="110.0" y="422" font-size="26" text-anchor="middle" font-weight="bold">22.99</text>
+<rect x="160" y="340" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="166" y="358" font-size="13">12</text>
+<text x="210.0" y="385" font-size="26" text-anchor="middle">Mg</text>
+<text x="210.0" y="422" font-size="26" text-anchor="middle" font-weight="bold">24.31</text>
+<rect x="1260" y="340" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1266" y="358" font-size="13">13</text>
+<text x="1310.0" y="385" font-size="26" text-anchor="middle">Al</text>
+<text x="1310.0" y="422" font-size="26" text-anchor="middle" font-weight="bold">26.98</text>
+<rect x="1360" y="340" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1366" y="358" font-size="13">14</text>
+<text x="1410.0" y="385" font-size="26" text-anchor="middle">Si</text>
+<text x="1410.0" y="422" font-size="26" text-anchor="middle" font-weight="bold">28.09</text>
+<rect x="1460" y="340" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1466" y="358" font-size="13">15</text>
+<text x="1510.0" y="385" font-size="26" text-anchor="middle">P</text>
+<text x="1510.0" y="422" font-size="26" text-anchor="middle" font-weight="bold">30.97</text>
+<rect x="1560" y="340" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1566" y="358" font-size="13">16</text>
+<text x="1610.0" y="385" font-size="26" text-anchor="middle">S</text>
+<text x="1610.0" y="422" font-size="26" text-anchor="middle" font-weight="bold">32.07</text>
+<rect x="1660" y="340" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1666" y="358" font-size="13">17</text>
+<text x="1710.0" y="385" font-size="26" text-anchor="middle">Cl</text>
+<text x="1710.0" y="422" font-size="26" text-anchor="middle" font-weight="bold">35.45</text>
+<rect x="1760" y="340" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1766" y="358" font-size="13">18</text>
+<text x="1810.0" y="385" font-size="26" text-anchor="middle">Ar</text>
+<text x="1810.0" y="422" font-size="26" text-anchor="middle" font-weight="bold">39.95</text>
+<rect x="60" y="440" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="66" y="458" font-size="13">19</text>
+<text x="110.0" y="485" font-size="26" text-anchor="middle">K</text>
+<text x="110.0" y="522" font-size="26" text-anchor="middle" font-weight="bold">39.10</text>
+<rect x="160" y="440" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="166" y="458" font-size="13">20</text>
+<text x="210.0" y="485" font-size="26" text-anchor="middle">Ca</text>
+<text x="210.0" y="522" font-size="26" text-anchor="middle" font-weight="bold">40.08</text>
+<rect x="260" y="440" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="266" y="458" font-size="13">21</text>
+<text x="310.0" y="485" font-size="26" text-anchor="middle">Sc</text>
+<text x="310.0" y="522" font-size="26" text-anchor="middle" font-weight="bold">44.96</text>
+<rect x="360" y="440" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="366" y="458" font-size="13">22</text>
+<text x="410.0" y="485" font-size="26" text-anchor="middle">Ti</text>
+<text x="410.0" y="522" font-size="26" text-anchor="middle" font-weight="bold">47.87</text>
+<rect x="460" y="440" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="466" y="458" font-size="13">23</text>
+<text x="510.0" y="485" font-size="26" text-anchor="middle">V</text>
+<text x="510.0" y="522" font-size="26" text-anchor="middle" font-weight="bold">50.94</text>
+<rect x="560" y="440" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="566" y="458" font-size="13">24</text>
+<text x="610.0" y="485" font-size="26" text-anchor="middle">Cr</text>
+<text x="610.0" y="522" font-size="26" text-anchor="middle" font-weight="bold">52.00</text>
+<rect x="660" y="440" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="666" y="458" font-size="13">25</text>
+<text x="710.0" y="485" font-size="26" text-anchor="middle">Mn</text>
+<text x="710.0" y="522" font-size="26" text-anchor="middle" font-weight="bold">54.94</text>
+<rect x="760" y="440" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="766" y="458" font-size="13">26</text>
+<text x="810.0" y="485" font-size="26" text-anchor="middle">Fe</text>
+<text x="810.0" y="522" font-size="26" text-anchor="middle" font-weight="bold">55.85</text>
+<rect x="860" y="440" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="866" y="458" font-size="13">27</text>
+<text x="910.0" y="485" font-size="26" text-anchor="middle">Co</text>
+<text x="910.0" y="522" font-size="26" text-anchor="middle" font-weight="bold">58.93</text>
+<rect x="960" y="440" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="966" y="458" font-size="13">28</text>
+<text x="1010.0" y="485" font-size="26" text-anchor="middle">Ni</text>
+<text x="1010.0" y="522" font-size="26" text-anchor="middle" font-weight="bold">58.69</text>
+<rect x="1060" y="440" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1066" y="458" font-size="13">29</text>
+<text x="1110.0" y="485" font-size="26" text-anchor="middle">Cu</text>
+<text x="1110.0" y="522" font-size="26" text-anchor="middle" font-weight="bold">63.55</text>
+<rect x="1160" y="440" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1166" y="458" font-size="13">30</text>
+<text x="1210.0" y="485" font-size="26" text-anchor="middle">Zn</text>
+<text x="1210.0" y="522" font-size="26" text-anchor="middle" font-weight="bold">65.38</text>
+<rect x="1260" y="440" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1266" y="458" font-size="13">31</text>
+<text x="1310.0" y="485" font-size="26" text-anchor="middle">Ga</text>
+<text x="1310.0" y="522" font-size="26" text-anchor="middle" font-weight="bold">69.72</text>
+<rect x="1360" y="440" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1366" y="458" font-size="13">32</text>
+<text x="1410.0" y="485" font-size="26" text-anchor="middle">Ge</text>
+<text x="1410.0" y="522" font-size="26" text-anchor="middle" font-weight="bold">72.63</text>
+<rect x="1460" y="440" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1466" y="458" font-size="13">33</text>
+<text x="1510.0" y="485" font-size="26" text-anchor="middle">As</text>
+<text x="1510.0" y="522" font-size="26" text-anchor="middle" font-weight="bold">74.92</text>
+<rect x="1560" y="440" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1566" y="458" font-size="13">34</text>
+<text x="1610.0" y="485" font-size="26" text-anchor="middle">Se</text>
+<text x="1610.0" y="522" font-size="26" text-anchor="middle" font-weight="bold">78.96</text>
+<rect x="1660" y="440" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1666" y="458" font-size="13">35</text>
+<text x="1710.0" y="485" font-size="26" text-anchor="middle">Br</text>
+<text x="1710.0" y="522" font-size="26" text-anchor="middle" font-weight="bold">79.90</text>
+<rect x="1760" y="440" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1766" y="458" font-size="13">36</text>
+<text x="1810.0" y="485" font-size="26" text-anchor="middle">Kr</text>
+<text x="1810.0" y="522" font-size="26" text-anchor="middle" font-weight="bold">83.80</text>
+<rect x="60" y="540" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="66" y="558" font-size="13">37</text>
+<text x="110.0" y="585" font-size="26" text-anchor="middle">Rb</text>
+<text x="110.0" y="622" font-size="26" text-anchor="middle" font-weight="bold">85.47</text>
+<rect x="160" y="540" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="166" y="558" font-size="13">38</text>
+<text x="210.0" y="585" font-size="26" text-anchor="middle">Sr</text>
+<text x="210.0" y="622" font-size="26" text-anchor="middle" font-weight="bold">87.62</text>
+<rect x="260" y="540" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="266" y="558" font-size="13">39</text>
+<text x="310.0" y="585" font-size="26" text-anchor="middle">Y</text>
+<text x="310.0" y="622" font-size="26" text-anchor="middle" font-weight="bold">88.91</text>
+<rect x="360" y="540" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="366" y="558" font-size="13">40</text>
+<text x="410.0" y="585" font-size="26" text-anchor="middle">Zr</text>
+<text x="410.0" y="622" font-size="26" text-anchor="middle" font-weight="bold">91.22</text>
+<rect x="460" y="540" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="466" y="558" font-size="13">41</text>
+<text x="510.0" y="585" font-size="26" text-anchor="middle">Nb</text>
+<text x="510.0" y="622" font-size="26" text-anchor="middle" font-weight="bold">92.91</text>
+<rect x="560" y="540" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="566" y="558" font-size="13">42</text>
+<text x="610.0" y="585" font-size="26" text-anchor="middle">Mo</text>
+<text x="610.0" y="622" font-size="26" text-anchor="middle" font-weight="bold">95.96</text>
+<rect x="660" y="540" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="666" y="558" font-size="13">43</text>
+<text x="710.0" y="585" font-size="26" text-anchor="middle">Tc</text>
+<text x="710.0" y="622" font-size="26" text-anchor="middle" font-weight="bold">(98)</text>
+<rect x="760" y="540" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="766" y="558" font-size="13">44</text>
+<text x="810.0" y="585" font-size="26" text-anchor="middle">Ru</text>
+<text x="810.0" y="622" font-size="26" text-anchor="middle" font-weight="bold">101.07</text>
+<rect x="860" y="540" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="866" y="558" font-size="13">45</text>
+<text x="910.0" y="585" font-size="26" text-anchor="middle">Rh</text>
+<text x="910.0" y="622" font-size="26" text-anchor="middle" font-weight="bold">102.91</text>
+<rect x="960" y="540" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="966" y="558" font-size="13">46</text>
+<text x="1010.0" y="585" font-size="26" text-anchor="middle">Pd</text>
+<text x="1010.0" y="622" font-size="26" text-anchor="middle" font-weight="bold">106.42</text>
+<rect x="1060" y="540" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1066" y="558" font-size="13">47</text>
+<text x="1110.0" y="585" font-size="26" text-anchor="middle">Ag</text>
+<text x="1110.0" y="622" font-size="26" text-anchor="middle" font-weight="bold">107.87</text>
+<rect x="1160" y="540" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1166" y="558" font-size="13">48</text>
+<text x="1210.0" y="585" font-size="26" text-anchor="middle">Cd</text>
+<text x="1210.0" y="622" font-size="26" text-anchor="middle" font-weight="bold">112.41</text>
+<rect x="1260" y="540" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1266" y="558" font-size="13">49</text>
+<text x="1310.0" y="585" font-size="26" text-anchor="middle">In</text>
+<text x="1310.0" y="622" font-size="26" text-anchor="middle" font-weight="bold">114.82</text>
+<rect x="1360" y="540" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1366" y="558" font-size="13">50</text>
+<text x="1410.0" y="585" font-size="26" text-anchor="middle">Sn</text>
+<text x="1410.0" y="622" font-size="26" text-anchor="middle" font-weight="bold">118.71</text>
+<rect x="1460" y="540" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1466" y="558" font-size="13">51</text>
+<text x="1510.0" y="585" font-size="26" text-anchor="middle">Sb</text>
+<text x="1510.0" y="622" font-size="26" text-anchor="middle" font-weight="bold">121.76</text>
+<rect x="1560" y="540" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1566" y="558" font-size="13">52</text>
+<text x="1610.0" y="585" font-size="26" text-anchor="middle">Te</text>
+<text x="1610.0" y="622" font-size="26" text-anchor="middle" font-weight="bold">127.60</text>
+<rect x="1660" y="540" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1666" y="558" font-size="13">53</text>
+<text x="1710.0" y="585" font-size="26" text-anchor="middle">I</text>
+<text x="1710.0" y="622" font-size="26" text-anchor="middle" font-weight="bold">126.90</text>
+<rect x="1760" y="540" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1766" y="558" font-size="13">54</text>
+<text x="1810.0" y="585" font-size="26" text-anchor="middle">Xe</text>
+<text x="1810.0" y="622" font-size="26" text-anchor="middle" font-weight="bold">131.29</text>
+<rect x="60" y="640" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="66" y="658" font-size="13">55</text>
+<text x="110.0" y="685" font-size="26" text-anchor="middle">Cs</text>
+<text x="110.0" y="722" font-size="26" text-anchor="middle" font-weight="bold">132.91</text>
+<rect x="160" y="640" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="166" y="658" font-size="13">56</text>
+<text x="210.0" y="685" font-size="26" text-anchor="middle">Ba</text>
+<text x="210.0" y="722" font-size="26" text-anchor="middle" font-weight="bold">137.33</text>
+<rect x="260" y="640" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="266" y="658" font-size="13">57</text>
+<text x="310.0" y="685" font-size="26" text-anchor="middle">La†</text>
+<text x="310.0" y="722" font-size="26" text-anchor="middle" font-weight="bold">138.91</text>
+<rect x="360" y="640" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="366" y="658" font-size="13">72</text>
+<text x="410.0" y="685" font-size="26" text-anchor="middle">Hf</text>
+<text x="410.0" y="722" font-size="26" text-anchor="middle" font-weight="bold">178.49</text>
+<rect x="460" y="640" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="466" y="658" font-size="13">73</text>
+<text x="510.0" y="685" font-size="26" text-anchor="middle">Ta</text>
+<text x="510.0" y="722" font-size="26" text-anchor="middle" font-weight="bold">180.95</text>
+<rect x="560" y="640" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="566" y="658" font-size="13">74</text>
+<text x="610.0" y="685" font-size="26" text-anchor="middle">W</text>
+<text x="610.0" y="722" font-size="26" text-anchor="middle" font-weight="bold">183.84</text>
+<rect x="660" y="640" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="666" y="658" font-size="13">75</text>
+<text x="710.0" y="685" font-size="26" text-anchor="middle">Re</text>
+<text x="710.0" y="722" font-size="26" text-anchor="middle" font-weight="bold">186.21</text>
+<rect x="760" y="640" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="766" y="658" font-size="13">76</text>
+<text x="810.0" y="685" font-size="26" text-anchor="middle">Os</text>
+<text x="810.0" y="722" font-size="26" text-anchor="middle" font-weight="bold">190.23</text>
+<rect x="860" y="640" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="866" y="658" font-size="13">77</text>
+<text x="910.0" y="685" font-size="26" text-anchor="middle">Ir</text>
+<text x="910.0" y="722" font-size="26" text-anchor="middle" font-weight="bold">192.22</text>
+<rect x="960" y="640" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="966" y="658" font-size="13">78</text>
+<text x="1010.0" y="685" font-size="26" text-anchor="middle">Pt</text>
+<text x="1010.0" y="722" font-size="26" text-anchor="middle" font-weight="bold">195.08</text>
+<rect x="1060" y="640" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1066" y="658" font-size="13">79</text>
+<text x="1110.0" y="685" font-size="26" text-anchor="middle">Au</text>
+<text x="1110.0" y="722" font-size="26" text-anchor="middle" font-weight="bold">196.97</text>
+<rect x="1160" y="640" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1166" y="658" font-size="13">80</text>
+<text x="1210.0" y="685" font-size="26" text-anchor="middle">Hg</text>
+<text x="1210.0" y="722" font-size="26" text-anchor="middle" font-weight="bold">200.59</text>
+<rect x="1260" y="640" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1266" y="658" font-size="13">81</text>
+<text x="1310.0" y="685" font-size="26" text-anchor="middle">Tl</text>
+<text x="1310.0" y="722" font-size="26" text-anchor="middle" font-weight="bold">204.38</text>
+<rect x="1360" y="640" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1366" y="658" font-size="13">82</text>
+<text x="1410.0" y="685" font-size="26" text-anchor="middle">Pb</text>
+<text x="1410.0" y="722" font-size="26" text-anchor="middle" font-weight="bold">207.20</text>
+<rect x="1460" y="640" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1466" y="658" font-size="13">83</text>
+<text x="1510.0" y="685" font-size="26" text-anchor="middle">Bi</text>
+<text x="1510.0" y="722" font-size="26" text-anchor="middle" font-weight="bold">208.98</text>
+<rect x="1560" y="640" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1566" y="658" font-size="13">84</text>
+<text x="1610.0" y="685" font-size="26" text-anchor="middle">Po</text>
+<text x="1610.0" y="722" font-size="26" text-anchor="middle" font-weight="bold">(209)</text>
+<rect x="1660" y="640" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1666" y="658" font-size="13">85</text>
+<text x="1710.0" y="685" font-size="26" text-anchor="middle">At</text>
+<text x="1710.0" y="722" font-size="26" text-anchor="middle" font-weight="bold">(210)</text>
+<rect x="1760" y="640" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1766" y="658" font-size="13">86</text>
+<text x="1810.0" y="685" font-size="26" text-anchor="middle">Rn</text>
+<text x="1810.0" y="722" font-size="26" text-anchor="middle" font-weight="bold">(222)</text>
+<rect x="60" y="740" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="66" y="758" font-size="13">87</text>
+<text x="110.0" y="785" font-size="26" text-anchor="middle">Fr</text>
+<text x="110.0" y="822" font-size="26" text-anchor="middle" font-weight="bold">(223)</text>
+<rect x="160" y="740" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="166" y="758" font-size="13">88</text>
+<text x="210.0" y="785" font-size="26" text-anchor="middle">Ra</text>
+<text x="210.0" y="822" font-size="26" text-anchor="middle" font-weight="bold">(226)</text>
+<rect x="260" y="740" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="266" y="758" font-size="13">89</text>
+<text x="310.0" y="785" font-size="26" text-anchor="middle">Ac‡</text>
+<text x="310.0" y="822" font-size="26" text-anchor="middle" font-weight="bold">(227)</text>
+<rect x="360" y="740" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="366" y="758" font-size="13">104</text>
+<text x="410.0" y="785" font-size="26" text-anchor="middle">Rf</text>
+<text x="410.0" y="822" font-size="26" text-anchor="middle" font-weight="bold">(267)</text>
+<rect x="460" y="740" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="466" y="758" font-size="13">105</text>
+<text x="510.0" y="785" font-size="26" text-anchor="middle">Db</text>
+<text x="510.0" y="822" font-size="26" text-anchor="middle" font-weight="bold">(268)</text>
+<rect x="560" y="740" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="566" y="758" font-size="13">106</text>
+<text x="610.0" y="785" font-size="26" text-anchor="middle">Sg</text>
+<text x="610.0" y="822" font-size="26" text-anchor="middle" font-weight="bold">(269)</text>
+<rect x="660" y="740" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="666" y="758" font-size="13">107</text>
+<text x="710.0" y="785" font-size="26" text-anchor="middle">Bh</text>
+<text x="710.0" y="822" font-size="26" text-anchor="middle" font-weight="bold">(270)</text>
+<rect x="760" y="740" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="766" y="758" font-size="13">108</text>
+<text x="810.0" y="785" font-size="26" text-anchor="middle">Hs</text>
+<text x="810.0" y="822" font-size="26" text-anchor="middle" font-weight="bold">(269)</text>
+<rect x="860" y="740" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="866" y="758" font-size="13">109</text>
+<text x="910.0" y="785" font-size="26" text-anchor="middle">Mt</text>
+<text x="910.0" y="822" font-size="26" text-anchor="middle" font-weight="bold">(278)</text>
+<rect x="960" y="740" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="966" y="758" font-size="13">110</text>
+<text x="1010.0" y="785" font-size="26" text-anchor="middle">Ds</text>
+<text x="1010.0" y="822" font-size="26" text-anchor="middle" font-weight="bold">(281)</text>
+<rect x="1060" y="740" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1066" y="758" font-size="13">111</text>
+<text x="1110.0" y="785" font-size="26" text-anchor="middle">Rg</text>
+<text x="1110.0" y="822" font-size="26" text-anchor="middle" font-weight="bold">(281)</text>
+<rect x="1160" y="740" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1166" y="758" font-size="13">112</text>
+<text x="1210.0" y="785" font-size="26" text-anchor="middle">Cn</text>
+<text x="1210.0" y="822" font-size="26" text-anchor="middle" font-weight="bold">(285)</text>
+<rect x="1260" y="740" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1266" y="758" font-size="13">113</text>
+<text x="1310.0" y="785" font-size="26" text-anchor="middle">Nh</text>
+<text x="1310.0" y="822" font-size="26" text-anchor="middle" font-weight="bold">(286)</text>
+<rect x="1360" y="740" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1366" y="758" font-size="13">114</text>
+<text x="1410.0" y="785" font-size="26" text-anchor="middle">Fl</text>
+<text x="1410.0" y="822" font-size="26" text-anchor="middle" font-weight="bold">(289)</text>
+<rect x="1460" y="740" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1466" y="758" font-size="13">115</text>
+<text x="1510.0" y="785" font-size="26" text-anchor="middle">Mc</text>
+<text x="1510.0" y="822" font-size="26" text-anchor="middle" font-weight="bold">(288)</text>
+<rect x="1560" y="740" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1566" y="758" font-size="13">116</text>
+<text x="1610.0" y="785" font-size="26" text-anchor="middle">Lv</text>
+<text x="1610.0" y="822" font-size="26" text-anchor="middle" font-weight="bold">(293)</text>
+<rect x="1660" y="740" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1666" y="758" font-size="13">117</text>
+<text x="1710.0" y="785" font-size="26" text-anchor="middle">Ts</text>
+<text x="1710.0" y="822" font-size="26" text-anchor="middle" font-weight="bold">(294)</text>
+<rect x="1760" y="740" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1766" y="758" font-size="13">118</text>
+<text x="1810.0" y="785" font-size="26" text-anchor="middle">Og</text>
+<text x="1810.0" y="822" font-size="26" text-anchor="middle" font-weight="bold">(294)</text>
+<text x="30" y="958.0" font-size="24" text-anchor="middle">†</text>
+<text x="30" y="1058.0" font-size="24" text-anchor="middle">‡</text>
+<rect x="360" y="900" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="366" y="918" font-size="13">58</text>
+<text x="410.0" y="945" font-size="26" text-anchor="middle">Ce</text>
+<text x="410.0" y="982" font-size="26" text-anchor="middle" font-weight="bold">140.12</text>
+<rect x="460" y="900" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="466" y="918" font-size="13">59</text>
+<text x="510.0" y="945" font-size="26" text-anchor="middle">Pr</text>
+<text x="510.0" y="982" font-size="26" text-anchor="middle" font-weight="bold">140.91</text>
+<rect x="560" y="900" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="566" y="918" font-size="13">60</text>
+<text x="610.0" y="945" font-size="26" text-anchor="middle">Nd</text>
+<text x="610.0" y="982" font-size="26" text-anchor="middle" font-weight="bold">144.24</text>
+<rect x="660" y="900" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="666" y="918" font-size="13">61</text>
+<text x="710.0" y="945" font-size="26" text-anchor="middle">Pm</text>
+<text x="710.0" y="982" font-size="26" text-anchor="middle" font-weight="bold">(145)</text>
+<rect x="760" y="900" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="766" y="918" font-size="13">62</text>
+<text x="810.0" y="945" font-size="26" text-anchor="middle">Sm</text>
+<text x="810.0" y="982" font-size="26" text-anchor="middle" font-weight="bold">150.36</text>
+<rect x="860" y="900" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="866" y="918" font-size="13">63</text>
+<text x="910.0" y="945" font-size="26" text-anchor="middle">Eu</text>
+<text x="910.0" y="982" font-size="26" text-anchor="middle" font-weight="bold">151.96</text>
+<rect x="960" y="900" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="966" y="918" font-size="13">64</text>
+<text x="1010.0" y="945" font-size="26" text-anchor="middle">Gd</text>
+<text x="1010.0" y="982" font-size="26" text-anchor="middle" font-weight="bold">157.25</text>
+<rect x="1060" y="900" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1066" y="918" font-size="13">65</text>
+<text x="1110.0" y="945" font-size="26" text-anchor="middle">Tb</text>
+<text x="1110.0" y="982" font-size="26" text-anchor="middle" font-weight="bold">158.93</text>
+<rect x="1160" y="900" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1166" y="918" font-size="13">66</text>
+<text x="1210.0" y="945" font-size="26" text-anchor="middle">Dy</text>
+<text x="1210.0" y="982" font-size="26" text-anchor="middle" font-weight="bold">162.50</text>
+<rect x="1260" y="900" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1266" y="918" font-size="13">67</text>
+<text x="1310.0" y="945" font-size="26" text-anchor="middle">Ho</text>
+<text x="1310.0" y="982" font-size="26" text-anchor="middle" font-weight="bold">164.93</text>
+<rect x="1360" y="900" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1366" y="918" font-size="13">68</text>
+<text x="1410.0" y="945" font-size="26" text-anchor="middle">Er</text>
+<text x="1410.0" y="982" font-size="26" text-anchor="middle" font-weight="bold">167.26</text>
+<rect x="1460" y="900" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1466" y="918" font-size="13">69</text>
+<text x="1510.0" y="945" font-size="26" text-anchor="middle">Tm</text>
+<text x="1510.0" y="982" font-size="26" text-anchor="middle" font-weight="bold">168.93</text>
+<rect x="1560" y="900" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1566" y="918" font-size="13">70</text>
+<text x="1610.0" y="945" font-size="26" text-anchor="middle">Yb</text>
+<text x="1610.0" y="982" font-size="26" text-anchor="middle" font-weight="bold">173.05</text>
+<rect x="1660" y="900" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1666" y="918" font-size="13">71</text>
+<text x="1710.0" y="945" font-size="26" text-anchor="middle">Lu</text>
+<text x="1710.0" y="982" font-size="26" text-anchor="middle" font-weight="bold">174.97</text>
+<rect x="360" y="1000" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="366" y="1018" font-size="13">90</text>
+<text x="410.0" y="1045" font-size="26" text-anchor="middle">Th</text>
+<text x="410.0" y="1082" font-size="26" text-anchor="middle" font-weight="bold">232.04</text>
+<rect x="460" y="1000" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="466" y="1018" font-size="13">91</text>
+<text x="510.0" y="1045" font-size="26" text-anchor="middle">Pa</text>
+<text x="510.0" y="1082" font-size="26" text-anchor="middle" font-weight="bold">231.04</text>
+<rect x="560" y="1000" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="566" y="1018" font-size="13">92</text>
+<text x="610.0" y="1045" font-size="26" text-anchor="middle">U</text>
+<text x="610.0" y="1082" font-size="26" text-anchor="middle" font-weight="bold">238.03</text>
+<rect x="660" y="1000" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="666" y="1018" font-size="13">93</text>
+<text x="710.0" y="1045" font-size="26" text-anchor="middle">Np</text>
+<text x="710.0" y="1082" font-size="26" text-anchor="middle" font-weight="bold">(237)</text>
+<rect x="760" y="1000" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="766" y="1018" font-size="13">94</text>
+<text x="810.0" y="1045" font-size="26" text-anchor="middle">Pu</text>
+<text x="810.0" y="1082" font-size="26" text-anchor="middle" font-weight="bold">(244)</text>
+<rect x="860" y="1000" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="866" y="1018" font-size="13">95</text>
+<text x="910.0" y="1045" font-size="26" text-anchor="middle">Am</text>
+<text x="910.0" y="1082" font-size="26" text-anchor="middle" font-weight="bold">(243)</text>
+<rect x="960" y="1000" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="966" y="1018" font-size="13">96</text>
+<text x="1010.0" y="1045" font-size="26" text-anchor="middle">Cm</text>
+<text x="1010.0" y="1082" font-size="26" text-anchor="middle" font-weight="bold">(247)</text>
+<rect x="1060" y="1000" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1066" y="1018" font-size="13">97</text>
+<text x="1110.0" y="1045" font-size="26" text-anchor="middle">Bk</text>
+<text x="1110.0" y="1082" font-size="26" text-anchor="middle" font-weight="bold">(247)</text>
+<rect x="1160" y="1000" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1166" y="1018" font-size="13">98</text>
+<text x="1210.0" y="1045" font-size="26" text-anchor="middle">Cf</text>
+<text x="1210.0" y="1082" font-size="26" text-anchor="middle" font-weight="bold">(251)</text>
+<rect x="1260" y="1000" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1266" y="1018" font-size="13">99</text>
+<text x="1310.0" y="1045" font-size="26" text-anchor="middle">Es</text>
+<text x="1310.0" y="1082" font-size="26" text-anchor="middle" font-weight="bold">(252)</text>
+<rect x="1360" y="1000" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1366" y="1018" font-size="13">100</text>
+<text x="1410.0" y="1045" font-size="26" text-anchor="middle">Fm</text>
+<text x="1410.0" y="1082" font-size="26" text-anchor="middle" font-weight="bold">(257)</text>
+<rect x="1460" y="1000" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1466" y="1018" font-size="13">101</text>
+<text x="1510.0" y="1045" font-size="26" text-anchor="middle">Md</text>
+<text x="1510.0" y="1082" font-size="26" text-anchor="middle" font-weight="bold">(258)</text>
+<rect x="1560" y="1000" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1566" y="1018" font-size="13">102</text>
+<text x="1610.0" y="1045" font-size="26" text-anchor="middle">No</text>
+<text x="1610.0" y="1082" font-size="26" text-anchor="middle" font-weight="bold">(259)</text>
+<rect x="1660" y="1000" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+<text x="1666" y="1018" font-size="13">103</text>
+<text x="1710.0" y="1045" font-size="26" text-anchor="middle">Lr</text>
+<text x="1710.0" y="1082" font-size="26" text-anchor="middle" font-weight="bold">(262)</text>
+</svg>

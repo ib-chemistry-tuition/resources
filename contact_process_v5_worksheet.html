@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Contact Process v5 — Student Worksheet</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f5f0f8;font-family:'Segoe UI',Arial,sans-serif;font-size:14px;color:#1a2030;line-height:1.65}
+.sheet{max-width:860px;margin:14px auto;background:#fff;padding:36px 44px;box-shadow:0 2px 14px rgba(0,0,0,.12)}
+/* header */
+.hdr{background:#283593;color:#fff;margin:-36px -44px 24px;padding:20px 44px}
+.hdr-title{font-size:21px;font-weight:700;letter-spacing:.2px}
+.hdr-sub{font-size:12px;opacity:.82;margin-top:3px}
+.sim-badge{display:inline-block;background:#ffeb3b;color:#283593;font-weight:700;font-size:11px;padding:2px 10px;border-radius:3px;margin-top:7px;letter-spacing:.4px}
+/* instructions */
+.instr{background:#e8eaf6;border-left:4px solid #3949ab;border-radius:0 5px 5px 0;padding:10px 14px;font-size:13px;margin-bottom:20px}
+.instr strong{color:#283593}
+/* progress */
+.prog-wrap{background:#e8eaf6;border-radius:20px;height:12px;overflow:hidden;margin-bottom:18px}
+.prog-bar{height:100%;background:linear-gradient(90deg,#3949ab,#7c4dff);border-radius:20px;transition:width .4s;width:0%}
+.prog-label{font-size:11px;color:#555;text-align:right;margin-top:3px}
+/* sections */
+.section{margin:22px 0 0}
+.sec-head{padding:9px 16px;font-size:14px;font-weight:700;color:#fff;border-radius:6px 6px 0 0;letter-spacing:.2px}
+.sec-body{border:2px solid;border-top:none;border-radius:0 0 6px 6px;padding:16px 18px}
+.sa .sec-head{background:#283593}.sa .sec-body{border-color:#283593}
+.sb .sec-head{background:#00695c}.sb .sec-body{border-color:#00695c}
+.sc .sec-head{background:#e65100}.sc .sec-body{border-color:#e65100}
+.sd .sec-head{background:#1a237e}.sd .sec-body{border-color:#1a237e}
+.se .sec-head{background:#6a1b9a}.se .sec-body{border-color:#6a1b9a}
+/* questions */
+.q{margin:16px 0}
+.q-num{font-size:12px;font-weight:700;color:#fff;background:#6677aa;padding:2px 8px;border-radius:3px;margin-right:6px}
+.sa .q-num{background:#3949ab}.sb .q-num{background:#00897b}
+.sc .q-num{background:#f4511e}.sd .q-num{background:#3949ab}.se .q-num{background:#7b1fa2}
+.q-text{font-size:13.5px;margin:6px 0 8px}
+/* simulation callout */
+.sim-task{background:#fff3e0;border:1px solid #ff8f00;border-radius:5px;padding:8px 12px;font-size:12.5px;margin:6px 0 8px}
+.sim-task::before{content:"💻 Simulation task: ";font-weight:700;color:#e65100}
+/* input fields */
+input[type=text],input[type=number]{
+  border:1.5px solid #bbb;border-radius:4px;padding:5px 9px;font-size:13px;
+  font-family:'Segoe UI',Arial;outline:none;transition:border-color .2s;width:100%;max-width:300px
+}
+input:focus{border-color:#3949ab}
+input.correct{border-color:#2e7d32;background:#f1f8e9}
+input.wrong{border-color:#c62828;background:#ffebee}
+textarea{border:1.5px solid #bbb;border-radius:4px;padding:7px 9px;font-size:13px;
+  font-family:'Segoe UI',Arial;resize:vertical;outline:none;width:100%;transition:border-color .2s}
+textarea:focus{border-color:#3949ab}
+/* check button */
+.check-btn{background:#283593;color:#fff;border:none;border-radius:4px;padding:5px 14px;
+  font-size:12px;cursor:pointer;margin-left:6px;vertical-align:middle}
+.check-btn:hover{background:#3949ab}
+.feedback{font-size:12px;margin-top:4px;font-weight:600;height:16px}
+.fb-ok{color:#2e7d32}.fb-err{color:#c62828}
+/* table inputs */
+table.data-tbl{border-collapse:collapse;margin:6px 0;font-size:13px}
+table.data-tbl th{background:#e8eaf6;padding:5px 10px;text-align:center;font-weight:600;border:1px solid #b0bec5;font-size:12px}
+table.data-tbl td{border:1px solid #c0c8d8;padding:4px 6px;text-align:center}
+table.data-tbl td input[type=text]{max-width:90px;padding:3px 6px;border:1px solid #bbb}
+/* radio MCQ */
+.mcq{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.mcq label{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:5px 10px;border:1.5px solid #dde;border-radius:5px;transition:background .15s}
+.mcq label:hover{background:#f0f4ff}
+.mcq label.selected{background:#e8eaf6;border-color:#3949ab}
+.mcq input[type=radio]{accent-color:#3949ab}
+.mcq-feedback{font-size:12px;font-weight:600;margin-top:4px;height:16px}
+/* equation input */
+.eq-box{font-family:'Courier New',monospace;font-size:13px;width:100%}
+/* hints */
+details.hint{margin:6px 0;font-size:12.5px}
+details.hint summary{color:#3949ab;cursor:pointer;font-weight:600;user-select:none;padding:3px 0}
+details.hint summary:hover{color:#5c6bc0}
+details.hint .hint-body{background:#e8eaf6;border-radius:0 0 5px 5px;padding:7px 12px;border:1px solid #c5cae9;border-top:none;margin-top:2px}
+details.ans{margin:4px 0;font-size:12.5px}
+details.ans summary{color:#388e3c;cursor:pointer;font-weight:600;user-select:none;padding:3px 0}
+details.ans summary:hover{color:#2e7d32}
+details.ans .ans-body{background:#f1f8e9;border-radius:0 0 5px 5px;padding:7px 12px;border:1px solid #a5d6a7;border-top:none;margin-top:2px}
+.ans-body strong{color:#1b5e20}
+/* worked calc */
+.worked{background:#f0f6ff;border:1px solid #90a8d0;border-radius:4px;padding:8px 12px;font-size:12.5px;font-family:'Courier New',monospace;line-height:1.7;margin:4px 0}
+.worked .step{color:#1a3a7a;font-family:'Segoe UI',Arial;font-style:italic;font-size:11.5px;margin-bottom:1px}
+/* note */
+.note{background:#fff8e1;border-left:3px solid #fbc02d;padding:7px 11px;font-size:12px;border-radius:0 4px 4px 0;margin:6px 0}
+/* diagram placeholder */
+.diagram-box{border:2px dashed #bbb;border-radius:6px;padding:20px;text-align:center;
+  color:#999;font-size:12.5px;margin:8px 0;background:#fafafa}
+/* print */
+@media print{
+  body{background:#fff}
+  .sheet{box-shadow:none;padding:20px}
+  .prog-wrap,.prog-label,.check-btn{display:none}
+  details.hint,details.ans{display:none}
+  input,textarea{border:1px solid #999}
+  .sim-task{border:1px solid #ccc;background:#f9f9f9}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-title">The Contact Process — Interactive Worksheet</div>
+  <div class="hdr-sub">For use with the Contact Process Flowsheet Simulation (v5)</div>
+  <div class="sim-badge">&#x1F4BB; Open the simulation alongside this worksheet</div>
+</div>
+
+<!-- INSTRUCTIONS -->
+<div class="instr">
+  <strong>How to use this worksheet:</strong> Open <em>contact_process_v5.html</em> in a browser next to this worksheet. 
+  Use the Temperature and Pressure sliders, the T&ndash;P Yield Map, and the stream tags to explore the process. 
+  Click any unit on the flowsheet to see its details. Expand <strong>Equilibrium details</strong> in the simulation for K<sub>p</sub> values. 
+  Hints and model answers are available in each question &mdash; try answering first!
+</div>
+
+<!-- PROGRESS BAR -->
+<div class="prog-wrap"><div class="prog-bar" id="prog-bar"></div></div>
+<div class="prog-label" id="prog-label">Progress: 0 / 0 fields completed</div>
+
+<!-- ═══ SECTION A ═══ -->
+<div class="section sa">
+  <div class="sec-head">&#x1F3ED; Section A &mdash; The Flowsheet</div>
+  <div class="sec-body">
+
+    <div class="q">
+      <span class="q-num">Q1</span>
+      <span style="font-weight:700">Identifying Units</span>
+      <p class="q-text">Look at the simulation flowsheet. Five unit operations are shown. Complete the table.</p>
+      <div class="sim-task">Click each unit on the simulation to see its name and key information.</div>
+      <table class="data-tbl">
+        <tr><th style="min-width:80px">Unit label on flowsheet</th><th style="min-width:160px">Name of unit operation</th><th style="min-width:220px">Main purpose</th></tr>
+        <tr><td>1 (top left)</td><td><input type="text" id="q1a" placeholder="name..."></td><td><input type="text" id="q1b" placeholder="purpose..."></td></tr>
+        <tr><td>2 (centre left)</td><td><input type="text" id="q1c" placeholder="name..."></td><td><input type="text" id="q1d" placeholder="purpose..."></td></tr>
+        <tr><td>3 (centre right)</td><td><input type="text" id="q1e" placeholder="name..."></td><td><input type="text" id="q1f" placeholder="purpose..."></td></tr>
+        <tr><td>4 (lower right)</td><td><input type="text" id="q1g" placeholder="name..."></td><td><input type="text" id="q1h" placeholder="purpose..."></td></tr>
+        <tr><td>5 (lower left)</td><td><input type="text" id="q1i" placeholder="name..."></td><td><input type="text" id="q1j" placeholder="purpose..."></td></tr>
+      </table>
+      <details class="ans"><summary>&#x1F4CB; Model answers</summary>
+      <div class="ans-body">
+        <strong>1 Furnace</strong> — combusts liquid sulfur in air to make SO₂.<br>
+        <strong>2 Converter</strong> — catalytic oxidation of SO₂ to SO₃ (V₂O₅ catalyst, 4 beds).<br>
+        <strong>3 Absorption columns</strong> — SO₃ absorbed into 98% H₂SO₄ to give 99% product acid.<br>
+        <strong>4 Diluter</strong> — water added to 99% H₂SO₄ to give 98% commercial grade acid.<br>
+        <strong>5 Storage tanks</strong> — product 98% H₂SO₄ stored before dispatch.
+      </div></details>
+    </div>
+
+    <div class="q">
+      <span class="q-num">Q2</span>
+      <span style="font-weight:700">Following the Streams</span>
+      <p class="q-text">The simulation shows 8 numbered stream tags (&#x2460;&ndash;&#x2467;). Match each stream to its main component(s) by completing the table.</p>
+      <div class="sim-task">Hover over or click each stream tag in the simulation. Look at the component breakdown shown.</div>
+      <table class="data-tbl">
+        <tr><th>Stream</th><th>From &rarr; To</th><th>Main component(s)</th></tr>
+        <tr><td>&#x2460; Air Feed</td><td>Inlet &rarr; Furnace</td><td><input type="text" id="q2a" placeholder="components..."></td></tr>
+        <tr><td>&#x2461; Sulfur Feed</td><td>Inlet &rarr; Furnace</td><td><input type="text" id="q2b" placeholder="components..."></td></tr>
+        <tr><td>&#x2462; Furnace exit</td><td>Furnace &rarr; Converter</td><td><input type="text" id="q2c" placeholder="components..."></td></tr>
+        <tr><td>&#x2463; Converter exit</td><td>Converter &rarr; Absorbers</td><td><input type="text" id="q2d" placeholder="components..."></td></tr>
+        <tr><td>&#x2464; Absorbers exit</td><td>Absorbers &rarr; Diluter</td><td><input type="text" id="q2e" placeholder="components..."></td></tr>
+        <tr><td>&#x2465; Recycle acid</td><td>Diluter &rarr; Absorbers</td><td><input type="text" id="q2f" placeholder="components..."></td></tr>
+        <tr><td>&#x2466; Water Feed</td><td>Inlet &rarr; Diluter</td><td><input type="text" id="q2g" placeholder="components..."></td></tr>
+        <tr><td>&#x2467; Product</td><td>Diluter &rarr; Storage</td><td><input type="text" id="q2h" placeholder="components..."></td></tr>
+      </table>
+      <details class="hint"><summary>&#x1F4A1; Hint</summary>
+      <div class="hint-body">Air is 21% O₂ + 79% N₂. After the furnace, look for SO₂. After the converter, look for the new component that forms. N₂ is inert — it travels all the way to the absorber off-gas.</div></details>
+      <details class="ans"><summary>&#x1F4CB; Model answers</summary>
+      <div class="ans-body">
+        &#x2460; O₂ + N₂ &nbsp;|&nbsp; &#x2461; S (liquid sulfur) &nbsp;|&nbsp; &#x2462; SO₂ + O₂ + N₂<br>
+        &#x2463; SO₃ + SO₂ + O₂ + N₂ (amounts depend on conversion α) &nbsp;|&nbsp; &#x2464; H₂SO₄ (~99%) &nbsp;|&nbsp;
+        &#x2465; H₂SO₄ + H₂O (recycle, 98%) &nbsp;|&nbsp; &#x2466; H₂O &nbsp;|&nbsp; &#x2467; H₂SO₄ (98% grade)
+      </div></details>
+    </div>
+
+    <div class="q">
+      <span class="q-num">Q3</span>
+      <span style="font-weight:700">The Role of the Recycle Stream</span>
+      <p class="q-text">Stream &#x2465; is a <em>recycle stream</em> that returns concentrated sulphuric acid from the diluter back to the absorbers. Explain why this recycle is necessary rather than adding water directly to absorb the SO₃.</p>
+      <textarea id="q3" rows="3" placeholder="Your explanation..."></textarea>
+      <details class="hint"><summary>&#x1F4A1; Hint</summary>
+      <div class="hint-body">What happens physically when SO₃ gas meets liquid water? Think about the energy released and the state of the product formed.</div></details>
+      <details class="ans"><summary>&#x1F4CB; Model answer</summary>
+      <div class="ans-body">
+        If SO₃ were absorbed directly by water, the highly exothermic reaction SO₃ + H₂O &rarr; H₂SO₄ would generate so much heat that the water vaporises instantly, and the H₂SO₄ forms as a fine aerosol <strong>mist</strong> of submicron droplets. These are too small to be collected and escape as a visible acid plume — a serious pollutant. By recycling <strong>concentrated (98%) H₂SO₄</strong> instead, the SO₃ dissolves into the acid without misting. The 98% acid (not 100%) is critical — 100% acid also causes misting.
+      </div></details>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ SECTION B ═══ -->
+<div class="section sb">
+  <div class="sec-head">&#x2697;&#xFE0F; Section B &mdash; The Chemistry</div>
+  <div class="sec-body">
+
+    <div class="q">
+      <span class="q-num">Q4</span>
+      <span style="font-weight:700">Balanced Equations</span>
+      <p class="q-text">Write balanced equations for the three key reactions in the Contact Process. Include state symbols where possible.</p>
+      <p style="font-size:12.5px;margin-bottom:6px"><strong>(a)</strong> Combustion in the furnace:</p>
+      <input type="text" class="eq-box" id="q4a" placeholder="balanced equation...">
+      <p style="font-size:12.5px;margin:8px 0 6px"><strong>(b)</strong> Catalytic oxidation in the converter (use a reversible arrow):</p>
+      <input type="text" class="eq-box" id="q4b" placeholder="balanced equation with reversible arrow...">
+      <p style="font-size:12.5px;margin:8px 0 6px"><strong>(c)</strong> Absorption of SO₃ to form product acid (overall):</p>
+      <input type="text" class="eq-box" id="q4c" placeholder="balanced equation...">
+      <details class="ans"><summary>&#x1F4CB; Model answers</summary>
+      <div class="ans-body">
+        <strong>(a)</strong> S(l) + O₂(g) &rarr; SO₂(g) &nbsp; &Delta;H = &minus;297 kJ mol<sup>&minus;1</sup><br>
+        <strong>(b)</strong> 2SO₂(g) + O₂(g) &#x21CC; 2SO₃(g) &nbsp; &Delta;H = &minus;197 kJ mol<sup>&minus;1</sup><br>
+        <strong>(c)</strong> SO₃(g) + H₂O(l) &rarr; H₂SO₄(l) &nbsp; (via oleum; net equation)
+      </div></details>
+    </div>
+
+    <div class="q">
+      <span class="q-num">Q5</span>
+      <span style="font-weight:700">The V₂O₅ Catalyst</span>
+      <p class="q-text">The converter uses vanadium(V) oxide (V₂O₅) as a catalyst.</p>
+      <p style="font-size:12.5px;margin-bottom:5px"><strong>(a)</strong> What does the catalyst do to the reaction rate and to the equilibrium position?</p>
+      <textarea id="q5a" rows="2" placeholder="Your answer..."></textarea>
+      <p style="font-size:12.5px;margin:8px 0 5px"><strong>(b)</strong> V₂O₅ has a minimum working temperature of about 400&nbsp;&deg;C. What would you observe in the simulation if you set the temperature below 400&nbsp;&deg;C, and why does this limit matter in practice?</p>
+      <textarea id="q5b" rows="3" placeholder="Your answer..."></textarea>
+      <details class="hint"><summary>&#x1F4A1; Hint</summary>
+      <div class="hint-body">Try moving the temperature slider below 400°C in the simulation. Look at what the Le Chatelier box says about reaction rate. Remember: equilibrium conversion shown by the model is a <em>thermodynamic limit</em> — in reality the catalyst would be too inactive to reach it in a reasonable time.</div></details>
+      <details class="ans"><summary>&#x1F4CB; Model answer</summary>
+      <div class="ans-body">
+        <strong>(a)</strong> The catalyst <em>increases the rate</em> at which equilibrium is reached by providing an alternative reaction mechanism with a lower activation energy. It has <strong>no effect on the equilibrium position or the maximum yield</strong> — these depend only on temperature and pressure.<br><br>
+        <strong>(b)</strong> In the simulation, moving below 400°C gives very high conversion (thermodynamically excellent) but the "Reaction rate" indicator switches to "Very slow ⚠". In practice, below ~400°C V₂O₅ is insufficiently active — the reaction proceeds so slowly that reaching equilibrium would require impractically large catalyst beds. The plant would be uneconomic.
+      </div></details>
+    </div>
+
+    <div class="q">
+      <span class="q-num">Q6</span>
+      <span style="font-weight:700">The Equilibrium Constant K<sub>p</sub></span>
+      <p class="q-text"><strong>(a)</strong> Write the K<sub>p</sub> expression for the converter reaction 2SO₂(g) + O₂(g) &#x21CC; 2SO₃(g). State the units.</p>
+      <input type="text" class="eq-box" id="q6a" placeholder="Kp = ...">
+      <p style="font-size:12.5px;margin:8px 0 5px"><strong>(b)</strong> Open <em>Equilibrium details</em> in the simulation. Record K<sub>p</sub> at three temperatures:</p>
+      <div class="sim-task">Set temperature using the slider; read K<sub>p</sub> from the Equilibrium details panel.</div>
+      <table class="data-tbl">
+        <tr><th>T (&deg;C)</th><th>K<sub>p</sub> (atm<sup>&minus;1</sup>)</th><th>Trend / observation</th></tr>
+        <tr><td>350</td><td><input type="text" id="q6b1" style="max-width:90px"></td><td rowspan="3"><textarea id="q6trend" rows="3" placeholder="Describe how Kp changes..."></textarea></td></tr>
+        <tr><td>450</td><td><input type="text" id="q6b2" style="max-width:90px"></td></tr>
+        <tr><td>550</td><td><input type="text" id="q6b3" style="max-width:90px"></td></tr>
+      </table>
+      <p style="font-size:12.5px;margin:8px 0 5px"><strong>(c)</strong> Does K<sub>p</sub> increase or decrease as temperature rises? Explain using the van&rsquo;t Hoff equation or Le Chatelier&rsquo;s Principle.</p>
+      <textarea id="q6c" rows="3" placeholder="Your explanation..."></textarea>
+      <details class="ans"><summary>&#x1F4CB; Model answers</summary>
+      <div class="ans-body">
+        <strong>(a)</strong> K<sub>p</sub> = p²(SO₃) / [p²(SO₂) &times; p(O₂)] &nbsp;&nbsp; units: atm<sup>&minus;1</sup><br><br>
+        <strong>(b)</strong> K<sub>p</sub>(350°C) &asymp; 36258 &nbsp;|&nbsp; K<sub>p</sub>(450°C) &asymp; 189 &nbsp;|&nbsp; K<sub>p</sub>(550°C) &asymp; 3.5<br><br>
+        <strong>(c)</strong> K<sub>p</sub> <strong>decreases</strong> as temperature increases. The reaction is exothermic (&Delta;H &lt; 0), so by Le Chatelier&rsquo;s Principle, increasing T favours the endothermic reverse reaction, shifting equilibrium left and reducing K<sub>p</sub>. Mathematically, the van&rsquo;t Hoff equation d(ln K<sub>p</sub>)/dT = &Delta;H/RT² &lt; 0 when &Delta;H &lt; 0.
+      </div></details>
+    </div>
+
+    <div class="q">
+      <span class="q-num">Q7</span>
+      <span style="font-weight:700">Le Chatelier — Pressure</span>
+      <p class="q-text"><strong>(a)</strong> For the reaction 2SO₂(g) + O₂(g) &#x21CC; 2SO₃(g), calculate &Delta;n (the change in moles of gas).</p>
+      <div style="display:flex;align-items:center;gap:8px;margin:6px 0">
+        <span style="font-size:13px">&Delta;n = moles of gas on right &minus; moles of gas on left =</span>
+        <input type="number" id="q7dn" style="max-width:70px" placeholder="?">
+        <button class="check-btn" onclick="checkNum('q7dn',-1,5,'q7dn-fb')">Check</button>
+      </div>
+      <div class="feedback" id="q7dn-fb"></div>
+      <p style="font-size:12.5px;margin:8px 0 5px"><strong>(b)</strong> Use Le Chatelier&rsquo;s Principle to predict what happens to the equilibrium yield of SO₃ when pressure is increased. Explain your reasoning.</p>
+      <textarea id="q7b" rows="3" placeholder="Your prediction and explanation..."></textarea>
+      <details class="ans"><summary>&#x1F4CB; Model answers</summary>
+      <div class="ans-body">
+        <strong>(a)</strong> &Delta;n = 2 &minus; (2+1) = <strong>&minus;1</strong><br><br>
+        <strong>(b)</strong> Since &Delta;n = &minus;1 (fewer moles of gas on the right), increasing pressure favours the side with <em>fewer</em> gas molecules — the product side (SO₃). The equilibrium shifts <strong>right</strong>, increasing the proportion of SO₃ and improving conversion. You can verify this in the simulation by raising the pressure slider and observing &alpha; increase.
+      </div></details>
+    </div>
+
+    <div class="q">
+      <span class="q-num">Q8</span>
+      <span style="font-weight:700">Compromise Temperature</span>
+      <p class="q-text">The converter operates at 430&ndash;490&nbsp;&deg;C even though lower temperatures would give a higher equilibrium yield of SO₃. Explain why this temperature range is chosen as a compromise.</p>
+      <textarea id="q8" rows="4" placeholder="Your explanation (consider both rate and yield)..."></textarea>
+      <details class="hint"><summary>&#x1F4A1; Hint</summary>
+      <div class="hint-body">Move the temperature slider from 300°C to 600°C. Watch both the conversion % AND the reaction rate indicator. What happens to each at low temperature? At high temperature? A good answer addresses both extremes.</div></details>
+      <details class="ans"><summary>&#x1F4CB; Model answer</summary>
+      <div class="ans-body">
+        At <strong>low temperatures</strong> (&lt;350°C): the equilibrium position is very favourable (high K<sub>p</sub>, high conversion shown by the simulation) but the catalyst is too inactive — the rate is very slow. The plant would need enormous catalyst beds and would be uneconomic.<br><br>
+        At <strong>high temperatures</strong> (&gt;550°C): the reaction rate is fast, but K<sub>p</sub> is small and equilibrium lies far to the left — conversion is poor.<br><br>
+        The <strong>compromise at 430–490°C</strong> gives acceptable reaction rate with the catalyst while still achieving reasonable equilibrium conversion. In a real 4-pass converter, inter-bed cooling between catalyst beds allows each pass to approach equilibrium at a cooler, more favourable temperature, boosting overall conversion above what any single stage could achieve.
+      </div></details>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ SECTION C ═══ -->
+<div class="section sc">
+  <div class="sec-head">&#x1F4BB; Section C &mdash; Simulation Exploration</div>
+  <div class="sec-body">
+
+    <div class="note">All answers in this section come directly from the simulation. Set conditions carefully with the sliders before recording values. Accept readings within ±2%.</div>
+
+    <div class="q">
+      <span class="q-num">Q9</span>
+      <span style="font-weight:700">Default Conditions (450&nbsp;&deg;C, 1.0&nbsp;atm)</span>
+      <div class="sim-task">Set Temperature = 450°C and Pressure = 1.0 atm using the sliders. Read values from the production display and stream tags.</div>
+      <p class="q-text">Record the following at T = 450°C, P = 1.0&nbsp;atm:</p>
+      <table class="data-tbl">
+        <tr><th>Quantity</th><th>Value from simulation</th><th>Units</th></tr>
+        <tr><td>SO₂ conversion (&alpha;)</td><td><input type="text" id="q9a" style="max-width:100px"></td><td>%</td></tr>
+        <tr><td>H₂SO₄ production rate</td><td><input type="text" id="q9b" style="max-width:100px"></td><td>kg/hr</td></tr>
+        <tr><td>SO₃ in stream &#x2463;</td><td><input type="text" id="q9c" style="max-width:100px"></td><td>kg/hr</td></tr>
+        <tr><td>Unreacted SO₂ in stream &#x2463;</td><td><input type="text" id="q9d" style="max-width:100px"></td><td>kg/hr</td></tr>
+      </table>
+      <p style="font-size:12.5px;margin-top:8px">Is the reaction rate described as adequate at this temperature? What does the simulation say?</p>
+      <input type="text" id="q9e" placeholder="Rate description from simulation..." style="max-width:100%">
+      <details class="ans"><summary>&#x1F4CB; Expected values (simulation)</summary>
+      <div class="ans-body">
+        At 450°C / 1.0 atm: <strong>&alpha; &asymp; 77.6%</strong>, H₂SO₄ &asymp; 2376 kg/hr, SO₃ in stream &#x2463; &asymp; 1940 kg/hr, unreacted SO₂ &asymp; 440 kg/hr.<br>
+        Rate: "Moderate ✓" (near the optimal catalyst temperature).
+      </div></details>
+    </div>
+
+    <div class="q">
+      <span class="q-num">Q10</span>
+      <span style="font-weight:700">Effect of Temperature (at P = 1.0&nbsp;atm)</span>
+      <div class="sim-task">Keep pressure at 1.0 atm. Vary temperature and record α for each temperature below.</div>
+      <table class="data-tbl">
+        <tr><th>T (&deg;C)</th><th>&alpha; (%)</th><th>Rate description</th></tr>
+        <tr><td>300</td><td><input type="text" id="q10a"></td><td><input type="text" id="q10a2" style="max-width:160px"></td></tr>
+        <tr><td>400</td><td><input type="text" id="q10b"></td><td><input type="text" id="q10b2" style="max-width:160px"></td></tr>
+        <tr><td>450</td><td><input type="text" id="q10c"></td><td><input type="text" id="q10c2" style="max-width:160px"></td></tr>
+        <tr><td>500</td><td><input type="text" id="q10d"></td><td><input type="text" id="q10d2" style="max-width:160px"></td></tr>
+        <tr><td>600</td><td><input type="text" id="q10e"></td><td><input type="text" id="q10e2" style="max-width:160px"></td></tr>
+      </table>
+      <p style="font-size:12.5px;margin-top:8px">Describe the trend and explain it using Le Chatelier&rsquo;s Principle:</p>
+      <textarea id="q10trend" rows="3" placeholder="Trend and explanation..."></textarea>
+      <details class="ans"><summary>&#x1F4CB; Expected values &amp; explanation</summary>
+      <div class="ans-body">
+        300°C: ~99.7% (Very slow ⚠) &nbsp;|&nbsp; 400°C: ~93% (Slow) &nbsp;|&nbsp; 450°C: ~77.6% (Moderate ✓) &nbsp;|&nbsp; 500°C: ~61% (Fast) &nbsp;|&nbsp; 600°C: ~23% (Very fast — risk of deactivation)<br><br>
+        <strong>Trend:</strong> α decreases as T increases. The forward reaction is exothermic — higher T disfavours it (Le Chatelier). K<sub>p</sub> falls dramatically with temperature. The rate descriptor shows the opposing trend: rate increases with T, illustrating the rate–yield compromise.
+      </div></details>
+    </div>
+
+    <div class="q">
+      <span class="q-num">Q11</span>
+      <span style="font-weight:700">Effect of Pressure (at T = 450&nbsp;&deg;C)</span>
+      <div class="sim-task">Keep temperature at 450°C. Vary pressure and record α.</div>
+      <table class="data-tbl">
+        <tr><th>P (atm)</th><th>&alpha; (%)</th><th>H₂SO₄ (kg/hr)</th></tr>
+        <tr><td>0.5</td><td><input type="text" id="q11a"></td><td><input type="text" id="q11a2"></td></tr>
+        <tr><td>1.0</td><td><input type="text" id="q11b"></td><td><input type="text" id="q11b2"></td></tr>
+        <tr><td>2.0</td><td><input type="text" id="q11c"></td><td><input type="text" id="q11c2"></td></tr>
+        <tr><td>5.0</td><td><input type="text" id="q11d"></td><td><input type="text" id="q11d2"></td></tr>
+      </table>
+      <p style="font-size:12.5px;margin-top:8px"><strong>(a)</strong> Describe the trend in &alpha; as pressure increases. Explain using Le Chatelier&rsquo;s Principle and your answer to Q7.</p>
+      <textarea id="q11trend" rows="3" placeholder="Trend and explanation..."></textarea>
+      <p style="font-size:12.5px;margin-top:8px"><strong>(b)</strong> Based on your data, does doubling the pressure from 1 to 2 atm give the same improvement as doubling it from 2 to 4 atm? What does this tell you about the economics of operating at very high pressure?</p>
+      <textarea id="q11econ" rows="3" placeholder="Your analysis..."></textarea>
+      <details class="ans"><summary>&#x1F4CB; Expected values &amp; answers</summary>
+      <div class="ans-body">
+        0.5 atm: ~71.5% | 1.0 atm: ~77.6% | 2.0 atm: ~82.8% | 5.0 atm: ~88.1%<br><br>
+        <strong>(a)</strong> α increases with pressure because &Delta;n = &minus;1 — fewer gas moles on the right. Higher pressure favours the product side (Le Chatelier). Consistent with K<sub>p</sub> = p²(SO₃)/[p²(SO₂)·p(O₂)] — for a given K<sub>p</sub>, higher total pressure shifts the ratio in favour of SO₃.<br><br>
+        <strong>(b)</strong> 1→2 atm gains ~+5 pp; 2→4 atm gains ~+4 pp; diminishing returns apply. The yield improvement from very high pressure (e.g. 5 atm) is modest (+10 pp from 1 atm), while the cost of high-pressure equipment (compressors, vessels, safety systems) rises steeply. Industrial plants operate at 1–2 atm as the most economical compromise.
+      </div></details>
+    </div>
+
+    <div class="q">
+      <span class="q-num">Q12</span>
+      <span style="font-weight:700">Using the T&ndash;P Yield Map</span>
+      <div class="sim-task">Look at the T–P Yield Map in the simulation. The dashed rectangle marks the <em>catalyst zone</em> (approx. 400–600°C). Click different regions of the map to explore.</div>
+      <p class="q-text"><strong>(a)</strong> Describe the colour pattern on the map. What colour represents the highest yield? Where on the map is it located, and why?</p>
+      <textarea id="q12a" rows="3" placeholder="Your description..."></textarea>
+      <p style="font-size:12.5px;margin-top:8px"><strong>(b)</strong> Click within the catalyst zone (dashed rectangle). What is the highest &alpha; you can achieve while keeping both T and P within practical industrial limits (400&ndash;600&nbsp;&deg;C, 0.1&ndash;3&nbsp;atm)? Record the best conditions you find.</p>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin:6px 0">
+        <span style="font-size:13px">Best T: <input type="text" id="q12bT" style="max-width:80px"> °C</span>
+        <span style="font-size:13px">Best P: <input type="text" id="q12bP" style="max-width:80px"> atm</span>
+        <span style="font-size:13px">Best &alpha;: <input type="text" id="q12bA" style="max-width:80px"> %</span>
+      </div>
+      <p style="font-size:12.5px;margin-top:8px"><strong>(c)</strong> Click the orange star (&#x1F31F; Session Best) region. What general region of the map did the simulation highlight as the best record? Is this achievable in a real plant? Why or why not?</p>
+      <textarea id="q12c" rows="3" placeholder="Your answer..."></textarea>
+      <details class="ans"><summary>&#x1F4CB; Model answers</summary>
+      <div class="ans-body">
+        <strong>(a)</strong> The map is red on the right (high T, low yield) and green on the left (low T, high yield). Green represents the highest yield. The highest yield is at low temperatures (below the catalyst zone) where K<sub>p</sub> is very large, but the catalyst is too inactive for practical operation.<br><br>
+        <strong>(b)</strong> Within the practical zone: best is near the lower-left of the catalyst box — approximately 400°C, 3 atm gives α &asymp; 95%. Accept any T near 400°C and high P within 3 atm.<br><br>
+        <strong>(c)</strong> The session best tends to be at low temperature (green region, outside catalyst zone). While thermodynamically attractive, these conditions are not practically achievable with standard V₂O₅ catalyst below ~400°C. Modern Cs-promoted catalysts extend the lower limit to ~380°C.
+      </div></details>
+    </div>
+
+    <div class="q">
+      <span class="q-num">Q13</span>
+      <span style="font-weight:700">What is Missing from this Simulation?</span>
+      <p class="q-text">This simplified simulation shows only 5 unit operations. Real industrial Contact Process plants contain several additional items not shown here. Use your knowledge and the simulation to suggest <strong>three</strong> units or features that are missing and explain why each matters.</p>
+      <textarea id="q13" rows="6" placeholder="1. ...
+2. ...
+3. ..."></textarea>
+      <details class="hint"><summary>&#x1F4A1; Hint</summary>
+      <div class="hint-body">Think about: what happens to the air <em>before</em> it enters the furnace? The furnace produces very hot gas (~1000°C) — what should happen to this heat? The stream leaving the converter still contains unreacted SO₂ — what happens to it in a real plant? What purification does the sulfur need?</div></details>
+      <details class="ans"><summary>&#x1F4CB; Model answers (any 3)</summary>
+      <div class="ans-body">
+        <strong>1. Drying tower:</strong> Air must be dried (e.g. by contact with 98% H₂SO₄) before entering the furnace. Water vapour poisons the V₂O₅ catalyst and causes acid mist downstream.<br>
+        <strong>2. Waste heat boiler:</strong> Combustion gases from the furnace exit at ~1000°C. A waste heat boiler generates steam for energy recovery, cooling the gas to the converter inlet temperature and improving plant economics.<br>
+        <strong>3. Gas-gas heat exchanger:</strong> Hot converter exit gas pre-heats the cold converter feed gas, avoiding the need for external fuel heating and making the process nearly self-heating.<br>
+        <strong>4. Hot gas filter:</strong> Removes dust and particulate matter from the SO₂ stream before the converter, protecting the catalyst from physical poisoning.<br>
+        <strong>5. Tail gas scrubber / double absorption:</strong> The absorber off-gas still contains unreacted SO₂, which must not be released to atmosphere (acid rain). Double absorption removes most of this.<br>
+        <strong>6. Melter-settler for sulfur:</strong> Real plants purify and melt solid sulfur feedstock before combustion, removing arsenic and other catalyst poisons.
+      </div></details>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ SECTION D ═══ -->
+<div class="section sd">
+  <div class="sec-head">&#x1F9EE; Section D &mdash; Mass Balance Calculations</div>
+  <div class="sec-body">
+
+    <div class="note"><strong>Basis:</strong> 1&thinsp;000&nbsp;kg&nbsp;hr<sup>&minus;1</sup> liquid sulfur feed (as shown in the simulation). For Questions 16&ndash;18, use <strong>&alpha; = 0.80</strong> (a reasonable approximation for the converter at typical operating conditions). M<sub>r</sub>: S&nbsp;=&nbsp;32, O₂&nbsp;=&nbsp;32, N₂&nbsp;=&nbsp;28, SO₂&nbsp;=&nbsp;64, SO₃&nbsp;=&nbsp;80, H₂SO₄&nbsp;=&nbsp;98, H₂O&nbsp;=&nbsp;18.</div>
+
+    <div class="q">
+      <span class="q-num">Q14</span>
+      <span style="font-weight:700">Sulfur Feed Rate</span>
+      <p class="q-text">Calculate the molar flow rate of sulfur entering the furnace.</p>
+      <div style="display:flex;align-items:center;gap:8px;margin:6px 0">
+        <span style="font-size:13px">ṅ(S) =</span>
+        <input type="number" id="q14" style="max-width:120px" placeholder="? kmol/hr">
+        <span style="font-size:13px">kmol/hr</span>
+        <button class="check-btn" onclick="checkNum('q14',31.25,2,'q14-fb')">Check</button>
+      </div>
+      <div class="feedback" id="q14-fb"></div>
+      <details class="hint"><summary>&#x1F4A1; Hint</summary>
+      <div class="hint-body">ṅ = ṁ / M<sub>r</sub> &nbsp;=&nbsp; 1000 kg/hr ÷ 32 kg/kmol</div></details>
+      <details class="ans"><summary>&#x1F4CB; Worked answer</summary>
+      <div class="ans-body"><div class="worked">ṅ(S) = 1000 ÷ 32 = <strong>31.25 kmol hr⁻¹</strong></div></div></details>
+    </div>
+
+    <div class="q">
+      <span class="q-num">Q15</span>
+      <span style="font-weight:700">SO₂ from the Furnace</span>
+      <p class="q-text">The furnace completely combusts all the sulfur: S + O₂ &rarr; SO₂. Calculate the molar and mass flow rates of SO₂ leaving the furnace.</p>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0">
+        <span style="font-size:13px">ṅ(SO₂) =</span>
+        <input type="number" id="q15a" style="max-width:100px" placeholder="?">
+        <span style="font-size:13px">kmol/hr</span>
+        <button class="check-btn" onclick="checkNum('q15a',31.25,2,'q15-fb')">Check</button>
+        <span style="font-size:13px;margin-left:14px">ṁ(SO₂) =</span>
+        <input type="number" id="q15b" style="max-width:100px" placeholder="?">
+        <span style="font-size:13px">kg/hr</span>
+        <button class="check-btn" onclick="checkNum('q15b',2000,2,'q15b-fb')">Check</button>
+      </div>
+      <div class="feedback" id="q15-fb"></div>
+      <div class="feedback" id="q15b-fb"></div>
+      <details class="ans"><summary>&#x1F4CB; Worked answer</summary>
+      <div class="ans-body"><div class="worked">
+        <div class="step">1:1 mole ratio S:SO₂</div>
+        ṅ(SO₂) = 31.25 kmol hr⁻¹ (same as S) ✓<br>
+        ṁ(SO₂) = 31.25 × 64 = <strong>2000 kg hr⁻¹</strong> ✓
+      </div></div></details>
+    </div>
+
+    <div class="q">
+      <span class="q-num">Q16</span>
+      <span style="font-weight:700">Converter Output (using &alpha; = 0.80)</span>
+      <p class="q-text">Using a conversion of &alpha; = 0.80 (80% of SO₂ is converted to SO₃):</p>
+      <p style="font-size:12.5px;margin-bottom:5px"><strong>(a)</strong> Calculate the molar flow rate of SO₃ leaving the converter:</p>
+      <div style="display:flex;align-items:center;gap:8px;margin:5px 0">
+        <span style="font-size:13px">ṅ(SO₃) =</span>
+        <input type="number" id="q16a" style="max-width:100px" placeholder="?">
+        <span style="font-size:13px">kmol/hr</span>
+        <button class="check-btn" onclick="checkNum('q16a',25,2,'q16a-fb')">Check</button>
+      </div>
+      <div class="feedback" id="q16a-fb"></div>
+      <p style="font-size:12.5px;margin:8px 0 5px"><strong>(b)</strong> Calculate the molar flow rate of unreacted SO₂ leaving the converter:</p>
+      <div style="display:flex;align-items:center;gap:8px;margin:5px 0">
+        <span style="font-size:13px">ṅ(SO₂ tail) =</span>
+        <input type="number" id="q16b" style="max-width:100px" placeholder="?">
+        <span style="font-size:13px">kmol/hr</span>
+        <button class="check-btn" onclick="checkNum('q16b',6.25,5,'q16b-fb')">Check</button>
+      </div>
+      <div class="feedback" id="q16b-fb"></div>
+      <details class="ans"><summary>&#x1F4CB; Worked answers</summary>
+      <div class="ans-body"><div class="worked">
+        <div class="step">(a) SO₃ formed = ṅ(SO₂) × α</div>
+        ṅ(SO₃) = 31.25 × 0.80 = <strong>25.00 kmol hr⁻¹</strong> ✓<br><br>
+        <div class="step">(b) Unreacted SO₂ = ṅ(SO₂) × (1 − α)</div>
+        ṅ(SO₂) tail = 31.25 × 0.20 = <strong>6.25 kmol hr⁻¹</strong> ✓
+      </div></div></details>
+    </div>
+
+    <div class="q">
+      <span class="q-num">Q17</span>
+      <span style="font-weight:700">H₂SO₄ Production Rate</span>
+      <p class="q-text">All the SO₃ from the converter is absorbed and converted to H₂SO₄ (M<sub>r</sub> = 98). Calculate:</p>
+      <p style="font-size:12.5px;margin-bottom:5px"><strong>(a)</strong> Mass flow rate of H₂SO₄:</p>
+      <div style="display:flex;align-items:center;gap:8px;margin:5px 0;flex-wrap:wrap">
+        <span style="font-size:13px">ṁ(H₂SO₄) =</span>
+        <input type="number" id="q17a" style="max-width:110px" placeholder="?">
+        <span style="font-size:13px">kg/hr</span>
+        <button class="check-btn" onclick="checkNum('q17a',2450,2,'q17a-fb')">Check</button>
+      </div>
+      <div class="feedback" id="q17a-fb"></div>
+      <p style="font-size:12.5px;margin:8px 0 5px"><strong>(b)</strong> The theoretical maximum H₂SO₄ (at &alpha; = 1.0, 100% conversion) would be 3062.5&nbsp;kg/hr. What percentage of this maximum is your answer to (a)?</p>
+      <div style="display:flex;align-items:center;gap:8px;margin:5px 0">
+        <span style="font-size:13px">% of maximum =</span>
+        <input type="number" id="q17b" style="max-width:80px" placeholder="?">
+        <span style="font-size:13px">%</span>
+        <button class="check-btn" onclick="checkNum('q17b',80,2,'q17b-fb')">Check</button>
+      </div>
+      <div class="feedback" id="q17b-fb"></div>
+      <details class="ans"><summary>&#x1F4CB; Worked answers</summary>
+      <div class="ans-body"><div class="worked">
+        <div class="step">(a) SO₃ + H₂O → H₂SO₄ (1:1 mole ratio)</div>
+        ṁ(H₂SO₄) = 25.00 × 98 = <strong>2450 kg hr⁻¹</strong> ✓<br><br>
+        <div class="step">(b)</div>
+        % of max = (2450 / 3062.5) × 100 = <strong>80.0%</strong> ✓
+        <div class="step">(Equals α × 100% — a useful self-check.)</div>
+      </div></div></details>
+    </div>
+
+    <div class="q">
+      <span class="q-num">Q18</span>
+      <span style="font-weight:700">Air Feed Calculation</span>
+      <p class="q-text">The converter feed gas contains 10 mol% SO₂, 10 mol% O₂, and 80 mol% N₂.</p>
+      <p style="font-size:12.5px;margin-bottom:5px"><strong>(a)</strong> If SO₂ = 10 mol% of the total converter feed, calculate the total molar flow rate of converter feed gas:</p>
+      <div style="display:flex;align-items:center;gap:8px;margin:5px 0">
+        <span style="font-size:13px">ṅ(total) =</span>
+        <input type="number" id="q18a" style="max-width:110px" placeholder="?">
+        <span style="font-size:13px">kmol/hr</span>
+        <button class="check-btn" onclick="checkNum('q18a',312.5,2,'q18a-fb')">Check</button>
+      </div>
+      <div class="feedback" id="q18a-fb"></div>
+      <p style="font-size:12.5px;margin:8px 0 5px"><strong>(b)</strong> Calculate the molar flow rate of N₂ in the feed:</p>
+      <div style="display:flex;align-items:center;gap:8px;margin:5px 0">
+        <span style="font-size:13px">ṅ(N₂) =</span>
+        <input type="number" id="q18b" style="max-width:110px" placeholder="?">
+        <span style="font-size:13px">kmol/hr</span>
+        <button class="check-btn" onclick="checkNum('q18b',250,3,'q18b-fb')">Check</button>
+      </div>
+      <div class="feedback" id="q18b-fb"></div>
+      <p style="font-size:12.5px;margin-top:8px"><strong>(c)</strong> N₂ is inert and does not react. Explain what happens to the N₂ as it passes through the process.</p>
+      <textarea id="q18c" rows="2" placeholder="Your answer..."></textarea>
+      <details class="ans"><summary>&#x1F4CB; Worked answers</summary>
+      <div class="ans-body"><div class="worked">
+        <div class="step">(a) SO₂ = 10% of total: ṅ(total) = ṅ(SO₂) ÷ 0.10</div>
+        ṅ(total) = 31.25 ÷ 0.10 = <strong>312.5 kmol hr⁻¹</strong> ✓<br><br>
+        <div class="step">(b) N₂ = 80% of total feed</div>
+        ṅ(N₂) = 312.5 × 0.80 = <strong>250 kmol hr⁻¹</strong> ✓<br><br>
+        <div class="step">(c)</div>
+        N₂ passes through the furnace, converter, and absorbers unchanged. It eventually exits in the absorber off-gas (vent stream) along with unreacted SO₂ and excess O₂. This is why the off-gas must be scrubbed before release.
+      </div></div></details>
+    </div>
+
+    <div class="q">
+      <span class="q-num">Q19</span>
+      <span style="font-weight:700">Atom Economy</span>
+      <p class="q-text">The overall reaction for making sulphuric acid from sulfur can be written as: S + 3/2 O₂ + H₂O &rarr; H₂SO₄</p>
+      <p style="font-size:12.5px;margin-bottom:5px"><strong>(a)</strong> Calculate the atom economy of this process:</p>
+      <div style="display:flex;align-items:center;gap:8px;margin:5px 0">
+        <span style="font-size:13px">Atom economy =</span>
+        <input type="number" id="q19" style="max-width:80px" placeholder="?">
+        <span style="font-size:13px">%</span>
+        <button class="check-btn" onclick="checkNum('q19',100,1,'q19-fb')">Check</button>
+      </div>
+      <div class="feedback" id="q19-fb"></div>
+      <p style="font-size:12.5px;margin-top:8px"><strong>(b)</strong> What feature of the Contact Process makes it so atom-efficient? Refer to the overall equation and to the stream table in the simulation.</p>
+      <textarea id="q19b" rows="3" placeholder="Your explanation..."></textarea>
+      <details class="ans"><summary>&#x1F4CB; Worked answers</summary>
+      <div class="ans-body"><div class="worked">
+        <div class="step">(a) Atom economy = M_r(desired product) / sum of M_r(all reactants) × 100</div>
+        M_r(H₂SO₄) = 98<br>
+        M_r(S + 3/2 O₂ + H₂O) = 32 + 48 + 18 = 98<br>
+        Atom economy = 98/98 × 100 = <strong>100%</strong> ✓<br><br>
+        <div class="step">(b)</div>
+        All atoms in the reactants end up in the product H₂SO₄ — there are NO by-products. Every S atom, every O atom, and every H atom becomes part of the sulphuric acid molecule. The simulation stream table shows no waste streams containing new chemical species (N₂ and excess O₂ leave unchanged; they are not consumed).
+      </div></div></details>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ SECTION E ═══ -->
+<div class="section se">
+  <div class="sec-head">&#x1F30D; Section E &mdash; Industrial &amp; Environmental Thinking</div>
+  <div class="sec-body">
+
+    <div class="q">
+      <span class="q-num">Q20</span>
+      <span style="font-weight:700">Unreacted SO₂ — An Environmental Problem</span>
+      <p class="q-text"><strong>(a)</strong> Using &alpha; = 0.80 from Section D, calculate the mass flow rate of unreacted SO₂ leaving the absorbers (tail gas):</p>
+      <div style="display:flex;align-items:center;gap:8px;margin:6px 0">
+        <span style="font-size:13px">ṁ(SO₂ tail) =</span>
+        <input type="number" id="q20a" style="max-width:110px" placeholder="?">
+        <span style="font-size:13px">kg/hr</span>
+        <button class="check-btn" onclick="checkNum('q20a',400,3,'q20a-fb')">Check</button>
+      </div>
+      <div class="feedback" id="q20a-fb"></div>
+      <p style="font-size:12.5px;margin:8px 0 5px"><strong>(b)</strong> Explain the environmental harm caused by SO₂ emissions from the process.</p>
+      <textarea id="q20b" rows="3" placeholder="Your answer..."></textarea>
+      <p style="font-size:12.5px;margin:8px 0 5px"><strong>(c)</strong> In the simulation, explore how changing the conversion &alpha; (by adjusting conditions) would affect the SO₂ tail gas. What operating conditions would minimise SO₂ emissions while keeping the reaction rate practical?</p>
+      <textarea id="q20c" rows="3" placeholder="Your answer..."></textarea>
+      <details class="ans"><summary>&#x1F4CB; Model answers</summary>
+      <div class="ans-body"><div class="worked">
+        <div class="step">(a) ṁ(SO₂) = ṅ(SO₂ tail) × M_r(SO₂)</div>
+        = 6.25 × 64 = <strong>400 kg hr⁻¹</strong> ✓
+      </div>
+        <strong>(b)</strong> SO₂ dissolves in atmospheric moisture to form sulphurous acid (H₂SO₃) and oxidises to sulphuric acid (H₂SO₄), causing <strong>acid rain</strong>. Acid rain corrodes limestone and metal structures, acidifies lakes and rivers (harming aquatic life), damages forests, and is a respiratory irritant for humans and animals.<br><br>
+        <strong>(c)</strong> Lower temperature and/or higher pressure increases &alpha;, reducing tail SO₂. Within the practical catalyst zone (~430°C, 2–3 atm) the simulation shows &alpha; &asymp; 86%, giving SO₂ tail &asymp; 280 kg/hr — better but still significant. Real plants use <em>double absorption</em> (removing SO₃ mid-process then returning the gas for a 4th pass) to achieve &alpha; &gt; 99.7%, reducing tail SO₂ by &gt;10×.
+      </div></details>
+    </div>
+
+    <div class="q">
+      <span class="q-num">Q21</span>
+      <span style="font-weight:700">Uses of Sulphuric Acid</span>
+      <p class="q-text">H₂SO₄ is the world&rsquo;s most produced industrial chemical (~230 million tonnes per year). Give <strong>three</strong> important uses, and for each, explain briefly why H₂SO₄ is needed.</p>
+      <table class="data-tbl" style="width:100%">
+        <tr><th style="width:30%">Use</th><th>Why H₂SO₄ is needed</th></tr>
+        <tr><td><input type="text" id="q21a" placeholder="Use 1..."></td><td><textarea id="q21a2" rows="1" placeholder="Reason..."></textarea></td></tr>
+        <tr><td><input type="text" id="q21b" placeholder="Use 2..."></td><td><textarea id="q21b2" rows="1" placeholder="Reason..."></textarea></td></tr>
+        <tr><td><input type="text" id="q21c" placeholder="Use 3..."></td><td><textarea id="q21c2" rows="1" placeholder="Reason..."></textarea></td></tr>
+      </table>
+      <details class="ans"><summary>&#x1F4CB; Model answers (any 3)</summary>
+      <div class="ans-body">
+        <strong>Fertiliser manufacture</strong> (superphosphate, ammonium sulphate): reacts with phosphate rock or neutralises ammonia to give plant-available nutrients.<br>
+        <strong>Steel pickling</strong>: dissolves iron oxide scale from steel surfaces before galvanising or coating.<br>
+        <strong>Lead-acid batteries</strong>: acts as the electrolyte in Pb/PbO₂ electrochemical cells (car batteries).<br>
+        <strong>Chemical synthesis</strong> (pharmaceuticals, dyes): strong acid catalyst, sulfonating agent, dehydrating agent.<br>
+        <strong>Petroleum refining</strong>: catalyst for alkylation and impurity removal.
+      </div></details>
+    </div>
+
+    <div class="q">
+      <span class="q-num">Q22</span>
+      <span style="font-weight:700">Evaluating the Contact Process</span>
+      <p class="q-text">Using what you have learned from this worksheet and the simulation, write a short evaluation (4&ndash;6 sentences) of the Contact Process. Your answer should address: atom economy, yield, environmental impact, and the rate&ndash;yield compromise.</p>
+      <textarea id="q22" rows="7" placeholder="Your evaluation..."></textarea>
+      <details class="hint"><summary>&#x1F4A1; Prompt questions to help you</summary>
+      <div class="hint-body">
+        &bull; What are the strengths of the Contact Process in terms of green chemistry?<br>
+        &bull; What are its limitations or environmental concerns?<br>
+        &bull; Why can&rsquo;t you simply run at the most thermodynamically favourable conditions?<br>
+        &bull; What engineering compromises are made, and why?
+      </div></details>
+      <details class="ans"><summary>&#x1F4CB; Model answer</summary>
+      <div class="ans-body">
+        The Contact Process has a theoretical <strong>atom economy of 100%</strong> — an outstanding green chemistry metric, as all raw material atoms end up in the product. In practice, equilibrium conversion of 77–81% at typical conditions (450°C, 1–2 atm) means around 20% of the SO₂ feedstock exits unreacted as a pollutant that causes acid rain, so environmental controls such as double absorption and tail gas scrubbing are essential. The process faces a fundamental <strong>rate-yield compromise</strong>: lower temperatures dramatically improve equilibrium yield (as shown by the simulation heatmap) but slow the reaction to impractical rates below ~400°C. The V₂O₅ catalyst allows operation at 430–490°C where both yield and rate are acceptable. Modern improvements including Cs-promoted catalysts (lower minimum T) and inter-bed cooling (4-pass converter) have pushed overall plant conversions above 97%, greatly reducing environmental impact. The integration of waste heat recovery (not shown in this simulation) makes the real process nearly energy self-sufficient.
+      </div></details>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div style="margin-top:22px;padding:10px 14px;background:#f0f0f0;border-radius:5px;font-size:11px;color:#666;text-align:center">
+  Contact Process v5 — Student Worksheet &bull; Simulation: van&rsquo;t Hoff equation, K<sub>p</sub><sup>ref</sup>&nbsp;=&nbsp;190&nbsp;atm<sup>&minus;1</sup> at 450&nbsp;&deg;C, &Delta;H&nbsp;=&nbsp;&minus;197&nbsp;kJ&nbsp;mol<sup>&minus;1</sup>, basis 1000&nbsp;kg&nbsp;hr<sup>&minus;1</sup> liquid sulfur
+</div>
+
+</div><!-- /sheet -->
+
+<script>
+// Progress tracking
+function updateProgress(){
+  const all=[...document.querySelectorAll('input[type=text],input[type=number],textarea')];
+  const done=all.filter(el=>{
+    const v=el.value.trim();
+    return v.length>0;
+  }).length;
+  const pct=all.length>0?Math.round(done/all.length*100):0;
+  document.getElementById('prog-bar').style.width=pct+'%';
+  document.getElementById('prog-label').textContent='Progress: '+done+' / '+all.length+' fields completed ('+pct+'%)';
+}
+document.addEventListener('input',updateProgress);
+updateProgress();
+
+// Numerical check
+function checkNum(id, expected, tolPct, fbId){
+  const v=parseFloat(document.getElementById(id).value);
+  const fb=document.getElementById(fbId);
+  if(isNaN(v)){fb.className='feedback fb-err';fb.textContent='Please enter a number.';return;}
+  const pct=Math.abs((v-expected)/expected)*100;
+  if(pct<=tolPct){
+    fb.className='feedback fb-ok';
+    fb.textContent='\u2713 Correct! ('+v.toLocaleString()+')';
+    document.getElementById(id).classList.add('correct');
+    document.getElementById(id).classList.remove('wrong');
+  } else {
+    fb.className='feedback fb-err';
+    fb.textContent='\u2717 Not quite — check your working. Expected ~'+expected;
+    document.getElementById(id).classList.add('wrong');
+    document.getElementById(id).classList.remove('correct');
+  }
+}
+
+// MCQ label highlight (if any added later)
+document.querySelectorAll('.mcq label').forEach(lbl=>{
+  lbl.addEventListener('click',()=>{
+    lbl.closest('.mcq').querySelectorAll('label').forEach(l=>l.classList.remove('selected'));
+    lbl.classList.add('selected');
+  });
+});
+</script>
+</body>
+</html>

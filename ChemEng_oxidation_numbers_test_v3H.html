@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redox Through History — Chemistry Test v3</title>
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --card: #fffdf7;
+    --primary: #5c3d1e;
+    --primary-light: #f5ede0;
+    --ink: #2d1f0e;
+    --subtext: #6b5540;
+    --border: #d6c4a8;
+    --accent: #b5451b;
+    --accent-bg: #fdf0eb;
+    --gold: #c49a1a;
+    --gold-bg: #fef9e7;
+    --correct: #16a34a;
+    --correct-bg: #dcfce7;
+    --wrong: #dc2626;
+    --wrong-bg: #fee2e2;
+    --neutral: #64748b;
+    --radius: 10px;
+
+    /* Section era colours */
+    --s1: #1a3a6b;   /* Lavoisier – France, deep blue */
+    --s1bg: #eef3fc;
+    --s2: #1a5c3a;   /* Davy/Faraday – England, deep green */
+    --s2bg: #edfaf3;
+    --s3: #4a2060;   /* Bessemer – industrial purple */
+    --s3bg: #f5effe;
+    --s4: #5c1a1a;   /* Haber/Ostwald – German red */
+    --s4bg: #fdeaea;
+    --s5: #7a4a00;   /* Hall-Héroult – bronze/gold */
+    --s5bg: #fef6e4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+  body * { font-family: 'Segoe UI', system-ui, sans-serif; }
+  .serif { font-family: 'Georgia', serif; }
+
+  /* ── Header ── */
+  header {
+    background: var(--primary);
+    color: #f5ede0;
+    padding: 15px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 3px 10px rgba(0,0,0,.3);
+  }
+  header h1 { font-size: 1rem; font-weight: 700; font-family: Georgia, serif; letter-spacing: .3px; }
+  header small { opacity: .75; font-size: .72rem; display: block; margin-top: 2px; }
+  #timer-box { background: rgba(0,0,0,.25); border-radius: 8px; padding: 7px 16px; text-align: center; min-width: 86px; }
+  #timer { font-size: 1.5rem; font-weight: 800; letter-spacing: 1px; color: #f5ede0; }
+  #timer.warning { color: #fde68a; }
+  #timer.danger  { color: #fca5a5; }
+  #timer-label   { font-size: .6rem; opacity: .7; margin-top: 1px; color: #f5ede0; }
+  #progress-bar-wrap { height: 4px; background: rgba(0,0,0,.2); }
+  #progress-bar { height: 100%; background: var(--gold); transition: width .4s; width: 0%; }
+
+  /* ── Cover ── */
+  #cover { max-width: 720px; margin: 48px auto; background: var(--card); border-radius: var(--radius); padding: 44px 50px; box-shadow: 0 6px 28px rgba(0,0,0,.12); border: 1px solid var(--border); text-align: center; }
+  .cover-emblem { font-size: 3rem; margin-bottom: 10px; }
+  #cover h2 { font-family: Georgia, serif; font-size: 1.65rem; color: var(--primary); margin-bottom: 6px; }
+  #cover .subtitle { font-style: italic; color: var(--subtext); margin-bottom: 20px; font-size: .97rem; }
+  .cover-rule { border: none; border-top: 2px solid var(--border); margin: 18px 0; }
+  #cover p { color: var(--subtext); line-height: 1.75; margin-bottom: 14px; font-size: .95rem; }
+  .cover-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; margin: 18px 0 28px; text-align: left; }
+  .cover-item { background: var(--bg); border-radius: 8px; padding: 12px 15px; font-size: .87rem; border: 1px solid var(--border); }
+  .cover-item strong { display: block; color: var(--primary); margin-bottom: 3px; font-size: .9rem; }
+  .btn { display: inline-block; background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 13px 36px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: opacity .15s, transform .1s; letter-spacing: .3px; }
+  .btn:hover { opacity: .87; transform: translateY(-1px); }
+  .btn.secondary { background: var(--neutral); }
+
+  /* ── Reference panel ── */
+  #ref-toggle-bar { max-width: 800px; margin: 0 auto 4px; padding: 0 18px; }
+  .ref-toggle-btn {
+    background: var(--primary); color: #f5ede0; border: none; border-radius: 8px;
+    padding: 9px 20px; font-size: .87rem; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; gap: 8px; width: 100%; transition: opacity .15s;
+  }
+  .ref-toggle-btn:hover { opacity: .87; }
+  .ref-toggle-btn .arr { transition: transform .25s; margin-left: auto; }
+  .ref-toggle-btn.open .arr { transform: rotate(180deg); }
+
+  #ref-panel { max-width: 800px; margin: 0 auto 18px; padding: 0 18px; display: none; }
+  #ref-panel.visible { display: block; }
+  .ref-inner { background: var(--gold-bg); border: 2px solid var(--gold); border-radius: var(--radius); padding: 20px 24px; }
+  .ref-inner > h3 { color: var(--primary); font-family: Georgia, serif; font-size: .98rem; margin-bottom: 14px; }
+
+  .ref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 13px; }
+  .ref-box { background: #fff; border-radius: 8px; padding: 13px 15px; border: 1px solid #e8d89a; }
+  .ref-box h4 { font-size: .75rem; text-transform: uppercase; letter-spacing: .5px; color: var(--gold); margin-bottom: 9px; font-weight: 700; }
+  .ref-box ul { list-style: none; padding: 0; }
+  .ref-box ul li { font-size: .81rem; padding: 3px 0; color: var(--subtext); border-bottom: 1px solid #fef9e7; line-height: 1.45; }
+  .ref-box ul li:last-child { border-bottom: none; }
+  .ref-box ul li strong { color: var(--ink); }
+
+  .oil-rig { display: flex; gap: 9px; align-items: stretch; margin-top: 4px; }
+  .oil-half { flex: 1; background: #eef6ff; border-radius: 7px; padding: 10px 11px; text-align: center; }
+  .oil-half.red-half { background: #fff0f0; }
+  .oil-half .big { font-size: 1.25rem; font-weight: 900; color: var(--s1); }
+  .oil-half.red-half .big { color: var(--wrong); }
+  .oil-half .small-txt { font-size: .7rem; color: var(--subtext); margin-top: 3px; line-height: 1.35; }
+
+  .mini-table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+  .mini-table th { background: #fef0c0; color: var(--primary); padding: 4px 8px; text-align: left; font-size: .72rem; }
+  .mini-table td { padding: 3px 8px; border-bottom: 1px solid #fef9e7; color: var(--subtext); }
+  .mini-table td strong { color: var(--ink); }
+  .mini-table tr:last-child td { border-bottom: none; }
+
+  /* ── Timeline ── */
+  .timeline { position: relative; padding-left: 18px; }
+  .timeline::before { content:''; position:absolute; left:6px; top:0; bottom:0; width:2px; background: var(--gold); border-radius:2px; }
+  .tl-item { position: relative; margin-bottom: 10px; padding-left: 12px; }
+  .tl-item::before { content:''; position:absolute; left:-14px; top:5px; width:10px; height:10px; border-radius:50%; background: var(--gold); border:2px solid #fff; }
+  .tl-item .tl-date { font-size: .68rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .5px; }
+  .tl-item .tl-text { font-size: .78rem; color: var(--ink); line-height: 1.4; }
+  .tl-item .tl-text em { color: var(--subtext); }
+
+  /* ── Warm-up banner ── */
+  .warmup-banner { background: var(--gold-bg); border: 2px solid var(--gold); border-radius: var(--radius); padding: 15px 20px; margin-bottom: 14px; display: flex; align-items: center; gap: 14px; }
+  .warmup-icon { font-size: 2rem; flex-shrink: 0; }
+  .warmup-banner h3 { color: var(--primary); font-family: Georgia, serif; font-size: 1rem; margin-bottom: 3px; }
+  .warmup-banner p { color: var(--subtext); font-size: .85rem; line-height: 1.5; }
+
+  /* ── Era banner ── */
+  .era-banner {
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-bottom: 14px;
+    display: flex; gap: 15px; align-items: flex-start;
+    border: 1px solid rgba(0,0,0,.1);
+  }
+  .era-flag { font-size: 2rem; flex-shrink: 0; line-height: 1; margin-top: 2px; }
+  .era-title { font-family: Georgia, serif; font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+  .era-meta { font-size: .82rem; line-height: 1.65; }
+  .era-meta strong { font-weight: 700; }
+
+  /* ── Section header ── */
+  .section-header { display: flex; align-items: center; gap: 12px; margin: 32px 0 12px; }
+  .section-badge { color: #fff; border-radius: 20px; padding: 4px 14px; font-size: .72rem; font-weight: 700; letter-spacing: .5px; white-space: nowrap; }
+  .section-badge.wu { background: var(--gold); color: var(--ink); }
+  .section-badge.s1 { background: var(--s1); }
+  .section-badge.s2 { background: var(--s2); }
+  .section-badge.s3 { background: var(--s3); }
+  .section-badge.s4 { background: var(--s4); }
+  .section-badge.s5 { background: var(--s5); }
+  .section-title { font-size: 1rem; font-weight: 700; font-family: Georgia, serif; }
+  .section-note  { font-size: .79rem; color: var(--subtext); margin-top: 2px; }
+
+  /* ── Question card ── */
+  .q-card { background: var(--card); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 12px; border: 2px solid transparent; box-shadow: 0 1px 5px rgba(0,0,0,.07); transition: border-color .2s; }
+  .q-card.answered-correct { border-color: var(--correct); background: var(--correct-bg); }
+  .q-card.answered-wrong   { border-color: var(--wrong);   background: var(--wrong-bg); }
+  .q-num { font-size: .69rem; font-weight: 700; color: var(--neutral); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .q-num.wu { color: var(--gold); }
+  .q-text { font-size: .94rem; line-height: 1.7; margin-bottom: 14px; }
+  .formula { font-family: 'Courier New', monospace; font-weight: 700; }
+  .hist-note { background: var(--bg); border-left: 3px solid var(--gold); padding: 8px 12px; border-radius: 0 6px 6px 0; margin-bottom: 14px; font-size: .84rem; color: var(--subtext); line-height: 1.6; font-style: italic; }
+  .hist-note strong { font-style: normal; color: var(--primary); }
+
+  /* ── True/False ── */
+  .tf-row { display: flex; gap: 10px; }
+  .tf-btn { flex: 1; padding: 10px; border: 2px solid var(--border); border-radius: 8px; background: var(--bg); font-size: .92rem; font-weight: 600; cursor: pointer; transition: border-color .15s, background .15s; }
+  .tf-btn:hover:not(:disabled) { border-color: var(--gold); background: var(--gold-bg); }
+  .tf-btn.correct { background: var(--correct-bg); border-color: var(--correct); color: var(--correct); }
+  .tf-btn.wrong   { background: var(--wrong-bg);   border-color: var(--wrong);   color: var(--wrong); }
+  .tf-btn:disabled { cursor: default; }
+
+  /* ── Multiple choice ── */
+  .choices { display: flex; flex-direction: column; gap: 8px; }
+  .choice-btn { display: flex; align-items: flex-start; gap: 10px; background: var(--bg); border: 2px solid var(--border); border-radius: 8px; padding: 10px 14px; cursor: pointer; font-size: .9rem; text-align: left; transition: border-color .15s, background .15s; line-height: 1.5; }
+  .choice-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-bg); }
+  .choice-btn .letter { background: var(--primary-light); color: var(--primary); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .77rem; flex-shrink: 0; }
+  .choice-btn.correct { background: var(--correct-bg); border-color: var(--correct); }
+  .choice-btn.wrong   { background: var(--wrong-bg);   border-color: var(--wrong); }
+  .choice-btn.correct .letter { background: var(--correct); color: #fff; }
+  .choice-btn.wrong   .letter { background: var(--wrong);   color: #fff; }
+  .choice-btn:disabled { cursor: default; }
+
+  /* ── Fill ── */
+  .fill-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; font-size: .93rem; }
+  .fill-input { border: 2px solid var(--border); border-radius: 6px; padding: 7px 12px; font-size: .95rem; width: 110px; text-align: center; transition: border-color .15s; background: var(--bg); }
+  .fill-input:focus { outline: none; border-color: var(--accent); }
+  .fill-input.correct { border-color: var(--correct); background: var(--correct-bg); }
+  .fill-input.wrong   { border-color: var(--wrong);   background: var(--wrong-bg); }
+  .fill-input:disabled { cursor: default; }
+
+  /* ── Select ── */
+  select.fill-select { border: 2px solid var(--border); border-radius: 6px; padding: 7px 10px; font-size: .9rem; background: var(--bg); cursor: pointer; }
+  select.fill-select:focus { outline: none; border-color: var(--accent); }
+  select.fill-select.correct { border-color: var(--correct); background: var(--correct-bg); }
+  select.fill-select.wrong   { border-color: var(--wrong);   background: var(--wrong-bg); }
+  select.fill-select:disabled { cursor: default; }
+
+  /* ── Buttons & feedback ── */
+  .check-btn { margin-top: 8px; background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: 8px 20px; font-size: .86rem; font-weight: 600; cursor: pointer; transition: opacity .15s; }
+  .check-btn:hover { opacity: .85; }
+  .check-btn:disabled { background: var(--neutral); cursor: default; }
+  .feedback { margin-top: 10px; font-size: .87rem; line-height: 1.65; padding: 10px 14px; border-radius: 6px; display: none; }
+  .feedback.correct { background: var(--correct-bg); color: #14532d; display: block; }
+  .feedback.wrong   { background: var(--wrong-bg);   color: #7f1d1d; display: block; }
+
+  /* ── Reminder box ── */
+  .reminder-box { background: var(--gold-bg); border: 2px solid #e8c84a; border-radius: 8px; padding: 12px 17px; margin: -4px 0 13px; font-size: .84rem; color: #5a420a; line-height: 1.6; }
+  .reminder-box strong { display: block; margin-bottom: 3px; color: var(--primary); font-size: .89rem; }
+
+  /* ── Submit & Results ── */
+  #test-area { display: none; max-width: 800px; margin: 0 auto; padding: 22px 18px 90px; }
+  #submit-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 1px solid var(--border); padding: 12px 24px; display: none; align-items: center; justify-content: space-between; box-shadow: 0 -4px 14px rgba(0,0,0,.1); z-index: 90; }
+  #score-preview { font-size: .88rem; color: var(--subtext); }
+  #score-preview strong { color: var(--ink); }
+
+  #results { display: none; max-width: 680px; margin: 40px auto; padding: 0 18px 60px; }
+  .results-card { background: var(--card); border-radius: var(--radius); padding: 36px 40px; box-shadow: 0 6px 24px rgba(0,0,0,.1); border: 1px solid var(--border); text-align: center; }
+  .score-circle { width: 140px; height: 140px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 22px; font-size: 2.3rem; font-weight: 800; border: 6px solid; }
+  .score-circle small { font-size: .68rem; font-weight: 500; margin-top: 2px; }
+  .score-great  { border-color: var(--correct); color: var(--correct); background: var(--correct-bg); }
+  .score-ok     { border-color: var(--gold);    color: var(--gold);    background: var(--gold-bg); }
+  .score-low    { border-color: var(--wrong);   color: var(--wrong);   background: var(--wrong-bg); }
+  .results-card h2 { font-family: Georgia, serif; font-size: 1.4rem; margin-bottom: 8px; color: var(--primary); }
+  .results-card p  { color: var(--subtext); line-height: 1.75; margin-bottom: 16px; }
+  .breakdown { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 11px; margin: 20px 0; }
+  .breakdown-item { background: var(--bg); border-radius: 8px; padding: 13px; border: 1px solid var(--border); }
+  .breakdown-item .bd-num { font-size: 1.4rem; font-weight: 800; color: var(--accent); }
+  .breakdown-item .bd-label { font-size: .72rem; color: var(--subtext); margin-top: 2px; }
+
+  @media (max-width: 560px) {
+    #cover, .results-card { padding: 26px 20px; }
+    .cover-grid { grid-template-columns: 1fr; }
+    .q-card { padding: 15px 14px; }
+    .ref-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════
+     COVER PAGE
+════════════════════════════════ -->
+<div id="cover">
+  <div class="cover-emblem">⚗️🏭📜</div>
+  <h2 class="serif">Redox Through History</h2>
+  <p class="subtitle">Great Reactions · Great Chemists · Great Moments in Science</p>
+  <hr class="cover-rule">
+  <p>This test explores the most historically significant redox reactions in chemistry — the discoveries that built the modern world. Each section follows a real chemist, a real country, and a real moment in history, while testing your command of oxidation numbers and redox processes.</p>
+  <div class="cover-grid">
+    <div class="cover-item"><strong>🌡️ Warm-Up (5 Q)</strong>Historical True/False &amp; simple chemistry starters</div>
+    <div class="cover-item"><strong>📚 Cheat Sheet</strong>Rules, OIL RIG &amp; a historical timeline — open any time</div>
+    <div class="cover-item"><strong>📝 5 Historical Sections</strong>25 questions tied to real reactions &amp; chemists</div>
+    <div class="cover-item"><strong>⏱ 45 Minutes</strong>Instant feedback &amp; score breakdown at the end</div>
+  </div>
+  <button class="btn" onclick="startTest()">Begin the Journey</button>
+</div>
+
+<!-- Header -->
+<header id="header" style="display:none;">
+  <div>
+    <h1 class="serif">Redox Through History — Chemistry Test</h1>
+    <small>Version 3 · Historical Edition</small>
+  </div>
+  <div id="timer-box">
+    <div id="timer">45:00</div>
+    <div id="timer-label">REMAINING</div>
+  </div>
+</header>
+<div id="progress-bar-wrap" style="display:none;"><div id="progress-bar"></div></div>
+
+<!-- ════════════════════════════════
+     TEST AREA
+════════════════════════════════ -->
+<div id="test-area">
+
+  <!-- ── Reference toggle ── -->
+  <div id="ref-toggle-bar">
+    <button class="ref-toggle-btn" id="refBtn" onclick="toggleRef()">
+      📜 &nbsp;Open Reference &amp; Cheat Sheet (includes Historical Timeline)
+      <span class="arr">▼</span>
+    </button>
+  </div>
+
+  <div id="ref-panel">
+    <div class="ref-inner">
+      <h3 class="serif">📜 Quick Reference — Rules, Redox &amp; Historical Timeline</h3>
+      <div class="ref-grid">
+
+        <div class="ref-box">
+          <h4>Rules for Oxidation Numbers</h4>
+          <ul>
+            <li><strong>1.</strong> Pure element → <strong>0</strong></li>
+            <li><strong>2.</strong> Monatomic ion → <strong>its charge</strong></li>
+            <li><strong>3.</strong> F always → <strong>−1</strong></li>
+            <li><strong>4.</strong> O usually → <strong>−2</strong> (−1 in peroxides)</li>
+            <li><strong>5.</strong> H with non-metal → <strong>+1</strong></li>
+            <li><strong>5b.</strong> H in metal hydrides → <strong>−1</strong></li>
+            <li><strong>6.</strong> Group 1 metals → <strong>+1</strong></li>
+            <li><strong>7.</strong> Group 2 metals → <strong>+2</strong></li>
+            <li><strong>8.</strong> Σ ONs = <strong>0</strong> (neutral) or <strong>ion charge</strong></li>
+          </ul>
+        </div>
+
+        <div class="ref-box">
+          <h4>OIL RIG</h4>
+          <div class="oil-rig">
+            <div class="oil-half">
+              <div class="big">OIL</div>
+              <div class="small-txt"><strong>O</strong>xidation <strong>I</strong>s <strong>L</strong>oss<br>ON increases<br>→ <em>reducing agent</em></div>
+            </div>
+            <div class="oil-half red-half">
+              <div class="big">RIG</div>
+              <div class="small-txt"><strong>R</strong>eduction <strong>I</strong>s <strong>G</strong>ain<br>ON decreases<br>→ <em>oxidising agent</em></div>
+            </div>
+          </div>
+          <p style="font-size:.73rem;color:var(--subtext);margin-top:8px;">The species that is <strong>oxidised</strong> = the <strong>reducing agent</strong>.<br>The species that is <strong>reduced</strong> = the <strong>oxidising agent</strong>.</p>
+        </div>
+
+        <div class="ref-box">
+          <h4>Common Fixed Oxidation States</h4>
+          <table class="mini-table">
+            <tr><th>Element</th><th>ON</th></tr>
+            <tr><td><strong>Na, K, Li</strong></td><td>+1</td></tr>
+            <tr><td><strong>Mg, Ca, Ba</strong></td><td>+2</td></tr>
+            <tr><td><strong>Al</strong></td><td>+3</td></tr>
+            <tr><td><strong>F</strong></td><td>−1</td></tr>
+            <tr><td><strong>O</strong> (most)</td><td>−2</td></tr>
+            <tr><td><strong>H</strong> (most)</td><td>+1</td></tr>
+            <tr><td><strong>H</strong> (hydrides)</td><td>−1</td></tr>
+          </table>
+        </div>
+
+        <div class="ref-box">
+          <h4>Variable Transition Metals</h4>
+          <table class="mini-table">
+            <tr><th>Metal</th><th>Common States</th></tr>
+            <tr><td><strong>Fe</strong></td><td>+2, +3</td></tr>
+            <tr><td><strong>Cu</strong></td><td>+1, +2</td></tr>
+            <tr><td><strong>Mn</strong></td><td>+2, +4, +7</td></tr>
+            <tr><td><strong>Cr</strong></td><td>+3, +6</td></tr>
+            <tr><td><strong>Sn</strong></td><td>+2, +4</td></tr>
+            <tr><td><strong>Al</strong></td><td>+3 (fixed)</td></tr>
+          </table>
+        </div>
+
+        <div class="ref-box" style="grid-column: span 2;">
+          <h4>📅 Historical Timeline of Redox Discoveries</h4>
+          <div class="timeline">
+            <div class="tl-item">
+              <div class="tl-date">1772–1789 · France</div>
+              <div class="tl-text"><strong>Antoine Lavoisier</strong> (Paris) — Named oxygen, overthrew the phlogiston theory, defined combustion as oxidation. <em>Guillotined during the Reign of Terror, 1794.</em></div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-date">1807–1808 · England</div>
+              <div class="tl-text"><strong>Sir Humphry Davy</strong> (Royal Institution, London) — Isolated Na &amp; K (1807) then Mg, Ca, Sr, Ba (1808) by electrolysis of molten compounds. <em>Napoleonic Wars era; Britain under naval blockade.</em></div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-date">1831 · England</div>
+              <div class="tl-text"><strong>Peregrine Phillips</strong> (Bristol) — Patented the Contact Process for SO₂ → SO₃, forerunner of modern H₂SO₄ production. <em>Britain at the height of the Industrial Revolution.</em></div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-date">1833–1834 · England</div>
+              <div class="tl-text"><strong>Michael Faraday</strong> (Royal Institution, London) — Laws of electrolysis; also invented the electric motor. <em>Early Victorian era; railways just beginning.</em></div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-date">1856 · England</div>
+              <div class="tl-text"><strong>Henry Bessemer</strong> (Sheffield) — Bessemer Converter transforms pig iron to steel by blowing air through molten iron. <em>Mid-Victorian Britain; Empire at its peak.</em></div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-date">1886 · USA &amp; France</div>
+              <div class="tl-text"><strong>Charles Hall</strong> (Oberlin, Ohio) &amp; <strong>Paul Héroult</strong> (Gentilly, France) — independently discovered the Hall-Héroult Process for aluminium. Both born 1863; both died 1914. <em>Gilded Age USA; Third Republic France.</em></div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-date">1893 · Germany</div>
+              <div class="tl-text"><strong>Hans Goldschmidt</strong> (Essen) — Thermite reaction (Fe₂O₃ + 2Al → 2Fe + Al₂O₃) for welding railway tracks. <em>Kaiserreich Germany; rapid industrialisation.</em></div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-date">1902 · Germany</div>
+              <div class="tl-text"><strong>Wilhelm Ostwald</strong> (Leipzig) — Catalytic oxidation of NH₃ to make nitric acid. Nobel Prize 1909. <em>Imperial Germany; chemical industry world leader.</em></div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-date">1909–1913 · Germany</div>
+              <div class="tl-text"><strong>Fritz Haber</strong> (Karlsruhe) &amp; <strong>Carl Bosch</strong> (BASF, Ludwigshafen) — Haber-Bosch Process synthesises NH₃ from N₂ + H₂. <em>Pre-WWI Germany; Kaiser Wilhelm II; arms race and agricultural pressure.</em></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ WARM-UP ════════════ -->
+  <div class="warmup-banner">
+    <div class="warmup-icon">🕯️</div>
+    <div>
+      <h3 class="serif">Warm-Up — Lighting the Furnace</h3>
+      <p>Five quick questions to activate your knowledge before the main test. Use the cheat sheet and timeline if you need a reminder.</p>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <span class="section-badge wu">Warm-Up</span>
+    <div>
+      <div class="section-title serif">Historical Facts &amp; Simple Chemistry</div>
+      <div class="section-note">True / False &amp; multiple choice starters</div>
+    </div>
+  </div>
+
+  <!-- WU1 -->
+  <div class="q-card" id="qcW1">
+    <div class="q-num wu">Warm-Up Question 1 of 5</div>
+    <div class="q-text"><strong>True or False:</strong> Antoine Lavoisier, working in Paris in the 1770s–1780s, named the gas "oxygen" and showed it was essential to combustion — overturning the long-held phlogiston theory.</div>
+    <div class="tf-row">
+      <button class="tf-btn" onclick="checkTF('W1',true,true)">✓ True</button>
+      <button class="tf-btn" onclick="checkTF('W1',false,true)">✗ False</button>
+    </div>
+    <div class="feedback" id="fbW1"></div>
+  </div>
+
+  <!-- WU2 -->
+  <div class="q-card" id="qcW2">
+    <div class="q-num wu">Warm-Up Question 2 of 5</div>
+    <div class="q-text"><strong>True or False:</strong> The Haber-Bosch Process for synthesising ammonia was developed in the United States during the 1920s.</div>
+    <div class="tf-row">
+      <button class="tf-btn" onclick="checkTF('W2',true,false)">✓ True</button>
+      <button class="tf-btn" onclick="checkTF('W2',false,false)">✗ False</button>
+    </div>
+    <div class="feedback" id="fbW2"></div>
+  </div>
+
+  <!-- WU3 -->
+  <div class="q-card" id="qcW3">
+    <div class="q-num wu">Warm-Up Question 3 of 5</div>
+    <div class="q-text">In which year did Charles Martin Hall (Oberlin, Ohio, USA) and Paul Héroult (Gentilly, France) <em>independently and simultaneously</em> discover the electrolytic process for producing aluminium?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC('W3','A','C')"><span class="letter">A</span>1856</button>
+      <button class="choice-btn" onclick="checkMC('W3','B','C')"><span class="letter">B</span>1833</button>
+      <button class="choice-btn" onclick="checkMC('W3','C','C')"><span class="letter">C</span>1886</button>
+      <button class="choice-btn" onclick="checkMC('W3','D','C')"><span class="letter">D</span>1909</button>
+    </div>
+    <div class="feedback" id="fbW3"></div>
+  </div>
+
+  <!-- WU4 -->
+  <div class="q-card" id="qcW4">
+    <div class="q-num wu">Warm-Up Question 4 of 5</div>
+    <div class="q-text">Henry Bessemer's 1856 converter in Sheffield, England, transformed pig iron into steel. The key chemistry involves blowing air through molten iron. What does this accomplish?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC('W4','A','B')"><span class="letter">A</span>It adds carbon to strengthen the iron</button>
+      <button class="choice-btn" onclick="checkMC('W4','B','B')"><span class="letter">B</span>It oxidises and removes impurities such as carbon, silicon, and manganese</button>
+      <button class="choice-btn" onclick="checkMC('W4','C','B')"><span class="letter">C</span>It reduces iron oxide back to pure iron</button>
+      <button class="choice-btn" onclick="checkMC('W4','D','B')"><span class="letter">D</span>It dissolves the iron in sulfuric acid</button>
+    </div>
+    <div class="feedback" id="fbW4"></div>
+  </div>
+
+  <!-- WU5 -->
+  <div class="q-card" id="qcW5">
+    <div class="q-num wu">Warm-Up Question 5 of 5</div>
+    <div class="q-text"><strong>True or False:</strong> Michael Faraday — who formulated the laws of electrolysis in London in 1833–34 — began his scientific career as Humphry Davy's laboratory assistant at the Royal Institution.</div>
+    <div class="tf-row">
+      <button class="tf-btn" onclick="checkTF('W5',true,true)">✓ True</button>
+      <button class="tf-btn" onclick="checkTF('W5',false,true)">✗ False</button>
+    </div>
+    <div class="feedback" id="fbW5"></div>
+  </div>
+
+
+  <!-- ════════════ SECTION 1: LAVOISIER ════════════ -->
+  <div class="section-header">
+    <span class="section-badge s1">Section 1</span>
+    <div>
+      <div class="section-title serif" style="color:var(--s1);">Lavoisier &amp; the Birth of Oxidation Theory</div>
+      <div class="section-note">France · 1772–1789 · Paris</div>
+    </div>
+  </div>
+
+  <div class="era-banner" style="background:var(--s1bg); border-color:var(--s1)20;">
+    <div class="era-flag">🇫🇷</div>
+    <div>
+      <div class="era-title serif" style="color:var(--s1);">Antoine-Laurent de Lavoisier — Paris, France, 1772–1789</div>
+      <div class="era-meta" style="color:var(--subtext);">
+        France under Louis XVI was a nation on the brink — the Ancien Régime creaking toward revolution. Lavoisier, a tax farmer and nobleman, worked in his private laboratory in Paris, performing the most precise quantitative experiments chemistry had yet seen. He named oxygen (1778), demolished the phlogiston theory, and published his landmark <em>Traité Élémentaire de Chimie</em> in 1789 — the same year the Revolution began. Lavoisier was arrested and guillotined on 8 May 1794. The mathematician Lagrange observed: <em>"It took but a moment to cut off that head; a hundred years may not produce another like it."</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="q-card" id="qc1">
+    <div class="q-num">Question 1 of 25</div>
+    <div class="hist-note">Lavoisier burned iron filings in oxygen in his sealed vessel experiments, carefully weighing reactants and products. He showed iron <em>gains</em> mass during combustion — the opposite of what phlogiston theory predicted.</div>
+    <div class="q-text">In the reaction <span class="formula">4 Fe + 3 O<sub>2</sub> → 2 Fe<sub>2</sub>O<sub>3</sub></span>, what is the oxidation number of <strong>Fe</strong> in Fe<sub>2</sub>O<sub>3</sub>?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(1,'A','C')"><span class="letter">A</span>+2</button>
+      <button class="choice-btn" onclick="checkMC(1,'B','C')"><span class="letter">B</span>+2.5</button>
+      <button class="choice-btn" onclick="checkMC(1,'C','C')"><span class="letter">C</span>+3</button>
+      <button class="choice-btn" onclick="checkMC(1,'D','C')"><span class="letter">D</span>0</button>
+    </div>
+    <div class="feedback" id="fb1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-card" id="qc2">
+    <div class="q-num">Question 2 of 25</div>
+    <div class="q-text">In the same reaction <span class="formula">4 Fe + 3 O<sub>2</sub> → 2 Fe<sub>2</sub>O<sub>3</sub></span>, Fe goes from oxidation number <strong>0</strong> to <strong>+3</strong>. Which of the following is correct?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(2,'A','B')"><span class="letter">A</span>Fe is reduced; its oxidation number increases</button>
+      <button class="choice-btn" onclick="checkMC(2,'B','B')"><span class="letter">B</span>Fe is oxidised; its oxidation number increases from 0 to +3</button>
+      <button class="choice-btn" onclick="checkMC(2,'C','B')"><span class="letter">C</span>Fe is oxidised; its oxidation number decreases from 0 to +3</button>
+      <button class="choice-btn" onclick="checkMC(2,'D','B')"><span class="letter">D</span>O₂ is the reducing agent in this reaction</button>
+    </div>
+    <div class="feedback" id="fb2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-card" id="qc3">
+    <div class="q-num">Question 3 of 25</div>
+    <div class="hist-note">Lavoisier also studied the combustion of carbon and sulfur. He showed that carbon burning in oxygen produces "fixed air" — what we now call CO₂.</div>
+    <div class="q-text">In the combustion reaction <span class="formula">C + O<sub>2</sub> → CO<sub>2</sub></span>, what is the oxidation number of <strong>C</strong> in CO<sub>2</sub>?</div>
+    <div class="fill-row">
+      <span>Oxidation number of C =</span>
+      <input class="fill-input" id="fi3" placeholder="+/−" type="text">
+    </div>
+    <button class="check-btn" id="cb3" onclick="checkFill(3,'+4',['4','+4'])">Check</button>
+    <div class="feedback" id="fb3"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="q-card" id="qc4">
+    <div class="q-num">Question 4 of 25</div>
+    <div class="q-text">Lavoisier studied the composition of water by decomposing it with heated iron:
+    <br><br><span class="formula">&nbsp;&nbsp;3 Fe + 4 H<sub>2</sub>O → Fe<sub>3</sub>O<sub>4</sub> + 4 H<sub>2</sub></span><br><br>
+    H in H<sub>2</sub>O has oxidation number <strong>+1</strong>. In H<sub>2</sub>, H has oxidation number <strong>0</strong>. Hydrogen is therefore:</div>
+    <div class="fill-row">
+      <select class="fill-select" id="fs4">
+        <option value="">— select —</option>
+        <option value="oxidised">Oxidised (ON increases)</option>
+        <option value="reduced">Reduced (ON decreases)</option>
+        <option value="neither">Neither — no change</option>
+      </select>
+    </div>
+    <button class="check-btn" id="cb4" onclick="checkSelect(4,'reduced')">Check</button>
+    <div class="feedback" id="fb4"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="q-card" id="qc5">
+    <div class="q-num">Question 5 of 25</div>
+    <div class="q-text">In the same reaction <span class="formula">3 Fe + 4 H<sub>2</sub>O → Fe<sub>3</sub>O<sub>4</sub> + 4 H<sub>2</sub></span>, Fe goes from <strong>0</strong> to an average oxidation state of <strong>+8/3</strong> (i.e. it increases). H₂O causes Fe to be oxidised. What role does H₂O play in this reaction?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(5,'A','A')"><span class="letter">A</span>H₂O is the oxidising agent (it causes Fe to be oxidised and is itself reduced)</button>
+      <button class="choice-btn" onclick="checkMC(5,'B','A')"><span class="letter">B</span>H₂O is the reducing agent (it causes Fe to be oxidised)</button>
+      <button class="choice-btn" onclick="checkMC(5,'C','A')"><span class="letter">C</span>H₂O is neither oxidised nor reduced in this reaction</button>
+      <button class="choice-btn" onclick="checkMC(5,'D','A')"><span class="letter">D</span>Fe is the oxidising agent in this reaction</button>
+    </div>
+    <div class="feedback" id="fb5"></div>
+  </div>
+
+
+  <!-- ════════════ SECTION 2: DAVY & FARADAY ════════════ -->
+  <div class="section-header">
+    <span class="section-badge s2">Section 2</span>
+    <div>
+      <div class="section-title serif" style="color:var(--s2);">Davy &amp; Faraday — The Age of Electrolysis</div>
+      <div class="section-note">England · 1807–1834 · Royal Institution, London</div>
+    </div>
+  </div>
+
+  <div class="era-banner" style="background:var(--s2bg); border-color:var(--s2)20;">
+    <div class="era-flag">🇬🇧</div>
+    <div>
+      <div class="era-title serif" style="color:var(--s2);">Sir Humphry Davy &amp; Michael Faraday — London, England</div>
+      <div class="era-meta" style="color:var(--subtext);">
+        Britain in 1807 was fighting Napoleon — her coastline blockaded, her economy strained, yet her scientific institutions flourishing. Sir Humphry Davy at the Royal Institution in Albemarle Street, London, used a powerful voltaic pile to pass electricity through molten metal hydroxides. In a single week in October 1807 he isolated potassium, then sodium — the first elements ever isolated by electricity. He watched potassium burst into purple flame on water and wept with joy. His young bookbinder's apprentice assistant, Michael Faraday (born Newington Butts, Surrey, 1791), would go on to surpass him — formulating the laws of electrolysis in 1833–34 and transforming our understanding of how electricity drives chemical change.
+      </div>
+    </div>
+  </div>
+
+  <div class="reminder-box">
+    <strong>💡 Electrolysis reminder</strong>
+    At the <strong>cathode</strong> (negative electrode): cations gain electrons → <strong>reduction</strong> (ON decreases).<br>
+    At the <strong>anode</strong> (positive electrode): anions lose electrons → <strong>oxidation</strong> (ON increases).
+  </div>
+
+  <!-- Q6 -->
+  <div class="q-card" id="qc6">
+    <div class="q-num">Question 6 of 25</div>
+    <div class="hist-note">In 1807, Davy electrolysed molten potassium hydroxide (KOH). At the cathode, the half-equation is: K⁺ + e⁻ → K</div>
+    <div class="q-text">In this cathode half-equation, K goes from oxidation number <strong>+1</strong> to <strong>0</strong>. Which type of half-equation is this?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(6,'A','B')"><span class="letter">A</span>An oxidation half-equation — K⁺ loses an electron</button>
+      <button class="choice-btn" onclick="checkMC(6,'B','B')"><span class="letter">B</span>A reduction half-equation — K⁺ gains an electron</button>
+      <button class="choice-btn" onclick="checkMC(6,'C','B')"><span class="letter">C</span>Neither — no electron transfer occurs here</button>
+      <button class="choice-btn" onclick="checkMC(6,'D','B')"><span class="letter">D</span>An oxidation half-equation — K⁺ is oxidised to K⁰</button>
+    </div>
+    <div class="feedback" id="fb6"></div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="q-card" id="qc7">
+    <div class="q-num">Question 7 of 25</div>
+    <div class="hist-note">In the same electrolysis of molten KOH, at the anode the hydroxide ions are oxidised: 4 OH⁻ → 2 H₂O + O₂ + 4e⁻</div>
+    <div class="q-text">The oxidation number of O in OH⁻ is <strong>−2</strong>. In O₂ it is <strong>0</strong>. Oxygen (in the O₂ product) has:</div>
+    <div class="fill-row">
+      <select class="fill-select" id="fs7">
+        <option value="">— select —</option>
+        <option value="oxidised">Been oxidised (ON increases: −2 → 0)</option>
+        <option value="reduced">Been reduced (ON decreases: −2 → 0)</option>
+        <option value="neither">Not changed its oxidation number</option>
+      </select>
+    </div>
+    <button class="check-btn" id="cb7" onclick="checkSelect(7,'oxidised')">Check</button>
+    <div class="feedback" id="fb7"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="q-card" id="qc8">
+    <div class="q-num">Question 8 of 25</div>
+    <div class="hist-note">A year after isolating potassium and sodium, Davy turned to the alkaline earths. In 1808 he isolated calcium by electrolyzing molten calcium chloride (CaCl₂).</div>
+    <div class="q-text">What is the oxidation number of <strong>Ca</strong> in <span class="formula">CaCl<sub>2</sub></span>?</div>
+    <div class="fill-row">
+      <span>Oxidation number of Ca =</span>
+      <input class="fill-input" id="fi8" placeholder="+/−" type="text">
+    </div>
+    <button class="check-btn" id="cb8" onclick="checkFill(8,'+2',['2','+2'])">Check</button>
+    <div class="feedback" id="fb8"></div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="q-card" id="qc9">
+    <div class="q-num">Question 9 of 25</div>
+    <div class="hist-note">Michael Faraday, working from the same Royal Institution in the 1830s, studied the electrolysis of copper sulfate solution. At the cathode: Cu²⁺ + 2e⁻ → Cu</div>
+    <div class="q-text">Copper goes from oxidation number <strong>+2</strong> to <strong>0</strong>. This is reduction. Which species is the <em>oxidising agent</em> in this half-equation?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(9,'A','B')"><span class="letter">A</span>Cu (the product)</button>
+      <button class="choice-btn" onclick="checkMC(9,'B','B')"><span class="letter">B</span>Cu²⁺ (the reactant — it is reduced, so it is the oxidising agent)</button>
+      <button class="choice-btn" onclick="checkMC(9,'C','B')"><span class="letter">C</span>SO₄²⁻ (the spectator ion)</button>
+      <button class="choice-btn" onclick="checkMC(9,'D','B')"><span class="letter">D</span>The electron e⁻</button>
+    </div>
+    <div class="feedback" id="fb9"></div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="q-card" id="qc10">
+    <div class="q-num">Question 10 of 25</div>
+    <div class="hist-note">At the anode of Faraday's CuSO₄ electrolysis (using inert platinum electrodes), water is oxidised: 2 H₂O → O₂ + 4 H⁺ + 4e⁻</div>
+    <div class="q-text">O in H₂O has oxidation number <strong>−2</strong>. In O₂ it is <strong>0</strong>. H in H₂O is <strong>+1</strong>; in H⁺ it is also <strong>+1</strong>. Which species undergoes a redox change at the anode?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(10,'A','C')"><span class="letter">A</span>H only — it is oxidised from +1 to +1</button>
+      <button class="choice-btn" onclick="checkMC(10,'B','C')"><span class="letter">B</span>Both O and H — both are oxidised</button>
+      <button class="choice-btn" onclick="checkMC(10,'C','C')"><span class="letter">C</span>O only — it is oxidised from −2 to 0 in O₂; H is unchanged (+1 → +1)</button>
+      <button class="choice-btn" onclick="checkMC(10,'D','C')"><span class="letter">D</span>Neither O nor H changes oxidation number</button>
+    </div>
+    <div class="feedback" id="fb10"></div>
+  </div>
+
+
+  <!-- ════════════ SECTION 3: BESSEMER & CONTACT PROCESS ════════════ -->
+  <div class="section-header">
+    <span class="section-badge s3">Section 3</span>
+    <div>
+      <div class="section-title serif" style="color:var(--s3);">Bessemer &amp; the Contact Process — Industrial Revolution</div>
+      <div class="section-note">England · 1831 &amp; 1856 · Bristol &amp; Sheffield</div>
+    </div>
+  </div>
+
+  <div class="era-banner" style="background:var(--s3bg); border-color:var(--s3)20;">
+    <div class="era-flag">🇬🇧</div>
+    <div>
+      <div class="era-title serif" style="color:var(--s3);">Peregrine Phillips (Bristol, 1831) &amp; Henry Bessemer (Sheffield, 1856)</div>
+      <div class="era-meta" style="color:var(--subtext);">
+        Victorian Britain was the workshop of the world — its mills, railways, and shipyards demanding ever cheaper steel and acid in industrial quantities. <strong>Peregrine Phillips</strong>, a Bristol vinegar merchant with no university education, quietly patented the Contact Process in 1831: a method to oxidise sulfur dioxide to sulfur trioxide over a platinum catalyst, the basis of modern sulfuric acid production. Twenty-five years later, <strong>Henry Bessemer</strong> unveiled his revolutionary converter in Sheffield — a pear-shaped vessel that blew air through molten pig iron at ferocious speed, oxidising out carbon, silicon, and manganese impurities and producing cheap steel within minutes. Before Bessemer, steel was a luxury; after him, it built the modern world.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q11 -->
+  <div class="q-card" id="qc11">
+    <div class="q-num">Question 11 of 25</div>
+    <div class="hist-note">The Contact Process — patented Bristol, England, 1831. The key step: 2 SO₂ + O₂ → 2 SO₃ (using a vanadium pentoxide, V₂O₅, catalyst in the modern process)</div>
+    <div class="q-text">What is the oxidation number of <strong>S</strong> in <span class="formula">SO<sub>2</sub></span>?</div>
+    <div class="fill-row">
+      <span>Oxidation number of S in SO₂ =</span>
+      <input class="fill-input" id="fi11" placeholder="+/−" type="text">
+    </div>
+    <button class="check-btn" id="cb11" onclick="checkFill(11,'+4',['4','+4'])">Check</button>
+    <div class="feedback" id="fb11"></div>
+  </div>
+
+  <!-- Q12 -->
+  <div class="q-card" id="qc12">
+    <div class="q-num">Question 12 of 25</div>
+    <div class="q-text">What is the oxidation number of <strong>S</strong> in <span class="formula">SO<sub>3</sub></span>?</div>
+    <div class="fill-row">
+      <span>Oxidation number of S in SO₃ =</span>
+      <input class="fill-input" id="fi12" placeholder="+/−" type="text">
+    </div>
+    <button class="check-btn" id="cb12" onclick="checkFill(12,'+6',['6','+6'])">Check</button>
+    <div class="feedback" id="fb12"></div>
+  </div>
+
+  <!-- Q13 -->
+  <div class="q-card" id="qc13">
+    <div class="q-num">Question 13 of 25</div>
+    <div class="q-text">In the Contact Process reaction <span class="formula">2 SO<sub>2</sub> + O<sub>2</sub> → 2 SO<sub>3</sub></span>, S goes from <strong>+4</strong> to <strong>+6</strong>. Which statement correctly identifies the redox changes?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(13,'A','B')"><span class="letter">A</span>S is reduced (+4 → +6 is a decrease); O₂ is oxidised</button>
+      <button class="choice-btn" onclick="checkMC(13,'B','B')"><span class="letter">B</span>S is oxidised (+4 → +6 is an increase); O₂ is reduced (0 → −2)</button>
+      <button class="choice-btn" onclick="checkMC(13,'C','B')"><span class="letter">C</span>Both S and O₂ are oxidised</button>
+      <button class="choice-btn" onclick="checkMC(13,'D','B')"><span class="letter">D</span>No redox change occurs — this is a combination reaction only</button>
+    </div>
+    <div class="feedback" id="fb13"></div>
+  </div>
+
+  <!-- Q14 -->
+  <div class="q-card" id="qc14">
+    <div class="q-num">Question 14 of 25</div>
+    <div class="hist-note">Bessemer Converter — Sheffield, England, 1856. The process removes carbon impurities by blowing air through molten pig iron (which contains ~4% C). The reaction: C + O₂ → CO₂</div>
+    <div class="q-text">Carbon (C) goes from oxidation number <strong>0</strong> in pig iron to <strong>+4</strong> in CO₂. Which statement is correct?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(14,'A','C')"><span class="letter">A</span>Carbon is reduced; it acts as the oxidising agent</button>
+      <button class="choice-btn" onclick="checkMC(14,'B','C')"><span class="letter">B</span>Carbon is reduced; O₂ is the oxidising agent</button>
+      <button class="choice-btn" onclick="checkMC(14,'C','C')"><span class="letter">C</span>Carbon is oxidised; O₂ is the oxidising agent</button>
+      <button class="choice-btn" onclick="checkMC(14,'D','C')"><span class="letter">D</span>Carbon is oxidised; it acts as its own oxidising agent</button>
+    </div>
+    <div class="feedback" id="fb14"></div>
+  </div>
+
+  <!-- Q15 -->
+  <div class="q-card" id="qc15">
+    <div class="q-num">Question 15 of 25</div>
+    <div class="hist-note">Silicon impurities in pig iron are also oxidised during the Bessemer Process: Si + O₂ → SiO₂. Silicon goes from 0 to +4; oxygen goes from 0 to −2.</div>
+    <div class="q-text">In the reaction <span class="formula">Si + O<sub>2</sub> → SiO<sub>2</sub></span>, identify the <em>reducing agent</em> and explain why.</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(15,'A','A')"><span class="letter">A</span>Si is the reducing agent — it is oxidised (0 → +4), losing electrons to O₂</button>
+      <button class="choice-btn" onclick="checkMC(15,'B','A')"><span class="letter">B</span>O₂ is the reducing agent — it is oxidised (0 → −2)</button>
+      <button class="choice-btn" onclick="checkMC(15,'C','A')"><span class="letter">C</span>SiO₂ is the reducing agent — it is the product of the reaction</button>
+      <button class="choice-btn" onclick="checkMC(15,'D','A')"><span class="letter">D</span>Both Si and O₂ are reducing agents</button>
+    </div>
+    <div class="feedback" id="fb15"></div>
+  </div>
+
+
+  <!-- ════════════ SECTION 4: HABER & OSTWALD ════════════ -->
+  <div class="section-header">
+    <span class="section-badge s4">Section 4</span>
+    <div>
+      <div class="section-title serif" style="color:var(--s4);">Haber-Bosch &amp; Ostwald — Germany's Chemical Revolution</div>
+      <div class="section-note">Germany · 1902–1913 · Karlsruhe, Leipzig, Ludwigshafen</div>
+    </div>
+  </div>
+
+  <div class="era-banner" style="background:var(--s4bg); border-color:var(--s4)20;">
+    <div class="era-flag">🇩🇪</div>
+    <div>
+      <div class="era-title serif" style="color:var(--s4);">Fritz Haber, Carl Bosch &amp; Wilhelm Ostwald — Imperial Germany</div>
+      <div class="era-meta" style="color:var(--subtext);">
+        Kaiser Wilhelm II's Germany was Europe's industrial and chemical superpower. By 1900 Germany produced more steel than Britain. <strong>Wilhelm Ostwald</strong> (Leipzig, 1902) — Nobel Prize 1909 — developed the catalytic oxidation of ammonia to produce nitric acid, vital for both fertilisers and explosives. Then in 1909, <strong>Fritz Haber</strong> (Karlsruhe) demonstrated the synthesis of ammonia from nitrogen and hydrogen under high pressure. <strong>Carl Bosch</strong> at BASF (Ludwigshafen) scaled this to industrial production by 1913. The Haber-Bosch Process is arguably the most consequential chemical discovery in history: it feeds roughly half the world's population today. Yet Haber's legacy is deeply ambiguous — he also directed Germany's chemical weapons programme in WWI, deploying chlorine gas at Ypres, Belgium, in April 1915.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q16 -->
+  <div class="q-card" id="qc16">
+    <div class="q-num">Question 16 of 25</div>
+    <div class="hist-note">The Haber-Bosch Process — Karlsruhe/Ludwigshafen, Germany, 1909–1913: N₂ + 3 H₂ ⇌ 2 NH₃ (high pressure, ~400–500 °C, iron catalyst)</div>
+    <div class="q-text">What is the oxidation number of <strong>N</strong> in <span class="formula">NH<sub>3</sub></span>?</div>
+    <div class="fill-row">
+      <span>Oxidation number of N =</span>
+      <input class="fill-input" id="fi16" placeholder="+/−" type="text">
+    </div>
+    <button class="check-btn" id="cb16" onclick="checkFill(16,'-3',['-3','−3'])">Check</button>
+    <div class="feedback" id="fb16"></div>
+  </div>
+
+  <!-- Q17 -->
+  <div class="q-card" id="qc17">
+    <div class="q-num">Question 17 of 25</div>
+    <div class="q-text">In the Haber-Bosch reaction <span class="formula">N<sub>2</sub> + 3 H<sub>2</sub> → 2 NH<sub>3</sub></span>, nitrogen goes from oxidation number <strong>0</strong> to <strong>−3</strong>. Hydrogen goes from <strong>0</strong> to <strong>+1</strong>.<br><br>Which of the following correctly identifies both changes?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(17,'A','C')"><span class="letter">A</span>N is oxidised (0 → −3); H is reduced (0 → +1)</button>
+      <button class="choice-btn" onclick="checkMC(17,'B','C')"><span class="letter">B</span>N is reduced (0 → −3); H is also reduced (0 → +1)</button>
+      <button class="choice-btn" onclick="checkMC(17,'C','C')"><span class="letter">C</span>N is reduced (0 → −3); H is oxidised (0 → +1)</button>
+      <button class="choice-btn" onclick="checkMC(17,'D','C')"><span class="letter">D</span>Neither N nor H changes oxidation number</button>
+    </div>
+    <div class="feedback" id="fb17"></div>
+  </div>
+
+  <!-- Q18 -->
+  <div class="q-card" id="qc18">
+    <div class="q-num">Question 18 of 25</div>
+    <div class="hist-note">The Ostwald Process — Leipzig, Germany, 1902. Step 1: catalytic oxidation of ammonia. 4 NH₃ + 5 O₂ → 4 NO + 6 H₂O (Pt/Rh catalyst, ~850 °C)</div>
+    <div class="q-text">In the Ostwald Process, N goes from <strong>−3</strong> (in NH₃) to <strong>+2</strong> (in NO). What is the role of NH₃ in this reaction?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(18,'A','B')"><span class="letter">A</span>NH₃ is the oxidising agent — N is reduced from −3 to +2</button>
+      <button class="choice-btn" onclick="checkMC(18,'B','B')"><span class="letter">B</span>NH₃ is the reducing agent — N is oxidised from −3 to +2</button>
+      <button class="choice-btn" onclick="checkMC(18,'C','B')"><span class="letter">C</span>NH₃ is a spectator — only H changes oxidation number</button>
+      <button class="choice-btn" onclick="checkMC(18,'D','B')"><span class="letter">D</span>NH₃ is neither oxidised nor reduced — it acts as a catalyst</button>
+    </div>
+    <div class="feedback" id="fb18"></div>
+  </div>
+
+  <!-- Q19 -->
+  <div class="q-card" id="qc19">
+    <div class="q-num">Question 19 of 25</div>
+    <div class="hist-note">Ostwald Process Step 2: 2 NO + O₂ → 2 NO₂ &nbsp; &nbsp; Step 3: 3 NO₂ + H₂O → 2 HNO₃ + NO</div>
+    <div class="q-text">In Step 3 of the Ostwald Process (<span class="formula">3 NO<sub>2</sub> + H<sub>2</sub>O → 2 HNO<sub>3</sub> + NO</span>), N in NO₂ has oxidation number <strong>+4</strong>; in HNO₃ it is <strong>+5</strong>; in NO it is <strong>+2</strong>. This reaction is a:</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(19,'A','C')"><span class="letter">A</span>Simple oxidation — N is only oxidised</button>
+      <button class="choice-btn" onclick="checkMC(19,'B','C')"><span class="letter">B</span>Simple reduction — N is only reduced</button>
+      <button class="choice-btn" onclick="checkMC(19,'C','C')"><span class="letter">C</span>Disproportionation — N is simultaneously oxidised (+4 → +5) and reduced (+4 → +2)</button>
+      <button class="choice-btn" onclick="checkMC(19,'D','C')"><span class="letter">D</span>No redox reaction — it is a simple acid-base neutralisation</button>
+    </div>
+    <div class="feedback" id="fb19"></div>
+  </div>
+
+  <!-- Q20 -->
+  <div class="q-card" id="qc20">
+    <div class="q-num">Question 20 of 25</div>
+    <div class="q-text">Following nitrogen through the combined Haber-Bosch and Ostwald sequence:<br><br>
+    <span class="formula">&nbsp;&nbsp;N<sub>2</sub> → NH<sub>3</sub> → NO → NO<sub>2</sub> → HNO<sub>3</sub></span><br><br>
+    What is the overall journey of nitrogen's oxidation number through this sequence?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(20,'A','B')"><span class="letter">A</span>0 → +3 → +2 → +4 → +5 (oxidised throughout)</button>
+      <button class="choice-btn" onclick="checkMC(20,'B','B')"><span class="letter">B</span>0 → −3 → +2 → +4 → +5 (first reduced, then progressively oxidised)</button>
+      <button class="choice-btn" onclick="checkMC(20,'C','B')"><span class="letter">C</span>0 → −3 → −2 → −1 → 0 (reduced throughout)</button>
+      <button class="choice-btn" onclick="checkMC(20,'D','B')"><span class="letter">D</span>0 → 0 → 0 → 0 → 0 (no change in oxidation number)</button>
+    </div>
+    <div class="feedback" id="fb20"></div>
+  </div>
+
+
+  <!-- ════════════ SECTION 5: HALL-HÉROULT & THERMITE ════════════ -->
+  <div class="section-header">
+    <span class="section-badge s5">Section 5</span>
+    <div>
+      <div class="section-title serif" style="color:var(--s5);">Hall-Héroult &amp; Thermite — Redox in Metals</div>
+      <div class="section-note">USA, France &amp; Germany · 1886–1893</div>
+    </div>
+  </div>
+
+  <div class="era-banner" style="background:var(--s5bg); border-color:var(--s5)20;">
+    <div class="era-flag">🇺🇸🇫🇷🇩🇪</div>
+    <div>
+      <div class="era-title serif" style="color:var(--s5);">Hall (Ohio, USA), Héroult (France) &amp; Goldschmidt (Essen, Germany)</div>
+      <div class="era-meta" style="color:var(--subtext);">
+        One of the most remarkable coincidences in all of science: <strong>Charles Martin Hall</strong> in his woodshed in Oberlin, Ohio, and <strong>Paul Héroult</strong> in Gentilly near Paris independently discovered the same electrolytic process for aluminium on the same year — 1886. Both were 22 years old; both were born in 1863; both died in 1914. Before their discovery, aluminium was literally more precious than gold — <strong>Napoleon III</strong> of France served aluminium cutlery to his most distinguished guests while lesser guests used gold. The Hall-Héroult Process made aluminium cheap enough to build aeroplanes. Meanwhile in Essen, Germany (Kaiserreich Prussia), <strong>Hans Goldschmidt</strong> developed the thermite reaction in 1893 — burning aluminium with iron oxide to generate molten iron at 2500 °C, which welders used to fuse together the Kaiserreich's rapidly expanding railway network.
+      </div>
+    </div>
+  </div>
+
+  <!-- Q21 -->
+  <div class="q-card" id="qc21">
+    <div class="q-num">Question 21 of 25</div>
+    <div class="hist-note">Hall-Héroult Process (Oberlin, Ohio &amp; Gentilly, France, 1886): Al₂O₃ is dissolved in molten cryolite (Na₃AlF₆) and electrolysed. At the cathode: Al³⁺ + 3e⁻ → Al</div>
+    <div class="q-text">What is the oxidation number of <strong>Al</strong> in <span class="formula">Al<sub>2</sub>O<sub>3</sub></span>?</div>
+    <div class="fill-row">
+      <span>Oxidation number of Al =</span>
+      <input class="fill-input" id="fi21" placeholder="+/−" type="text">
+    </div>
+    <button class="check-btn" id="cb21" onclick="checkFill(21,'+3',['3','+3'])">Check</button>
+    <div class="feedback" id="fb21"></div>
+  </div>
+
+  <!-- Q22 -->
+  <div class="q-card" id="qc22">
+    <div class="q-num">Question 22 of 25</div>
+    <div class="q-text">At the cathode of the Hall-Héroult cell, Al³⁺ goes from <strong>+3</strong> to <strong>0</strong>. At the anode (carbon electrode), C is oxidised: <span class="formula">C + 2O<sup>2−</sup> → CO<sub>2</sub> + 4e<sup>−</sup></span>.<br><br>C goes from <strong>0</strong> to <strong>+4</strong>. Which statement is correct?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(22,'A','B')"><span class="letter">A</span>Both Al³⁺ and C are oxidised at their respective electrodes</button>
+      <button class="choice-btn" onclick="checkMC(22,'B','B')"><span class="letter">B</span>Al³⁺ is reduced at the cathode; C is oxidised at the anode</button>
+      <button class="choice-btn" onclick="checkMC(22,'C','B')"><span class="letter">C</span>Al³⁺ is oxidised at the cathode; C is reduced at the anode</button>
+      <button class="choice-btn" onclick="checkMC(22,'D','B')"><span class="letter">D</span>Both Al³⁺ and C are reduced at their respective electrodes</button>
+    </div>
+    <div class="feedback" id="fb22"></div>
+  </div>
+
+  <!-- Q23 -->
+  <div class="q-card" id="qc23">
+    <div class="q-num">Question 23 of 25</div>
+    <div class="hist-note">Thermite reaction — Essen, Germany, 1893. Hans Goldschmidt: Fe₂O₃ + 2 Al → Al₂O₃ + 2 Fe. Temperature reaches ~2500 °C — enough to produce molten iron in seconds.</div>
+    <div class="q-text">In the thermite reaction <span class="formula">Fe<sub>2</sub>O<sub>3</sub> + 2 Al → Al<sub>2</sub>O<sub>3</sub> + 2 Fe</span>, Fe goes from <strong>+3</strong> to <strong>0</strong>, and Al goes from <strong>0</strong> to <strong>+3</strong>. Which statement is correct?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(23,'A','B')"><span class="letter">A</span>Fe is oxidised; Al is reduced</button>
+      <button class="choice-btn" onclick="checkMC(23,'B','B')"><span class="letter">B</span>Fe is reduced; Al is oxidised</button>
+      <button class="choice-btn" onclick="checkMC(23,'C','B')"><span class="letter">C</span>Both Fe and Al are reduced</button>
+      <button class="choice-btn" onclick="checkMC(23,'D','B')"><span class="letter">D</span>No redox change occurs — this is a displacement reaction only</button>
+    </div>
+    <div class="feedback" id="fb23"></div>
+  </div>
+
+  <!-- Q24 -->
+  <div class="q-card" id="qc24">
+    <div class="q-num">Question 24 of 25</div>
+    <div class="q-text">In the thermite reaction, Al is used as a reducing agent because aluminium is more reactive than iron. Which statement correctly identifies the oxidising agent and its change in oxidation number?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(24,'A','C')"><span class="letter">A</span>Al is the oxidising agent; Al goes from 0 → +3</button>
+      <button class="choice-btn" onclick="checkMC(24,'B','C')"><span class="letter">B</span>Al₂O₃ is the oxidising agent; Al in Al₂O₃ is +3</button>
+      <button class="choice-btn" onclick="checkMC(24,'C','C')"><span class="letter">C</span>Fe₂O₃ is the oxidising agent; Fe goes from +3 → 0 (is reduced)</button>
+      <button class="choice-btn" onclick="checkMC(24,'D','C')"><span class="letter">D</span>O²⁻ is the oxidising agent; O goes from −2 → 0</button>
+    </div>
+    <div class="feedback" id="fb24"></div>
+  </div>
+
+  <!-- Q25 -->
+  <div class="q-card" id="qc25">
+    <div class="q-num">Question 25 of 25</div>
+    <div class="hist-note">Across all five sections, we have journeyed from Lavoisier's Paris (1772) to Goldschmidt's Essen (1893) — a 120-year sweep of redox chemistry reshaping civilisation.</div>
+    <div class="q-text">Consider this summary half-equation for the aluminium reduction in the Hall-Héroult Process:<br><br>
+    <span class="formula">&nbsp;&nbsp;Al³⁺ + 3e⁻ → Al</span><br><br>
+    And the iron reduction in the Bessemer blast furnace (from earlier in industrial history):<br><br>
+    <span class="formula">&nbsp;&nbsp;Fe<sub>2</sub>O<sub>3</sub> + 3 CO → 2 Fe + 3 CO<sub>2</sub></span><br><br>
+    In the blast furnace reaction, CO goes from C at <strong>+2</strong> to C at <strong>+4</strong> in CO₂. Which statement correctly compares the two reductions?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(25,'A','B')"><span class="letter">A</span>In both reactions, the metal is oxidised and carbon/electricity acts as the reducing agent</button>
+      <button class="choice-btn" onclick="checkMC(25,'B','B')"><span class="letter">B</span>In both reactions, the metal ion is reduced; in the blast furnace CO is the reducing agent (it is oxidised: +2 → +4); in the Hall-Héroult cell, electrons (from electricity) drive the reduction</button>
+      <button class="choice-btn" onclick="checkMC(25,'C','B')"><span class="letter">C</span>In both reactions, CO₂ is the reducing agent</button>
+      <button class="choice-btn" onclick="checkMC(25,'D','B')"><span class="letter">D</span>In the blast furnace Fe is oxidised; in the Hall-Héroult cell Al³⁺ is oxidised</button>
+    </div>
+    <div class="feedback" id="fb25"></div>
+  </div>
+
+</div><!-- end test-area -->
+
+<!-- Submit bar -->
+<div id="submit-bar">
+  <div id="score-preview">Answered: <strong id="ans-count">0</strong> / 30</div>
+  <button class="btn" onclick="submitTest()">Submit &amp; See Results</button>
+</div>
+
+<!-- ════════════════════════════════
+     RESULTS
+════════════════════════════════ -->
+<div id="results">
+  <div class="results-card">
+    <div style="font-size:2.5rem;margin-bottom:12px;">⚗️</div>
+    <div class="score-circle" id="score-circle">
+      <span id="score-pct">—</span>
+      <small>score</small>
+    </div>
+    <h2 class="serif" id="result-heading">Test Complete</h2>
+    <p id="result-msg"></p>
+    <div class="breakdown">
+      <div class="breakdown-item"><div class="bd-num" id="bd-warmup">—</div><div class="bd-label">Warm-Up</div></div>
+      <div class="breakdown-item"><div class="bd-num" id="bd-main">—</div><div class="bd-label">Main Test</div></div>
+      <div class="breakdown-item"><div class="bd-num" id="bd-wrong">—</div><div class="bd-label">Incorrect</div></div>
+      <div class="breakdown-item"><div class="bd-num" id="bd-skip">—</div><div class="bd-label">Unanswered</div></div>
+      <div class="breakdown-item"><div class="bd-num" id="bd-time">—</div><div class="bd-label">Time Used</div></div>
+    </div>
+    <p style="font-size:.9rem;margin-bottom:26px;">Scroll up to review highlighted answers and explanations for each historical reaction.</p>
+    <button class="btn secondary" onclick="location.reload()">Retake Test</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════ -->
+<script>
+const FEEDBACK = {
+  W1: { c:'✓ Correct! Lavoisier named oxygen in 1778 and published his <em>Traité Élémentaire de Chimie</em> in 1789, definitively replacing phlogiston theory with the modern theory of combustion.',
+        w:'✗ True — Lavoisier did name oxygen and overturn phlogiston theory. He worked in Paris in the 1770s–80s and was guillotined in 1794.' },
+  W2: { c:'✓ Correct — it is False! The Haber-Bosch Process was developed in Germany: Fritz Haber in Karlsruhe (1909) and Carl Bosch at BASF in Ludwigshafen (scaled up by 1913), in the years before World War I.',
+        w:'✗ False — the Haber-Bosch Process was developed in Germany, not the USA. Fritz Haber (Karlsruhe, 1909) and Carl Bosch (BASF, Ludwigshafen, 1913).' },
+  W3: { c:'✓ Correct! 1886. Charles Hall (Oberlin, Ohio) and Paul Héroult (Gentilly, France) both discovered the electrolytic aluminium process in the same year. Both were 22, both born 1863, both died 1914.',
+        w:'✗ The answer is 1886. Hall (Ohio) and Héroult (France) made this discovery independently and simultaneously — one of chemistry\'s most remarkable coincidences.' },
+  W4: { c:'✓ Correct! Blowing air through molten pig iron oxidises impurities: C → CO₂, Si → SiO₂, Mn → MnO. The impurities increase in oxidation number (are oxidised) and leave the iron.',
+        w:'✗ The Bessemer Converter blows air through molten pig iron, oxidising carbon, silicon, and manganese impurities — not adding carbon or dissolving the iron.' },
+  W5: { c:'✓ Correct! Faraday was born in poverty in Newington Butts, Surrey, and became a bookbinder\'s apprentice. Davy took him on as his assistant at the Royal Institution in 1813. Faraday eventually surpassed his master.',
+        w:'✗ True — Faraday did begin as Davy\'s laboratory assistant at the Royal Institution in London, starting in 1813. He rose to become one of the greatest experimental scientists in history.' },
+  1:  { c:'✓ Correct! In Fe₂O₃: O = −2 (×3 = −6). Neutral compound: 2Fe + (−6) = 0 → Fe = +3.',
+        w:'✗ In Fe₂O₃: O = −2 (×3 = −6). Neutral compound: 2Fe − 6 = 0 → Fe = +3.' },
+  2:  { c:'✓ Correct! Fe increases from 0 to +3 — that is an increase, which is oxidation. Lavoisier saw this as iron "absorbing" oxygen; modern chemistry describes it as iron losing electrons.',
+        w:'✗ Fe goes from 0 to +3, which is an INCREASE in oxidation number = oxidation. Oxidation = increase in ON (OIL: Oxidation Is Loss of electrons).' },
+  3:  { c:'✓ Correct! In CO₂: O = −2 (×2 = −4). Neutral: C + (−4) = 0 → C = +4. Carbon is fully oxidised in CO₂.',
+        w:'✗ In CO₂: O = −2 (×2 = −4). Neutral compound: C + (−4) = 0 → C = +4.' },
+  4:  { c:'✓ Correct! H goes from +1 (in H₂O) to 0 (in H₂). A decrease in oxidation number is reduction. H₂O is oxidising iron — and being reduced itself.',
+        w:'✗ H goes from +1 to 0 — a DECREASE in oxidation number = reduction.' },
+  5:  { c:'✓ Correct! H₂O causes Fe to be oxidised and is itself reduced (H: +1 → 0). The species that is reduced = the oxidising agent. Therefore H₂O is the oxidising agent.',
+        w:'✗ H₂O is reduced (H: +1 → 0) while Fe is oxidised. The species that is reduced is the oxidising agent — so H₂O is the oxidising agent.' },
+  6:  { c:'✓ Correct! K goes from +1 to 0 — a DECREASE in oxidation number. Decrease = gain of electrons = reduction. An electron is consumed (on the left), confirming this is a reduction half-equation.',
+        w:'✗ K goes from +1 to 0 (decrease = reduction). An electron is gained (shown on the left). This is a REDUCTION half-equation.' },
+  7:  { c:'✓ Correct! O goes from −2 (in OH⁻) to 0 (in O₂) — an INCREASE in oxidation number. Increase = loss of electrons = oxidation. Electrons appear on the right of the equation, confirming oxidation at the anode.',
+        w:'✗ O goes from −2 to 0 — that is an increase in oxidation number = oxidation. Electrons released on the right confirm this is an oxidation half-equation at the anode.' },
+  8:  { c:'✓ Correct! Ca is a Group 2 metal — it always has oxidation number +2 in its compounds. In CaCl₂: Ca + 2(−1) = 0 → Ca = +2.',
+        w:'✗ Ca is a Group 2 metal; its oxidation number is always +2 in compounds. In CaCl₂: Ca + 2(−1) = 0 → Ca = +2.' },
+  9:  { c:'✓ Correct! Cu²⁺ is reduced (gains electrons) at the cathode: +2 → 0. The species that is REDUCED = the OXIDISING AGENT. So Cu²⁺ is the oxidising agent.',
+        w:'✗ Cu²⁺ is the species being reduced at the cathode (+2 → 0). The species that is reduced acts as the oxidising agent — so Cu²⁺ is the oxidising agent.' },
+  10: { c:'✓ Correct! H stays at +1 throughout (+1 in H₂O → +1 in H⁺ — no change). Only O changes: −2 → 0 (oxidised). The anode is where oxidation occurs.',
+        w:'✗ H: +1 in H₂O → +1 in H⁺ (no change). O: −2 in H₂O → 0 in O₂ (increase = oxidation). Only oxygen is oxidised at the anode.' },
+  11: { c:'✓ Correct! In SO₂: O = −2 (×2 = −4). Neutral: S + (−4) = 0 → S = +4.',
+        w:'✗ In SO₂: O = −2 (×2 = −4). Neutral compound: S − 4 = 0 → S = +4.' },
+  12: { c:'✓ Correct! In SO₃: O = −2 (×3 = −6). Neutral: S + (−6) = 0 → S = +6.',
+        w:'✗ In SO₃: O = −2 (×3 = −6). Neutral compound: S − 6 = 0 → S = +6.' },
+  13: { c:'✓ Correct! S goes from +4 → +6 (INCREASE = oxidation). O₂ goes from 0 → −2 (DECREASE = reduction). O₂ is the oxidising agent; SO₂ is the reducing agent.',
+        w:'✗ S increases (+4 → +6) = oxidation. O₂ decreases (0 → −2) = reduction. S is oxidised; O₂ is reduced (O₂ is the oxidising agent).' },
+  14: { c:'✓ Correct! Carbon increases from 0 to +4 = oxidation. O₂ decreases from 0 to −2 = reduction. O₂ is the oxidising agent. This is the key redox reaction in the Bessemer Process.',
+        w:'✗ C goes from 0 to +4 — that is an INCREASE = oxidation. C is oxidised (not reduced). O₂ is reduced and is therefore the oxidising agent.' },
+  15: { c:'✓ Correct! Si is oxidised (0 → +4), losing electrons to O₂. The species that is OXIDISED acts as the reducing agent. Si is the reducing agent; O₂ is the oxidising agent.',
+        w:'✗ Si goes from 0 to +4 (increase = oxidised). The species that is oxidised = the reducing agent. Si is the reducing agent.' },
+  16: { c:'✓ Correct! In NH₃: H = +1 (×3 = +3). Neutral: N + 3 = 0 → N = −3.',
+        w:'✗ In NH₃: H = +1 (×3 = +3). Neutral molecule: N + 3 = 0 → N = −3.' },
+  17: { c:'✓ Correct! N: 0 → −3 is a DECREASE = reduction. H: 0 → +1 is an INCREASE = oxidation. N₂ is the oxidising agent (it is reduced); H₂ is the reducing agent (it is oxidised).',
+        w:'✗ N goes from 0 to −3 (DECREASE = reduction). H goes from 0 to +1 (INCREASE = oxidation). N is reduced; H is oxidised.' },
+  18: { c:'✓ Correct! N goes from −3 to +2 — an INCREASE in oxidation number = oxidation. The species oxidised = the reducing agent. NH₃ is the reducing agent. O₂ is the oxidising agent.',
+        w:'✗ N in NH₃ is −3; in NO it is +2. From −3 to +2 is an INCREASE = oxidation. NH₃ is oxidised → it is the reducing agent.' },
+  19: { c:'✓ Correct! In NO₂, N is +4. Some N → +5 in HNO₃ (oxidised). Some N → +2 in NO (reduced). The SAME element is simultaneously oxidised and reduced. This is disproportionation.',
+        w:'✗ N in NO₂ (+4) goes to +5 in HNO₃ (oxidised) AND +2 in NO (reduced). Same element, two different fates = disproportionation.' },
+  20: { c:'✓ Correct! N₂ (0) is REDUCED to −3 in NH₃ by Haber. Then NH₃ is OXIDISED in stages: −3 → +2 (NO) → +4 (NO₂) → +5 (HNO₃) by Ostwald. A dramatic redox journey.',
+        w:'✗ In Haber: N goes 0 → −3 (reduced). In Ostwald: N goes −3 → +2 → +4 → +5 (progressively oxidised). Answer: 0 → −3 → +2 → +4 → +5.' },
+  21: { c:'✓ Correct! In Al₂O₃: O = −2 (×3 = −6). Neutral: 2Al + (−6) = 0 → Al = +3. Before Hall and Héroult, extracting Al from this ore was so costly that aluminium was more expensive than gold.',
+        w:'✗ In Al₂O₃: O = −2 (×3 = −6). Neutral compound: 2Al − 6 = 0 → Al = +3.' },
+  22: { c:'✓ Correct! At the cathode: Al³⁺ + 3e⁻ → Al. Al goes +3 → 0 (DECREASE = reduction). At the anode: C goes 0 → +4 (INCREASE = oxidation). Cathode = reduction; anode = oxidation.',
+        w:'✗ Cathode: Al³⁺ (+3 → 0, decrease = reduction). Anode: C (0 → +4, increase = oxidation). Al³⁺ is reduced; C is oxidised.' },
+  23: { c:'✓ Correct! Fe: +3 → 0 (DECREASE = reduction). Al: 0 → +3 (INCREASE = oxidation). Aluminium is more reactive than iron, so it can displace iron from its oxide — a classic reactivity/redox argument.',
+        w:'✗ Fe goes from +3 to 0 (DECREASE = reduction). Al goes from 0 to +3 (INCREASE = oxidation). Fe is reduced; Al is oxidised.' },
+  24: { c:'✓ Correct! Fe₂O₃ is reduced (Fe: +3 → 0), so Fe₂O₃ is the oxidising agent. Al is oxidised (0 → +3), so Al is the reducing agent. Al reduces Fe₂O₃ because Al is higher in the reactivity series.',
+        w:'✗ Fe in Fe₂O₃ is REDUCED (+3 → 0). The species that is reduced = the oxidising agent → Fe₂O₃ is the oxidising agent.' },
+  25: { c:'✓ Correct! In the blast furnace, Fe³⁺ is reduced to Fe and CO is oxidised (C: +2 → +4 in CO₂) — CO is the reducing agent. In Hall-Héroult, Al³⁺ is reduced to Al by electricity-supplied electrons. In both cases, the metal ion is REDUCED. The reducing agents differ: carbon monoxide (blast furnace) vs. electrical energy (electrolysis).',
+        w:'✗ In both reactions the metal ION is reduced. In the blast furnace, CO acts as the reducing agent (C: +2 → +4 = oxidised). In Hall-Héroult, electrons from electricity drive the reduction of Al³⁺.' },
+};
+
+// ── State ──────────────────────────────────────────
+let timerInterval = null, secondsLeft = 45*60, startTime = null;
+const results = {}, TOTAL = 30;
+const WU_KEYS = ['W1','W2','W3','W4','W5'];
+
+function startTest() {
+  document.getElementById('cover').style.display = 'none';
+  document.getElementById('header').style.display = 'flex';
+  document.getElementById('progress-bar-wrap').style.display = 'block';
+  document.getElementById('test-area').style.display = 'block';
+  document.getElementById('submit-bar').style.display = 'flex';
+  startTime = Date.now();
+  timerInterval = setInterval(tick, 1000);
+}
+
+function tick() {
+  secondsLeft--;
+  if (secondsLeft <= 0) { secondsLeft = 0; clearInterval(timerInterval); submitTest(true); }
+  const el = document.getElementById('timer');
+  el.textContent = String(Math.floor(secondsLeft/60)).padStart(2,'0') + ':' + String(secondsLeft%60).padStart(2,'0');
+  el.className = secondsLeft<=300?'danger':secondsLeft<=600?'warning':'';
+}
+
+function updateProgress() {
+  const done = Object.keys(results).length;
+  document.getElementById('ans-count').textContent = done;
+  document.getElementById('progress-bar').style.width = (done/TOTAL*100)+'%';
+}
+
+function toggleRef() {
+  const p = document.getElementById('ref-panel');
+  const b = document.getElementById('refBtn');
+  const open = p.classList.toggle('visible');
+  b.classList.toggle('open', open);
+}
+
+// ── True / False ────────────────────────────────────
+function checkTF(qNum, chosen, correct) {
+  if (results[qNum]) return;
+  const card = document.getElementById('qc'+qNum);
+  const btns = card.querySelectorAll('.tf-btn');
+  btns.forEach(b => b.disabled = true);
+  const ok = chosen === correct;
+  btns[chosen ? 0 : 1].classList.add(ok ? 'correct' : 'wrong');
+  if (!ok) btns[correct ? 0 : 1].classList.add('correct');
+  results[qNum] = ok ? 'correct' : 'wrong';
+  card.classList.add(ok ? 'answered-correct' : 'answered-wrong');
+  showFeedback(qNum, ok);
+  updateProgress();
+}
+
+// ── Multiple choice ──────────────────────────────────
+function checkMC(qNum, chosen, correct) {
+  if (results[qNum]) return;
+  const card = document.getElementById('qc'+qNum);
+  const btns = card.querySelectorAll('.choice-btn');
+  const letters = ['A','B','C','D'];
+  btns.forEach((btn,i) => {
+    btn.disabled = true;
+    if (letters[i]===correct) btn.classList.add('correct');
+    else if (letters[i]===chosen && chosen!==correct) btn.classList.add('wrong');
+  });
+  const ok = chosen===correct;
+  results[qNum] = ok ? 'correct' : 'wrong';
+  card.classList.add(ok ? 'answered-correct' : 'answered-wrong');
+  showFeedback(qNum, ok);
+  updateProgress();
+}
+
+// ── Fill input ───────────────────────────────────────
+function checkFill(qNum, correct, accepted) {
+  if (results[qNum]) return;
+  const inp = document.getElementById('fi'+qNum);
+  const val = inp.value.trim().toLowerCase().replace('−','-');
+  const ok = accepted.some(a => val===a.toLowerCase().replace('−','-'));
+  inp.disabled = true;
+  inp.classList.add(ok ? 'correct' : 'wrong');
+  document.getElementById('cb'+qNum).disabled = true;
+  results[qNum] = ok ? 'correct' : 'wrong';
+  document.getElementById('qc'+qNum).classList.add(ok ? 'answered-correct' : 'answered-wrong');
+  showFeedback(qNum, ok);
+  updateProgress();
+}
+
+// ── Select ───────────────────────────────────────────
+function checkSelect(qNum, correct) {
+  if (results[qNum]) return;
+  const sel = document.getElementById('fs'+qNum);
+  if (!sel.value) { alert('Please make a selection first.'); return; }
+  const ok = sel.value === correct;
+  sel.disabled = true;
+  sel.classList.add(ok ? 'correct' : 'wrong');
+  document.getElementById('cb'+qNum).disabled = true;
+  results[qNum] = ok ? 'correct' : 'wrong';
+  document.getElementById('qc'+qNum).classList.add(ok ? 'answered-correct' : 'answered-wrong');
+  showFeedback(qNum, ok);
+  updateProgress();
+}
+
+// ── Feedback ─────────────────────────────────────────
+function showFeedback(qNum, ok) {
+  const fb = document.getElementById('fb'+qNum);
+  fb.className = 'feedback '+(ok?'correct':'wrong');
+  fb.innerHTML = ok ? FEEDBACK[qNum].c : FEEDBACK[qNum].w;
+}
+
+// ── Submit ───────────────────────────────────────────
+function submitTest(timeout=false) {
+  clearInterval(timerInterval);
+  const usedSec = Math.round((Date.now()-startTime)/1000);
+  const um=Math.floor(usedSec/60), us=usedSec%60;
+
+  for (let i=1;i<=25;i++) { if (!results[i]) results[i]='skip'; }
+  WU_KEYS.forEach(k => { if (!results[k]) results[k]='skip'; });
+
+  const wuCorr   = WU_KEYS.filter(k=>results[k]==='correct').length;
+  const mainCorr = Object.keys(results).filter(k=>!k.startsWith('W')&&results[k]==='correct').length;
+  const wrong    = Object.values(results).filter(v=>v==='wrong').length;
+  const skip     = Object.values(results).filter(v=>v==='skip').length;
+  const allCorr  = wuCorr + mainCorr;
+  const pct      = Math.round(allCorr/TOTAL*100);
+
+  document.getElementById('test-area').style.display  = 'none';
+  document.getElementById('submit-bar').style.display = 'none';
+  document.getElementById('results').style.display    = 'block';
+
+  document.getElementById('score-pct').textContent  = pct+'%';
+  document.getElementById('bd-warmup').textContent  = wuCorr+'/5';
+  document.getElementById('bd-main').textContent    = mainCorr+'/25';
+  document.getElementById('bd-wrong').textContent   = wrong;
+  document.getElementById('bd-skip').textContent    = skip;
+  document.getElementById('bd-time').textContent    = um+'m '+us+'s';
+
+  const circle = document.getElementById('score-circle');
+  let h, m;
+  if (pct>=80) {
+    circle.className='score-circle score-great';
+    h='Exceptional Work!';
+    m='You have mastered the chemistry of these landmark reactions and their historical context. The scientists who made these discoveries would be proud. Review any questions you missed to complete your understanding.';
+  } else if (pct>=60) {
+    circle.className='score-circle score-ok';
+    h='A Solid Performance!';
+    m='Good grasp of the chemistry and history. Focus revision on the sections where you lost marks — particularly the OIL RIG rules for identifying oxidising and reducing agents. The historical timeline in the cheat sheet is a useful revision anchor.';
+  } else {
+    circle.className='score-circle score-low';
+    h='Keep Exploring!';
+    m='These are some of the most complex industrial reactions in chemistry. Begin with the cheat sheet rules, then work through each historical section using the timeline as your guide. The feedback on every question explains both the chemistry and the history.';
+  }
+  document.getElementById('result-heading').textContent = h;
+  document.getElementById('result-msg').textContent = m + (timeout?' (Time expired.)':'');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+</script>
+</body>
+</html>

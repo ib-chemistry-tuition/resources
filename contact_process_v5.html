@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Process – Interactive Flowsheet</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #0d1117; color: #e6edf3;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  display: flex; flex-direction: column; align-items: center; padding-bottom: 30px;
+}
+h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.08em; color: #58a6ff;
+  padding: 12px 0 2px; text-transform: uppercase; }
+.subtitle { font-size: 0.7rem; color: #8b949e; margin-bottom: 6px; }
+
+.main { display: flex; gap: 12px; align-items: flex-start; }
+
+/* ========== LEFT CONTROLS ========== */
+.controls {
+  background: #161b22; border: 1px solid #30363d; border-radius: 10px;
+  padding: 14px 13px; width: 258px; flex-shrink: 0; display: flex;
+  flex-direction: column; gap: 10px;
+}
+
+/* --- Production hero --- */
+.prod-hero {
+  background: #0d1117; border: 1px solid #1c3a1c; border-radius: 9px;
+  padding: 12px 14px; text-align: center;
+}
+.prod-hero-label {
+  font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em;
+  color: #8b949e; margin-bottom: 5px;
+}
+.prod-hero-num {
+  font-size: 2.4rem; font-weight: 800; letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums; line-height: 1;
+  transition: color 0.4s, text-shadow 0.4s;
+}
+.prod-hero-unit { font-size: 0.78rem; color: #8b949e; margin-top: 2px; }
+.prod-hero-max  { font-size: 0.65rem; color: #8b949e; margin-top: 4px; }
+
+/* Yield bar */
+.yield-bar-wrap { margin-top: 8px; }
+.yield-bar-labels { display: flex; justify-content: space-between;
+  font-size: 0.62rem; color: #8b949e; margin-bottom: 3px; }
+.yield-bar-bg { background: #21262d; border-radius: 4px; height: 18px;
+  overflow: hidden; position: relative; }
+.yield-bar { height: 100%; border-radius: 4px; transition: width 0.4s ease, background 0.4s ease;
+  display: flex; align-items: center; justify-content: flex-end;
+  padding-right: 6px; }
+.yield-bar-pct { font-size: 0.68rem; font-weight: 800; color: #0d1117;
+  font-variant-numeric: tabular-nums; }
+
+/* Metrics row */
+.metrics-row { display: flex; gap: 6px; }
+.metric-box {
+  flex: 1; background: #0d1117; border: 1px solid #21262d; border-radius: 7px;
+  padding: 7px 8px; text-align: center;
+}
+.metric-val  { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums;
+  transition: color 0.3s; }
+.metric-lbl  { font-size: 0.58rem; color: #8b949e; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 1px; }
+
+/* Section header */
+.sec-hdr { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #8b949e; border-bottom: 1px solid #21262d; padding-bottom: 4px; }
+
+/* Sliders */
+.ctrl-block { display: flex; flex-direction: column; gap: 3px; }
+.ctrl-label-row { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.72rem; }
+.ctrl-name { color: #c9d1d9; font-weight: 600; }
+.ctrl-val-unit { font-variant-numeric: tabular-nums; }
+.ctrl-val  { font-size: 0.95rem; font-weight: 700; color: #58a6ff; }
+.ctrl-unit { font-size: 0.6rem; color: #8b949e; }
+input[type=range] { -webkit-appearance:none; width:100%; height:5px; border-radius:3px; outline:none; cursor:pointer; }
+input[type=range].temp-sl { background: linear-gradient(to right,#1e4a8a,#ff6600); }
+input[type=range].pres-sl { background: linear-gradient(to right,#1a3a2a,#00c853); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:15px; height:15px;
+  border-radius:50%; background:#e6edf3; border:2px solid #58a6ff; cursor:pointer; box-shadow:0 0 6px #58a6ff66; }
+.range-marks { display:flex; justify-content:space-between; font-size:0.58rem; color:#484f58; }
+
+/* Heatmap */
+.heatmap-section { display: flex; flex-direction: column; gap: 4px; }
+.heatmap-title-row { display: flex; justify-content: space-between; align-items: baseline; }
+.heatmap-subtitle { font-size: 0.6rem; color: #484f58; }
+#heatmap { display: block; border-radius: 5px; cursor: crosshair; border: 1px solid #21262d; }
+.heatmap-axis-labels { display: flex; justify-content: space-between; font-size: 0.58rem; color: #484f58; }
+.heatmap-legend { display: flex; align-items: center; gap: 4px; font-size: 0.58rem; color: #484f58; margin-top: 2px; }
+.hm-legend-bar { height: 6px; border-radius: 3px; flex: 1;
+  background: linear-gradient(to right, hsl(0,85%,38%), hsl(40,85%,42%), hsl(80,85%,38%), hsl(120,85%,35%)); }
+
+/* Record */
+.record-box {
+  background: #0d1117; border: 1px solid #30363d; border-radius: 7px;
+  padding: 8px 10px; display: flex; flex-direction: column; gap: 3px;
+}
+.rec-header { display: flex; justify-content: space-between; align-items: center; }
+.rec-title { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em; color: #ffa657; }
+.rec-reset { font-size: 0.58rem; color: #484f58; cursor: pointer; }
+.rec-reset:hover { color: #8b949e; }
+.rec-num  { font-size: 1.1rem; font-weight: 800; color: #ffa657; font-variant-numeric: tabular-nums; }
+.rec-cond { font-size: 0.65rem; color: #8b949e; font-variant-numeric: tabular-nums; }
+
+/* Le Chatelier */
+.le-chat { background: #0d1117; border: 1px solid #21262d; border-radius: 7px;
+  padding: 8px 10px; font-size: 0.66rem; line-height: 1.5; color: #c9d1d9; min-height: 50px; }
+.le-chat .lc-icon { margin-right: 4px; }
+.shift-r { color:#4caf50; font-weight:700; } .shift-l { color:#f44336; font-weight:700; }
+
+/* Eq details (collapsible) */
+.eq-toggle { font-size:0.6rem; color:#484f58; cursor:pointer; text-align:right; }
+.eq-toggle:hover { color:#8b949e; }
+.eq-details { display:none; background:#0d1117; border:1px solid #21262d; border-radius:6px;
+  padding:7px 9px; font-size:0.67rem; }
+.eq-details.open { display:block; }
+.eq-row { display:flex; justify-content:space-between; padding:2px 0; border-bottom:1px solid #21262d; }
+.eq-row:last-child { border-bottom:none; }
+.eq-row .k { color:#8b949e; } .eq-row .v { color:#e6edf3; font-weight:600; font-variant-numeric:tabular-nums; }
+
+/* ========== CANVAS ========== */
+.canvas-wrap { position:relative; width:700px; height:520px; flex-shrink:0; }
+canvas.layer { position:absolute; top:0; left:0; }
+.hotspot { position:absolute; cursor:pointer; border-radius:6px; transition:box-shadow 0.15s; }
+.hotspot:hover { box-shadow:0 0 0 2px #58a6ff77; }
+
+/* Stream tags */
+.stream-tag {
+  position:absolute; pointer-events:all; cursor:pointer;
+  background:rgba(13,17,23,0.9); border:1px solid #30363d;
+  border-radius:6px; padding:4px 7px; font-size:0.61rem;
+  line-height:1.4; white-space:nowrap; backdrop-filter:blur(3px);
+  transition:border-color 0.2s;
+}
+.stream-tag:hover { border-color:#58a6ff66; }
+.st-head { font-size:0.58rem; color:#8b949e; margin-bottom:2px;
+  display:flex; justify-content:space-between; gap:8px; }
+.st-total { color:#c9d1d9; font-weight:700; }
+.st-rows { display:flex; flex-direction:column; gap:1px; }
+.st-row { display:flex; align-items:center; gap:4px; font-size:0.59rem; }
+.st-name { font-weight:700; min-width:30px; }
+.st-pct  { color:#8b949e; min-width:30px; font-variant-numeric:tabular-nums; }
+.st-kg   { color:#c9d1d9; min-width:62px; font-variant-numeric:tabular-nums; }
+.st-mol  { color:#6e7681; min-width:54px; font-variant-numeric:tabular-nums; }
+.st-divider { font-size:0.55rem; color:#30363d; border-top:1px solid #21262d;
+  margin-top:2px; padding-top:2px; display:flex; gap:4px; }
+.cn2{color:#8b949e;} .co2{color:#79c0ff;} .cso2{color:#ffe066;}
+.cso3{color:#ffa657;} .ch2so4{color:#ff7b72;} .ch2o{color:#a8d8ea;} .cs{color:#ffe066;}
+
+/* ========== STREAM TABLE ========== */
+.stream-table-wrap {
+  width: 972px; max-width: 98vw;
+  background:#161b22; border:1px solid #30363d; border-radius:10px; overflow:hidden;
+}
+.stw-header { display:flex; justify-content:space-between; align-items:center;
+  padding:9px 14px; border-bottom:1px solid #30363d; }
+.stw-header h3 { font-size:0.75rem; color:#58a6ff; font-weight:700;
+  text-transform:uppercase; letter-spacing:0.06em; }
+.toggle-btn { background:#21262d; border:1px solid #30363d; border-radius:6px;
+  color:#c9d1d9; font-size:0.68rem; padding:3px 11px; cursor:pointer; }
+.toggle-btn:hover { background:#30363d; }
+.stw-body { padding:10px 14px; display:none; overflow-x:auto; }
+.stw-body.open { display:block; }
+table.st { border-collapse:collapse; width:100%; font-size:0.68rem; font-variant-numeric:tabular-nums; }
+table.st th { background:#21262d; color:#8b949e; padding:4px 7px; text-align:right;
+  font-weight:600; font-size:0.62rem; text-transform:uppercase; letter-spacing:0.04em;
+  border-bottom:2px solid #30363d; white-space:nowrap; }
+table.st th:first-child { text-align:left; }
+table.st td { padding:3px 7px; border-bottom:1px solid #21262d; color:#c9d1d9; text-align:right; }
+table.st td:first-child { text-align:left; color:#8b949e; white-space:nowrap; }
+table.st td.chem { font-weight:700; }
+table.st td.zero { color:#484f58; }
+
+/* ========== INFO PANEL ========== */
+#info-panel { position:fixed; bottom:14px; right:14px;
+  background:#161b22; border:1px solid #30363d; border-radius:10px;
+  padding:12px 16px; width:320px; max-width:95vw;
+  box-shadow:0 8px 28px #0009; z-index:200; display:none; }
+#info-panel h2 { font-size:0.85rem; color:#58a6ff; margin-bottom:7px; }
+#info-panel .rxn { background:#0d1117; border-left:3px solid #f78166;
+  padding:5px 9px; font-family:monospace; font-size:0.74rem; border-radius:4px;
+  margin-bottom:7px; color:#ffa657; line-height:1.5; }
+#info-panel table { width:100%; border-collapse:collapse; font-size:0.71rem; }
+#info-panel td { padding:3px 5px; border-bottom:1px solid #21262d; }
+#info-panel td:first-child { color:#8b949e; width:42%; }
+#info-panel td:last-child { color:#e6edf3; font-weight:600; font-variant-numeric:tabular-nums; }
+#info-panel .close-btn { position:absolute; top:8px; right:11px; background:none;
+  border:none; color:#8b949e; font-size:1rem; cursor:pointer; }
+#info-panel .close-btn:hover { color:#e6edf3; }
+
+.legend { display:flex; gap:11px; flex-wrap:wrap; justify-content:center;
+  margin-bottom:5px; font-size:0.64rem; color:#8b949e; }
+.legend-item { display:flex; align-items:center; gap:4px; }
+.legend-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.hint { font-size:0.64rem; color:#484f58; margin-bottom:7px; }
+</style>
+</head>
+<body>
+<h1>The Contact Process — H₂SO₄ Manufacture</h1>
+<p class="subtitle">Interactive Equilibrium Flowsheet &nbsp;|&nbsp; Basis: 1,000 kg/hr liquid sulfur &nbsp;·&nbsp; Optimize yield using the T–P map</p>
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#8b949e"></div>N₂</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#79c0ff"></div>O₂</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ffe066"></div>SO₂/S</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ffa657"></div>SO₃</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ff7b72"></div>H₂SO₄</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#a8d8ea"></div>H₂O</div>
+</div>
+<p class="hint">Click any unit or stream for details &nbsp;·&nbsp; Drag sliders or click the Yield Map to explore</p>
+
+<div class="main">
+
+<!-- ========== LEFT CONTROLS ========== -->
+<div class="controls">
+
+  <!-- PRODUCTION HERO -->
+  <div class="prod-hero">
+    <div class="prod-hero-label">⚡ H₂SO₄ Production Rate</div>
+    <div class="prod-hero-num" id="prod-num">2,817</div>
+    <div class="prod-hero-unit">kg / hr</div>
+    <div class="prod-hero-max" id="prod-max-pct">— % of theoretical maximum</div>
+    <div class="yield-bar-wrap">
+      <div class="yield-bar-labels">
+        <span>0</span>
+        <span id="prod-max-label">max 3,063 kg/hr</span>
+      </div>
+      <div class="yield-bar-bg">
+        <div class="yield-bar" id="yield-bar" style="width:92%">
+          <span class="yield-bar-pct" id="yield-bar-pct">92.0%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- METRICS ROW -->
+  <div class="metrics-row">
+    <div class="metric-box">
+      <div class="metric-val" id="m-conv" style="color:#58a6ff">92.0%</div>
+      <div class="metric-lbl">SO₂ conv.</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-val" id="m-so3" style="color:#ffa657">2,500</div>
+      <div class="metric-lbl">SO₃ kg/hr</div>
+    </div>
+    <div class="metric-box">
+      <div class="metric-val" id="m-h2o" style="color:#a8d8ea">519</div>
+      <div class="metric-lbl">H₂O kg/hr</div>
+    </div>
+  </div>
+
+  <!-- SLIDERS -->
+  <div class="sec-hdr">Process Controls</div>
+  <div class="ctrl-block">
+    <div class="ctrl-label-row">
+      <span class="ctrl-name">🌡 Converter Temp</span>
+      <span class="ctrl-val-unit"><span class="ctrl-val" id="t-val">450</span><span class="ctrl-unit"> °C</span></span>
+    </div>
+    <input type="range" class="temp-sl" id="temp-slider" min="20" max="700" value="450" step="5">
+    <div class="range-marks"><span>20°C</span><span>★ 450°C</span><span>700°C</span></div>
+  </div>
+  <div class="ctrl-block">
+    <div class="ctrl-label-row">
+      <span class="ctrl-name">⬆ Pressure</span>
+      <span class="ctrl-val-unit"><span class="ctrl-val" id="p-val">1.00</span><span class="ctrl-unit"> atm</span></span>
+    </div>
+    <input type="range" class="pres-sl" id="pres-slider" min="0.1" max="5" value="1" step="0.05">
+    <div class="range-marks"><span>0.1 atm</span><span>★ 1.0</span><span>5.0 atm</span></div>
+  </div>
+
+  <!-- T-P YIELD MAP -->
+  <div class="heatmap-section">
+    <div class="heatmap-title-row">
+      <span class="sec-hdr">🗺 Yield Map (click to set T &amp; P)</span>
+    </div>
+    <p class="heatmap-subtitle">Green = high H₂SO₄ yield &nbsp;·&nbsp; dashed = catalyst zone</p>
+    <canvas id="heatmap" width="232" height="140"></canvas>
+    <div class="heatmap-axis-labels">
+      <span>← 20°C (RT)</span><span>Temperature →</span><span>700°C →</span>
+    </div>
+    <div class="heatmap-legend">
+      <span>Low</span><div class="hm-legend-bar"></div><span>High yield</span>
+    </div>
+  </div>
+
+  <!-- RECORD -->
+  <div class="record-box">
+    <div class="rec-header">
+      <span class="rec-title">🏆 Session Best</span>
+      <span class="rec-reset" onclick="resetRecord()">Reset</span>
+    </div>
+    <div class="rec-num" id="rec-num">— kg/hr</div>
+    <div class="rec-cond" id="rec-cond">Move sliders to start</div>
+  </div>
+
+  <!-- LE CHATELIER -->
+  <div class="le-chat" id="le-chat">
+    <span class="lc-icon">⚗️</span>Adjust sliders or click the map to explore Le Chatelier's Principle.
+  </div>
+
+  <!-- EQ DETAILS (collapsible) -->
+  <div class="eq-toggle" onclick="toggleEq()">▶ Equilibrium details</div>
+  <div class="eq-details" id="eq-details">
+    <div class="eq-row"><span class="k">Reaction</span><span class="v">2SO₂+O₂⇌2SO₃</span></div>
+    <div class="eq-row"><span class="k">ΔH</span><span class="v">−197 kJ/mol</span></div>
+    <div class="eq-row"><span class="k">Kp (current T)</span><span class="v" id="eq-Kp">—</span></div>
+    <div class="eq-row"><span class="k">T (K)</span><span class="v" id="eq-Tk">723 K</span></div>
+    <div class="eq-row"><span class="k">Reaction rate</span><span class="v" id="eq-rate">—</span></div>
+    <div class="eq-row"><span class="k">Basis</span><span class="v">1,000 kg/hr S</span></div>
+  </div>
+
+</div><!-- end .controls -->
+
+<!-- ========== CANVAS ========== -->
+<div class="canvas-wrap" id="wrap">
+  <canvas id="bg"   class="layer" width="700" height="520"></canvas>
+  <canvas id="anim" class="layer" width="700" height="520"></canvas>
+</div>
+
+</div><!-- end .main -->
+
+<!-- STREAM TABLE -->
+<div class="stream-table-wrap" style="margin-top:10px">
+  <div class="stw-header">
+    <h3>📊 Stream Data Table — kg/hr and kmol/hr</h3>
+    <button class="toggle-btn" id="table-toggle" onclick="toggleTable()">Show Table ▼</button>
+  </div>
+  <div class="stw-body" id="stream-table-body">
+    <table class="st" id="stream-table"></table>
+  </div>
+</div>
+
+<!-- INFO PANEL -->
+<div id="info-panel">
+  <button class="close-btn" onclick="closePanel()">✕</button>
+  <h2 id="ip-title"></h2>
+  <div class="rxn" id="ip-rxn" style="display:none"></div>
+  <table id="ip-table"></table>
+</div>
+
+<script>
+// ============================================================
+// CONSTANTS & LAYOUT
+// ============================================================
+const MW = {S:32,O2:32,N2:28,SO2:64,SO3:80,H2SO4:98,H2O:18};
+const BASIS_S_KG = 1000;             // kg/hr sulfur feed
+const nS = BASIS_S_KG / MW.S;       // 31.25 kmol/hr S
+const MAX_H2SO4 = nS * MW.H2SO4;    // 3062.5 kg/hr (α=1)
+
+const U = {
+  furnace:   {x:140,y:175,w:80, h:52 },
+  converter: {x:355,y:145,w:95, h:80 },
+  absorbers: {x:570,y:165,w:70, h:120},
+  diluter:   {x:570,y:380,w:60, h:60 },
+  storage:   {x:205,y:405,w:120,h:85 },
+};
+const PIPES = [
+  {id:'air',      pts:[[28,148],[98,148],[98,170]], baseColor:'#79c0ff'},
+  {id:'sulfur',   pts:[[28,205],[98,205],[98,182]], baseColor:'#ffe066'},
+  {id:'so2',      pts:[[180,175],[267,175],[267,145],[355,145]], baseColor:'#ffe066'},
+  {id:'so3',      pts:[[403,145],[535,145],[535,165]], baseColor:'#ffa657'},
+  {id:'h2so4_99', pts:[[570,225],[570,350]],        baseColor:'#ff7b72'},
+  {id:'recycle',  pts:[[540,380],[480,380],[480,240],[535,240]], baseColor:'#ff7b72'},
+  {id:'water',    pts:[[631,380],[692,380]],        baseColor:'#a8d8ea'},
+  {id:'product',  pts:[[540,405],[265,405]],        baseColor:'#aaaaaa'},
+];
+
+// ============================================================
+// CHEMISTRY
+// ============================================================
+const R=8.314, dH=-197000, Tref=723, KpRef=190;
+function calcKp(Tk) { return KpRef*Math.exp((dH/R)*(1/Tref-1/Tk)); }
+function solveAlpha(Kp,P) {
+  let lo=0,hi=0.99999;
+  for(let i=0;i<80;i++){
+    const a=(lo+hi)/2,tot=1-0.05*a;
+    const ySO2=0.1*(1-a)/tot,yO2=(0.1-0.05*a)/tot,ySO3=0.1*a/tot;
+    (ySO3*ySO3)/(ySO2*ySO2*yO2)/P < Kp ? lo=a : hi=a;
+  }
+  return (lo+hi)/2;
+}
+function rateQual(Tk) {
+  const r=Math.exp((Tk-Tref)/80);
+  if(r<0.2) return 'Very slow ⚠';
+  if(r<0.6) return 'Slow';
+  if(r<1.5) return 'Moderate ✓';
+  if(r<3)   return 'Fast';
+  return 'Very fast (risk of deactivation)';
+}
+
+function calcStreams(a) {
+  const nO2a=62.5, nN2a=nO2a*(79/21);
+  const nSO2ci=nS, nO2ci=31.25, nN2=nN2a;
+  const nSO3=nS*a, nSO2o=nS*(1-a), nO2o=nO2ci-0.5*nS*a;
+  const nH2O=nSO3, nH2SO4=nSO3;
+  const mRecycle=5000;
+  function mk(comps){
+    comps=comps.filter(c=>c.n>0.0005);
+    let tN=0,tM=0; comps.forEach(c=>{tN+=c.n;tM+=c.m;});
+    return {comps,totalN:tN,totalM:tM};
+  }
+  return {
+    air:      mk([{name:'O₂',color:'co2',n:nO2a,    m:nO2a*MW.O2},{name:'N₂',color:'cn2',n:nN2a,m:nN2a*MW.N2}]),
+    sulfur:   mk([{name:'S', color:'cs', n:nS,      m:nS*MW.S}]),
+    so2:      mk([{name:'SO₂',color:'cso2',n:nSO2ci,m:nSO2ci*MW.SO2},{name:'O₂',color:'co2',n:nO2ci,m:nO2ci*MW.O2},{name:'N₂',color:'cn2',n:nN2,m:nN2*MW.N2}]),
+    so3:      mk([{name:'SO₃',color:'cso3',n:nSO3,  m:nSO3*MW.SO3},{name:'SO₂',color:'cso2',n:nSO2o,m:nSO2o*MW.SO2},{name:'O₂',color:'co2',n:nO2o,m:nO2o*MW.O2},{name:'N₂',color:'cn2',n:nN2,m:nN2*MW.N2}]),
+    h2so4_99: mk([{name:'H₂SO₄',color:'ch2so4',n:nH2SO4,m:nH2SO4*MW.H2SO4}]),
+    recycle:  mk([{name:'H₂SO₄',color:'ch2so4',n:mRecycle*0.98/MW.H2SO4,m:mRecycle*0.98},{name:'H₂O',color:'ch2o',n:mRecycle*0.02/MW.H2O,m:mRecycle*0.02}]),
+    water:    mk([{name:'H₂O',color:'ch2o',n:nH2O,m:nH2O*MW.H2O}]),
+    product:  mk([{name:'H₂SO₄',color:'ch2so4',n:nH2SO4*0.98,m:nH2SO4*MW.H2SO4*0.98},{name:'H₂O',color:'ch2o',n:nH2SO4*MW.H2SO4*0.02/MW.H2O,m:nH2SO4*MW.H2SO4*0.02}]),
+    vent:     mk([{name:'SO₂',color:'cso2',n:nSO2o,m:nSO2o*MW.SO2},{name:'O₂',color:'co2',n:nO2o,m:nO2o*MW.O2},{name:'N₂',color:'cn2',n:nN2,m:nN2*MW.N2}]),
+  };
+}
+
+function fmt(v,unit='kg/hr'){
+  const n=Math.abs(v);
+  let s=n===0?'0':n<0.01?v.toExponential(2):n<10?v.toFixed(2):n<100?v.toFixed(1):Math.round(v).toLocaleString();
+  return s+' '+unit;
+}
+
+// ============================================================
+// STATE
+// ============================================================
+let T_C=450, P_atm=1.0, alpha=0.92, streams=null;
+let prevT=450, prevP=1.0;
+let record={rate:0,T:null,P:null};
+
+// ============================================================
+// HEATMAP
+// ============================================================
+const HM_W=232, HM_H=140, HM_NT=54, HM_NP=36;
+const HM_TMIN=20,HM_TMAX=700,HM_PMIN=0.1,HM_PMAX=5.0;
+let hmAlpha=null; // [p][t]
+
+function precomputeHeatmap() {
+  hmAlpha=[];
+  for(let pi=0;pi<HM_NP;pi++){
+    const row=[];
+    const p=HM_PMIN+(HM_PMAX-HM_PMIN)*pi/(HM_NP-1);
+    for(let ti=0;ti<HM_NT;ti++){
+      const t=HM_TMIN+(HM_TMAX-HM_TMIN)*ti/(HM_NT-1);
+      row.push(solveAlpha(calcKp(t+273.15),p));
+    }
+    hmAlpha.push(row);
+  }
+}
+
+function drawHeatmap() {
+  const cv=document.getElementById('heatmap');
+  const c=cv.getContext('2d');
+  c.clearRect(0,0,HM_W,HM_H);
+  const cw=HM_W/HM_NT, ch=HM_H/HM_NP;
+
+  // Draw cells
+  for(let pi=0;pi<HM_NP;pi++){
+    const py=HM_H-(pi+1)*ch;
+    for(let ti=0;ti<HM_NT;ti++){
+      const tx=ti*cw;
+      const a=hmAlpha[pi][ti];
+      // Color: hsl 0→120 (red→green); use viridis-like curve
+      const hue=Math.round(a*120);
+      const lum=32+a*18; // 32% dark red → 50% bright green
+      c.fillStyle=`hsl(${hue},88%,${lum}%)`;
+      c.fillRect(tx,py,cw+0.5,ch+0.5);
+    }
+  }
+
+  // Production contour labels
+  const levels=[0.7,0.85,0.95,0.99];
+  levels.forEach(lv=>{
+    // Find approximate iso-contour — just label on a mid-row
+    const midPi=Math.floor(HM_NP/2);
+    const p=HM_PMIN+(HM_PMAX-HM_PMIN)*midPi/(HM_NP-1);
+    // Find ti where alpha closest to lv
+    let bestTi=0,bestDiff=999;
+    for(let ti=0;ti<HM_NT;ti++){
+      const d=Math.abs(hmAlpha[midPi][ti]-lv);
+      if(d<bestDiff){bestDiff=d;bestTi=ti;}
+    }
+    if(bestDiff<0.03){
+      const tx=(bestTi+0.5)*cw, py=HM_H-(midPi+0.5)*ch;
+      c.fillStyle='rgba(0,0,0,0.6)'; c.font='bold 7px monospace';
+      c.textAlign='center';
+      c.fillText((lv*100).toFixed(0)+'%',tx,py+2.5);
+    }
+  });
+  c.textAlign='left';
+
+  // Catalyst zone overlay (400–600°C)
+  const x1=(400-HM_TMIN)/(HM_TMAX-HM_TMIN)*HM_W;
+  const x2=(600-HM_TMIN)/(HM_TMAX-HM_TMIN)*HM_W;
+  c.strokeStyle='rgba(255,255,255,0.55)'; c.lineWidth=1.2; c.setLineDash([3,3]);
+  c.strokeRect(x1,1,x2-x1,HM_H-2); c.setLineDash([]);
+  c.fillStyle='rgba(255,255,255,0.6)'; c.font='bold 6.5px Arial';
+  c.fillText('catalyst zone',x1+2,10);
+
+  // Y-axis pressure labels
+  c.fillStyle='rgba(139,148,158,0.8)'; c.font='6.5px Arial';
+  c.fillText('5atm',1,9);
+  c.fillText('1atm',1,HM_H-((1-HM_PMIN)/(HM_PMAX-HM_PMIN))*HM_H+8);
+  c.fillText('0.1atm',1,HM_H-3);
+
+  // Record marker (gold star)
+  if(record.T!==null){
+    const rx=(record.T-HM_TMIN)/(HM_TMAX-HM_TMIN)*HM_W;
+    const ry=HM_H-(record.P-HM_PMIN)/(HM_PMAX-HM_PMIN)*HM_H;
+    c.fillStyle='#ffa657';
+    drawStar(c,rx,ry,5,3);
+  }
+
+  // Current position crosshair
+  const cx=(T_C-HM_TMIN)/(HM_TMAX-HM_TMIN)*HM_W;
+  const cy=HM_H-(P_atm-HM_PMIN)/(HM_PMAX-HM_PMIN)*HM_H;
+  c.strokeStyle='rgba(255,255,255,0.3)'; c.lineWidth=0.7;
+  c.beginPath(); c.moveTo(cx,0); c.lineTo(cx,HM_H); c.stroke();
+  c.beginPath(); c.moveTo(0,cy); c.lineTo(HM_W,cy); c.stroke();
+  // White dot
+  c.beginPath(); c.arc(cx,cy,4.5,0,Math.PI*2);
+  c.fillStyle='white'; c.fill();
+  c.strokeStyle='#0d1117'; c.lineWidth=1.5; c.stroke();
+  // Current T,P label
+  c.fillStyle='rgba(255,255,255,0.9)'; c.font='bold 7px monospace';
+  const lx=cx>HM_W*0.7?cx-36:cx+5;
+  const ly=cy>HM_H*0.7?cy-5:cy+14;
+  c.fillText(`${T_C}°,${P_atm.toFixed(2)}atm`,lx,ly);
+}
+
+function drawStar(c,x,y,outerR,innerR) {
+  c.beginPath();
+  for(let i=0;i<10;i++){
+    const ang=-Math.PI/2+i*Math.PI/5;
+    const r=i%2===0?outerR:innerR;
+    i===0?c.moveTo(x+r*Math.cos(ang),y+r*Math.sin(ang))
+         :c.lineTo(x+r*Math.cos(ang),y+r*Math.sin(ang));
+  }
+  c.closePath(); c.fill();
+}
+
+// Heatmap click → set T and P
+document.getElementById('heatmap').addEventListener('click',e=>{
+  const rect=e.target.getBoundingClientRect();
+  const px=e.clientX-rect.left, py=e.clientY-rect.top;
+  let newT=Math.round((px/HM_W)*(HM_TMAX-HM_TMIN)+HM_TMIN);
+  let newP=Math.round(((HM_H-py)/HM_H*(HM_PMAX-HM_PMIN)+HM_PMIN)*20)/20;
+  newT=Math.max(HM_TMIN,Math.min(HM_TMAX,newT));
+  newP=Math.max(HM_PMIN,Math.min(HM_PMAX,newP));
+  T_C=newT; P_atm=newP;
+  document.getElementById('temp-slider').value=T_C;
+  document.getElementById('pres-slider').value=P_atm;
+  document.getElementById('t-val').textContent=T_C;
+  document.getElementById('p-val').textContent=P_atm.toFixed(2);
+  updateAll(); buildParticles();
+});
+
+// ============================================================
+// UI UPDATES
+// ============================================================
+function updateAll() {
+  const Tk=T_C+273.15, Kp=calcKp(Tk);
+  alpha=solveAlpha(Kp,P_atm);
+  streams=calcStreams(alpha);
+
+  const h2so4Rate  = nS*alpha*MW.H2SO4;
+  const so3Rate    = nS*alpha*MW.SO3;
+  const h2oRate    = nS*alpha*MW.H2O;
+  const yieldPct   = (alpha*100);
+  const hue        = Math.round(yieldPct*1.2);
+
+  // Hero
+  const pNumEl=document.getElementById('prod-num');
+  pNumEl.textContent=Math.round(h2so4Rate).toLocaleString();
+  pNumEl.style.color=`hsl(${hue},80%,60%)`;
+  pNumEl.style.textShadow=`0 0 20px hsl(${hue},80%,40%)`;
+  document.getElementById('prod-max-pct').textContent=`${yieldPct.toFixed(1)}% of theoretical maximum (${Math.round(MAX_H2SO4).toLocaleString()} kg/hr)`;
+
+  // Yield bar
+  const bar=document.getElementById('yield-bar');
+  bar.style.width=yieldPct+'%';
+  bar.style.background=`hsl(${hue},75%,42%)`;
+  document.getElementById('yield-bar-pct').textContent=yieldPct.toFixed(1)+'%';
+
+  // Metrics
+  document.getElementById('m-conv').textContent=yieldPct.toFixed(1)+'%';
+  document.getElementById('m-conv').style.color=`hsl(${hue},75%,60%)`;
+  document.getElementById('m-so3').textContent=Math.round(so3Rate).toLocaleString();
+  document.getElementById('m-h2o').textContent=Math.round(h2oRate).toLocaleString();
+
+  // Eq details
+  document.getElementById('eq-Kp').textContent=Kp<0.001?Kp.toExponential(2):Kp<1000?Kp.toFixed(1):`${Kp.toExponential(2)}`;
+  document.getElementById('eq-Tk').textContent=Tk.toFixed(0)+' K';
+  document.getElementById('eq-rate').textContent=rateQual(Tk);
+
+  // Record
+  if(h2so4Rate>record.rate){
+    record={rate:h2so4Rate,T:T_C,P:P_atm};
+    document.getElementById('rec-num').textContent=Math.round(h2so4Rate).toLocaleString()+' kg/hr';
+    document.getElementById('rec-cond').textContent=`@ ${T_C}°C, ${P_atm.toFixed(2)} atm · α=${yieldPct.toFixed(1)}%`;
+  }
+
+  // Le Chatelier
+  updateLeChat();
+  prevT=T_C; prevP=P_atm;
+
+  // Heatmap + stream tags + table
+  drawHeatmap();
+  updateTags();
+  if(tableOpen) renderStreamTable();
+  rebuildBg();
+}
+
+function resetRecord(){
+  record={rate:0,T:null,P:null};
+  document.getElementById('rec-num').textContent='— kg/hr';
+  document.getElementById('rec-cond').textContent='Move sliders to start';
+  drawHeatmap();
+}
+
+function updateLeChat(){
+  const el=document.getElementById('le-chat');
+  const dT=T_C-prevT,dP=P_atm-prevP;
+  let msgs=[];
+  if(Math.abs(dT)>2){
+    msgs.push(dT>0
+      ?`<b>↑ T</b>: exothermic rxn → shifts <span class="shift-l">← LEFT</span>. Less SO₃. Rate ↑.`
+      :`<b>↓ T</b>: shifts <span class="shift-r">→ RIGHT</span> (more SO₃) but rate slows. Min catalyst T ≈ 400 °C.`);
+  }
+  if(Math.abs(dP)>0.05){
+    msgs.push(dP>0
+      ?`<b>↑ P</b>: 3→2 mol gas → shifts <span class="shift-r">→ RIGHT</span>. More SO₃. Costly above ~2 atm.`
+      :`<b>↓ P</b>: shifts <span class="shift-l">← LEFT</span>. Fewer product moles favoured.`);
+  }
+  if(!msgs.length) msgs.push(`H₂SO₄: <b>${Math.round(nS*alpha*MW.H2SO4).toLocaleString()} kg/hr</b> · Rate: <b>${rateQual(T_C+273.15)}</b>. Try the map to find your optimum.`);
+  el.innerHTML='<span class="lc-icon">⚗️</span>'+msgs.join('<br>');
+}
+
+let eqOpen=false;
+function toggleEq(){
+  eqOpen=!eqOpen;
+  document.getElementById('eq-details').classList.toggle('open',eqOpen);
+  document.querySelector('.eq-toggle').textContent=(eqOpen?'▼':'▶')+' Equilibrium details';
+}
+
+// ============================================================
+// STREAM TAGS
+// ============================================================
+const TAG_DEFS=[
+  // l,t = CSS top/left;  lx,ly = dot on pipe;  ax,ay = anchor on tag nearest pipe
+  {id:'tg-air',  l:2,  t:46,  sk:'air',      title:'① Air Feed',              lx:98, ly:148, ax:147,ay:82 },
+  {id:'tg-sulf', l:2,  t:222, sk:'sulfur',   title:'② Sulfur Feed',           lx:98, ly:205, ax:147,ay:248},
+  {id:'tg-so2',  l:152,t:8,   sk:'so2',      title:'③ Furnace → Converter',   lx:267,ly:160, ax:230,ay:76},
+  {id:'tg-so3',  l:372,t:8,   sk:'so3',      title:'④ Converter → Absorbers', lx:469,ly:145, ax:450,ay:76},
+  {id:'tg-99',   l:594,t:192, sk:'h2so4_99', title:'⑤ → Diluter (99% H₂SO₄)',lx:570,ly:290, ax:594,ay:218},
+  {id:'tg-rec',  l:305,t:276, sk:'recycle',  title:'⑥ Recycle (98% H₂SO₄)',  lx:480,ly:310, ax:460,ay:310},
+  {id:'tg-h2o',  l:594,t:306, sk:'water',    title:'⑦ Water Feed',            lx:641,ly:380, ax:628,ay:362},
+  {id:'tg-prod', l:84, t:422, sk:'product',  title:'⑧ Product (98% H₂SO₄)',  lx:265,ly:405, ax:239,ay:422},
+];
+
+function buildTags(){
+  const wrap=document.getElementById('wrap');
+  TAG_DEFS.forEach(t=>{
+    if(document.getElementById(t.id)) return;
+    const el=document.createElement('div');
+    el.className='stream-tag'; el.id=t.id;
+    el.style.left=t.l+'px'; el.style.top=t.t+'px';
+    el.addEventListener('click',()=>showStreamInfo(t.sk,t.title));
+    wrap.appendChild(el);
+  });
+}
+
+function updateTags(){
+  TAG_DEFS.forEach(t=>{
+    const el=document.getElementById(t.id); if(!el||!streams) return;
+    const s=streams[t.sk]; if(!s) return;
+    const tN=s.totalN;
+    const rows=s.comps.map(c=>`
+      <div class="st-row">
+        <span class="st-name ${c.color}">${c.name}</span>
+        <span class="st-pct">${(c.n/tN*100).toFixed(1)}%</span>
+        <span class="st-kg">${Math.round(c.m).toLocaleString()} kg/hr</span>
+        <span class="st-mol">${c.n.toFixed(1)} kmol/hr</span>
+      </div>`).join('');
+    el.innerHTML=`
+      <div class="st-head">
+        <span>${t.title}</span>
+        <span class="st-total">${Math.round(s.totalM).toLocaleString()} kg/hr</span>
+      </div>
+      <div class="st-rows">
+        <div class="st-row" style="font-size:0.55rem;color:#484f58;margin-bottom:1px">
+          <span class="st-name">Component</span><span class="st-pct">mol%</span>
+          <span class="st-kg">kg/hr</span><span class="st-mol">kmol/hr</span>
+        </div>
+        ${rows}
+        <div class="st-row" style="border-top:1px solid #21262d;margin-top:2px;padding-top:2px;font-weight:700;font-size:0.59rem">
+          <span class="st-name" style="color:#c9d1d9">TOTAL</span><span class="st-pct"></span>
+          <span class="st-kg" style="color:#e6edf3">${Math.round(s.totalM).toLocaleString()} kg/hr</span>
+          <span class="st-mol" style="color:#e6edf3">${s.totalN.toFixed(1)} kmol/hr</span>
+        </div>
+      </div>`;
+  });
+}
+
+// ============================================================
+// STREAM TABLE
+// ============================================================
+let tableOpen=false;
+function toggleTable(){
+  tableOpen=!tableOpen;
+  document.getElementById('stream-table-body').classList.toggle('open',tableOpen);
+  document.getElementById('table-toggle').textContent=tableOpen?'Hide Table ▲':'Show Table ▼';
+  if(tableOpen) renderStreamTable();
+}
+function renderStreamTable(){
+  if(!streams) return;
+  const ORDER=[
+    {k:'air',     l:'① Air feed',           note:'to Furnace'},
+    {k:'sulfur',  l:'② Sulfur feed',         note:'to Furnace, liquid 130–145°C'},
+    {k:'so2',     l:'③ Furnace → Converter', note:'~1000°C, cooled to 450°C'},
+    {k:'so3',     l:'④ Converter → Absorbers',note:'mixed gas, depends on α'},
+    {k:'h2so4_99',l:'⑤ Absorbers → Diluter', note:'~99% H₂SO₄'},
+    {k:'recycle', l:'⑥ Recycle acid',         note:'98% H₂SO₄ (design 5,000 kg/hr)'},
+    {k:'water',   l:'⑦ Water addition',       note:'to Diluter'},
+    {k:'product', l:'⑧ Product H₂SO₄',       note:'98% grade'},
+    {k:'vent',    l:'⑨ Absorber off-gas',     note:'SO₂ scrubber/recycle'},
+  ];
+  const COMPS=['S','O₂','N₂','SO₂','SO₃','H₂SO₄','H₂O'];
+  const byName=k=>{const m={};streams[k]?.comps.forEach(c=>m[c.name]=c);return m;};
+  let h=`<tr><th>Stream</th>${COMPS.map(c=>`<th>${c}<br><small>kg/hr</small></th>`).join('')}
+    <th>Total<br><small>kg/hr</small></th><th>Total<br><small>kmol/hr</small></th><th style="min-width:120px;text-align:left">Notes</th></tr>`;
+  ORDER.forEach(({k,l,note})=>{
+    const s=streams[k]; if(!s) return;
+    const m=byName(k);
+    h+=`<tr><td>${l}</td>${COMPS.map(c=>m[c]?`<td class="chem">${Math.round(m[c].m).toLocaleString()}</td>`:`<td class="zero">—</td>`).join('')}
+      <td style="font-weight:700">${Math.round(s.totalM).toLocaleString()}</td>
+      <td style="font-weight:700">${s.totalN.toFixed(1)}</td>
+      <td style="text-align:left;color:#8b949e">${note}</td></tr>`;
+  });
+  h+=`<tr><td colspan="${COMPS.length+4}" style="height:12px"></td></tr>
+    <tr><th>Stream</th>${COMPS.map(c=>`<th>${c}<br><small>kmol/hr</small></th>`).join('')}
+    <th>Total<br><small>kmol/hr</small></th><th>mol%</th><th style="text-align:left">Notes</th></tr>`;
+  ORDER.forEach(({k,l,note})=>{
+    const s=streams[k]; if(!s) return;
+    const m=byName(k);
+    h+=`<tr><td>${l}</td>${COMPS.map(c=>m[c]?`<td class="chem">${m[c].n.toFixed(2)}</td>`:`<td class="zero">—</td>`).join('')}
+      <td style="font-weight:700">${s.totalN.toFixed(2)}</td>
+      <td style="color:#8b949e;font-size:0.63rem">${s.comps.map(c=>`${c.name} ${(c.n/s.totalN*100).toFixed(0)}%`).join(', ')}</td>
+      <td style="text-align:left;color:#8b949e">${note}</td></tr>`;
+  });
+  document.getElementById('stream-table').innerHTML=h;
+}
+
+// ============================================================
+// UNIT INFO
+// ============================================================
+const unitInfo={
+  furnace:{title:'Furnace',rxn:'S(l)+O₂(g)→SO₂(g)  ΔH=−297 kJ/mol',rows:[['T','~1000°C'],['P','1 atm'],['Feed','molten S + dry air'],['Out','SO₂ 10%, O₂ 10%, N₂ 80%'],['Heat recovery','waste-heat steam boiler']]},
+  converter:{title:'Converter (V₂O₅ Catalyst)',rxn:'2SO₂+O₂⇌2SO₃  ΔH=−197 kJ/mol',rows:[['Catalyst','V₂O₅+K₂SO₄ on silica'],['T range','400–620°C'],['Beds','4–5 with inter-cooling'],['P','1–2 atm (industrial)'],['Double absorption','removes SO₃ mid-converter → higher α']]},
+  absorbers:{title:'Absorption Towers',rxn:'SO₃+H₂SO₄→H₂S₂O₇ → diluted to 98%',rows:[['T','60–80°C'],['Absorbent','98% H₂SO₄ recycle'],['Why not H₂O?','Forms acid mist, not liquid'],['Out','~99% H₂SO₄ to diluter']]},
+  diluter:{title:'Diluter',rxn:'SO₃+H₂O→H₂SO₄  (net)',rows:[['In','99% H₂SO₄ + H₂O'],['Out','98% H₂SO₄'],['CAUTION','always add acid to water — exothermic'],['Cooling','external HEX required']]},
+  storage:{title:'Product Storage',rxn:null,rows:[['Grade','98% H₂SO₄'],['Density','1.84 g/cm³'],['World output','~230 Mt/yr'],['Uses','fertilisers, batteries, chemicals']]},
+};
+function showUnitInfo(id){
+  const d=unitInfo[id]; if(!d) return;
+  document.getElementById('ip-title').textContent=d.title;
+  const r=document.getElementById('ip-rxn');
+  d.rxn?(r.textContent=d.rxn,r.style.display='block'):r.style.display='none';
+  document.getElementById('ip-table').innerHTML=d.rows.map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+  document.getElementById('info-panel').style.display='block';
+}
+function showStreamInfo(sk,title){
+  const s=streams?.[sk]; if(!s) return;
+  document.getElementById('ip-title').textContent=title;
+  document.getElementById('ip-rxn').style.display='none';
+  document.getElementById('ip-table').innerHTML=
+    s.comps.map(c=>`<tr><td class="${c.color}">${c.name}</td><td>${Math.round(c.m).toLocaleString()} kg/hr &nbsp;/&nbsp; ${c.n.toFixed(2)} kmol/hr &nbsp;(${(c.n/s.totalN*100).toFixed(1)} mol%)</td></tr>`).join('')+
+    `<tr style="border-top:2px solid #30363d"><td><b>Total</b></td><td><b>${Math.round(s.totalM).toLocaleString()} kg/hr &nbsp;/&nbsp; ${s.totalN.toFixed(2)} kmol/hr</b></td></tr>`;
+  document.getElementById('info-panel').style.display='block';
+}
+function closePanel(){document.getElementById('info-panel').style.display='none';}
+
+// ============================================================
+// CANVAS DRAWING
+// ============================================================
+const bgCtx=document.getElementById('bg').getContext('2d');
+const animCtx=document.getElementById('anim').getContext('2d');
+function lighten(h,a){
+  if(!h.startsWith('#')) return h;
+  let r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);
+  return '#'+[r,g,b].map(v=>Math.min(255,Math.round(v+a*255)).toString(16).padStart(2,'0')).join('');
+}
+function interpColor(c1,c2,t){
+  const r1=parseInt(c1.slice(1,3),16),g1=parseInt(c1.slice(3,5),16),b1=parseInt(c1.slice(5,7),16);
+  const r2=parseInt(c2.slice(1,3),16),g2=parseInt(c2.slice(3,5),16),b2=parseInt(c2.slice(5,7),16);
+  return '#'+[r1+(r2-r1)*t,g1+(g2-g1)*t,b1+(b2-b1)*t].map(v=>Math.round(v).toString(16).padStart(2,'0')).join('');
+}
+function drawPipe(c,pts,col){
+  c.beginPath();c.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]);
+  c.strokeStyle=col+'44';c.lineWidth=8;c.lineCap='round';c.lineJoin='round';c.stroke();
+  c.lineWidth=2;c.strokeStyle=col+'bb';c.stroke();
+}
+function drawArrow(c,from,to,col){
+  const dx=to[0]-from[0],dy=to[1]-from[1],ang=Math.atan2(dy,dx);
+  c.beginPath();c.moveTo(to[0],to[1]);
+  c.lineTo(to[0]-Math.cos(ang)*9+Math.sin(ang)*4,to[1]-Math.sin(ang)*9-Math.cos(ang)*4);
+  c.lineTo(to[0]-Math.cos(ang)*9-Math.sin(ang)*4,to[1]-Math.sin(ang)*9+Math.cos(ang)*4);
+  c.closePath();c.fillStyle=col+'cc';c.fill();
+}
+// ── ISO P&ID UNIT SYMBOLS ──────────────────────────────────────
+// ISO 10628 / engineering P&ID conventions
+
+// Fired Heater (Furnace) – box with arch combustion chamber + flames
+// ── BS 1553 FIRED HEATER ─────────────────────────────────────────────────────
+function drawFiredHeater(c,x,y,w,h){
+  // Outer shell – bold rectangular outline (BS 1553 box-type heater)
+  c.beginPath();c.rect(x-w/2,y-h/2,w,h);
+  c.fillStyle='#1e0c04';c.fill();c.strokeStyle='#c0793c';c.lineWidth=2.5;c.stroke();
+  // Dividing line: lower radiant section (55%), upper convection section (45%)
+  const divY=y-h/2+h*0.55;
+  c.beginPath();c.moveTo(x-w/2+2,divY);c.lineTo(x+w/2-2,divY);
+  c.strokeStyle='#c0793c';c.lineWidth=1.5;c.stroke();
+  // Radiant section – horizontal brick courses (BS furnace lining symbol)
+  c.strokeStyle='#c0793c44';c.lineWidth=0.8;
+  for(let iy=divY+5;iy<y+h/2-5;iy+=5){
+    c.beginPath();c.moveTo(x-w/2+2,iy);c.lineTo(x+w/2-2,iy);c.stroke();
+  }
+  // Flame symbol (BS 1553 – simple filled teardrop in radiant zone)
+  const fT=divY-h*0.21, fB=divY-3;
+  c.beginPath();
+  c.moveTo(x-10,fB);c.quadraticCurveTo(x-9,fT+4,x,fT);
+  c.quadraticCurveTo(x+9,fT+4,x+10,fB);c.closePath();
+  c.fillStyle='#ff660066';c.fill();c.strokeStyle='#ff8800aa';c.lineWidth=1;c.stroke();
+  // Convection section – process tube cross-sections (circles, BS convention)
+  c.fillStyle='#c0793c55';
+  for(let iy=y-h/2+5;iy<divY-4;iy+=6){
+    for(let ix=x-w/2+5;ix<x+w/2-3;ix+=7){
+      c.beginPath();c.arc(ix,iy,2,0,Math.PI*2);c.fill();
+    }
+  }
+  // Burner nozzle stubs (bottom of radiant section, BS 1553)
+  [-12,0,12].forEach(dx=>{
+    c.beginPath();c.rect(x+dx-1.5,y+h/2-5,3,5);
+    c.fillStyle='#c0793caa';c.fill();
+  });
+  c.fillStyle='#ffe06666';c.font='6px Arial';c.textAlign='center';
+  c.fillText('S(l)+O₂→SO₂',x,y+h/2-7);
+}
+
+// ── BS 1553 FIXED-BED CATALYTIC REACTOR (CONVERTER) ──────────────────────────
+function drawFixedBedReactor(c,x,y,w,h){
+  // Flat-ended cylindrical vessel (BS 1553 uses heavy flat heads vs ISO dished)
+  c.beginPath();c.rect(x-w/2,y-h/2,w,h);
+  c.fillStyle='#0e1e0e';c.fill();c.strokeStyle='#4caf50';c.lineWidth=2;c.stroke();
+  // Bold flat head lines (BS symbol for pressure vessel closure)
+  c.beginPath();c.moveTo(x-w/2,y-h/2);c.lineTo(x+w/2,y-h/2);
+  c.strokeStyle='#4caf50';c.lineWidth=3.5;c.stroke();
+  c.beginPath();c.moveTo(x-w/2,y+h/2);c.lineTo(x+w/2,y+h/2);
+  c.strokeStyle='#4caf50';c.lineWidth=3.5;c.stroke();
+  // Top nozzle stub
+  c.beginPath();c.rect(x-3,y-h/2-8,6,8);
+  c.fillStyle='#1a3a1a';c.fill();c.strokeStyle='#4caf5099';c.lineWidth=1.2;c.stroke();
+  // Bottom nozzle stub
+  c.beginPath();c.rect(x-3,y+h/2,6,8);
+  c.fillStyle='#1a3a1a';c.fill();c.strokeStyle='#4caf5099';c.lineWidth=1.2;c.stroke();
+  // 4 catalyst beds: solid bands + 45-degree diagonal hatching (BS catalyst symbol)
+  const bTop=y-h/2+8, bBot=y+h/2-8, bH=bBot-bTop;
+  const nBeds=4;
+  const totalGapFrac=0.32; // total fraction of height used for inter-bed gaps
+  const bedH=(bH*(1-totalGapFrac))/nBeds;
+  const gapH=(bH*totalGapFrac)/(nBeds-1);
+  for(let i=0;i<nBeds;i++){
+    const by=bTop+i*(bedH+gapH);
+    c.fillStyle='#1d3d1d';c.fillRect(x-w/2+4,by,w-8,bedH);
+    // 45-degree hatch lines (distinctive BS engineering drawing style)
+    c.save();
+    c.beginPath();c.rect(x-w/2+4,by,w-8,bedH);c.clip();
+    c.strokeStyle='#4caf5066';c.lineWidth=1;
+    for(let d=-(bedH);d<(w+bedH);d+=6){
+      c.beginPath();
+      c.moveTo(x-w/2+4+d,by);c.lineTo(x-w/2+4+d+bedH,by+bedH);
+      c.stroke();
+    }
+    c.restore();
+    // Bed boundary lines
+    c.strokeStyle='#4caf50aa';c.lineWidth=1;
+    c.beginPath();c.moveTo(x-w/2+4,by);c.lineTo(x+w/2-4,by);c.stroke();
+    c.beginPath();c.moveTo(x-w/2+4,by+bedH);c.lineTo(x+w/2-4,by+bedH);c.stroke();
+    // Bed number
+    c.fillStyle='#4caf5077';c.font='6px monospace';c.textAlign='left';
+    c.fillText((i+1).toString(),x-w/2+6,by+bedH-2);
+  }
+  // V2O5 catalyst label
+  c.fillStyle='#4caf5099';c.font='bold 8px monospace';c.textAlign='center';
+  c.fillText('V₂O₅',x,bBot+11);
+}
+
+// ── BS 1553 PACKED ABSORPTION COLUMN ─────────────────────────────────────────
+function drawAbsColumn(c,x,y,w,h){
+  // Rectangular vessel with bold flat heads (BS 1553 column symbol)
+  c.beginPath();c.rect(x-w/2,y-h/2,w,h);
+  c.fillStyle='#0e1820';c.fill();c.strokeStyle='#5599bb';c.lineWidth=1.5;c.stroke();
+  c.beginPath();c.moveTo(x-w/2,y-h/2);c.lineTo(x+w/2,y-h/2);
+  c.strokeStyle='#5599bb';c.lineWidth=2.5;c.stroke();
+  c.beginPath();c.moveTo(x-w/2,y+h/2);c.lineTo(x+w/2,y+h/2);
+  c.strokeStyle='#5599bb';c.lineWidth=2.5;c.stroke();
+  // BS 1553 random packing symbol: full 45-degree crosshatch (X pattern)
+  // This is the definitive BS visual for packed columns – both diagonal directions
+  const pkTop=y-h/2+4, pkBot=y+h/2-4, pkH=pkBot-pkTop;
+  c.save();
+  c.beginPath();c.rect(x-w/2+2,pkTop,w-4,pkH);c.clip();
+  c.strokeStyle='#5599bb55';c.lineWidth=0.7;
+  const step=4;
+  // NE diagonals (//)
+  for(let d=-pkH;d<w+pkH;d+=step){
+    c.beginPath();c.moveTo(x-w/2+2+d,pkTop);c.lineTo(x-w/2+2+d+pkH,pkBot);c.stroke();
+  }
+  // NW diagonals (\)
+  for(let d=-pkH;d<w+pkH;d+=step){
+    c.beginPath();c.moveTo(x+w/2-2-d,pkTop);c.lineTo(x+w/2-2-d-pkH,pkBot);c.stroke();
+  }
+  c.restore();
+  // Top and bottom nozzle stubs
+  c.beginPath();c.rect(x-1.5,y-h/2-4,3,4);c.fillStyle='#5599bb77';c.fill();
+  c.beginPath();c.rect(x-1.5,y+h/2,3,4);c.fillStyle='#5599bb77';c.fill();
+}
+
+// ── BS 1553 MIXING / DILUTION VESSEL ─────────────────────────────────────────
+function drawMixingVessel(c,x,y,w,h){
+  // Simple open-top rectangular vessel (BS 1553 agitated vessel)
+  c.beginPath();c.rect(x-w/2,y-h/2,w,h);
+  c.fillStyle='#08182a';c.fill();c.strokeStyle='#4488aa';c.lineWidth=2;c.stroke();
+  // Domed bottom (semi-ellipse, BS dished base symbol)
+  c.beginPath();c.ellipse(x,y+h/2,w/2,w*0.18,0,0,Math.PI);
+  c.fillStyle='#060f1e';c.fill();c.strokeStyle='#4488aa';c.lineWidth=1.5;c.stroke();
+  // Agitator shaft (vertical centre line)
+  c.beginPath();c.moveTo(x,y-h/2);c.lineTo(x,y+h*0.12);
+  c.strokeStyle='#66aacc';c.lineWidth=2;c.stroke();
+  // Flat-blade turbine impeller (BS 1553 – two rectangular horizontal blades)
+  const iY=y+h*0.12;
+  c.fillStyle='#4488aacc';
+  c.beginPath();c.rect(x-w*0.43,iY-3.5,w*0.43,7);c.fill();
+  c.strokeStyle='#66aacccc';c.lineWidth=1;c.stroke();
+  c.beginPath();c.rect(x,iY-3.5,w*0.43,7);c.fill();c.stroke();
+  // Impeller hub
+  c.beginPath();c.arc(x,iY,4,0,Math.PI*2);
+  c.fillStyle='#4488aa';c.fill();
+  // Baffles (BS vessels – 2 vertical inner wall strips)
+  c.strokeStyle='#4488aa44';c.lineWidth=1;
+  [-w/2+3,w/2-3].forEach(dx=>{
+    c.beginPath();c.moveTo(x+dx,y-h/2+8);c.lineTo(x+dx,y+h*0.03);c.stroke();
+  });
+}
+
+// ── BS 1553 FIXED-ROOF VERTICAL STORAGE TANK ─────────────────────────────────
+function drawStorageTankISO(c,x,y,w,h){
+  // Cylindrical shell in elevation (rectangular outline, BS 1553)
+  c.beginPath();c.rect(x-w/2,y-h/2+5,w,h-9);
+  c.fillStyle='#1a2232';c.fill();c.strokeStyle='#6677aa';c.lineWidth=1.5;c.stroke();
+  // Flat annular bottom plate (thick line, BS convention)
+  c.beginPath();c.moveTo(x-w/2-1,y+h/2-4);c.lineTo(x+w/2+1,y+h/2-4);
+  c.strokeStyle='#6677aa';c.lineWidth=2.5;c.stroke();
+  // Conical fixed roof (triangle, BS 1553 fixed-roof tank symbol)
+  c.beginPath();
+  c.moveTo(x-w/2,y-h/2+5);c.lineTo(x,y-h/2-5);c.lineTo(x+w/2,y-h/2+5);
+  c.closePath();c.fillStyle='#22304a';c.fill();c.strokeStyle='#6677aa';c.lineWidth=1.5;c.stroke();
+  // Vent pipe at apex
+  c.beginPath();c.rect(x-1,y-h/2-9,2,5);c.fillStyle='#6677aaaa';c.fill();
+  // Liquid level dashed line (BS convention showing contents at ~40% fill)
+  const lvl=y-h/2+5+(h-9)*0.4;
+  c.beginPath();c.moveTo(x-w/2+2,lvl);c.lineTo(x+w/2-2,lvl);
+  c.strokeStyle='#6677aa33';c.lineWidth=0.8;c.setLineDash([2,3]);c.stroke();c.setLineDash([]);
+}
+
+// Leader lines from tags to their pipe points
+function drawLeaderLines(c){
+  c.save();
+  c.lineWidth=0.8;c.setLineDash([3,4]);
+  TAG_DEFS.forEach(t=>{
+    if(!t.lx) return;
+    c.strokeStyle='#58a6ff30';
+    c.beginPath();c.moveTo(t.ax,t.ay);c.lineTo(t.lx,t.ly);c.stroke();
+    // Dot at pipe attachment
+    c.setLineDash([]);
+    c.beginPath();c.arc(t.lx,t.ly,3,0,Math.PI*2);
+    c.fillStyle='#58a6ff44';c.fill();
+    c.setLineDash([3,4]);
+  });
+  c.restore();
+}
+
+function rebuildBg(){
+  bgCtx.clearRect(0,0,700,520);bgCtx.fillStyle='#0d1117';bgCtx.fillRect(0,0,700,520);
+  const so3c=interpColor('#ffe066','#ffa657',alpha);
+  const pCol={air:'#79c0ff',sulfur:'#ffe066',so2:'#ffe066',so3:so3c,h2so4_99:'#ff7b72',recycle:'#ff7b72',water:'#a8d8ea',product:'#aaaaaa'};
+  // Draw pipes first (underneath units)
+  PIPES.forEach(p=>{
+    const col=pCol[p.id]||p.baseColor;
+    drawPipe(bgCtx,p.pts,col);
+    const pts=p.pts;drawArrow(bgCtx,pts[pts.length-2],pts[pts.length-1],col);
+  });
+  // BS 1553 unit symbols
+  drawFiredHeater(bgCtx,U.furnace.x,U.furnace.y,U.furnace.w,U.furnace.h);
+  drawFixedBedReactor(bgCtx,U.converter.x,U.converter.y,U.converter.w,U.converter.h);
+  // Three absorption columns (ISO packed-bed columns)
+  [-26,0,26].forEach(dx=>drawAbsColumn(bgCtx,U.absorbers.x+dx,U.absorbers.y,18,110));
+  // Diluter (jacketed mixing vessel)
+  drawMixingVessel(bgCtx,U.diluter.x,U.diluter.y,U.diluter.w,U.diluter.h);
+  // Three product storage tanks
+  [[-26,-18],[26,-18],[0,18]].forEach(([dx,dy])=>
+    drawStorageTankISO(bgCtx,U.storage.x+dx,U.storage.y+dy,48,48));
+  // Section labels
+  bgCtx.textAlign='center';bgCtx.font='bold 10px Segoe UI,Arial';bgCtx.fillStyle='#8b949e';
+  [['FURNACE',140,97],['CONVERTER',355,67],['ABSORBERS',570,80],['DILUTER',570,300],['STORAGE',205,328]]
+    .forEach(([t,x,y])=>bgCtx.fillText(t,x,y));
+  // Reaction annotations on units
+  bgCtx.font='7px Arial';bgCtx.fillStyle='#ffa65777';
+  bgCtx.fillText('2SO₂+O₂⇌2SO₃',U.converter.x,U.converter.y+U.converter.h/2+16);
+  bgCtx.fillStyle='#ff7b7266';
+  bgCtx.fillText('SO₃ + H₂SO₄(conc.)',U.absorbers.x,U.absorbers.y+76);
+  // Leader lines from stream tags → pipe points
+  drawLeaderLines(bgCtx);
+}
+
+// ============================================================
+// PARTICLES
+// ============================================================
+class Particle{
+  constructor(pipe,col,sm){this.pipe=pipe;this.color=col;this.t=Math.random();this.speed=(0.003+Math.random()*0.003)*sm;this.r=3+Math.random()*2;this.a=0.5+Math.random()*0.45;}
+  update(){this.t+=this.speed;if(this.t>1)this.t=0;}
+  pos(){
+    const pts=this.pipe.pts;let segs=[],total=0;
+    for(let i=1;i<pts.length;i++){const dx=pts[i][0]-pts[i-1][0],dy=pts[i][1]-pts[i-1][1];segs.push(Math.sqrt(dx*dx+dy*dy));total+=segs[segs.length-1];}
+    let d=this.t*total;
+    for(let i=0;i<segs.length;i++){if(d<=segs[i]){const f=d/segs[i];return[pts[i][0]+f*(pts[i+1][0]-pts[i][0]),pts[i][1]+f*(pts[i+1][1]-pts[i][1])];}d-=segs[i];}
+    return pts[pts.length-1];
+  }
+}
+let particles=[];
+function buildParticles(){
+  particles=[];
+  const cfg={air:{n:5,c:'#79c0ff',s:1},sulfur:{n:4,c:'#ffe066',s:0.8},
+    h2so4_99:{n:5,c:'#ff7b72',s:0.8},recycle:{n:4,c:'#ff7b72',s:0.7},
+    water:{n:3,c:'#a8d8ea',s:0.9},product:{n:5,c:'#aaaaaa',s:0.7}};
+  PIPES.forEach(p=>{
+    let col,n,s;
+    if(p.id==='so3'){col='#ffa657';n=Math.round(4+alpha*9);s=1.1;}
+    else if(p.id==='so2'){col='#ffe066';n=Math.round(3+(1-alpha)*8);s=1;}
+    else{const c=cfg[p.id];if(!c)return;col=c.c;n=c.n;s=c.s;}
+    for(let i=0;i<n;i++)particles.push(new Particle(p,col,s));
+  });
+}
+
+let glowT=0;
+function animate(){
+  animCtx.clearRect(0,0,700,520);glowT+=0.033;
+  animCtx.shadowColor='#ff6600';animCtx.shadowBlur=12+Math.sin(glowT)*8;
+  animCtx.beginPath();animCtx.ellipse(U.furnace.x,U.furnace.y,22,13,0,0,Math.PI*2);
+  animCtx.fillStyle=`rgba(255,100,0,${0.1+Math.sin(glowT)*0.05})`;animCtx.fill();
+  animCtx.shadowBlur=0;
+  for(let i=0;i<4;i++){const ph=glowT*1.3+i*1.57;
+    animCtx.beginPath();animCtx.arc(U.converter.x+Math.sin(ph)*30,U.converter.y+Math.cos(ph*0.7)*25,1.8,0,Math.PI*2);
+    animCtx.fillStyle=`rgba(80,200,80,${0.22+Math.sin(ph)*0.15})`;animCtx.fill();}
+  particles.forEach(p=>{
+    p.update();const[x,y]=p.pos();
+    animCtx.globalAlpha=p.a;animCtx.shadowColor=p.color;animCtx.shadowBlur=9;
+    animCtx.beginPath();animCtx.arc(x,y,p.r,0,Math.PI*2);
+    animCtx.fillStyle=p.color;animCtx.fill();
+    animCtx.shadowBlur=0;animCtx.globalAlpha=1;
+  });
+  requestAnimationFrame(animate);
+}
+
+// Hotspots
+function addHotspot(id,x,y,w,h){
+  const el=document.createElement('div');el.className='hotspot';
+  el.style.cssText=`left:${x-w/2}px;top:${y-h/2}px;width:${w}px;height:${h}px`;
+  el.addEventListener('click',()=>showUnitInfo(id));
+  document.getElementById('wrap').appendChild(el);
+}
+[['furnace',U.furnace.x,U.furnace.y,U.furnace.w+24,U.furnace.h+24],
+ ['converter',U.converter.x,U.converter.y,U.converter.w+24,U.converter.h+24],
+ ['absorbers',U.absorbers.x,U.absorbers.y,110,130],
+ ['diluter',U.diluter.x,U.diluter.y,U.diluter.w+24,U.diluter.h+24],
+ ['storage',U.storage.x,U.storage.y,U.storage.w+24,U.storage.h+24],
+].forEach(a=>addHotspot(...a));
+
+// Sliders
+document.getElementById('temp-slider').addEventListener('input',e=>{
+  T_C=parseFloat(e.target.value);document.getElementById('t-val').textContent=T_C;
+  updateAll();buildParticles();
+});
+document.getElementById('pres-slider').addEventListener('input',e=>{
+  P_atm=parseFloat(e.target.value);document.getElementById('p-val').textContent=P_atm.toFixed(2);
+  updateAll();buildParticles();
+});
+
+// Init
+precomputeHeatmap();
+buildTags();
+buildParticles();
+updateAll();
+animate();
+</script>
+</body>
+</html>

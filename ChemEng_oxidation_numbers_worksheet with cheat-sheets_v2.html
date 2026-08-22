@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chemistry Test v2 – Oxidation Numbers & Redox Processes</title>
+<style>
+  :root {
+    --bg: #f0f4f8;
+    --card: #ffffff;
+    --primary: #1a56a0;
+    --primary-light: #e8f0fc;
+    --accent: #d97706;
+    --accent-bg: #fef3c7;
+    --correct: #16a34a;
+    --correct-bg: #dcfce7;
+    --wrong: #dc2626;
+    --wrong-bg: #fee2e2;
+    --neutral: #64748b;
+    --border: #cbd5e1;
+    --text: #1e293b;
+    --subtext: #475569;
+    --teal: #0d9488;
+    --teal-bg: #f0fdfa;
+    --purple: #7c3aed;
+    --purple-bg: #f5f3ff;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ── Header ── */
+  header {
+    background: var(--primary); color: #fff;
+    padding: 16px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,.2);
+  }
+  header h1 { font-size: 1.05rem; font-weight: 700; }
+  header small { opacity: .8; font-size: .75rem; display: block; margin-top: 2px; }
+  #timer-box { background: rgba(255,255,255,.15); border-radius: 8px; padding: 7px 16px; text-align: center; min-width: 88px; }
+  #timer { font-size: 1.5rem; font-weight: 800; letter-spacing: 1px; }
+  #timer.warning { color: #fde68a; }
+  #timer.danger  { color: #fca5a5; }
+  #timer-label   { font-size: .6rem; opacity: .75; margin-top: 1px; }
+  #progress-bar-wrap { height: 4px; background: rgba(255,255,255,.2); }
+  #progress-bar { height: 100%; background: #60a5fa; transition: width .4s; width: 0%; }
+
+  /* ── Cover ── */
+  #cover { max-width: 680px; margin: 56px auto; background: var(--card); border-radius: var(--radius); padding: 40px 44px; box-shadow: 0 4px 20px rgba(0,0,0,.08); text-align: center; }
+  #cover h2 { font-size: 1.55rem; color: var(--primary); margin-bottom: 10px; }
+  #cover p  { color: var(--subtext); line-height: 1.7; margin-bottom: 14px; }
+  .cover-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0 28px; text-align: left; }
+  .cover-item { background: var(--bg); border-radius: 8px; padding: 12px 16px; font-size: .88rem; }
+  .cover-item strong { display: block; color: var(--primary); margin-bottom: 3px; }
+  .btn { display: inline-block; background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 12px 34px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: opacity .15s, transform .1s; }
+  .btn:hover { opacity: .88; transform: translateY(-1px); }
+  .btn.secondary { background: var(--neutral); }
+  .btn.small { padding: 8px 20px; font-size: .85rem; }
+
+  /* ── Reference panel ── */
+  #ref-toggle-bar {
+    max-width: 780px; margin: 0 auto 4px;
+    padding: 0 20px;
+  }
+  .ref-toggle-btn {
+    background: var(--teal); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 20px; font-size: .88rem; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; gap: 8px; transition: opacity .15s;
+    width: 100%;
+  }
+  .ref-toggle-btn:hover { opacity: .87; }
+  .ref-toggle-btn .arrow { transition: transform .25s; }
+  .ref-toggle-btn.open .arrow { transform: rotate(180deg); }
+
+  #ref-panel {
+    max-width: 780px; margin: 0 auto 20px;
+    padding: 0 20px;
+    display: none;
+  }
+  #ref-panel.visible { display: block; }
+  .ref-inner {
+    background: var(--teal-bg);
+    border: 2px solid var(--teal);
+    border-radius: var(--radius);
+    padding: 22px 26px;
+  }
+  .ref-inner h3 { color: var(--teal); font-size: .95rem; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+  .ref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+
+  .ref-box {
+    background: #fff; border-radius: 8px; padding: 14px 16px;
+    border: 1px solid #99f6e4;
+  }
+  .ref-box h4 { font-size: .78rem; text-transform: uppercase; letter-spacing: .5px; color: var(--teal); margin-bottom: 10px; font-weight: 700; }
+  .ref-box ul { list-style: none; padding: 0; }
+  .ref-box ul li { font-size: .83rem; padding: 3px 0; color: var(--subtext); border-bottom: 1px solid #f0fdfa; line-height: 1.45; }
+  .ref-box ul li:last-child { border-bottom: none; }
+  .ref-box ul li strong { color: var(--text); }
+
+  .oil-rig {
+    display: flex; gap: 10px; align-items: stretch; margin-top: 4px;
+  }
+  .oil-half {
+    flex: 1; background: linear-gradient(135deg, #dbeafe, #e0f2fe);
+    border-radius: 7px; padding: 10px 12px; text-align: center;
+  }
+  .oil-half.red-half { background: linear-gradient(135deg, #fce7f3, #fdf2f8); }
+  .oil-half .big { font-size: 1.3rem; font-weight: 800; color: var(--primary); }
+  .oil-half.red-half .big { color: var(--wrong); }
+  .oil-half .small-txt { font-size: .72rem; color: var(--subtext); margin-top: 3px; line-height: 1.35; }
+
+  .charge-table { width: 100%; border-collapse: collapse; font-size: .82rem; margin-top: 4px; }
+  .charge-table th { background: #99f6e4; color: var(--teal); padding: 5px 8px; text-align: left; font-size: .75rem; }
+  .charge-table td { padding: 4px 8px; border-bottom: 1px solid #e0fdf4; color: var(--subtext); }
+  .charge-table td strong { color: var(--text); }
+  .charge-table tr:last-child td { border-bottom: none; }
+
+  /* ── Warm-up banner ── */
+  .warmup-banner {
+    background: linear-gradient(135deg, var(--purple-bg), #ede9fe);
+    border: 2px solid #c4b5fd;
+    border-radius: var(--radius);
+    padding: 16px 22px;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .warmup-icon { font-size: 2rem; flex-shrink: 0; }
+  .warmup-banner h3 { color: var(--purple); font-size: 1rem; margin-bottom: 3px; }
+  .warmup-banner p { color: var(--subtext); font-size: .85rem; line-height: 1.5; }
+
+  /* ── Section header ── */
+  .section-header { display: flex; align-items: center; gap: 12px; margin: 36px 0 16px; }
+  .section-badge { background: var(--primary); color: #fff; border-radius: 20px; padding: 4px 14px; font-size: .73rem; font-weight: 700; letter-spacing: .5px; white-space: nowrap; }
+  .section-badge.warmup { background: var(--purple); }
+  .section-title { font-size: 1.02rem; font-weight: 700; color: var(--primary); }
+  .section-note  { font-size: .8rem; color: var(--subtext); margin-top: 2px; }
+
+  /* ── Question card ── */
+  .q-card { background: var(--card); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 12px; border: 2px solid transparent; box-shadow: 0 1px 6px rgba(0,0,0,.06); transition: border-color .2s; }
+  .q-card.warmup-card { border-left: 4px solid #c4b5fd; }
+  .q-card.answered-correct { border-color: var(--correct); background: var(--correct-bg); }
+  .q-card.answered-wrong   { border-color: var(--wrong);   background: var(--wrong-bg); }
+  .q-num { font-size: .7rem; font-weight: 700; color: var(--neutral); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .q-num.warmup-num { color: var(--purple); }
+  .q-text { font-size: .96rem; line-height: 1.65; margin-bottom: 14px; }
+  .formula { font-family: 'Courier New', monospace; font-weight: 700; }
+
+  /* ── True/False (warm-up) ── */
+  .tf-row { display: flex; gap: 10px; }
+  .tf-btn { flex: 1; padding: 10px; border: 2px solid var(--border); border-radius: 8px; background: var(--bg); font-size: .92rem; font-weight: 600; cursor: pointer; transition: border-color .15s, background .15s; }
+  .tf-btn:hover:not(:disabled) { border-color: var(--purple); background: var(--purple-bg); }
+  .tf-btn.correct { background: var(--correct-bg); border-color: var(--correct); color: var(--correct); }
+  .tf-btn.wrong   { background: var(--wrong-bg);   border-color: var(--wrong);   color: var(--wrong); }
+  .tf-btn:disabled { cursor: default; }
+
+  /* ── Multiple choice ── */
+  .choices { display: flex; flex-direction: column; gap: 8px; }
+  .choice-btn { display: flex; align-items: flex-start; gap: 10px; background: var(--bg); border: 2px solid var(--border); border-radius: 8px; padding: 10px 14px; cursor: pointer; font-size: .91rem; text-align: left; transition: border-color .15s, background .15s; line-height: 1.5; }
+  .choice-btn:hover:not(:disabled) { border-color: var(--primary); background: var(--primary-light); }
+  .choice-btn .letter { background: var(--primary-light); color: var(--primary); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .78rem; flex-shrink: 0; }
+  .choice-btn.correct { background: var(--correct-bg); border-color: var(--correct); }
+  .choice-btn.wrong   { background: var(--wrong-bg);   border-color: var(--wrong); }
+  .choice-btn.correct .letter { background: var(--correct); color: #fff; }
+  .choice-btn.wrong   .letter { background: var(--wrong);   color: #fff; }
+  .choice-btn:disabled { cursor: default; }
+
+  /* ── Fill ── */
+  .fill-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; font-size: .93rem; }
+  .fill-input { border: 2px solid var(--border); border-radius: 6px; padding: 7px 12px; font-size: .95rem; width: 110px; text-align: center; transition: border-color .15s; }
+  .fill-input:focus { outline: none; border-color: var(--primary); }
+  .fill-input.correct { border-color: var(--correct); background: var(--correct-bg); }
+  .fill-input.wrong   { border-color: var(--wrong);   background: var(--wrong-bg); }
+  .fill-input:disabled { cursor: default; }
+
+  /* ── Select ── */
+  select.fill-select { border: 2px solid var(--border); border-radius: 6px; padding: 7px 10px; font-size: .9rem; background: #fff; cursor: pointer; transition: border-color .15s; }
+  select.fill-select:focus { outline: none; border-color: var(--primary); }
+  select.fill-select.correct { border-color: var(--correct); background: var(--correct-bg); }
+  select.fill-select.wrong   { border-color: var(--wrong);   background: var(--wrong-bg); }
+  select.fill-select:disabled { cursor: default; }
+
+  /* ── Check btn & feedback ── */
+  .check-btn { margin-top: 8px; background: var(--primary); color: #fff; border: none; border-radius: 6px; padding: 8px 20px; font-size: .86rem; font-weight: 600; cursor: pointer; transition: opacity .15s; }
+  .check-btn:hover { opacity: .85; }
+  .check-btn:disabled { background: var(--neutral); cursor: default; }
+  .feedback { margin-top: 10px; font-size: .87rem; line-height: 1.6; padding: 10px 14px; border-radius: 6px; display: none; }
+  .feedback.correct { background: var(--correct-bg); color: #14532d; display: block; }
+  .feedback.wrong   { background: var(--wrong-bg);   color: #7f1d1d; display: block; }
+
+  /* ── Reminder box mid-test ── */
+  .reminder-box {
+    background: var(--accent-bg);
+    border: 2px solid #fcd34d;
+    border-radius: 8px;
+    padding: 13px 18px;
+    margin: -4px 0 14px;
+    font-size: .85rem;
+    color: #78350f;
+    line-height: 1.6;
+  }
+  .reminder-box strong { display: block; margin-bottom: 4px; color: var(--accent); font-size: .9rem; }
+
+  /* ── Submit bar ── */
+  #submit-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid var(--border); padding: 13px 24px; display: none; align-items: center; justify-content: space-between; box-shadow: 0 -4px 12px rgba(0,0,0,.08); z-index: 90; }
+  #score-preview { font-size: .88rem; color: var(--subtext); }
+  #score-preview strong { color: var(--text); }
+
+  /* ── Results ── */
+  #results { display: none; max-width: 680px; margin: 40px auto; padding: 0 20px 60px; }
+  .results-card { background: var(--card); border-radius: var(--radius); padding: 36px 40px; box-shadow: 0 4px 20px rgba(0,0,0,.08); text-align: center; }
+  .score-circle { width: 140px; height: 140px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 2.3rem; font-weight: 800; border: 6px solid; }
+  .score-circle small { font-size: .68rem; font-weight: 500; margin-top: 2px; }
+  .score-great  { border-color: var(--correct); color: var(--correct); background: var(--correct-bg); }
+  .score-ok     { border-color: var(--accent);  color: var(--accent);  background: var(--accent-bg); }
+  .score-low    { border-color: var(--wrong);   color: var(--wrong);   background: var(--wrong-bg); }
+  .results-card h2 { font-size: 1.4rem; margin-bottom: 8px; }
+  .results-card p  { color: var(--subtext); line-height: 1.7; margin-bottom: 18px; }
+  .breakdown { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin: 22px 0; text-align: center; }
+  .breakdown-item { background: var(--bg); border-radius: 8px; padding: 14px; }
+  .breakdown-item .bd-num { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+  .breakdown-item .bd-label { font-size: .73rem; color: var(--subtext); margin-top: 2px; }
+
+  /* ── Layout ── */
+  #test-area { display: none; max-width: 780px; margin: 0 auto; padding: 24px 20px 90px; }
+
+  @media (max-width: 560px) {
+    header { padding: 12px 14px; }
+    #cover, .results-card { padding: 26px 20px; }
+    .cover-grid { grid-template-columns: 1fr; }
+    .q-card { padding: 15px 15px; }
+    .ref-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ COVER ══════════ -->
+<div id="cover">
+  <div style="font-size:2.8rem;margin-bottom:12px;">⚗️</div>
+  <h2>Oxidation Numbers &amp; Redox Processes</h2>
+  <p><strong>Chemistry Test — Version 2 &nbsp;|&nbsp; ~45 minutes</strong></p>
+  <p>This test includes a warm-up section and a reference cheat sheet you can open at any time during the test.</p>
+  <div class="cover-grid">
+    <div class="cover-item"><strong>🌡 Warm-up</strong>5 quick questions to activate your memory</div>
+    <div class="cover-item"><strong>📚 Cheat Sheet</strong>Rules &amp; charge reminders, always accessible</div>
+    <div class="cover-item"><strong>📝 Main Test</strong>25 questions across 5 sections</div>
+    <div class="cover-item"><strong>✅ Instant Feedback</strong>Explanation shown after every answer</div>
+  </div>
+  <button class="btn" onclick="startTest()">Start Test</button>
+</div>
+
+<!-- Header -->
+<header id="header" style="display:none;">
+  <div>
+    <h1>Oxidation Numbers &amp; Redox — v2</h1>
+    <small>Chemistry Test</small>
+  </div>
+  <div id="timer-box">
+    <div id="timer">45:00</div>
+    <div id="timer-label">REMAINING</div>
+  </div>
+</header>
+<div id="progress-bar-wrap" style="display:none;"><div id="progress-bar"></div></div>
+
+<!-- ══════════ TEST AREA ══════════ -->
+<div id="test-area">
+
+  <!-- ── Reference toggle ── -->
+  <div id="ref-toggle-bar">
+    <button class="ref-toggle-btn" id="refBtn" onclick="toggleRef()">
+      📖 &nbsp;Open Reference &amp; Cheat Sheet
+      <span class="arrow" style="margin-left:auto;">▼</span>
+    </button>
+  </div>
+
+  <!-- ── Reference panel ── -->
+  <div id="ref-panel">
+    <div class="ref-inner">
+      <h3>📖 Quick Reference — Oxidation Numbers &amp; Redox</h3>
+      <div class="ref-grid">
+
+        <!-- Rules -->
+        <div class="ref-box">
+          <h4>Rules for Assigning Oxidation Numbers</h4>
+          <ul>
+            <li><strong>1.</strong> Pure element → <strong>0</strong></li>
+            <li><strong>2.</strong> Monatomic ion → equals its <strong>charge</strong></li>
+            <li><strong>3.</strong> F in compounds → always <strong>−1</strong></li>
+            <li><strong>4.</strong> O in compounds → usually <strong>−2</strong><br><em>(−1 in peroxides, +2 in OF₂)</em></li>
+            <li><strong>5.</strong> H with non-metal → <strong>+1</strong><br><em>(−1 in metal hydrides e.g. NaH)</em></li>
+            <li><strong>6.</strong> Group 1 metals → always <strong>+1</strong></li>
+            <li><strong>7.</strong> Group 2 metals → always <strong>+2</strong></li>
+            <li><strong>8.</strong> Sum of all ONs = <strong>0</strong> (neutral) or <strong>ion charge</strong></li>
+          </ul>
+        </div>
+
+        <!-- OIL RIG -->
+        <div class="ref-box">
+          <h4>OIL RIG — Electron Transfer</h4>
+          <div class="oil-rig">
+            <div class="oil-half">
+              <div class="big">OIL</div>
+              <div class="small-txt"><strong>O</strong>xidation <strong>I</strong>s <strong>L</strong>oss of electrons<br>→ ON <em>increases</em><br>→ the species is <em>oxidised</em><br>→ it acts as a <em>reducing agent</em></div>
+            </div>
+            <div class="oil-half red-half">
+              <div class="big">RIG</div>
+              <div class="small-txt"><strong>R</strong>eduction <strong>I</strong>s <strong>G</strong>ain of electrons<br>→ ON <em>decreases</em><br>→ the species is <em>reduced</em><br>→ it acts as an <em>oxidising agent</em></div>
+            </div>
+          </div>
+          <p style="font-size:.75rem;color:var(--subtext);margin-top:8px;">⚡ Oxidation &amp; reduction always occur <strong>together</strong> (redox).</p>
+        </div>
+
+        <!-- Common fixed charges -->
+        <div class="ref-box">
+          <h4>Common Fixed Oxidation States</h4>
+          <table class="charge-table">
+            <tr><th>Element</th><th>Typical ON</th></tr>
+            <tr><td><strong>Na, K, Li</strong></td><td>+1</td></tr>
+            <tr><td><strong>Mg, Ca, Ba</strong></td><td>+2</td></tr>
+            <tr><td><strong>Al</strong></td><td>+3</td></tr>
+            <tr><td><strong>Zn</strong></td><td>+2</td></tr>
+            <tr><td><strong>Ag</strong></td><td>+1</td></tr>
+            <tr><td><strong>F</strong></td><td>−1</td></tr>
+            <tr><td><strong>Cl, Br, I</strong> (halides)</td><td>−1 (usually)</td></tr>
+            <tr><td><strong>O</strong> (most)</td><td>−2</td></tr>
+            <tr><td><strong>H</strong> (most)</td><td>+1</td></tr>
+          </table>
+        </div>
+
+        <!-- Common polyatomic ions -->
+        <div class="ref-box">
+          <h4>Common Polyatomic Ion Charges</h4>
+          <table class="charge-table">
+            <tr><th>Ion</th><th>Charge</th></tr>
+            <tr><td><strong>SO₄²⁻</strong> sulfate</td><td>−2</td></tr>
+            <tr><td><strong>NO₃⁻</strong> nitrate</td><td>−1</td></tr>
+            <tr><td><strong>CO₃²⁻</strong> carbonate</td><td>−2</td></tr>
+            <tr><td><strong>PO₄³⁻</strong> phosphate</td><td>−3</td></tr>
+            <tr><td><strong>OH⁻</strong> hydroxide</td><td>−1</td></tr>
+            <tr><td><strong>NH₄⁺</strong> ammonium</td><td>+1</td></tr>
+            <tr><td><strong>MnO₄⁻</strong> permanganate</td><td>−1</td></tr>
+            <tr><td><strong>Cr₂O₇²⁻</strong> dichromate</td><td>−2</td></tr>
+          </table>
+        </div>
+
+        <!-- Variable TMs -->
+        <div class="ref-box">
+          <h4>Variable Transition Metal States</h4>
+          <table class="charge-table">
+            <tr><th>Metal</th><th>Common States</th></tr>
+            <tr><td><strong>Fe</strong></td><td>+2, +3</td></tr>
+            <tr><td><strong>Cu</strong></td><td>+1, +2</td></tr>
+            <tr><td><strong>Mn</strong></td><td>+2, +4, +7</td></tr>
+            <tr><td><strong>Cr</strong></td><td>+3, +6</td></tr>
+            <tr><td><strong>Pb</strong></td><td>+2, +4</td></tr>
+            <tr><td><strong>Sn</strong></td><td>+2, +4</td></tr>
+          </table>
+        </div>
+
+        <!-- Tip box -->
+        <div class="ref-box">
+          <h4>Key Vocabulary</h4>
+          <ul>
+            <li><strong>Oxidising agent</strong> — causes another to be oxidised; <em>it is reduced</em></li>
+            <li><strong>Reducing agent</strong> — causes another to be reduced; <em>it is oxidised</em></li>
+            <li><strong>Disproportionation</strong> — same element is simultaneously oxidised AND reduced</li>
+            <li><strong>Half-equation</strong> — shows only the oxidation or only the reduction part of a redox reaction</li>
+            <li><strong>Electron gain</strong> → reduction (ON decreases)</li>
+            <li><strong>Electron loss</strong> → oxidation (ON increases)</li>
+          </ul>
+        </div>
+
+      </div><!-- end ref-grid -->
+    </div>
+  </div><!-- end ref-panel -->
+
+  <!-- ══════════ WARM-UP ══════════ -->
+  <div class="warmup-banner">
+    <div class="warmup-icon">🌡️</div>
+    <div>
+      <h3>Warm-Up Section</h3>
+      <p>Five quick questions to activate your memory before the main test. These are shorter and easier — use the cheat sheet above if you need a reminder!</p>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <span class="section-badge warmup">Warm-Up</span>
+    <div>
+      <div class="section-title" style="color:var(--purple);">Quick-Fire Starters</div>
+      <div class="section-note">True / False &amp; simple multiple choice</div>
+    </div>
+  </div>
+
+  <!-- WU1 -->
+  <div class="q-card warmup-card" id="qcW1">
+    <div class="q-num warmup-num">Warm-Up Question 1 of 5</div>
+    <div class="q-text"><strong>True or False:</strong> The oxidation number of sodium (Na) in <span class="formula">NaCl</span> is <strong>+1</strong>.</div>
+    <div class="tf-row">
+      <button class="tf-btn" onclick="checkTF('W1',true,true)">✓ True</button>
+      <button class="tf-btn" onclick="checkTF('W1',false,true)">✗ False</button>
+    </div>
+    <div class="feedback" id="fbW1"></div>
+  </div>
+
+  <!-- WU2 -->
+  <div class="q-card warmup-card" id="qcW2">
+    <div class="q-num warmup-num">Warm-Up Question 2 of 5</div>
+    <div class="q-text"><strong>True or False:</strong> The oxidation number of oxygen in <span class="formula">H<sub>2</sub>O</span> is <strong>+2</strong>.</div>
+    <div class="tf-row">
+      <button class="tf-btn" onclick="checkTF('W2',true,false)">✓ True</button>
+      <button class="tf-btn" onclick="checkTF('W2',false,false)">✗ False</button>
+    </div>
+    <div class="feedback" id="fbW2"></div>
+  </div>
+
+  <!-- WU3 -->
+  <div class="q-card warmup-card" id="qcW3">
+    <div class="q-num warmup-num">Warm-Up Question 3 of 5</div>
+    <div class="q-text">What is the oxidation number of <strong>Ca</strong> in <span class="formula">CaCl<sub>2</sub></span>?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC('W3','A','B')"><span class="letter">A</span>+1</button>
+      <button class="choice-btn" onclick="checkMC('W3','B','B')"><span class="letter">B</span>+2</button>
+      <button class="choice-btn" onclick="checkMC('W3','C','B')"><span class="letter">C</span>−2</button>
+      <button class="choice-btn" onclick="checkMC('W3','D','B')"><span class="letter">D</span>0</button>
+    </div>
+    <div class="feedback" id="fbW3"></div>
+  </div>
+
+  <!-- WU4 -->
+  <div class="q-card warmup-card" id="qcW4">
+    <div class="q-num warmup-num">Warm-Up Question 4 of 5</div>
+    <div class="q-text">Which arrow represents an <strong>increase</strong> in oxidation number?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC('W4','A','A')"><span class="letter">A</span>Fe²⁺ → Fe³⁺</button>
+      <button class="choice-btn" onclick="checkMC('W4','B','A')"><span class="letter">B</span>Cu²⁺ → Cu⁰</button>
+      <button class="choice-btn" onclick="checkMC('W4','C','A')"><span class="letter">C</span>Cl⁰ → Cl⁻</button>
+      <button class="choice-btn" onclick="checkMC('W4','D','A')"><span class="letter">D</span>Mn⁷⁺ → Mn²⁺</button>
+    </div>
+    <div class="feedback" id="fbW4"></div>
+  </div>
+
+  <!-- WU5 -->
+  <div class="q-card warmup-card" id="qcW5">
+    <div class="q-num warmup-num">Warm-Up Question 5 of 5</div>
+    <div class="q-text"><strong>True or False:</strong> In any redox reaction, one species is oxidised and another is reduced — they always occur together.</div>
+    <div class="tf-row">
+      <button class="tf-btn" onclick="checkTF('W5',true,true)">✓ True</button>
+      <button class="tf-btn" onclick="checkTF('W5',false,true)">✗ False</button>
+    </div>
+    <div class="feedback" id="fbW5"></div>
+  </div>
+
+
+  <!-- ══════════ SECTION 1 ══════════ -->
+  <div class="section-header">
+    <span class="section-badge">Section 1</span>
+    <div>
+      <div class="section-title">Rules, Exceptions &amp; Definitions</div>
+      <div class="section-note">Multiple choice — select the best answer</div>
+    </div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="q-card" id="qc1">
+    <div class="q-num">Question 1 of 25</div>
+    <div class="q-text">What is the oxidation number of <strong>hydrogen</strong> in the metal hydride <span class="formula">NaH</span>?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(1,'A','C')"><span class="letter">A</span>+1</button>
+      <button class="choice-btn" onclick="checkMC(1,'B','C')"><span class="letter">B</span>0</button>
+      <button class="choice-btn" onclick="checkMC(1,'C','C')"><span class="letter">C</span>−1</button>
+      <button class="choice-btn" onclick="checkMC(1,'D','C')"><span class="letter">D</span>+2</button>
+    </div>
+    <div class="feedback" id="fb1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-card" id="qc2">
+    <div class="q-num">Question 2 of 25</div>
+    <div class="q-text">What is the oxidation number of <strong>oxygen</strong> in hydrogen peroxide, <span class="formula">H<sub>2</sub>O<sub>2</sub></span>?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(2,'A','B')"><span class="letter">A</span>−2</button>
+      <button class="choice-btn" onclick="checkMC(2,'B','B')"><span class="letter">B</span>−1</button>
+      <button class="choice-btn" onclick="checkMC(2,'C','B')"><span class="letter">C</span>0</button>
+      <button class="choice-btn" onclick="checkMC(2,'D','B')"><span class="letter">D</span>+1</button>
+    </div>
+    <div class="feedback" id="fb2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-card" id="qc3">
+    <div class="q-num">Question 3 of 25</div>
+    <div class="q-text">Which of the following best describes <strong>reduction</strong> in terms of oxidation numbers?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(3,'A','A')"><span class="letter">A</span>A decrease in oxidation number (gain of electrons)</button>
+      <button class="choice-btn" onclick="checkMC(3,'B','A')"><span class="letter">B</span>An increase in oxidation number (gain of electrons)</button>
+      <button class="choice-btn" onclick="checkMC(3,'C','A')"><span class="letter">C</span>A decrease in oxidation number (loss of electrons)</button>
+      <button class="choice-btn" onclick="checkMC(3,'D','A')"><span class="letter">D</span>No change in oxidation number</button>
+    </div>
+    <div class="feedback" id="fb3"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="q-card" id="qc4">
+    <div class="q-num">Question 4 of 25</div>
+    <div class="q-text">Group 2 metals (e.g. Mg, Ca, Ba) always have which oxidation number in their compounds?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(4,'A','B')"><span class="letter">A</span>+1</button>
+      <button class="choice-btn" onclick="checkMC(4,'B','B')"><span class="letter">B</span>+2</button>
+      <button class="choice-btn" onclick="checkMC(4,'C','B')"><span class="letter">C</span>+3</button>
+      <button class="choice-btn" onclick="checkMC(4,'D','B')"><span class="letter">D</span>Variable</button>
+    </div>
+    <div class="feedback" id="fb4"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="q-card" id="qc5">
+    <div class="q-num">Question 5 of 25</div>
+    <div class="q-text">A <strong>reducing agent</strong> is a substance that:</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(5,'A','C')"><span class="letter">A</span>Gains electrons and decreases its own oxidation number</button>
+      <button class="choice-btn" onclick="checkMC(5,'B','C')"><span class="letter">B</span>Gains electrons and increases its own oxidation number</button>
+      <button class="choice-btn" onclick="checkMC(5,'C','C')"><span class="letter">C</span>Loses electrons and increases its own oxidation number</button>
+      <button class="choice-btn" onclick="checkMC(5,'D','C')"><span class="letter">D</span>Does not change its oxidation number</button>
+    </div>
+    <div class="feedback" id="fb5"></div>
+  </div>
+
+
+  <!-- ══════════ SECTION 2 ══════════ -->
+  <div class="section-header">
+    <span class="section-badge">Section 2</span>
+    <div>
+      <div class="section-title">Assigning Oxidation Numbers</div>
+      <div class="section-note">Type the oxidation number (e.g. +3, −2, 0) then click Check</div>
+    </div>
+  </div>
+
+  <div class="reminder-box">
+    <strong>💡 Reminder — Step-by-step method</strong>
+    Write down the known oxidation numbers first (O = −2, H = +1, Group 1 = +1, Group 2 = +2). Then use the rule: <em>sum of all oxidation numbers = compound charge</em>, and solve for the unknown element algebraically.
+  </div>
+
+  <!-- Q6 -->
+  <div class="q-card" id="qc6">
+    <div class="q-num">Question 6 of 25</div>
+    <div class="q-text">What is the oxidation number of <strong>P</strong> in <span class="formula">H<sub>3</sub>PO<sub>4</sub></span>?</div>
+    <div class="fill-row">
+      <span>Oxidation number of P =</span>
+      <input class="fill-input" id="fi6" placeholder="+/−" type="text">
+    </div>
+    <button class="check-btn" id="cb6" onclick="checkFill(6,'+5',['5','+5'])">Check</button>
+    <div class="feedback" id="fb6"></div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="q-card" id="qc7">
+    <div class="q-num">Question 7 of 25</div>
+    <div class="q-text">What is the oxidation number of <strong>Fe</strong> in <span class="formula">Fe<sub>2</sub>O<sub>3</sub></span>?</div>
+    <div class="fill-row">
+      <span>Oxidation number of Fe =</span>
+      <input class="fill-input" id="fi7" placeholder="+/−" type="text">
+    </div>
+    <button class="check-btn" id="cb7" onclick="checkFill(7,'+3',['3','+3'])">Check</button>
+    <div class="feedback" id="fb7"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="q-card" id="qc8">
+    <div class="q-num">Question 8 of 25</div>
+    <div class="q-text">What is the oxidation number of <strong>C</strong> in the carbonate ion <span class="formula">CO<sub>3</sub><sup>2−</sup></span>?</div>
+    <div class="fill-row">
+      <span>Oxidation number of C =</span>
+      <input class="fill-input" id="fi8" placeholder="+/−" type="text">
+    </div>
+    <button class="check-btn" id="cb8" onclick="checkFill(8,'+4',['4','+4'])">Check</button>
+    <div class="feedback" id="fb8"></div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="q-card" id="qc9">
+    <div class="q-num">Question 9 of 25</div>
+    <div class="q-text">What is the oxidation number of <strong>N</strong> in the ammonium ion <span class="formula">NH<sub>4</sub><sup>+</sup></span>?</div>
+    <div class="fill-row">
+      <span>Oxidation number of N =</span>
+      <input class="fill-input" id="fi9" placeholder="+/−" type="text">
+    </div>
+    <button class="check-btn" id="cb9" onclick="checkFill(9,'-3',['-3','−3'])">Check</button>
+    <div class="feedback" id="fb9"></div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="q-card" id="qc10">
+    <div class="q-num">Question 10 of 25</div>
+    <div class="q-text">What is the oxidation number of <strong>I</strong> in the iodate ion <span class="formula">IO<sub>3</sub><sup>−</sup></span>?</div>
+    <div class="fill-row">
+      <span>Oxidation number of I =</span>
+      <input class="fill-input" id="fi10" placeholder="+/−" type="text">
+    </div>
+    <button class="check-btn" id="cb10" onclick="checkFill(10,'+5',['5','+5'])">Check</button>
+    <div class="feedback" id="fb10"></div>
+  </div>
+
+
+  <!-- ══════════ SECTION 3 ══════════ -->
+  <div class="section-header">
+    <span class="section-badge">Section 3</span>
+    <div>
+      <div class="section-title">Identifying Oxidation &amp; Reduction</div>
+      <div class="section-note">Use dropdowns and multiple choice to analyse each reaction</div>
+    </div>
+  </div>
+
+  <div class="reminder-box">
+    <strong>💡 Reminder — How to identify redox changes</strong>
+    Assign oxidation numbers on both sides of the equation. If an element's ON <em>increases</em> → it is <strong>oxidised</strong>. If an element's ON <em>decreases</em> → it is <strong>reduced</strong>. If the ON stays the same → it is not part of the redox change.
+  </div>
+
+  <!-- Q11 -->
+  <div class="q-card" id="qc11">
+    <div class="q-num">Question 11 of 25</div>
+    <div class="q-text">
+      In the reaction:<br><br>
+      <span class="formula">&nbsp;&nbsp;2 Na + 2 H<sub>2</sub>O → 2 NaOH + H<sub>2</sub></span><br><br>
+      Na goes from <strong>0</strong> to <strong>+1</strong>. Sodium is:
+    </div>
+    <div class="fill-row">
+      <select class="fill-select" id="fs11">
+        <option value="">— select —</option>
+        <option value="oxidised">Oxidised</option>
+        <option value="reduced">Reduced</option>
+        <option value="neither">Neither</option>
+      </select>
+    </div>
+    <button class="check-btn" id="cb11" onclick="checkSelect(11,'oxidised')">Check</button>
+    <div class="feedback" id="fb11"></div>
+  </div>
+
+  <!-- Q12 -->
+  <div class="q-card" id="qc12">
+    <div class="q-num">Question 12 of 25</div>
+    <div class="q-text">
+      In the same reaction:<br><br>
+      <span class="formula">&nbsp;&nbsp;2 Na + 2 H<sub>2</sub>O → 2 NaOH + H<sub>2</sub></span><br><br>
+      H in H<sub>2</sub>O goes from <strong>+1</strong> to <strong>0</strong> in H<sub>2</sub>. The hydrogen in H₂O is:
+    </div>
+    <div class="fill-row">
+      <select class="fill-select" id="fs12">
+        <option value="">— select —</option>
+        <option value="oxidised">Oxidised</option>
+        <option value="reduced">Reduced</option>
+        <option value="neither">Neither</option>
+      </select>
+    </div>
+    <button class="check-btn" id="cb12" onclick="checkSelect(12,'reduced')">Check</button>
+    <div class="feedback" id="fb12"></div>
+  </div>
+
+  <!-- Q13 -->
+  <div class="q-card" id="qc13">
+    <div class="q-num">Question 13 of 25</div>
+    <div class="q-text">
+      Consider the reaction:<br><br>
+      <span class="formula">&nbsp;&nbsp;Cu + 2 AgNO<sub>3</sub> → Cu(NO<sub>3</sub>)<sub>2</sub> + 2 Ag</span><br><br>
+      Copper goes from <strong>0</strong> to <strong>+2</strong>. Silver goes from <strong>+1</strong> to <strong>0</strong>.<br>
+      Which element is <em>reduced</em>?
+    </div>
+    <div class="fill-row">
+      <select class="fill-select" id="fs13">
+        <option value="">— select —</option>
+        <option value="cu">Cu (copper)</option>
+        <option value="ag">Ag (silver)</option>
+        <option value="n">N (in nitrate)</option>
+        <option value="both">Both Cu and Ag</option>
+      </select>
+    </div>
+    <button class="check-btn" id="cb13" onclick="checkSelect(13,'ag')">Check</button>
+    <div class="feedback" id="fb13"></div>
+  </div>
+
+  <!-- Q14 -->
+  <div class="q-card" id="qc14">
+    <div class="q-num">Question 14 of 25</div>
+    <div class="q-text">
+      In the reaction:<br><br>
+      <span class="formula">&nbsp;&nbsp;SnCl<sub>2</sub> + 2 FeCl<sub>3</sub> → SnCl<sub>4</sub> + 2 FeCl<sub>2</sub></span><br><br>
+      Sn goes from <strong>+2</strong> to <strong>+4</strong>; Fe goes from <strong>+3</strong> to <strong>+2</strong>.<br>
+      Which statement is correct?
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(14,'A','B')"><span class="letter">A</span>Sn is reduced; Fe is oxidised</button>
+      <button class="choice-btn" onclick="checkMC(14,'B','B')"><span class="letter">B</span>Sn is oxidised; Fe is reduced</button>
+      <button class="choice-btn" onclick="checkMC(14,'C','B')"><span class="letter">C</span>Both Sn and Fe are oxidised</button>
+      <button class="choice-btn" onclick="checkMC(14,'D','B')"><span class="letter">D</span>Neither Sn nor Fe undergoes a redox change</button>
+    </div>
+    <div class="feedback" id="fb14"></div>
+  </div>
+
+  <!-- Q15 -->
+  <div class="q-card" id="qc15">
+    <div class="q-num">Question 15 of 25</div>
+    <div class="q-text">
+      In the reaction:<br><br>
+      <span class="formula">&nbsp;&nbsp;3 NO<sub>2</sub> + H<sub>2</sub>O → 2 HNO<sub>3</sub> + NO</span><br><br>
+      N in NO<sub>2</sub> has oxidation number <strong>+4</strong>. In HNO<sub>3</sub> it is <strong>+5</strong>, and in NO it is <strong>+2</strong>.<br>
+      This is an example of:
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(15,'A','D')"><span class="letter">A</span>Only oxidation of nitrogen</button>
+      <button class="choice-btn" onclick="checkMC(15,'B','D')"><span class="letter">B</span>Only reduction of nitrogen</button>
+      <button class="choice-btn" onclick="checkMC(15,'C','D')"><span class="letter">C</span>No redox change</button>
+      <button class="choice-btn" onclick="checkMC(15,'D','D')"><span class="letter">D</span>Disproportionation — N is both oxidised (+4→+5) and reduced (+4→+2)</button>
+    </div>
+    <div class="feedback" id="fb15"></div>
+  </div>
+
+
+  <!-- ══════════ SECTION 4 ══════════ -->
+  <div class="section-header">
+    <span class="section-badge">Section 4</span>
+    <div>
+      <div class="section-title">Oxidising &amp; Reducing Agents</div>
+      <div class="section-note">Identify the agents and their roles</div>
+    </div>
+  </div>
+
+  <div class="reminder-box">
+    <strong>💡 Reminder — Agent identification trick</strong>
+    Find the species that is <em>oxidised</em> (ON increases) — that is the <strong>reducing agent</strong>. Find the species that is <em>reduced</em> (ON decreases) — that is the <strong>oxidising agent</strong>. The agent and the change happen to the <em>same</em> species.
+  </div>
+
+  <!-- Q16 -->
+  <div class="q-card" id="qc16">
+    <div class="q-num">Question 16 of 25</div>
+    <div class="q-text">
+      In the reaction:<br><br>
+      <span class="formula">&nbsp;&nbsp;Cu + 2 AgNO<sub>3</sub> → Cu(NO<sub>3</sub>)<sub>2</sub> + 2 Ag</span><br><br>
+      What is the <em>reducing agent</em>?
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(16,'A','A')"><span class="letter">A</span>Cu</button>
+      <button class="choice-btn" onclick="checkMC(16,'B','A')"><span class="letter">B</span>AgNO₃</button>
+      <button class="choice-btn" onclick="checkMC(16,'C','A')"><span class="letter">C</span>Cu(NO₃)₂</button>
+      <button class="choice-btn" onclick="checkMC(16,'D','A')"><span class="letter">D</span>Ag</button>
+    </div>
+    <div class="feedback" id="fb16"></div>
+  </div>
+
+  <!-- Q17 -->
+  <div class="q-card" id="qc17">
+    <div class="q-num">Question 17 of 25</div>
+    <div class="q-text">
+      In the reaction:<br><br>
+      <span class="formula">&nbsp;&nbsp;SnCl<sub>2</sub> + 2 FeCl<sub>3</sub> → SnCl<sub>4</sub> + 2 FeCl<sub>2</sub></span><br><br>
+      What is the <em>oxidising agent</em>?
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(17,'A','B')"><span class="letter">A</span>SnCl₂</button>
+      <button class="choice-btn" onclick="checkMC(17,'B','B')"><span class="letter">B</span>FeCl₃</button>
+      <button class="choice-btn" onclick="checkMC(17,'C','B')"><span class="letter">C</span>SnCl₄</button>
+      <button class="choice-btn" onclick="checkMC(17,'D','B')"><span class="letter">D</span>FeCl₂</button>
+    </div>
+    <div class="feedback" id="fb17"></div>
+  </div>
+
+  <!-- Q18 -->
+  <div class="q-card" id="qc18">
+    <div class="q-num">Question 18 of 25</div>
+    <div class="q-text">
+      Consider:<br><br>
+      <span class="formula">&nbsp;&nbsp;Cr<sub>2</sub>O<sub>7</sub><sup>2−</sup> + 14 H<sup>+</sup> + 6 Fe<sup>2+</sup> → 2 Cr<sup>3+</sup> + 7 H<sub>2</sub>O + 6 Fe<sup>3+</sup></span><br><br>
+      Which species is the <strong>oxidising agent</strong>, and what happens to it?
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(18,'A','C')"><span class="letter">A</span>Fe²⁺ is the oxidising agent; it is reduced to Fe³⁺</button>
+      <button class="choice-btn" onclick="checkMC(18,'B','C')"><span class="letter">B</span>Fe²⁺ is the oxidising agent; it is oxidised to Fe³⁺</button>
+      <button class="choice-btn" onclick="checkMC(18,'C','C')"><span class="letter">C</span>Cr₂O₇²⁻ is the oxidising agent; Cr is reduced (+6 → +3)</button>
+      <button class="choice-btn" onclick="checkMC(18,'D','C')"><span class="letter">D</span>H⁺ is the oxidising agent; H is reduced to H₂O</button>
+    </div>
+    <div class="feedback" id="fb18"></div>
+  </div>
+
+  <!-- Q19 -->
+  <div class="q-card" id="qc19">
+    <div class="q-num">Question 19 of 25</div>
+    <div class="q-text">
+      In the reaction:<br><br>
+      <span class="formula">&nbsp;&nbsp;2 Na + Cl<sub>2</sub> → 2 NaCl</span><br><br>
+      Na goes from <strong>0</strong> to <strong>+1</strong>; Cl goes from <strong>0</strong> to <strong>−1</strong>.<br>
+      What is the <em>reducing agent</em>?
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(19,'A','A')"><span class="letter">A</span>Na — it is oxidised (0 → +1)</button>
+      <button class="choice-btn" onclick="checkMC(19,'B','A')"><span class="letter">B</span>Cl₂ — it is oxidised (0 → −1)</button>
+      <button class="choice-btn" onclick="checkMC(19,'C','A')"><span class="letter">C</span>NaCl — it is formed from the reaction</button>
+      <button class="choice-btn" onclick="checkMC(19,'D','A')"><span class="letter">D</span>Cl₂ — it is reduced (0 → −1)</button>
+    </div>
+    <div class="feedback" id="fb19"></div>
+  </div>
+
+  <!-- Q20 -->
+  <div class="q-card" id="qc20">
+    <div class="q-num">Question 20 of 25</div>
+    <div class="q-text">Which of the following is the best description of why <span class="formula">KMnO<sub>4</sub></span> (potassium permanganate) is commonly used as an oxidising agent in lab reactions?</div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(20,'A','C')"><span class="letter">A</span>Because Mn has a fixed oxidation number of +7 that cannot change</button>
+      <button class="choice-btn" onclick="checkMC(20,'B','C')"><span class="letter">B</span>Because it easily loses electrons, making it a good electron donor</button>
+      <button class="choice-btn" onclick="checkMC(20,'C','C')"><span class="letter">C</span>Because Mn in +7 can readily accept electrons (be reduced), oxidising other species</button>
+      <button class="choice-btn" onclick="checkMC(20,'D','C')"><span class="letter">D</span>Because K⁺ is oxidised during the reaction</button>
+    </div>
+    <div class="feedback" id="fb20"></div>
+  </div>
+
+
+  <!-- ══════════ SECTION 5 ══════════ -->
+  <div class="section-header">
+    <span class="section-badge">Section 5</span>
+    <div>
+      <div class="section-title">Applied Redox &amp; Half-Equations</div>
+      <div class="section-note">Multi-step reasoning and half-equation analysis</div>
+    </div>
+  </div>
+
+  <!-- Q21 -->
+  <div class="q-card" id="qc21">
+    <div class="q-num">Question 21 of 25</div>
+    <div class="q-text">
+      Consider the half-equation:<br><br>
+      <span class="formula">&nbsp;&nbsp;Fe²⁺ → Fe³⁺ + e⁻</span><br><br>
+      What type of half-equation is this, and what role does Fe²⁺ play?
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(21,'A','B')"><span class="letter">A</span>Reduction half-equation; Fe²⁺ is the oxidising agent</button>
+      <button class="choice-btn" onclick="checkMC(21,'B','B')"><span class="letter">B</span>Oxidation half-equation; Fe²⁺ is the reducing agent</button>
+      <button class="choice-btn" onclick="checkMC(21,'C','B')"><span class="letter">C</span>Reduction half-equation; Fe²⁺ is the reducing agent</button>
+      <button class="choice-btn" onclick="checkMC(21,'D','B')"><span class="letter">D</span>Oxidation half-equation; Fe²⁺ is the oxidising agent</button>
+    </div>
+    <div class="feedback" id="fb21"></div>
+  </div>
+
+  <!-- Q22 -->
+  <div class="q-card" id="qc22">
+    <div class="q-num">Question 22 of 25</div>
+    <div class="q-text">
+      In the following reaction, what is the change in oxidation number of <strong>Cl</strong>?<br><br>
+      <span class="formula">&nbsp;&nbsp;5 Cl⁻ + MnO<sub>4</sub><sup>−</sup> + 8 H<sup>+</sup> → Mn<sup>2+</sup> + 4 H<sub>2</sub>O + <sup>5</sup>⁄<sub>2</sub> Cl<sub>2</sub></span>
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(22,'A','B')"><span class="letter">A</span>−1 → 0; decrease of 1 (reduction)</button>
+      <button class="choice-btn" onclick="checkMC(22,'B','B')"><span class="letter">B</span>−1 → 0; increase of 1 (oxidation)</button>
+      <button class="choice-btn" onclick="checkMC(22,'C','B')"><span class="letter">C</span>0 → −1; decrease of 1 (reduction)</button>
+      <button class="choice-btn" onclick="checkMC(22,'D','B')"><span class="letter">D</span>0 → −1; increase of 1 (oxidation)</button>
+    </div>
+    <div class="feedback" id="fb22"></div>
+  </div>
+
+  <!-- Q23 -->
+  <div class="q-card" id="qc23">
+    <div class="q-num">Question 23 of 25</div>
+    <div class="q-text">
+      In the following reaction, identify the oxidation number of <strong>N</strong> on each side:<br><br>
+      <span class="formula">&nbsp;&nbsp;4 NH<sub>3</sub> + 5 O<sub>2</sub> → 4 NO + 6 H<sub>2</sub>O</span><br><br>
+      What has happened to nitrogen?
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(23,'A','C')"><span class="letter">A</span>N goes from +3 to +2 — it is reduced</button>
+      <button class="choice-btn" onclick="checkMC(23,'B','C')"><span class="letter">B</span>N goes from 0 to +2 — it is oxidised</button>
+      <button class="choice-btn" onclick="checkMC(23,'C','C')"><span class="letter">C</span>N goes from −3 to +2 — it is oxidised</button>
+      <button class="choice-btn" onclick="checkMC(23,'D','C')"><span class="letter">D</span>N goes from −3 to +2 — it is reduced</button>
+    </div>
+    <div class="feedback" id="fb23"></div>
+  </div>
+
+  <!-- Q24 -->
+  <div class="q-card" id="qc24">
+    <div class="q-num">Question 24 of 25</div>
+    <div class="q-text">
+      The overall ionic equation for the reaction of dilute nitric acid with copper is:<br><br>
+      <span class="formula">&nbsp;&nbsp;3 Cu + 8 H<sup>+</sup> + 2 NO<sub>3</sub><sup>−</sup> → 3 Cu<sup>2+</sup> + 2 NO + 4 H<sub>2</sub>O</span><br><br>
+      N in NO₃⁻ has ON <strong>+5</strong>; in NO it has ON <strong>+2</strong>. Cu goes from <strong>0</strong> to <strong>+2</strong>.<br>
+      Which statement is correct?
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(24,'A','C')"><span class="letter">A</span>Cu is reduced; NO₃⁻ is oxidised</button>
+      <button class="choice-btn" onclick="checkMC(24,'B','C')"><span class="letter">B</span>Both Cu and N are reduced</button>
+      <button class="choice-btn" onclick="checkMC(24,'C','C')"><span class="letter">C</span>Cu is oxidised (reducing agent); NO₃⁻ is reduced (oxidising agent)</button>
+      <button class="choice-btn" onclick="checkMC(24,'D','C')"><span class="letter">D</span>H⁺ is the reducing agent</button>
+    </div>
+    <div class="feedback" id="fb24"></div>
+  </div>
+
+  <!-- Q25 -->
+  <div class="q-card" id="qc25">
+    <div class="q-num">Question 25 of 25</div>
+    <div class="q-text">
+      A student combines the following two half-equations to form an overall equation:<br><br>
+      <span class="formula">&nbsp;&nbsp;Oxidation: &nbsp;Sn²⁺ → Sn⁴⁺ + 2e⁻</span><br>
+      <span class="formula">&nbsp;&nbsp;Reduction: &nbsp;2 Fe³⁺ + 2e⁻ → 2 Fe²⁺</span><br><br>
+      What is the correct overall equation, and what are the agents?
+    </div>
+    <div class="choices">
+      <button class="choice-btn" onclick="checkMC(25,'A','B')"><span class="letter">A</span>Sn²⁺ + 2 Fe³⁺ → Sn⁴⁺ + 2 Fe²⁺; Sn²⁺ is the oxidising agent</button>
+      <button class="choice-btn" onclick="checkMC(25,'B','B')"><span class="letter">B</span>Sn²⁺ + 2 Fe³⁺ → Sn⁴⁺ + 2 Fe²⁺; Sn²⁺ is the reducing agent</button>
+      <button class="choice-btn" onclick="checkMC(25,'C','B')"><span class="letter">C</span>Sn⁴⁺ + 2 Fe²⁺ → Sn²⁺ + 2 Fe³⁺; Fe²⁺ is the reducing agent</button>
+      <button class="choice-btn" onclick="checkMC(25,'D','B')"><span class="letter">D</span>Sn²⁺ + Fe³⁺ → Sn⁴⁺ + Fe²⁺; they are both oxidising agents</button>
+    </div>
+    <div class="feedback" id="fb25"></div>
+  </div>
+
+</div><!-- end test-area -->
+
+<!-- Submit bar -->
+<div id="submit-bar">
+  <div id="score-preview">Answered: <strong id="ans-count">0</strong> / 30</div>
+  <button class="btn" onclick="submitTest()">Submit Test</button>
+</div>
+
+<!-- ══════════ RESULTS ══════════ -->
+<div id="results">
+  <div class="results-card">
+    <div class="score-circle" id="score-circle">
+      <span id="score-pct">—</span>
+      <small>score</small>
+    </div>
+    <h2 id="result-heading">Test Complete</h2>
+    <p id="result-msg"></p>
+    <div class="breakdown">
+      <div class="breakdown-item"><div class="bd-num" id="bd-warmup">—</div><div class="bd-label">Warm-Up Score</div></div>
+      <div class="breakdown-item"><div class="bd-num" id="bd-main">—</div><div class="bd-label">Main Score</div></div>
+      <div class="breakdown-item"><div class="bd-num" id="bd-wrong">—</div><div class="bd-label">Incorrect</div></div>
+      <div class="breakdown-item"><div class="bd-num" id="bd-skipped">—</div><div class="bd-label">Unanswered</div></div>
+      <div class="breakdown-item"><div class="bd-num" id="bd-time">—</div><div class="bd-label">Time Used</div></div>
+    </div>
+    <p style="margin-bottom:26px;font-size:.9rem;">Scroll up to review highlighted answers and explanations.</p>
+    <button class="btn secondary" onclick="location.reload()">Retake Test</button>
+  </div>
+</div>
+
+
+<!-- ══════════ JAVASCRIPT ══════════ -->
+<script>
+// ── Feedback text ────────────────────────────────────
+const FEEDBACK = {
+  W1: { c:'✓ Correct! Na is a Group 1 metal; it always has oxidation number +1 in its compounds.',
+        w:'✗ Na is a Group 1 metal — its oxidation number in NaCl is +1 (True).' },
+  W2: { c:'✓ Correct! Oxygen is −2 in H₂O, NOT +2. Remember: O is almost always −2 in compounds.',
+        w:'✗ False — oxygen in H₂O is −2, not +2. H is +1, and (+1×2) + O = 0, so O = −2.' },
+  W3: { c:'✓ Correct! Ca is a Group 2 metal; it always has oxidation number +2.',
+        w:'✗ Ca is a Group 2 metal — its oxidation number is always +2 in compounds.' },
+  W4: { c:'✓ Correct! Fe²⁺ → Fe³⁺ is an increase from +2 to +3. An increase in oxidation number = oxidation.',
+        w:'✗ Fe²⁺ → Fe³⁺ increases from +2 to +3 — that is the increase. The others all decrease.' },
+  W5: { c:'✓ Correct! Oxidation and reduction are always paired — you cannot have one without the other. This is why we call it a redox reaction.',
+        w:'✗ True — oxidation and reduction always occur simultaneously. One species cannot be oxidised unless another is reduced.' },
+  1:  { c:'✓ Correct! In metal hydrides, hydrogen is bonded to a metal more electropositive than itself, so H takes the electron — giving it −1.',
+        w:'✗ In metal hydrides (e.g. NaH, LiH, CaH₂), H has oxidation number −1, not +1. The metal is more electropositive and "donates" the electron to H.' },
+  2:  { c:'✓ Correct! In peroxides (O–O single bond), oxygen is −1 rather than the usual −2. H₂O₂ is a classic peroxide.',
+        w:'✗ H₂O₂ is a peroxide. The O–O bond means oxygen cannot be fully −2; instead it is −1. (Check: 2×(+1) + 2×(−1) = 0 ✓)' },
+  3:  { c:'✓ Correct! Reduction = gain of electrons = decrease in oxidation number. OIL RIG: Reduction Is Gain.',
+        w:'✗ Reduction means a decrease in oxidation number because the species gains electrons. (OIL RIG: Reduction Is Gain).' },
+  4:  { c:'✓ Correct! All Group 2 metals have two outer electrons to lose, giving a fixed +2 oxidation number in all their compounds.',
+        w:'✗ Group 2 metals always form +2 ions — they always have oxidation number +2 in their compounds.' },
+  5:  { c:'✓ Correct! A reducing agent loses electrons → its oxidation number increases → it is oxidised. OIL: Oxidation Is Loss.',
+        w:'✗ A reducing agent loses electrons (it is oxidised). Losing electrons = oxidation = increase in oxidation number.' },
+  6:  { c:'✓ Correct! H = +1 (×3 = +3), O = −2 (×4 = −8). Sum = 0: +3 + P + (−8) = 0 → P = +5.',
+        w:'✗ In H₃PO₄: H = +1 (×3 = +3), O = −2 (×4 = −8). So +3 + P − 8 = 0 → P = +5.' },
+  7:  { c:'✓ Correct! O = −2 (×3 = −6). Sum = 0: 2Fe + (−6) = 0 → 2Fe = +6 → Fe = +3.',
+        w:'✗ In Fe₂O₃: O = −2 (×3 = −6). Neutral compound: 2×Fe + (−6) = 0 → Fe = +3.' },
+  8:  { c:'✓ Correct! Ion charge = −2; O = −2 (×3 = −6). So C + (−6) = −2 → C = +4.',
+        w:'✗ In CO₃²⁻: ion charge = −2; O = −2 (×3 = −6). C + (−6) = −2 → C = +4.' },
+  9:  { c:'✓ Correct! Ion charge = +1; H = +1 (×4 = +4). So N + (+4) = +1 → N = −3.',
+        w:'✗ In NH₄⁺: ion charge = +1; H = +1 (×4 = +4). N + 4 = +1 → N = −3.' },
+  10: { c:'✓ Correct! Ion charge = −1; O = −2 (×3 = −6). So I + (−6) = −1 → I = +5.',
+        w:'✗ In IO₃⁻: ion charge = −1; O = −2 (×3 = −6). I + (−6) = −1 → I = +5.' },
+  11: { c:'✓ Correct! Na goes from 0 → +1, which is an increase — oxidation.',
+        w:'✗ Na goes from 0 to +1 (increase in oxidation number) = oxidation.' },
+  12: { c:'✓ Correct! H in H₂O goes from +1 → 0 (decrease) = reduction.',
+        w:'✗ H decreases from +1 to 0 — a decrease in oxidation number is reduction.' },
+  13: { c:'✓ Correct! Ag goes from +1 → 0 (decrease = reduction). Cu goes from 0 → +2 (increase = oxidation).',
+        w:'✗ Ag decreases from +1 to 0 — that is a decrease, so Ag (silver) is reduced.' },
+  14: { c:'✓ Correct! Sn: +2 → +4 (increase = oxidised). Fe: +3 → +2 (decrease = reduced).',
+        w:'✗ Sn goes from +2 to +4 (increase = oxidised); Fe goes from +3 to +2 (decrease = reduced).' },
+  15: { c:'✓ Correct! N in NO₂ is +4. Some N becomes +5 in HNO₃ (oxidised) and some becomes +2 in NO (reduced). Same element — disproportionation.',
+        w:'✗ N in NO₂ is +4. It is oxidised to +5 (HNO₃) AND reduced to +2 (NO) — the same element undergoes both changes. This is disproportionation.' },
+  16: { c:'✓ Correct! Cu is oxidised (0 → +2), so Cu is the reducing agent. AgNO₃ (providing Ag⁺) is the oxidising agent.',
+        w:'✗ Cu increases from 0 to +2 (it is oxidised), making Cu the reducing agent.' },
+  17: { c:'✓ Correct! Fe in FeCl₃ is +3 and is reduced to +2 in FeCl₂ — FeCl₃ is the oxidising agent. Sn is oxidised (+2 → +4) making SnCl₂ the reducing agent.',
+        w:'✗ Fe (+3) is reduced to Fe (+2) in FeCl₂. The species that is reduced is the oxidising agent → FeCl₃.' },
+  18: { c:'✓ Correct! Cr in Cr₂O₇²⁻ is +6 and is reduced to +3 (Cr³⁺). The species that is reduced = the oxidising agent. Fe²⁺ is oxidised to Fe³⁺ = reducing agent.',
+        w:'✗ Cr in Cr₂O₇²⁻ is +6, reduced to Cr³⁺ (+3). The species being reduced is the oxidising agent → Cr₂O₇²⁻. Fe²⁺ is oxidised → it is the reducing agent.' },
+  19: { c:'✓ Correct! Na increases from 0 to +1 (it is oxidised) → Na is the reducing agent. Cl₂ decreases from 0 to −1 (it is reduced) → Cl₂ is the oxidising agent.',
+        w:'✗ Na is oxidised (0 → +1), meaning Na loses electrons. The species that is oxidised is the reducing agent.' },
+  20: { c:'✓ Correct! Mn in KMnO₄ is +7 — a high oxidation state. It can readily accept electrons (be reduced to Mn²⁺ etc.), which oxidises the other species.',
+        w:'✗ KMnO₄ is an oxidising agent because Mn (+7) can readily accept electrons (be reduced). It does NOT lose electrons.' },
+  21: { c:'✓ Correct! An electron is released (lost), so this is an oxidation half-equation. Fe²⁺ loses an electron → it is oxidised → it is the reducing agent.',
+        w:'✗ Electrons are produced on the right (released), so this is an oxidation half-equation. Fe²⁺ is oxidised and therefore acts as the reducing agent.' },
+  22: { c:'✓ Correct! Cl⁻ has oxidation number −1; in Cl₂ it is 0. From −1 to 0 is an increase → oxidation.',
+        w:'✗ Cl in Cl⁻ is −1; in Cl₂ it is 0. −1 → 0 is an increase of 1 in oxidation number = oxidation.' },
+  23: { c:'✓ Correct! In NH₃: N = −3 (H = +1, ×3 = +3; neutral: N + 3 = 0 → N = −3). In NO: O = −2; neutral: N + (−2) = 0 → N = +2. Increase = oxidation.',
+        w:'✗ In NH₃: H = +1 (×3 = +3), so N = −3. In NO: O = −2, so N = +2. The change is −3 → +2, which is an increase = oxidation.' },
+  24: { c:'✓ Correct! Cu: 0 → +2 (increase = oxidised = reducing agent). N in NO₃⁻: +5 → +2 in NO (decrease = reduced = oxidising agent).',
+        w:'✗ Cu goes from 0 to +2 (oxidised → reducing agent). N goes from +5 to +2 in NO (reduced → oxidising agent = NO₃⁻).' },
+  25: { c:'✓ Correct! Add the half-equations directly (electrons cancel): Sn²⁺ + 2 Fe³⁺ → Sn⁴⁺ + 2 Fe²⁺. Sn²⁺ is oxidised (+2 → +4) = reducing agent. Fe³⁺ is reduced (+3 → +2) = oxidising agent.',
+        w:'✗ The two half-equations add to give: Sn²⁺ + 2 Fe³⁺ → Sn⁴⁺ + 2 Fe²⁺. Sn²⁺ is oxidised (loses electrons) → it is the reducing agent. Fe³⁺ is reduced → it is the oxidising agent.' },
+};
+
+// ── State ────────────────────────────────────────────
+let timerInterval = null;
+let secondsLeft   = 45 * 60;
+let startTime     = null;
+const results     = {};
+const TOTAL       = 30;  // 5 warmup + 25 main
+
+function startTest() {
+  document.getElementById('cover').style.display = 'none';
+  document.getElementById('header').style.display = 'flex';
+  document.getElementById('progress-bar-wrap').style.display = 'block';
+  document.getElementById('test-area').style.display = 'block';
+  document.getElementById('submit-bar').style.display = 'flex';
+  startTime = Date.now();
+  timerInterval = setInterval(tick, 1000);
+}
+
+// ── Timer ────────────────────────────────────────────
+function tick() {
+  secondsLeft--;
+  if (secondsLeft <= 0) { secondsLeft = 0; clearInterval(timerInterval); submitTest(true); }
+  updateTimerDisplay();
+}
+function updateTimerDisplay() {
+  const m = String(Math.floor(secondsLeft/60)).padStart(2,'0');
+  const s = String(secondsLeft%60).padStart(2,'0');
+  const el = document.getElementById('timer');
+  el.textContent = m+':'+s;
+  el.className = secondsLeft<=300?'danger':secondsLeft<=600?'warning':'';
+}
+
+// ── Progress ─────────────────────────────────────────
+function updateProgress() {
+  const done = Object.keys(results).length;
+  document.getElementById('ans-count').textContent = done;
+  document.getElementById('progress-bar').style.width = (done/TOTAL*100)+'%';
+}
+
+// ── Reference toggle ──────────────────────────────────
+function toggleRef() {
+  const panel = document.getElementById('ref-panel');
+  const btn   = document.getElementById('refBtn');
+  const open  = panel.classList.toggle('visible');
+  btn.classList.toggle('open', open);
+  btn.childNodes[0].textContent = open ? '📖  Close Reference & Cheat Sheet  ' : '📖  Open Reference & Cheat Sheet  ';
+}
+
+// ── True / False ─────────────────────────────────────
+function checkTF(qNum, chosen, correct) {
+  if (results[qNum]) return;
+  const card = document.getElementById('qc'+qNum);
+  const btns = card.querySelectorAll('.tf-btn');
+  btns.forEach(b => b.disabled = true);
+  const isCorrect = chosen === correct;
+  // chosen=true is first btn, chosen=false is second
+  btns[chosen ? 0 : 1].classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) btns[correct ? 0 : 1].classList.add('correct');
+  results[qNum] = isCorrect ? 'correct' : 'wrong';
+  card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+  showFeedback(qNum, isCorrect);
+  updateProgress();
+}
+
+// ── Multiple choice ───────────────────────────────────
+function checkMC(qNum, chosen, correct) {
+  if (results[qNum]) return;
+  const card = document.getElementById('qc'+qNum);
+  const btns = card.querySelectorAll('.choice-btn');
+  const letters = ['A','B','C','D'];
+  btns.forEach((btn,i) => {
+    btn.disabled = true;
+    if (letters[i]===correct) btn.classList.add('correct');
+    else if (letters[i]===chosen && chosen!==correct) btn.classList.add('wrong');
+  });
+  const isCorrect = chosen===correct;
+  results[qNum] = isCorrect ? 'correct' : 'wrong';
+  card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+  showFeedback(qNum, isCorrect);
+  updateProgress();
+}
+
+// ── Fill input ────────────────────────────────────────
+function checkFill(qNum, correct, acceptedArr) {
+  if (results[qNum]) return;
+  const inp = document.getElementById('fi'+qNum);
+  const val = inp.value.trim().toLowerCase().replace('−','-');
+  const isCorrect = acceptedArr.some(a => val===a.toLowerCase().replace('−','-'));
+  inp.disabled = true;
+  inp.classList.add(isCorrect ? 'correct' : 'wrong');
+  document.getElementById('cb'+qNum).disabled = true;
+  results[qNum] = isCorrect ? 'correct' : 'wrong';
+  document.getElementById('qc'+qNum).classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+  showFeedback(qNum, isCorrect);
+  updateProgress();
+}
+
+// ── Select dropdown ───────────────────────────────────
+function checkSelect(qNum, correct) {
+  if (results[qNum]) return;
+  const sel = document.getElementById('fs'+qNum);
+  const val = sel.value;
+  if (!val) { alert('Please select an option first.'); return; }
+  const isCorrect = val===correct;
+  sel.disabled = true;
+  sel.classList.add(isCorrect ? 'correct' : 'wrong');
+  document.getElementById('cb'+qNum).disabled = true;
+  results[qNum] = isCorrect ? 'correct' : 'wrong';
+  document.getElementById('qc'+qNum).classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+  showFeedback(qNum, isCorrect);
+  updateProgress();
+}
+
+// ── Feedback ──────────────────────────────────────────
+function showFeedback(qNum, isCorrect) {
+  const fb = document.getElementById('fb'+qNum);
+  const d  = FEEDBACK[qNum];
+  fb.className = 'feedback '+(isCorrect?'correct':'wrong');
+  fb.innerHTML = isCorrect ? d.c : d.w;
+}
+
+// ── Submit ────────────────────────────────────────────
+function submitTest(timeout=false) {
+  clearInterval(timerInterval);
+  const usedSec = Math.round((Date.now()-startTime)/1000);
+  const um = Math.floor(usedSec/60), us = usedSec%60;
+
+  for (let i=1; i<=25; i++) { if (!results[i]) results[i]='skip'; }
+  ['W1','W2','W3','W4','W5'].forEach(k => { if (!results[k]) results[k]='skip'; });
+
+  const wuKeys   = ['W1','W2','W3','W4','W5'];
+  const wuCorr   = wuKeys.filter(k => results[k]==='correct').length;
+  const mainCorr = Object.keys(results).filter(k => !k.startsWith('W') && results[k]==='correct').length;
+  const allCorr  = wuCorr + mainCorr;
+  const wrong    = Object.values(results).filter(v=>v==='wrong').length;
+  const skipped  = Object.values(results).filter(v=>v==='skip').length;
+  const pct      = Math.round(allCorr/TOTAL*100);
+
+  document.getElementById('test-area').style.display  = 'none';
+  document.getElementById('submit-bar').style.display = 'none';
+  document.getElementById('results').style.display    = 'block';
+
+  document.getElementById('score-pct').textContent  = pct+'%';
+  document.getElementById('bd-warmup').textContent  = wuCorr+'/5';
+  document.getElementById('bd-main').textContent    = mainCorr+'/25';
+  document.getElementById('bd-wrong').textContent   = wrong;
+  document.getElementById('bd-skipped').textContent = skipped;
+  document.getElementById('bd-time').textContent    = um+'m '+us+'s';
+
+  const circle = document.getElementById('score-circle');
+  let heading, msg;
+  if (pct>=80) {
+    circle.className='score-circle score-great';
+    heading='Outstanding!';
+    msg='You have a strong grasp of oxidation numbers and redox processes. Review any missed questions to solidify the remaining gaps.';
+  } else if (pct>=60) {
+    circle.className='score-circle score-ok';
+    heading='Good effort!';
+    msg='You have a solid foundation but some areas need revisiting. Focus on half-equations and agent identification — check the cheat sheet for the key rules.';
+  } else {
+    circle.className='score-circle score-low';
+    heading='Keep going!';
+    msg='Revisit the Rules for Assigning Oxidation Numbers in the cheat sheet, then practise finding which element changes on each side of the equation. Use the feedback on each question as your revision guide.';
+  }
+  document.getElementById('result-heading').textContent = heading;
+  document.getElementById('result-msg').textContent = msg + (timeout ? ' (Time expired.)' : '');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+</script>
+</body>
+</html>

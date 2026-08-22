@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Germany's Rivers — Chemical Industry Interactive Map</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;color:#f1f5f9;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+    /* TOP BAR */
+    .topbar{background:linear-gradient(135deg,#1e3a5f,#0f2a4a);border-bottom:2px solid #2563eb;padding:8px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap}
+    .topbar h1{font-size:.93rem;font-weight:700;color:#e2e8f0;white-space:nowrap}
+    .topbar p{font-size:.7rem;color:#94a3b8}
+    .filter-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+    .filter-label{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:700;white-space:nowrap}
+    .filter-btn{padding:4px 9px;border-radius:99px;border:2px solid transparent;cursor:pointer;font-size:.68rem;font-weight:700;transition:all .15s;opacity:.5}
+    .filter-btn.active{opacity:1}
+    .filter-btn:hover{opacity:.85}
+    .hist-toggle-btn{padding:6px 14px;border-radius:8px;border:2px solid #4b5563;background:#1e293b;color:#94a3b8;cursor:pointer;font-size:.78rem;font-weight:700;transition:all .2s;white-space:nowrap;margin-left:auto}
+    .hist-toggle-btn.on{border-color:#f59e0b;background:#422006;color:#fde047}
+    .hist-toggle-btn:hover{opacity:.9}
+
+    /* LAYOUT */
+    .main{display:flex;flex:1;overflow:hidden}
+
+    /* SIDEBAR */
+    .sidebar{width:280px;background:#1e293b;border-right:1px solid #334155;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+    .sidebar-tabs{display:flex;border-bottom:1px solid #334155;flex-shrink:0}
+    .stab{flex:1;padding:7px;text-align:center;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;color:#64748b;border-bottom:2px solid transparent;transition:all .15s}
+    .stab.active{color:#93c5fd;border-bottom-color:#2563eb;background:#162032}
+    .site-list{overflow-y:auto;flex:1}
+
+    .river-group-header{padding:7px 14px 4px;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:7px;position:sticky;top:0;z-index:1;background:#1e293b;border-bottom:1px solid #0f172a}
+    .river-line-swatch{height:3px;width:20px;border-radius:99px;flex-shrink:0}
+
+    .site-item{padding:8px 14px 8px 18px;border-bottom:1px solid #1a2535;cursor:pointer;transition:background .12s;display:flex;align-items:flex-start;gap:8px}
+    .site-item:hover{background:#263548}
+    .site-item.selected{background:#1e3a5f;border-left:3px solid #2563eb}
+    .site-item.dimmed{opacity:.35}
+    .site-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px}
+    .site-item-name{font-size:.78rem;font-weight:600;color:#e2e8f0;line-height:1.3}
+    .site-item-sub{font-size:.66rem;color:#64748b;margin-top:1px}
+    .site-item-year{font-size:.63rem;font-weight:700;padding:1px 6px;border-radius:99px;display:inline-block;margin-top:3px}
+
+    /* History event items */
+    .event-item{padding:9px 14px;border-bottom:1px solid #1a2535;cursor:pointer;transition:background .12s;display:flex;gap:9px;align-items:flex-start}
+    .event-item:hover{background:#263548}
+    .event-item.selected{background:#2d1f00;border-left:3px solid #f59e0b}
+    .event-item.future{opacity:.28}
+    .event-diamond{width:11px;height:11px;transform:rotate(45deg);flex-shrink:0;margin-top:3px;border-radius:2px}
+    .event-year-badge{font-size:.63rem;font-weight:800;padding:2px 6px;border-radius:4px;white-space:nowrap;flex-shrink:0}
+    .event-title{font-size:.78rem;font-weight:600;color:#e2e8f0;line-height:1.3}
+    .event-era-tag{font-size:.62rem;color:#64748b;margin-top:2px}
+    .event-group-header{padding:6px 14px 3px;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#64748b;position:sticky;top:0;background:#1e293b;z-index:1;border-bottom:1px solid #0f172a}
+
+    /* Legends */
+    .legend-panel{padding:9px 14px;border-top:1px solid #334155;background:#162032}
+    .legend-title{font-size:.64rem;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:700;margin-bottom:5px}
+    .legend-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px 6px}
+    .legend-item{display:flex;align-items:center;gap:5px;font-size:.66rem;color:#94a3b8;line-height:1.3}
+    .legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+    .legend-line{height:3px;width:16px;border-radius:99px;flex-shrink:0}
+    .legend-diamond{width:9px;height:9px;transform:rotate(45deg);flex-shrink:0;border-radius:1px}
+
+    /* MAP */
+    #map{flex:1;z-index:1}
+
+    /* POPUP */
+    .leaflet-popup-content-wrapper{background:#1e293b!important;color:#e2e8f0!important;border-radius:12px!important;box-shadow:0 8px 32px rgba(0,0,0,.5)!important;border:1px solid #334155!important;max-width:320px!important}
+    .leaflet-popup-tip{background:#1e293b!important}
+    .leaflet-popup-content{margin:0!important;padding:0!important}
+    .popup-inner{padding:14px}
+    .popup-badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px}
+    .popup-badge{display:inline-block;font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:99px}
+    .popup-name{font-size:.93rem;font-weight:700;color:#f1f5f9;margin-bottom:3px;line-height:1.3}
+    .popup-location{font-size:.7rem;color:#64748b;margin-bottom:8px}
+    .popup-co-title{font-size:.63rem;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:4px;font-weight:700}
+    .popup-co-tag{display:inline-block;background:#0f2040;border:1px solid #1d3c6e;color:#93c5fd;font-size:.66rem;padding:2px 6px;border-radius:4px;margin:2px 2px 2px 0;font-weight:600}
+    .popup-activities{font-size:.75rem;line-height:1.6;color:#94a3b8;margin:7px 0}
+    .popup-fact{background:#0f2040;border-left:3px solid #2563eb;padding:7px 9px;border-radius:4px;font-size:.7rem;color:#7dd3fc;line-height:1.5}
+    /* History event popup */
+    .popup-event-year{font-size:1.8rem;font-weight:800;line-height:1;margin-bottom:4px}
+    .popup-event-era{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:2px 8px;border-radius:99px;display:inline-block;margin-bottom:8px}
+    .popup-event-body{font-size:.77rem;line-height:1.65;color:#cbd5e1}
+
+    /* COUNTER */
+    .counter-bar{display:flex;gap:12px;padding:4px 14px;background:#162032;border-bottom:1px solid #334155;font-size:.7rem;color:#64748b;flex-shrink:0;flex-wrap:wrap}
+    .counter-bar strong{color:#e2e8f0}
+
+    /* TIMELINE BAR */
+    #timeline-bar{display:none;flex-shrink:0;background:#0f172a;border-top:2px solid #f59e0b;padding:10px 20px 12px;z-index:100}
+    .tl-top{display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+    #era-badge{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:3px 10px;border-radius:99px}
+    #era-title{font-size:.88rem;font-weight:700;color:#f1f5f9}
+    #year-display{font-size:1.5rem;font-weight:800;margin-left:auto;color:#fde047;letter-spacing:.03em;font-variant-numeric:tabular-nums}
+    .tl-slider-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+    .tl-yr{font-size:.7rem;color:#64748b;font-weight:700;white-space:nowrap}
+    .tl-track{flex:1;position:relative;height:20px;display:flex;align-items:center}
+    #era-gradient{position:absolute;left:0;right:0;height:6px;border-radius:99px;pointer-events:none}
+    #year-slider{position:relative;width:100%;-webkit-appearance:none;appearance:none;background:transparent;height:20px;cursor:pointer;z-index:1}
+    #year-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fde047;border:3px solid #0f172a;box-shadow:0 0 0 2px #f59e0b;cursor:pointer}
+    #year-slider::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fde047;border:3px solid #0f172a;cursor:pointer}
+    #year-slider::-webkit-slider-runnable-track{height:6px;border-radius:99px;background:transparent}
+    #era-desc{font-size:.75rem;color:#94a3b8;line-height:1.55;max-width:900px}
+    .tl-events-row{display:flex;gap:8px;margin-top:6px;overflow-x:auto;padding-bottom:2px}
+    .tl-event-chip{padding:3px 10px;border-radius:99px;font-size:.66rem;font-weight:700;white-space:nowrap;cursor:pointer;border:1px solid transparent;transition:all .15s;opacity:.6}
+    .tl-event-chip.visible{opacity:1}
+    .tl-event-chip:hover{opacity:1;transform:translateY(-1px)}
+
+    @media(max-width:700px){.sidebar{display:none}#timeline-bar{padding:8px 12px 10px}}
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <h1>⚗️ Germany's Rivers — Chemical Industry Map</h1>
+    <p>Click any marker to explore · Filter by industry or river · Toggle History Mode to travel back in time</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:4px" id="filter-panel">
+    <div class="filter-row"><span class="filter-label">Industry:</span><div id="filter-industry"></div></div>
+    <div class="filter-row"><span class="filter-label">River:</span><div id="filter-river"></div></div>
+  </div>
+  <button class="hist-toggle-btn" id="hist-btn" onclick="toggleHistory()">📜 History Mode: OFF</button>
+</div>
+
+<div class="counter-bar">
+  <span><strong id="count-total">0</strong> sites shown</span>
+  <span id="count-desc"></span>
+  <span id="hist-counter" style="display:none;color:#f59e0b"><strong id="hist-event-count">0</strong> historical events · drag slider to explore</span>
+</div>
+
+<div class="main">
+  <div class="sidebar">
+    <div class="sidebar-tabs">
+      <div class="stab active" id="tab-sites" onclick="showTab('sites')">📍 Sites</div>
+      <div class="stab" id="tab-history" onclick="showTab('history')" style="display:none">📜 Timeline</div>
+      <div class="stab" id="tab-legend" onclick="showTab('legend')">🗺 Legend</div>
+    </div>
+    <div id="panel-sites" class="site-list"></div>
+    <div id="panel-history" class="site-list" style="display:none"></div>
+    <div id="panel-legend" style="display:none;overflow-y:auto;flex:1;flex-direction:column">
+      <div class="legend-panel">
+        <div class="legend-title">Industry Type</div>
+        <div class="legend-grid" id="legend-industry"></div>
+      </div>
+      <div class="legend-panel">
+        <div class="legend-title">Rivers</div>
+        <div class="legend-grid" id="legend-rivers"></div>
+      </div>
+      <div class="legend-panel" id="legend-eras-panel" style="display:none">
+        <div class="legend-title">Historical Eras (1840–1930)</div>
+        <div id="legend-eras"></div>
+      </div>
+    </div>
+  </div>
+  <div id="map"></div>
+</div>
+
+<!-- TIMELINE BAR -->
+<div id="timeline-bar">
+  <div class="tl-top">
+    <span id="era-badge">—</span>
+    <span id="era-title">—</span>
+    <span id="year-display">1840</span>
+  </div>
+  <div class="tl-slider-row">
+    <span class="tl-yr">1840</span>
+    <div class="tl-track">
+      <div id="era-gradient"></div>
+      <input type="range" id="year-slider" min="1840" max="1930" value="1840" step="1" oninput="onSlider(this.value)">
+    </div>
+    <span class="tl-yr">1930</span>
+  </div>
+  <div id="era-desc"></div>
+  <div class="tl-events-row" id="tl-events-row"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// INDUSTRY TYPES
+// ═══════════════════════════════════════════════════════
+const TYPES = {
+  petrochemical: { label:'Petrochemicals / Refining',    color:'#f97316', bg:'#431407', text:'#fb923c' },
+  integrated:    { label:'Integrated Chemical Complex',   color:'#2563eb', bg:'#1e1b4b', text:'#818cf8' },
+  pharmaceutical:{ label:'Pharmaceutical & Life Science', color:'#22c55e', bg:'#14532d', text:'#86efac' },
+  specialty:     { label:'Specialty Chemicals',           color:'#a855f7', bg:'#2e1065', text:'#d8b4fe' },
+  polymers:      { label:'Polymers & Materials',          color:'#ef4444', bg:'#450a0a', text:'#fca5a5' },
+  consumer:      { label:'Consumer & Industrial Chem.',   color:'#eab308', bg:'#422006', text:'#fde047' },
+};
+
+// ═══════════════════════════════════════════════════════
+// HISTORICAL ERAS
+// ═══════════════════════════════════════════════════════
+const ERAS = [
+  { key:'alkali',  start:1840, end:1855, color:'#6b7280', bg:'#1f2937', text:'#9ca3af', label:'Alkali & Pre-Dye Era',           desc:'The foundations: inorganic chemicals (sulfuric acid, soda ash), coal gas production, and the first discoveries in coal-tar chemistry. Germany learns that coal — already mined in vast quantities — can yield far more than fuel.' },
+  { key:'dye',     start:1856, end:1879, color:'#7c3aed', bg:'#2e1065', text:'#c4b5fd', label:'Synthetic Dye Revolution',        desc:'Perkin\'s accidental discovery of mauveine (1856) triggers a race. German chemists, trained in British and French labs, return home and found a string of companies on the Rhine and Main. By 1877, Germany produces half the world\'s dyes.' },
+  { key:'electro', start:1880, end:1899, color:'#d97706', bg:'#451a03', text:'#fcd34d', label:'Electrochemical Era',             desc:'Industrial electrolysis — passing electricity through chemical solutions — opens new product lines: chlorine, caustic soda, aluminium. Cheap lignite coal in central Germany powers the new electrochemical plants at Bitterfeld on the Elbe.' },
+  { key:'science', start:1900, end:1913, color:'#2563eb', bg:'#1e1b4b', text:'#93c5fd', label:'Scientific Breakthroughs',        desc:'German chemists dominate Nobel Prizes. Fritz Haber cracks nitrogen fixation (1909); Ehrlich produces Salvarsan, the first antibiotic (1910). Germany controls 90% of world dye production. BASF industrialises ammonia synthesis at Oppau (1913).' },
+  { key:'ww1',     start:1914, end:1918, color:'#dc2626', bg:'#450a0a', text:'#fca5a5', label:'WWI — Chemistry at War',          desc:'The Rhine chemical industry is turned to warfare. Chlorine from dye factories is weaponised. Fritz Haber directs gas attacks at Ypres (1915). The Haber-Bosch process — designed to feed the world — is repurposed to make explosives. Leuna on the Saale is built in 1916 solely to supply the war machine.' },
+  { key:'postwar', start:1919, end:1930, color:'#059669', bg:'#064e3b', text:'#6ee7b7', label:'Post-War Consolidation',          desc:'After defeat, Germany\'s chemical industry consolidates. The catastrophic Oppau explosion (1921) shocks the industry into safer practice. In 1925, BASF, Bayer, Hoechst, Agfa and others merge into IG Farben — the world\'s largest chemical corporation. Research into synthetic rubber and plastics begins.' },
+];
+
+function getEra(year) {
+  return ERAS.find(e => year >= e.start && year <= e.end) || ERAS[0];
+}
+
+// ═══════════════════════════════════════════════════════
+// RIVERS
+// ═══════════════════════════════════════════════════════
+const RIVERS = {
+  Rhine:  { color:'#3b82f6', label:'Rhine (Rhein)',     weight:5, path:[[47.56,7.59],[47.70,7.55],[47.90,7.65],[48.00,7.70],[48.57,7.75],[48.83,8.12],[49.01,8.38],[49.48,8.45],[49.64,8.36],[49.99,8.27],[50.36,7.59],[50.74,7.10],[50.83,6.98],[50.94,6.96],[51.05,6.99],[51.22,6.78],[51.43,6.76],[51.66,6.62]] },
+  Main:   { color:'#22c55e', label:'Main',               weight:3.5, path:[[50.14,9.15],[50.135,8.916],[50.105,8.769],[50.111,8.682],[50.094,8.549],[50.02,8.37],[49.99,8.27]] },
+  Neckar: { color:'#06b6d4', label:'Neckar',             weight:3, path:[[48.05,8.46],[48.40,8.95],[48.52,9.06],[48.78,9.18],[49.14,9.22],[49.40,8.69],[49.47,8.47]] },
+  Ruhr:   { color:'#f59e0b', label:'Ruhr',               weight:2.5, path:[[51.40,8.07],[51.36,7.47],[51.44,7.34],[51.43,7.16],[51.45,6.97],[51.43,6.76]] },
+  Emscher:{ color:'#fbbf24', label:'Emscher',            weight:2, path:[[51.52,7.50],[51.54,7.07],[51.55,6.86],[51.56,6.73]] },
+  Lippe:  { color:'#8b5cf6', label:'Lippe',              weight:3, path:[[51.71,8.77],[51.67,8.35],[51.68,7.83],[51.67,7.37],[51.66,7.09],[51.66,6.63]] },
+  Weser:  { color:'#10b981', label:'Weser',              weight:4, path:[[51.41,9.65],[51.64,9.44],[52.10,9.36],[52.30,9.25],[52.64,9.22],[53.08,8.80],[53.54,8.58]] },
+  Saale:  { color:'#fb923c', label:'Saale',              weight:3, path:[[50.49,11.93],[50.70,11.89],[51.00,11.83],[51.22,11.96],[51.32,11.99],[51.48,11.98],[51.72,11.87],[51.88,11.85],[51.90,11.90]] },
+  Elbe:   { color:'#f43f5e', label:'Elbe',               weight:4, path:[[50.89,14.21],[51.05,13.74],[51.16,13.48],[51.36,12.93],[51.56,13.00],[51.86,12.65],[51.84,12.24],[51.90,11.90],[52.13,11.64],[52.54,11.97],[52.88,11.44],[53.55,9.99],[53.88,8.70]] },
+  Oder:   { color:'#a78bfa', label:'Oder / Neisse',      weight:3.5, path:[[51.73,14.64],[51.95,14.72],[52.35,14.55],[52.74,14.38],[53.06,14.28],[53.44,14.15]] },
+  Danube: { color:'#2dd4bf', label:'Danube (Donau)',     weight:4, path:[[47.96,8.10],[48.09,9.22],[48.40,9.99],[48.62,10.97],[48.76,11.43],[49.02,12.10],[48.70,12.71],[48.57,13.45]] },
+  Salzach:{ color:'#14b8a6', label:'Salzach (→ Danube)',weight:2.5, path:[[47.80,13.00],[48.00,12.99],[48.17,12.83],[48.43,13.00],[48.57,13.45]] },
+};
+
+// ═══════════════════════════════════════════════════════
+// INDUSTRIAL SITES  (with founding year for history mode)
+// ═══════════════════════════════════════════════════════
+const SITES = [
+  { id:1,  name:'Basel Chemical & Pharma Cluster',        river:'Rhine',   lat:47.5596, lng:7.5886,  type:'pharmaceutical', founded:1859, country:'Switzerland',
+    companies:['Novartis','Roche','Syngenta','Clariant','Givaudan','Lonza'],
+    activities:'Drug manufacturing, agrochemicals, specialty chemicals, fragrances & flavours, biotechnology. Basel\'s chemical industry began with the production of synthetic dyes from coal tar in the 1850s.',
+    fact:'💡 Basel\'s chemical industry was born when Alexander Clavel produced fuchsine dye here in 1859. The same organic chemistry skills used to make dyes were later applied to medicines — which is why pharma and chemicals are still clustered together here today.' },
+
+  { id:2,  name:'Strasbourg Industrial Zone',             river:'Rhine',   lat:48.5734, lng:7.7521,  type:'petrochemical', founded:1924, country:'France (Alsace)',
+    companies:['TotalEnergies','Vynova','Rohm and Haas (Dow)'],
+    activities:'Petroleum refining, PVC production, chlorine chemistry, specialty polymers. The Rhine marks the French-German border here.',
+    fact:'💡 The Rhine at Strasbourg marks the French-German border. France\'s eastern chemical industry grew here because the river provided easy transport of crude oil by barge from Rotterdam.' },
+
+  { id:3,  name:'MiRO Refinery — Karlsruhe',             river:'Rhine',   lat:49.0080, lng:8.3830,  type:'petrochemical', founded:1963, country:'Germany (Baden-Württemberg)',
+    companies:['MiRO (Shell, Rosneft, Esso, Eni joint venture)'],
+    activities:'Crude oil processing, production of petrol, diesel, jet fuel, heating oil, bitumen and base oils. Germany\'s largest oil refinery by capacity.',
+    fact:'💡 MiRO processes over 14 million tonnes of crude oil per year. Crude arrives via the South European Pipeline from Marseille — pumped underground all the way from the Mediterranean.' },
+
+  { id:4,  name:'BASF Verbund — Ludwigshafen',           river:'Rhine',   lat:49.4771, lng:8.4452,  type:'integrated', founded:1865, country:'Germany (Rhineland-Palatinate)',
+    companies:['BASF SE'],
+    activities:'Integrated "Verbund" production: plastics, coatings, crop protection, performance chemicals, intermediates, catalysts and construction chemicals. Raw materials and energy are shared between 200+ on-site plants.',
+    fact:'💡 BASF was founded in 1865 to make aniline dyes from coal tar. Its Ludwigshafen site is now the world\'s largest integrated chemical complex — 10 km², 2,850 km of pipelines, ~39,000 employees on a single campus.' },
+
+  { id:5,  name:'Chemiepark Mannheim',                    river:'Rhine',   lat:49.4875, lng:8.4660,  type:'specialty', founded:1888, country:'Germany (Baden-Württemberg)',
+    companies:['Various specialty producers','Bilfinger','John Deere (R&D)'],
+    activities:'Specialty chemicals, industrial gases, chemical engineering services and research. Mannheim sits directly across the Rhine from BASF Ludwigshafen.',
+    fact:'💡 Mannheim and Ludwigshafen face each other across the Rhine, forming one of Europe\'s densest chemical manufacturing regions. The Rhine bridge between them is one of the most chemically significant crossings in the world.' },
+
+  { id:6,  name:'Chempark Dormagen',                     river:'Rhine',   lat:51.097, lng:6.833,   type:'polymers', founded:1917, country:'Germany (North Rhine-Westphalia)',
+    companies:['Lanxess','INEOS','Currenta','Covestro'],
+    activities:'Synthetic rubber (butyl rubber, EPDM), polyurethane raw materials, engineering plastics and agricultural chemicals. Founded by Bayer in 1917 for wartime nitrogen chemicals.',
+    fact:'💡 Bayer built Dormagen in 1917 to produce nitrogen compounds for WWI munitions. After the war it pivoted to synthetic rubber. Butyl rubber from Dormagen is used in car tyre inner tubes and medicine vial stoppers.' },
+
+  { id:7,  name:'LyondellBasell — Wesseling',            river:'Rhine',   lat:50.826, lng:6.977,   type:'petrochemical', founded:1955, country:'Germany (North Rhine-Westphalia)',
+    companies:['LyondellBasell (formerly Rheinische Olefinwerke)'],
+    activities:'Steam cracking of naphtha to produce ethylene and propylene — the basic building blocks of most plastics. Also produces polyethylene, polypropylene and other polyolefins.',
+    fact:'💡 A steam cracker breaks long hydrocarbon chains at ~800 °C into short, reactive molecules. Ethylene from Wesseling feeds plastic factories across Germany and the Netherlands.' },
+
+  { id:8,  name:'INEOS Köln-Worringen',                  river:'Rhine',   lat:51.052, lng:6.972,   type:'petrochemical', founded:1912, country:'Germany (North Rhine-Westphalia)',
+    companies:['INEOS (formerly BP)','Evonik'],
+    activities:'Ethylene oxide production, polyols, glycols and specialty chemicals. One of Europe\'s largest ethylene oxide plants, supplying raw materials for surfactants, antifreeze and pharmaceuticals.',
+    fact:'💡 Ethylene oxide is highly reactive and toxic. Yet it is essential for making antifreeze, laundry detergents and the coatings on pharmaceutical tablets — everyday products that depend on careful chemical engineering.' },
+
+  { id:9,  name:'Bayer / Covestro / Lanxess — Leverkusen', river:'Rhine', lat:51.0459, lng:6.9894, type:'polymers', founded:1863, country:'Germany (North Rhine-Westphalia)',
+    companies:['Bayer AG','Covestro','Lanxess'],
+    activities:'Pharmaceuticals, polycarbonate plastics (used in phone screens and car headlights), polyurethane precursors (MDI/TDI), specialty polymers, synthetic rubber and ion-exchange resins.',
+    fact:'💡 Bayer was founded in 1863 to make synthetic dyes. Aspirin was invented here in 1897 as a by-product of this chemical knowledge. Covestro and Lanxess were later spun out — three globally significant companies from one dye factory.' },
+
+  { id:10, name:'Henkel — Düsseldorf',                   river:'Rhine',   lat:51.2217, lng:6.7762,  type:'consumer', founded:1876, country:'Germany (North Rhine-Westphalia)',
+    companies:['Henkel AG & Co. KGaA'],
+    activities:'Adhesives, sealants & coatings (Loctite, Pritt), laundry & home care (Persil, Pril) and beauty care. Henkel\'s global headquarters sits on the Rhine in Düsseldorf.',
+    fact:'💡 Henkel was founded in 1876 and moved to Düsseldorf on the Rhine in 1878. The Rhine provided water and transport; Rhine valley chemical firms supplied raw materials. Today Henkel is the world\'s largest adhesive supplier.' },
+
+  { id:11, name:'Chempark Duisburg (Evonik)',             river:'Rhine',   lat:51.4344, lng:6.7623,  type:'specialty', founded:1900, country:'Germany (North Rhine-Westphalia)',
+    companies:['Evonik Industries','Bayer CropScience'],
+    activities:'Feed additives (amino acids), hydrogen peroxide, silica and catalysts. Duisburg is also Europe\'s largest inland port, linking chemical plants by barge to Rotterdam for global export.',
+    fact:'💡 Duisburg handles more inland waterway freight than any other port in the world. Chemical barges travel the Rhine from here to Rotterdam, from where products are shipped globally.' },
+
+  { id:12, name:'Industriepark Höchst — Frankfurt',      river:'Main',    lat:50.0942, lng:8.5487,  type:'pharmaceutical', founded:1863, country:'Germany (Hesse)',
+    companies:['Sanofi','Celanese','Clariant','Infraserv Höchst','~90 companies total'],
+    activities:'Pharmaceuticals (insulin, vaccines, APIs), acetyl chemicals (acetic acid), specialty chemicals and biotechnology. Shared infrastructure serves all 90 companies on the 460-hectare campus.',
+    fact:'💡 Farbwerke Höchst was founded here in 1863 to make dyes from coal tar off the Main River. It became the world\'s largest chemical company before WWI, pioneered Salvarsan (the first antibiotic treatment), and is now a shared campus for 90 companies.' },
+
+  { id:13, name:'Evonik Industries — Frankfurt-Griesheim',river:'Main',   lat:50.097, lng:8.623,   type:'specialty', founded:1856, country:'Germany (Hesse)',
+    companies:['Evonik Industries (formerly Degussa)'],
+    activities:'Hydrogen peroxide, specialty silica, methacrylates (used in Perspex/Plexiglas), amino acids for animal feed. Degussa was historically rooted in the Frankfurt region.',
+    fact:'💡 Chemische Fabrik Griesheim (1856) was one of Germany\'s earliest industrial chemistry firms and a pioneer of industrial electrochemistry. Today\'s Evonik traces its roots here and is a world leader in specialty chemicals.' },
+
+  { id:14, name:'Heraeus — Hanau',                       river:'Main',    lat:50.1359, lng:8.9162,  type:'specialty', founded:1851, country:'Germany (Hesse)',
+    companies:['Heraeus Holding GmbH'],
+    activities:'Precious metal chemistry (platinum, palladium, gold, silver), speciality quartz glass, electronic materials, dental materials and catalysts for chemical and pharmaceutical synthesis.',
+    fact:'💡 Wilhelm Carl Heraeus founded the company in Hanau in 1851, initially as a pharmacy. He pioneered platinum melting, leading to today\'s global precious-metal catalogue. Heraeus catalysts from Hanau are found in every car\'s catalytic converter.' },
+
+  { id:15, name:'Merck KGaA — Darmstadt',               river:'Main',    lat:49.8728, lng:8.6512,  type:'pharmaceutical', founded:1668, country:'Germany (Hesse / Rhine-Main)',
+    companies:['Merck KGaA'],
+    activities:'Specialty chemicals, liquid crystals (LCD screens), semiconductor materials, laboratory chemicals, life science tools and pharmaceuticals. Founded as a pharmacy in Darmstadt in 1668.',
+    fact:'💡 Merck KGaA is the world\'s oldest pharmaceutical and chemical company — founded in 1668, it expanded into industrial chemistry during the 19th century. It invented the first commercially viable liquid crystal displays, which are now in every screen you use.' },
+
+  { id:16, name:'Neckar Valley — Stuttgart / Heilbronn', river:'Neckar',  lat:49.14, lng:9.22,    type:'specialty', founded:1870, country:'Germany (Baden-Württemberg)',
+    companies:['BASF Coatings','Celanese','Südzucker Biotech','Linde','Various specialty producers'],
+    activities:'Automotive coatings and adhesives, acetate chemicals, biotechnology, industrial gases and fine chemicals. The automotive cluster (Daimler, Porsche, Bosch) drives demand for specialty chemical formulations.',
+    fact:'💡 Every car from Stuttgart\'s factories requires hundreds of specialty chemicals: corrosion-resistant coatings, structural adhesives, lubricants, rubber seals and electronic materials — most sourced from the Neckar Valley.' },
+
+  { id:17, name:'Gelsenkirchen Refinery & Chemicals (Emscher)', river:'Emscher', lat:51.546, lng:7.041, type:'petrochemical', founded:1924, country:'Germany (North Rhine-Westphalia)',
+    companies:['bp (Scholven Refinery)','INEOS Styrolution'],
+    activities:'Petroleum refining (petrol, diesel, lubricants), styrene monomer production and polystyrene plastics. The Scholven refinery is one of NRW\'s largest.',
+    fact:'💡 Polystyrene from Gelsenkirchen is used in disposable cups, food packaging and building insulation. Expanded polystyrene (EPS) — the white foam used in packaging — is 98% air trapped in a plastic structure.' },
+
+  { id:18, name:'Marl Chemical Park (Evonik)',           river:'Lippe',   lat:51.657, lng:7.088,   type:'specialty', founded:1938, country:'Germany (North Rhine-Westphalia)',
+    companies:['Evonik Industries','Lanxess','Akzo Nobel','Ube','18 companies total'],
+    activities:'Polyamide (nylon) production, caprolactam, hydrogen peroxide, specialty plastics and chemical intermediates. Germany\'s third largest chemical complex with 100 production plants.',
+    fact:'💡 Evonik (headquartered at Marl) is the world\'s largest producer of hydrogen peroxide (H₂O₂). Used to bleach paper and textiles, disinfect water, and — increasingly — as a clean oxidant in green chemistry.' },
+
+  { id:19, name:'BASF Catalysts — Nienburg/Weser',      river:'Weser',   lat:52.637, lng:9.215,   type:'specialty', founded:1965, country:'Germany (Lower Saxony)',
+    companies:['BASF SE (Catalysts Division)'],
+    activities:'Precious metal and base metal catalysts for vehicle exhaust systems, chemical synthesis and petroleum refining.',
+    fact:'💡 A catalytic converter contains platinum, palladium and rhodium — all worth more per gram than gold. These metals convert harmful exhaust gases (CO, NOₓ, hydrocarbons) to CO₂, N₂ and H₂O at up to 900 °C.' },
+
+  { id:20, name:'Leuna Chemical Complex',                river:'Saale',   lat:51.323, lng:11.993,  type:'integrated', founded:1916, country:'Germany (Saxony-Anhalt)',
+    companies:['TotalEnergies (refinery)','Dow Chemical','Linde','Infraleuna'],
+    activities:'Crude oil refining (12 million t/year), steam cracking, acrylic acid, industrial gases, propylene oxide and chemical intermediates. Built in 1916 as a wartime nitrogen fixation plant.',
+    fact:'💡 Leuna was built in 1916 to produce ammonia for explosives when Germany\'s imports were blockaded. After WWI it made synthetic petrol from coal under the GDR. Now it is a modern world-class refinery — one of history\'s most remarkable industrial reinventions.' },
+
+  { id:21, name:'Schkopau / Buna Werke (Dow)',          river:'Saale',   lat:51.400, lng:11.970,  type:'polymers', founded:1936, country:'Germany (Saxony-Anhalt)',
+    companies:['Dow Chemical (Buna SB Rubber)','Akzo Nobel'],
+    activities:'Synthetic rubber production (styrene-butadiene rubber, SBR) and specialty polymers. The Buna works pioneered the industrial synthesis of rubber from coal-derived chemicals.',
+    fact:'💡 "Buna" comes from BUtadiene + NAtrium (sodium). Synthetic rubber invented here in the 1930s helped reduce Germany\'s dependence on natural rubber imports. Today SBR is the most widely used rubber in the world — in car tyres, conveyor belts and shoe soles.' },
+
+  { id:22, name:'Bitterfeld-Wolfen Chemical Park',      river:'Elbe',    lat:51.620, lng:12.322,  type:'specialty', founded:1893, country:'Germany (Saxony-Anhalt)',
+    companies:['Lanxess','Agfa','Dow','Akzo Nobel','Heraeus','Linde'],
+    activities:'Chlorine and electrochemistry, photochemicals, specialty polymers, agrochemicals, fine chemicals. One of Europe\'s largest chemical parks (1,300 ha).',
+    fact:'💡 Bitterfeld\'s electrochemical works opened in 1893, powered by cheap local lignite. After reunification it was named one of Europe\'s most polluted places. It is now a model of industrial environmental cleanup — from disaster to exemplar in 30 years.' },
+
+  { id:23, name:'BASF Schwarzheide',                    river:'Elbe',    lat:51.490, lng:13.860,  type:'polymers', founded:1936, country:'Germany (Brandenburg)',
+    companies:['BASF Schwarzheide GmbH'],
+    activities:'Polyurethane systems (car seats, insulation foam, shoe soles), engineering plastics, coatings and battery materials. Over €1.7 billion invested since 1990.',
+    fact:'💡 Polyurethane from Schwarzheide is in car seats, wall insulation, trainer soles and sofa cushions. It is one of the most versatile synthetic materials ever created, capable of being rigid foam, flexible rubber or hard plastic.' },
+
+  { id:24, name:'PCK Raffinerie — Schwedt/Oder',        river:'Oder',    lat:53.058, lng:14.280,  type:'petrochemical', founded:1959, country:'Germany (Brandenburg)',
+    companies:['PCK Raffinerie GmbH (bp, Eni, Total, Rosneft)'],
+    activities:'Crude oil refining: petrol, diesel, jet fuel, heating oil. Capacity ~12 million t/year. Supplies fuel to Berlin, Brandenburg and north-east Germany.',
+    fact:'💡 After Russia\'s 2022 invasion of Ukraine, Germany had to reverse crude oil supply to PCK — pumping from North Sea tankers at Rostock back via pipeline. The refinery was designed to receive oil from the east, so this was a major logistical reversal.' },
+
+  { id:25, name:'Guben — Synthetic Fibres (Neisse / Oder)', river:'Oder', lat:51.950, lng:14.718, type:'specialty', founded:1892, country:'Germany (Brandenburg)',
+    companies:['Trevira GmbH','Märkische Faser'],
+    activities:'Polyester fibres (PET) for textiles, technical fabrics and non-wovens. Also polyacrylonitrile fibres for clothing and industrial applications.',
+    fact:'💡 Guben sits on the Neisse River — the German-Polish border. The Polish side is called Gubin. Polyester fibre, first commercialised in the 1950s, is now the world\'s most produced synthetic fibre — over 50 million tonnes per year.' },
+
+  { id:26, name:'Gunvor Raffinerie — Ingolstadt',       river:'Danube',  lat:48.760, lng:11.430,  type:'petrochemical', founded:1963, country:'Germany (Bavaria)',
+    companies:['Gunvor Group (formerly Petroplus / Mobil)'],
+    activities:'Crude oil refining: petrol, diesel, jet fuel and heating oil for Bavaria and Austria. Crude arrives via the Trans-Alpine Pipeline (TAL) from Trieste, Italy.',
+    fact:'💡 Crude oil reaches Ingolstadt via an underground pipeline crossing the Alps from the Mediterranean. Oil tankers unload at Trieste and crude is pumped 700 km over mountain terrain to reach Bavaria.' },
+
+  { id:27, name:'Wacker Chemie — Burghausen',           river:'Salzach', lat:48.168, lng:12.827,  type:'specialty', founded:1914, country:'Germany (Bavaria)',
+    companies:['Wacker Chemie AG'],
+    activities:'Hyperpure polysilicon for solar panels and semiconductors, silicones (sealants, lubricants, cosmetics), vinyl acetate polymers (adhesives and paints).',
+    fact:'💡 Wacker produces silicon for solar panels and computer chips with a purity of 99.9999999% (nine nines). The Burghausen site is Europe\'s largest contiguous single-company chemical plant — 2.4 million m².' },
+];
+
+// ═══════════════════════════════════════════════════════
+// HISTORICAL EVENTS
+// ═══════════════════════════════════════════════════════
+const HISTORY_EVENTS = [
+  { id:'h1',  year:1838, era:'alkali',  lat:50.12, lng:8.68,  title:'Liebig\'s Agricultural Chemistry',
+    desc:'Justus von Liebig publishes his landmark work demonstrating that plants need mineral nutrients. This launches the science of synthetic fertilisers and points German chemists towards industrial chemistry. Within 30 years, Germany will dominate world chemistry.' },
+  { id:'h2',  year:1843, era:'alkali',  lat:52.52, lng:13.40, title:'Coal Tar & Aniline Identified (Berlin)',
+    desc:'August Wilhelm von Hofmann, trained in Giessen under Liebig, demonstrates that coal tar — a waste product of coal gas production — contains aniline. This nitrogen compound can produce vivid colours. The foundations of the synthetic dye industry are laid. Hofmann\'s students will scatter across Germany to build the industry.' },
+  { id:'h3',  year:1851, era:'alkali',  lat:50.136, lng:8.916, title:'Heraeus Founded in Hanau',
+    desc:'Wilhelm Carl Heraeus establishes a pharmacy in Hanau on the Main. He begins experimenting with platinum — at the time impossible to melt. He pioneers platinum melting using a specially designed furnace, founding what becomes the world\'s leading precious-metal chemistry company.' },
+  { id:'h4',  year:1856, era:'dye',    lat:50.097, lng:8.623, title:'First Synthetic Dye — Perkin\'s Mauveine',
+    desc:'18-year-old William Henry Perkin (London) accidentally discovers mauveine — the world\'s first synthetic dye — while trying to synthesise quinine from coal tar. British industry fails to capitalise. German chemists trained in London (under Hofmann) return home and found a competing industry along the Rhine and Main. Within 20 years, Germany dominates world dye production.' },
+  { id:'h5',  year:1859, era:'dye',    lat:47.556, lng:7.589, title:'Ciba Born in Basel (Clavel\'s Fuchsine)',
+    desc:'Alexander Clavel begins producing fuchsine — a vivid synthetic dye — in his Basel silk-dyeing factory. This is the seed of Ciba, later Novartis. Basel\'s Rhine location gave instant access to coal tar shipped by barge from the Ruhr. The 1857 French patent law (which Basel was outside of) allowed free copying of French dye patents — an enormous competitive advantage.' },
+  { id:'h6',  year:1861, era:'dye',    lat:50.937, lng:6.887, title:'First German Aniline Plant — Cologne',
+    desc:'Joseph Wilhelm Weiler builds Germany\'s first aniline dye factory in Cologne-Ehrenfeld. Hofmann\'s students return from Britain and found competing firms across the Rhine-Main corridor. The Rhine provides coal tar transport (by barge from the Ruhr), cooling water, process water and — critically — a route to export finished dyes to global markets via Rotterdam.' },
+  { id:'h7',  year:1863, era:'dye',    lat:50.094, lng:8.549, title:'Farbwerke Höchst Founded',
+    desc:'Meister, Lucius & Brüning establish Farbwerke Höchst on the Main River. Using coal tar from nearby coke ovens, they produce aniline dyes. The Main provided cooling water, waste disposal and river transport. Höchst would go on to pioneer Salvarsan — the first antibiotic drug — in 1910.' },
+  { id:'h8',  year:1863, era:'dye',    lat:51.046, lng:6.989, title:'Friedrich Bayer & Company Founded',
+    desc:'Friedrich Bayer and Johann Weskott found Bayer & Company in Wuppertal to manufacture synthetic dyes. They relocate to Leverkusen on the Rhine in 1895. The same organic chemistry expertise used to make dyes leads to the synthesis of Aspirin (1897) and begins the modern pharmaceutical industry.' },
+  { id:'h9',  year:1865, era:'dye',    lat:49.478, lng:8.445, title:'BASF Founded — Ludwigshafen, Rhine',
+    desc:'Friedrich Engelhorn founds Badische Anilin- und Soda-Fabrik (BASF) in Ludwigshafen on the Rhine. The Rhine provided everything: coal tar transported by barge from the Ruhr coal fields, water for reactions, steam power, and a shipping route to Rotterdam for export. BASF would become the world\'s largest chemical company.' },
+  { id:'h10', year:1876, era:'dye',    lat:51.222, lng:6.776, title:'Henkel Founded — Düsseldorf, Rhine',
+    desc:'Fritz Henkel founds Henkel & Cie in Aachen, moving to Düsseldorf on the Rhine in 1878. Starting with a universal detergent, Henkel pioneers consumer chemical products. The Rhine supplied raw materials and shipping routes. Today Henkel\'s global adhesives business is the world\'s largest.' },
+  { id:'h11', year:1880, era:'electro', lat:49.478, lng:8.445, title:'Germany Controls Half the World\'s Dyes',
+    desc:'By 1880, German firms produce over 50% of the world\'s synthetic dyes. BASF, Hoechst, Bayer and Agfa have turned coal tar into a global empire. The Rhine-Main corridor has become the world\'s most important industrial chemistry region. German university chemistry — the best in the world — feeds directly into corporate R&D laboratories.' },
+  { id:'h12', year:1881, era:'electro', lat:50.097, lng:8.623, title:'Griesheim Pioneers Industrial Electrochemistry',
+    desc:'Chemische Fabrik Griesheim (Frankfurt, Main River) becomes one of Europe\'s first firms to apply industrial electrolysis commercially — passing large currents through brine to produce chlorine and caustic soda. This opens a new chemical era. Chlorine will become one of the most important industrial chemicals of the 20th century — and also the first chemical weapon.' },
+  { id:'h13', year:1886, era:'electro', lat:47.556, lng:7.589, title:'Sandoz Founded in Basel',
+    desc:'Alfred Kern and Edouard Sandoz found a dye company in Basel on the Rhine. Basel\'s unique combination of river access, chemical talent (trained in the dye industry), and proximity to German and French markets makes it ideal. Sandoz later pivots into pharmaceuticals and agrochemicals before merging with Ciba to form Novartis in 1996.' },
+  { id:'h14', year:1893, era:'electro', lat:51.620, lng:12.322, title:'Bitterfeld Electrochemical Works Opens',
+    desc:'Germany\'s first large electrochemical plant opens at Bitterfeld on the Elbe, powered by cheap local lignite (brown coal). Electrolysis produces chlorine, caustic soda and other materials on an industrial scale for the first time in Germany. The Saale and Elbe rivers are used for cooling and waste discharge — with severe environmental consequences that would last over a century.' },
+  { id:'h15', year:1895, era:'electro', lat:51.046, lng:6.989, title:'Bayer Moves to Leverkusen on the Rhine',
+    desc:'Bayer moves its main production to a new, larger site at Leverkusen directly on the Rhine. River access enables bulk chemical deliveries and product dispatch. Two years later, Bayer chemist Felix Hoffmann synthesises aspirin from acetylsalicylic acid. The Rhine\'s chemical geography is now complete: every major German dye firm sits on a river.' },
+  { id:'h16', year:1896, era:'electro', lat:47.556, lng:7.589, title:'Roche Founded in Basel',
+    desc:'Fritz Hoffmann-La Roche founds F. Hoffmann-La Roche & Co in Basel, producing standardised pharmaceutical preparations. He realises that the organic chemistry skills used to make dyes are equally applicable to medicines. Basel becomes both the dye capital and the pharmaceutical capital of Europe — positions it still holds today.' },
+  { id:'h17', year:1897, era:'electro', lat:51.046, lng:6.989, title:'Aspirin Invented at Bayer (Leverkusen)',
+    desc:'Felix Hoffmann, a Bayer chemist at Leverkusen, synthesises acetylsalicylic acid in a stable, effective form while seeking treatments for his father\'s arthritis. Bayer names it Aspirin and launches it in 1899 — the world\'s first mass-market synthetic pharmaceutical. The coal-tar dye industry has directly produced medicine. This single molecule will save more lives than any other drug in history.' },
+  { id:'h18', year:1905, era:'science', lat:50.094, lng:8.549, title:'Salvarsan Research Begins — Frankfurt/Höchst',
+    desc:'Paul Ehrlich at Frankfurt\'s Royal Institute for Experimental Therapy begins systematically testing hundreds of organometallic compounds against syphilis. He is funded by Farbwerke Höchst, which sees pharmaceutical chemistry as the frontier beyond dyes. His compound 606 — Salvarsan — will become the world\'s first antibiotic treatment in 1910.' },
+  { id:'h19', year:1909, era:'science', lat:49.008, lng:8.404, title:'Haber Demonstrates Nitrogen Fixation — Karlsruhe',
+    desc:'Fritz Haber, at the Technische Hochschule Karlsruhe on the Rhine, demonstrates that atmospheric nitrogen can react with hydrogen at high pressure over an iron catalyst to form ammonia. Carl Bosch of BASF recognises the industrial potential immediately. This process will allow synthetic fertiliser production on a scale that will eventually feed half the world — and produce the explosives that will kill millions in WWI.' },
+  { id:'h20', year:1910, era:'science', lat:50.094, lng:8.549, title:'Salvarsan Released — First Antibiotic (Höchst)',
+    desc:'Ehrlich\'s compound 606 — Salvarsan — is released by Farbwerke Höchst as the first effective treatment for syphilis. It is the world\'s first rationally designed drug: a specific chemical molecule targeting a specific pathogen. The same coal-tar chemistry that made purple dyes now makes medicine. The pharmaceutical revolution has begun on the banks of the Main.' },
+  { id:'h21', year:1913, era:'science', lat:49.533, lng:8.422, title:'First Industrial Haber-Bosch Plant — Oppau (near Ludwigshafen)',
+    desc:'BASF opens the world\'s first industrial ammonia synthesis plant at Oppau, adjacent to Ludwigshafen on the Rhine. Directed by Carl Bosch, it produces ammonia for fertilisers at a scale never before achieved. It requires an entirely new industrial paradigm: continuous high-pressure, high-temperature reactions with catalyst regeneration. This single plant changes global food production — and global warfare.' },
+  { id:'h22', year:1915, era:'ww1',    lat:49.478, lng:8.445, title:'Chemical Weapons: Rhine Industry at War',
+    desc:'Fritz Haber, working with BASF and Bayer, directs Germany\'s chemical weapons programme from a base linked to Rhine industry. Chlorine — a by-product of Rhine dye factories already producing 40 tonnes/day — is weaponised. On 22 April 1915, German troops release 150 tonnes of chlorine at Ypres: the first mass chemical weapons attack in history. The Rhine chemical industry supplied the gas.' },
+  { id:'h23', year:1916, era:'ww1',    lat:51.323, lng:11.993, title:'Leuna Nitrogen Works Built — Saale River',
+    desc:'A second, larger Haber-Bosch plant is built at Leuna on the Saale River — closer to coal supplies and railway connections. Its primary purpose is producing ammonia for explosives (ammonium nitrate). Without Leuna, Germany would have exhausted its explosives supply by late 1916. The same process that was supposed to produce fertiliser to feed the world is instead feeding the trenches.' },
+  { id:'h24', year:1917, era:'ww1',    lat:51.097, lng:6.833, title:'Bayer Dormagen Works Established',
+    desc:'Bayer builds a new chemical works at Dormagen on the Rhine, initially to produce intermediates for the war effort, including nitrogen compounds. After WWI, Dormagen develops into a major site for synthetic rubber. The war has driven massive investment in Rhine chemistry — investment that will transform post-war production into consumer goods and materials.' },
+  { id:'h25', year:1921, era:'postwar', lat:49.533, lng:8.422, title:'Oppau Explosion — Deadliest Industrial Accident',
+    desc:'A silo of ammonium sulfate/nitrate at BASF\'s Oppau plant explodes on 21 September 1921, creating a crater 90 m wide and 19 m deep. Around 500 people are killed and 7,500 injured. At the time, the deadliest industrial accident in history. The explosion fundamentally transforms the chemical industry\'s approach to safety and the storage of reactive materials.' },
+  { id:'h26', year:1925, era:'postwar', lat:49.478, lng:8.445, title:'IG Farben Formed — World\'s Largest Company',
+    desc:'On 2 December 1925, BASF, Bayer, Hoechst, Agfa, Griesheim-Elektron and Weiler-ter-Meer merge to form Interessengemeinschaft Farbenindustrie AG — IG Farben. It immediately becomes the world\'s largest chemical company and Germany\'s biggest corporation. The Rhine and Main valleys are now controlled by a single industrial giant that dominates global chemistry.' },
+  { id:'h27', year:1926, era:'postwar', lat:51.046, lng:6.989, title:'Buna Synthetic Rubber Research Begins',
+    desc:'IG Farben begins systematic research into synthetic rubber at Leverkusen and Schkopau, aiming to end Germany\'s dependence on imported natural rubber. By 1936, commercial production of Buna-S (styrene-butadiene rubber, SBR) will begin at Schkopau on the Saale — one of the most consequential synthetic materials of the 20th century, now used in virtually every vehicle tyre.' },
+];
+
+// ═══════════════════════════════════════════════════════
+// MAP INIT
+// ═══════════════════════════════════════════════════════
+const map = L.map('map', { center:[51.0,10.5], zoom:6, zoomControl:true });
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution:'© OpenStreetMap contributors © CARTO', subdomains:'abcd', maxZoom:18
+}).addTo(map);
+
+// River polylines
+Object.entries(RIVERS).forEach(([k,r]) => {
+  L.polyline(r.path, { color:r.color, weight:r.weight, opacity:.72, smoothFactor:2 })
+   .addTo(map).bindTooltip(r.label, { sticky:true, direction:'top' });
+});
+
+// River labels
+[['Rhine',50.30,7.45],['Main',50.12,9.05],['Neckar',48.60,9.00],['Ruhr',51.44,7.60],
+ ['Lippe',51.69,7.80],['Weser',52.30,9.00],['Elbe',51.80,12.50],['Saale',51.00,11.70],
+ ['Oder',52.50,14.40],['Danube',48.50,10.50]].forEach(([k,lat,lng])=>{
+  const r=RIVERS[k];
+  L.marker([lat,lng],{ icon:L.divIcon({ className:'', html:`<div style="background:${r.color}22;color:${r.color};padding:2px 7px;border-radius:99px;font-size:.63rem;font-weight:700;white-space:nowrap;border:1px solid ${r.color}55;pointer-events:none">${k}</div>`, iconAnchor:[28,8] }), interactive:false }).addTo(map);
+});
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let filterIndustry = 'all';
+let filterRiver    = 'all';
+let historyMode    = false;
+let currentYear    = 1840;
+let siteMarkers    = [];
+let eventMarkers   = [];
+let selectedSiteId = null;
+let selectedEvtId  = null;
+
+// ═══════════════════════════════════════════════════════
+// FILTER BUTTONS
+// ═══════════════════════════════════════════════════════
+const indRow = document.getElementById('filter-industry');
+[['all','All','#334155','#e2e8f0','#64748b'], ...Object.entries(TYPES).map(([k,t])=>[k,t.label.split(' ')[0],t.bg,t.text,t.color])].forEach(([k,lbl,bg,tc,bc])=>{
+  const b=document.createElement('button'); b.className='filter-btn'+(k==='all'?' active':'');
+  b.textContent=lbl; b.style.background=bg; b.style.color=tc; b.style.borderColor=bc;
+  b.addEventListener('click',()=>{ filterIndustry=k; document.querySelectorAll('#filter-industry .filter-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); refresh(); });
+  indRow.appendChild(b);
+});
+const rivRow = document.getElementById('filter-river');
+['all',...Object.keys(RIVERS).filter(k=>SITES.some(s=>s.river===k))].forEach(k=>{
+  const r=k==='all'?{color:'#64748b',label:'All'}:RIVERS[k];
+  const b=document.createElement('button'); b.className='filter-btn'+(k==='all'?' active':'');
+  b.textContent=k==='all'?'All':k; b.style.background=r.color+'22'; b.style.color=r.color; b.style.borderColor=r.color;
+  b.addEventListener('click',()=>{ filterRiver=k; document.querySelectorAll('#filter-river .filter-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); refresh(); });
+  rivRow.appendChild(b);
+});
+
+// ═══════════════════════════════════════════════════════
+// VISIBLE SITES
+// ═══════════════════════════════════════════════════════
+function visibleSites() {
+  return SITES.filter(s =>
+    (filterIndustry==='all'||s.type===filterIndustry)&&
+    (filterRiver==='all'||s.river===filterRiver)
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// SITE MARKERS
+// ═══════════════════════════════════════════════════════
+function makeSiteIcon(s, dimmed) {
+  const t=TYPES[s.type]; const r=RIVERS[s.river];
+  const op=dimmed?0.25:1;
+  return L.divIcon({ className:'', iconAnchor:[10,10], html:`<div style="width:20px;height:20px;border-radius:50%;background:${t.color};border:3px solid ${r?r.color:'#fff'};box-shadow:0 0 0 2px rgba(0,0,0,.45),0 3px 8px rgba(0,0,0,.4);cursor:pointer;opacity:${op}"></div>` });
+}
+function makeSitePopup(s) {
+  const t=TYPES[s.type]; const r=RIVERS[s.river]||{color:'#888',label:s.river};
+  const tags=s.companies.map(c=>`<span class="popup-co-tag">${c}</span>`).join('');
+  return `<div class="popup-inner">
+    <div class="popup-badges">
+      <span class="popup-badge" style="background:${t.bg};color:${t.text}">${t.label}</span>
+      <span class="popup-badge" style="background:${r.color}22;color:${r.color};border:1px solid ${r.color}55">${r.label}</span>
+      ${historyMode?`<span class="popup-badge" style="background:#1f2937;color:#9ca3af">Est. ${s.founded}</span>`:''}
+    </div>
+    <div class="popup-name">${s.name}</div>
+    <div class="popup-location">📍 ${s.country}</div>
+    <div class="popup-co-title">Key Companies</div><div style="margin-bottom:8px">${tags}</div>
+    <div class="popup-activities">${s.activities}</div>
+    <div class="popup-fact">${s.fact}</div>
+  </div>`;
+}
+function buildSiteMarkers() {
+  siteMarkers.forEach(m=>map.removeLayer(m.marker));
+  siteMarkers=[];
+  const vis=visibleSites();
+  const shown=historyMode?vis.filter(s=>s.founded<=currentYear):vis;
+  const dimmed=historyMode?vis.filter(s=>s.founded>currentYear):[];
+  document.getElementById('count-total').textContent=shown.length+(historyMode?'':''+(dimmed.length?' ('+dimmed.length+' not yet founded)':''));
+  document.getElementById('count-desc').textContent=
+    filterRiver!=='all'?`On the ${filterRiver}`:(filterIndustry!=='all'?TYPES[filterIndustry].label:'All rivers · All industry types');
+  [...shown.map(s=>({s,d:false})),...dimmed.map(s=>({s,d:true}))].forEach(({s,d})=>{
+    const m=L.marker([s.lat,s.lng],{icon:makeSiteIcon(s,d)});
+    m.addTo(map);
+    if(!d){ m.bindPopup(makeSitePopup(s),{maxWidth:330}); m.on('click',()=>selectSite(s.id)); }
+    else { m.bindTooltip(`${s.name} — not yet established in ${currentYear} (founded ${s.founded})`,{direction:'top'}); }
+    siteMarkers.push({id:s.id,marker:m,dimmed:d});
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// EVENT MARKERS (history mode)
+// ═══════════════════════════════════════════════════════
+function makeEventIcon(evt) {
+  const era=ERAS.find(e=>e.key===evt.era)||ERAS[0];
+  return L.divIcon({ className:'', iconAnchor:[8,8], html:`<div style="width:14px;height:14px;transform:rotate(45deg);background:${era.color};border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.5);cursor:pointer;border-radius:2px"></div>` });
+}
+function makeEventPopup(evt) {
+  const era=ERAS.find(e=>e.key===evt.era)||ERAS[0];
+  return `<div class="popup-inner">
+    <div class="popup-event-year" style="color:${era.color}">${evt.year}</div>
+    <span class="popup-event-era" style="background:${era.bg};color:${era.text}">${era.label}</span>
+    <div class="popup-name">${evt.title}</div>
+    <div class="popup-event-body">${evt.desc}</div>
+  </div>`;
+}
+function buildEventMarkers() {
+  eventMarkers.forEach(m=>map.removeLayer(m.marker));
+  eventMarkers=[];
+  if(!historyMode) return;
+  HISTORY_EVENTS.filter(e=>e.year<=currentYear).forEach(evt=>{
+    const m=L.marker([evt.lat,evt.lng],{icon:makeEventIcon(evt)});
+    m.addTo(map);
+    m.bindPopup(makeEventPopup(evt),{maxWidth:330});
+    m.on('click',()=>selectEvent(evt.id));
+    eventMarkers.push({id:evt.id,marker:m});
+  });
+  document.getElementById('hist-event-count').textContent=eventMarkers.length;
+}
+
+// ═══════════════════════════════════════════════════════
+// SIDEBAR — Sites
+// ═══════════════════════════════════════════════════════
+function buildSitesSidebar() {
+  const list=document.getElementById('panel-sites'); list.innerHTML='';
+  const vis=visibleSites();
+  const grouped={};
+  Object.keys(RIVERS).forEach(r=>{ grouped[r]=[]; });
+  vis.forEach(s=>{ if(grouped[s.river]) grouped[s.river].push(s); });
+  Object.entries(grouped).forEach(([rKey,sites])=>{
+    if(!sites.length) return;
+    const r=RIVERS[rKey];
+    const hdr=document.createElement('div'); hdr.className='river-group-header';
+    hdr.innerHTML=`<div class="river-line-swatch" style="background:${r.color}"></div><span style="color:${r.color}">${r.label}</span>`;
+    list.appendChild(hdr);
+    sites.forEach(s=>{
+      const t=TYPES[s.type]; const founded=s.founded;
+      const notYet=historyMode&&s.founded>currentYear;
+      const div=document.createElement('div');
+      div.className='site-item'+(notYet?' dimmed':'');
+      div.dataset.id=s.id;
+      div.innerHTML=`<div class="site-dot" style="background:${t.color}"></div>
+        <div><div class="site-item-name">${s.name}</div>
+        <div class="site-item-sub">${s.country}</div>
+        ${historyMode?`<span class="site-item-year" style="background:${notYet?'#1f2937':'#14532d'};color:${notYet?'#6b7280':'#86efac'}">Est. ${founded}${notYet?' — not yet':''}</span>`:''}
+        </div>`;
+      if(!notYet) div.addEventListener('click',()=>selectSite(s.id));
+      list.appendChild(div);
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// SIDEBAR — History Events
+// ═══════════════════════════════════════════════════════
+function buildHistorySidebar() {
+  const list=document.getElementById('panel-history'); list.innerHTML='';
+  let lastEra='';
+  [...HISTORY_EVENTS].sort((a,b)=>a.year-b.year).forEach(evt=>{
+    const era=ERAS.find(e=>e.key===evt.era)||ERAS[0];
+    const past=evt.year<=currentYear;
+    if(evt.era!==lastEra){
+      lastEra=evt.era;
+      const hdr=document.createElement('div'); hdr.className='event-group-header';
+      hdr.style.color=era.color;
+      hdr.innerHTML=`● ${era.label} (${era.start}–${era.end})`;
+      list.appendChild(hdr);
+    }
+    const div=document.createElement('div');
+    div.className='event-item'+(past?'':' future')+(evt.id===selectedEvtId?' selected':'');
+    div.dataset.id=evt.id;
+    div.innerHTML=`<div class="event-diamond" style="background:${era.color}"></div>
+      <div>
+        <span class="event-year-badge" style="background:${era.bg};color:${era.text}">${evt.year}</span>
+        <div class="event-title">${evt.title}</div>
+      </div>`;
+    if(past) div.addEventListener('click',()=>selectEvent(evt.id));
+    list.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// SELECTION
+// ═══════════════════════════════════════════════════════
+function selectSite(id) {
+  selectedSiteId=id;
+  document.querySelectorAll('.site-item').forEach(el=>{ el.classList.toggle('selected',+el.dataset.id===id); if(+el.dataset.id===id) el.scrollIntoView({block:'nearest'}); });
+  const s=SITES.find(x=>x.id===id); if(!s) return;
+  map.flyTo([s.lat,s.lng],11,{duration:.8});
+  const m=siteMarkers.find(x=>x.id===id&&!x.dimmed);
+  if(m) setTimeout(()=>m.marker.openPopup(),900);
+}
+function selectEvent(id) {
+  selectedEvtId=id;
+  document.querySelectorAll('.event-item').forEach(el=>{ el.classList.toggle('selected',el.dataset.id===id); if(el.dataset.id===id) el.scrollIntoView({block:'nearest'}); });
+  const evt=HISTORY_EVENTS.find(x=>x.id===id); if(!evt) return;
+  map.flyTo([evt.lat,evt.lng],10,{duration:.8});
+  const m=eventMarkers.find(x=>x.id===id);
+  if(m) setTimeout(()=>m.marker.openPopup(),900);
+}
+
+// ═══════════════════════════════════════════════════════
+// LEGEND
+// ═══════════════════════════════════════════════════════
+function buildLegend() {
+  const indEl=document.getElementById('legend-industry');
+  Object.entries(TYPES).forEach(([k,t])=>{
+    const d=document.createElement('div'); d.className='legend-item';
+    d.innerHTML=`<div class="legend-dot" style="background:${t.color}"></div><span>${t.label}</span>`; indEl.appendChild(d);
+  });
+  const rivEl=document.getElementById('legend-rivers');
+  Object.entries(RIVERS).forEach(([k,r])=>{
+    if(!SITES.some(s=>s.river===k)&&!['Elbe','Rhine','Danube'].includes(k)) return;
+    const d=document.createElement('div'); d.className='legend-item';
+    d.innerHTML=`<div class="legend-line" style="background:${r.color}"></div><span>${r.label}</span>`; rivEl.appendChild(d);
+  });
+  const eraEl=document.getElementById('legend-eras');
+  ERAS.forEach(e=>{
+    const d=document.createElement('div'); d.className='legend-item'; d.style.marginBottom='5px';
+    d.innerHTML=`<div class="legend-diamond" style="background:${e.color}"></div><span style="color:${e.text}">${e.label} (${e.start}–${e.end})</span>`; eraEl.appendChild(d);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════
+function showTab(t) {
+  ['sites','history','legend'].forEach(k=>{
+    document.getElementById(`tab-${k}`)?.classList.toggle('active',k===t);
+    const p=document.getElementById(`panel-${k}`); if(p){ p.style.display=k===t?(k==='legend'?'flex':''):'none'; if(k==='legend') p.style.flexDirection='column'; }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// TIMELINE / ERA DISPLAY
+// ═══════════════════════════════════════════════════════
+function buildEraGradient() {
+  const total=1930-1840;
+  const stops=ERAS.map(e=>{
+    const s=((e.start-1840)/total*100).toFixed(1);
+    const en=((e.end-1840)/total*100).toFixed(1);
+    return `${e.color} ${s}%, ${e.color} ${en}%`;
+  });
+  document.getElementById('era-gradient').style.background=`linear-gradient(to right,${stops.join(',')})`;
+}
+
+function updateEraDisplay(year) {
+  const era=getEra(year);
+  document.getElementById('era-badge').textContent=era.label;
+  document.getElementById('era-badge').style.background=era.bg;
+  document.getElementById('era-badge').style.color=era.text;
+  document.getElementById('era-title').textContent='';
+  document.getElementById('year-display').textContent=year;
+  document.getElementById('era-desc').textContent=era.desc;
+
+  // Event chips
+  const row=document.getElementById('tl-events-row'); row.innerHTML='';
+  HISTORY_EVENTS.filter(e=>e.year<=year).slice(-6).forEach(evt=>{
+    const er=ERAS.find(e=>e.key===evt.era)||ERAS[0];
+    const chip=document.createElement('div'); chip.className='tl-event-chip visible';
+    chip.style.background=er.bg; chip.style.color=er.text; chip.style.borderColor=er.color;
+    chip.textContent=`${evt.year} · ${evt.title.substring(0,30)}${evt.title.length>30?'…':''}`;
+    chip.addEventListener('click',()=>{ selectEvent(evt.id); showTab('history'); });
+    row.appendChild(chip);
+  });
+}
+
+function onSlider(year) {
+  currentYear=+year;
+  updateEraDisplay(currentYear);
+  buildSiteMarkers();
+  buildEventMarkers();
+  buildSitesSidebar();
+  buildHistorySidebar();
+  document.getElementById('count-total').textContent=siteMarkers.filter(m=>!m.dimmed).length;
+}
+
+// ═══════════════════════════════════════════════════════
+// HISTORY MODE TOGGLE
+// ═══════════════════════════════════════════════════════
+function toggleHistory() {
+  historyMode=!historyMode;
+  const btn=document.getElementById('hist-btn');
+  btn.textContent=`📜 History Mode: ${historyMode?'ON':'OFF'}`;
+  btn.classList.toggle('on',historyMode);
+  document.getElementById('timeline-bar').style.display=historyMode?'block':'none';
+  document.getElementById('filter-panel').style.opacity=historyMode?'.45':'1';
+  document.getElementById('filter-panel').style.pointerEvents=historyMode?'none':'';
+  document.getElementById('hist-counter').style.display=historyMode?'':'none';
+  document.getElementById('count-desc').style.display=historyMode?'none':'';
+
+  const htab=document.getElementById('tab-history');
+  htab.style.display=historyMode?'':'none';
+  document.getElementById('legend-eras-panel').style.display=historyMode?'':'none';
+
+  if(historyMode){
+    currentYear=1840;
+    document.getElementById('year-slider').value=1840;
+    buildEraGradient();
+    updateEraDisplay(1840);
+    showTab('history');
+  } else {
+    eventMarkers.forEach(m=>map.removeLayer(m.marker)); eventMarkers=[];
+    showTab('sites');
+  }
+  refresh();
+}
+
+// ═══════════════════════════════════════════════════════
+// REFRESH
+// ═══════════════════════════════════════════════════════
+function refresh() {
+  buildSiteMarkers();
+  buildEventMarkers();
+  buildSitesSidebar();
+  if(historyMode) buildHistorySidebar();
+  document.getElementById('count-total').textContent=siteMarkers.filter(m=>!m.dimmed).length;
+}
+
+map.on('click',()=>{ document.querySelectorAll('.site-item,.event-item').forEach(el=>el.classList.remove('selected')); });
+
+// INIT
+buildLegend();
+refresh();
+</script>
+</body>
+</html>

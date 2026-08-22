@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Germany's Rivers — Canalization History</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#0f172a;color:#f1f5f9;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+    .topbar{background:linear-gradient(135deg,#0f2a1a,#0a1a10);border-bottom:2px solid #16a34a;padding:8px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap}
+    .topbar h1{font-size:.95rem;font-weight:700;color:#e2e8f0;white-space:nowrap}
+    .topbar p{font-size:.72rem;color:#94a3b8}
+
+    .timeline-bar{display:flex;gap:0;border-bottom:1px solid #334155;flex-shrink:0;background:#0f1a12}
+    .era-btn{flex:1;min-width:90px;padding:7px 8px;text-align:center;cursor:pointer;border-right:1px solid #334155;font-size:.66rem;font-weight:700;transition:all .15s;opacity:.45;border-bottom:3px solid transparent;line-height:1.3}
+    .era-btn.active{opacity:1}
+    .era-btn:hover{opacity:.8}
+    .era-btn .era-year{font-size:.58rem;color:#64748b;display:block;margin-bottom:2px;font-weight:400}
+    .era-btn:last-child{border-right:none}
+
+    .filter-row{display:flex;gap:6px;padding:5px 12px;background:#0f1a12;border-bottom:1px solid #334155;flex-shrink:0;flex-wrap:wrap;align-items:center}
+    .filter-label{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:700}
+    .filter-btn{padding:3px 9px;border-radius:99px;border:2px solid transparent;cursor:pointer;font-size:.68rem;font-weight:700;transition:all .15s;opacity:.45}
+    .filter-btn.active{opacity:1}
+    .filter-btn:hover{opacity:.8}
+
+    .main{display:flex;flex:1;overflow:hidden}
+
+    .sidebar{width:285px;background:#1e293b;border-right:1px solid #334155;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+    .sidebar-tabs{display:flex;border-bottom:1px solid #334155}
+    .stab{flex:1;padding:8px;text-align:center;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;color:#64748b;border-bottom:2px solid transparent;transition:all .15s}
+    .stab.active{color:#86efac;border-bottom-color:#16a34a;background:#0f2a16}
+    .site-list{overflow-y:auto;flex:1}
+
+    .era-group-header{padding:8px 12px 5px;font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:7px;position:sticky;top:0;z-index:1;background:#1e293b;border-bottom:1px solid #0f172a}
+    .era-swatch{height:9px;width:9px;border-radius:50%;flex-shrink:0}
+
+    .site-item{padding:8px 12px 8px 18px;border-bottom:1px solid #1a2535;cursor:pointer;transition:background .12s;display:flex;align-items:flex-start;gap:8px}
+    .site-item:hover{background:#263548}
+    .site-item.selected{background:#0f2a16;border-left:3px solid #16a34a}
+    .site-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:3px}
+    .site-item-name{font-size:.78rem;font-weight:600;color:#e2e8f0;line-height:1.3}
+    .site-item-sub{font-size:.65rem;color:#64748b;margin-top:1px}
+
+    .legend-panel{padding:10px 12px;border-top:1px solid #334155;background:#162032}
+    .legend-title{font-size:.64rem;text-transform:uppercase;letter-spacing:.06em;color:#64748b;font-weight:700;margin-bottom:6px}
+    .legend-grid{display:grid;grid-template-columns:1fr;gap:5px;margin-bottom:8px}
+    .legend-item{display:flex;align-items:center;gap:7px;font-size:.67rem;color:#94a3b8;line-height:1.3}
+    .legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+    .legend-line{height:3px;width:16px;border-radius:99px;flex-shrink:0}
+    .legend-dashed{height:0;width:16px;border-top:2px dashed;flex-shrink:0}
+
+    .counter-bar{display:flex;gap:12px;padding:4px 12px;background:#0f1a12;border-bottom:1px solid #334155;font-size:.7rem;color:#64748b;flex-shrink:0;flex-wrap:wrap}
+    .counter-bar strong{color:#e2e8f0}
+
+    #map{flex:1;z-index:1}
+
+    .leaflet-popup-content-wrapper{background:#1e293b!important;color:#e2e8f0!important;border-radius:12px!important;box-shadow:0 8px 32px rgba(0,0,0,.6)!important;border:1px solid #334155!important;max-width:340px!important}
+    .leaflet-popup-tip{background:#1e293b!important}
+    .leaflet-popup-content{margin:0!important;padding:0!important}
+    .popup-inner{padding:14px}
+    .popup-badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px}
+    .popup-badge{display:inline-block;font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:99px}
+    .popup-name{font-size:.92rem;font-weight:700;color:#f1f5f9;margin-bottom:3px;line-height:1.3}
+    .popup-location{font-size:.7rem;color:#64748b;margin-bottom:8px}
+    .popup-desc{font-size:.75rem;line-height:1.6;color:#94a3b8;margin-bottom:8px}
+    .popup-fact{background:#0a1f0e;border-left:3px solid #16a34a;padding:7px 10px;border-radius:4px;font-size:.71rem;color:#86efac;line-height:1.5}
+    .popup-gmaps{display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:5px 12px;background:#0f2a16;border:1px solid #16a34a;border-radius:99px;color:#86efac;font-size:.71rem;font-weight:700;text-decoration:none;transition:background .15s}
+    .popup-gmaps:hover{background:#143d1e;color:#bbf7d0}
+
+    @media(max-width:700px){.sidebar{display:none}}
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <h1>🏗️ Germany's Rivers — Canalization History</h1>
+    <p>Historical phases of river straightening, canal cuts &amp; abandoned meanders · Click any marker for details &amp; Google Maps link</p>
+  </div>
+</div>
+
+<!-- TIMELINE / ERA FILTER -->
+<div class="timeline-bar" id="timeline-bar"></div>
+
+<!-- TYPE FILTER -->
+<div class="filter-row">
+  <span class="filter-label">Type:</span>
+  <div id="filter-type"></div>
+</div>
+
+<div class="counter-bar">
+  <span><strong id="count-total">0</strong> sites shown</span>
+  <span id="count-desc"></span>
+</div>
+
+<div class="main">
+  <div class="sidebar">
+    <div class="sidebar-tabs">
+      <div class="stab active" id="tab-list" onclick="showTab('list')">📍 Sites</div>
+      <div class="stab" id="tab-legend" onclick="showTab('legend')">🗺 Legend</div>
+    </div>
+    <div class="site-list" id="site-list"></div>
+    <div id="legend-tab" style="display:none;overflow-y:auto;flex:1">
+      <div class="legend-panel">
+        <div class="legend-title">Site Type</div>
+        <div id="legend-types"></div>
+      </div>
+      <div class="legend-panel">
+        <div class="legend-title">Waterways</div>
+        <div id="legend-waterways"></div>
+      </div>
+      <div class="legend-panel">
+        <div class="legend-title">Historical Phases</div>
+        <div id="legend-eras"></div>
+      </div>
+    </div>
+  </div>
+  <div id="map"></div>
+</div>
+
+<script>
+// ─── ERAS ───────────────────────────────────────────────────────────────────
+const ERAS = {
+  all:  { label:'All Phases', years:'',             color:'#64748b', bg:'#1e293b', text:'#cbd5e1' },
+  era1: { label:'Rhine Rectification', years:'1817–1876', color:'#f59e0b', bg:'#451a03', text:'#fcd34d' },
+  era2: { label:'Industrial Canals',   years:'1871–1914', color:'#3b82f6', bg:'#1e1b4b', text:'#93c5fd' },
+  era3: { label:'Weimar & WWII',       years:'1919–1945', color:'#a855f7', bg:'#2e1065', text:'#d8b4fe' },
+  era4: { label:'Post-War Expansion',  years:'1945–1970', color:'#22c55e', bg:'#14532d', text:'#86efac' },
+  era5: { label:'Modern Completion',   years:'1970–1992', color:'#ef4444', bg:'#450a0a', text:'#fca5a5' },
+};
+
+// ─── SITE TYPES ─────────────────────────────────────────────────────────────
+const TYPES = {
+  altrhein: { label:'Abandoned Meander (Altrhein)', color:'#f97316', bg:'#431407', text:'#fb923c' },
+  lock:     { label:'Lock & Canal Bypass Cut',      color:'#38bdf8', bg:'#0c2a3a', text:'#7dd3fc' },
+  canal:    { label:'New Artificial Canal',          color:'#c084fc', bg:'#2e1065', text:'#e9d5ff' },
+  abandoned:{ label:'Abandoned Historic Canal',      color:'#94a3b8', bg:'#1e293b', text:'#cbd5e1' },
+};
+
+// ─── WATERWAYS (polylines) ────────────────────────────────────────────────
+const WATERWAYS = {
+  Rhine:    { color:'#3b82f6', weight:4.5, dash:null, label:'Rhine (Rhein) — rectified 1817–1876',
+    path:[[47.56,7.59],[47.70,7.55],[47.90,7.65],[48.00,7.70],[48.57,7.75],[48.83,8.12],[49.01,8.38],[49.48,8.45],[49.64,8.36],[49.99,8.27],[50.36,7.59],[50.74,7.10],[50.83,6.98],[50.94,6.96],[51.05,6.99],[51.22,6.78],[51.43,6.76],[51.66,6.62]] },
+  Main:     { color:'#22c55e', weight:3.0, dash:null, label:'Main — canalized 1886–1962 (34 locks)',
+    path:[[49.894,10.891],[49.820,10.600],[49.793,9.934],[50.046,9.699],[50.136,8.916],[50.097,8.623],[50.007,8.275]] },
+  Neckar:   { color:'#06b6d4', weight:2.5, dash:null, label:'Neckar — canalized 1921–1968 (27 locks)',
+    path:[[48.05,8.46],[48.40,8.95],[48.52,9.06],[48.71,9.42],[48.81,9.22],[49.14,9.22],[49.40,8.69],[49.47,8.47],[49.49,8.53]] },
+  Moselle:  { color:'#f59e0b', weight:3.0, dash:null, label:'Moselle (Mosel) — canalized 1958–1964 (14 dams)',
+    path:[[50.356,7.598],[50.240,7.440],[50.142,7.165],[49.943,7.124],[49.914,7.069],[49.830,6.820],[49.744,6.641],[49.540,6.430],[49.464,6.376]] },
+  Weser:    { color:'#10b981', weight:3.0, dash:null, label:'Weser — lower section corrected 1887–1895',
+    path:[[51.41,9.65],[51.64,9.44],[52.10,9.36],[52.10,9.36],[52.28,8.90],[52.64,9.22],[53.08,8.80],[53.54,8.58]] },
+  RHK:      { color:'#e879f9', weight:2.5, dash:'6,4', label:'Rhine-Herne Canal (Rhein-Herne-Kanal) — new 1906–1914',
+    path:[[51.453,6.727],[51.480,6.879],[51.510,7.040],[51.535,7.225],[51.508,7.467]] },
+  DEK:      { color:'#818cf8', weight:2.5, dash:'6,4', label:'Dortmund-Ems Canal — new 1892–1899',
+    path:[[51.530,7.476],[51.680,7.530],[51.959,7.626],[52.150,7.540],[52.280,7.440]] },
+  MLK:      { color:'#fb923c', weight:2.5, dash:'6,4', label:'Mittellandkanal — new 1906–1938',
+    path:[[51.508,7.467],[51.700,7.900],[52.100,8.200],[52.280,8.907],[52.375,9.740],[52.380,10.710]] },
+  MDK:      { color:'#f43f5e', weight:3.0, dash:'8,4', label:'Main-Danube Canal (Main-Donau-Kanal) — new 1960–1992',
+    path:[[49.897,10.905],[49.760,11.073],[49.598,11.018],[49.420,11.063],[49.178,11.184],[48.997,11.409],[48.922,11.875]] },
+  Ludwig:   { color:'#64748b', weight:1.5, dash:'4,6', label:'Ludwig-Donau-Main-Kanal — built 1836–1845, abandoned 1950',
+    path:[[49.897,10.905],[49.760,10.940],[49.598,10.985],[49.420,11.063],[49.050,11.220],[48.922,11.875]] },
+};
+
+// ─── SITES ───────────────────────────────────────────────────────────────────
+const SITES = [
+  // ERA 1 — Rhine Rectification (1817–1876) ─────────────────────────────────
+  { id:1, era:'era1', type:'altrhein', waterway:'Rhine',
+    name:'Altrhein near Breisach', lat:47.978, lng:7.600, country:'Baden-Württemberg',
+    desc:'One of the first Rhine meanders cut off by Tulla\'s rectification, c.1827. The natural curve of the Rhine around Breisach was bypassed by a new straight channel. The old arm (Altrhein) became a stagnant oxbow — the start of an 80-year transformation of the Upper Rhine.',
+    fact:'💡 Before Tulla, the Rhine between Basel and Breisach was a chaotic braided river with over 2,200 islands. Engineers dug narrow pilot channels (10 m wide) through the neck of each meander; the Rhine\'s own current then widened them to 250 m, saving enormous labour.' },
+
+  { id:2, era:'era1', type:'altrhein', waterway:'Rhine',
+    name:'Altrhein Hügelsheim', lat:48.805, lng:8.104, country:'Baden-Württemberg',
+    desc:'Abandoned Rhine meander near Rastatt, cut off c.1840. The old river arm is now a protected wetland in the Rastatt Rheinauen nature reserve — a relict of the natural river that once wandered freely across the Upper Rhine Plain.',
+    fact:'💡 Cutting meanders dramatically increased the Rhine\'s speed. The steeper gradient scoured the riverbed deeper — dropping the groundwater table by up to 3 m across the entire Upper Rhine Plain, drying out farmland and drinking-water wells.' },
+
+  { id:3, era:'era1', type:'altrhein', waterway:'Rhine',
+    name:'Auer Altrhein, Au am Rhein', lat:48.963, lng:8.244, country:'Baden-Württemberg',
+    desc:'Rhine cutoff at Au am Rhein, c.1845. The Auer Altrhein still partially connects to the Rhine and is used by anglers and canoeists. It is one of dozens of oxbow arms that trace the ghost of the pre-Tulla Rhine across the Upper Rhine Plain.',
+    fact:'💡 The whole Upper Rhine from Basel to Mannheim shrank from 355 km to 275 km — a loss of 80 km — due to the meander cuts. What took centuries of meandering was undone in 60 years of engineering.' },
+
+  { id:4, era:'era1', type:'altrhein', waterway:'Rhine',
+    name:'Rappenwörter Altrhein, Karlsruhe-Daxlanden', lat:48.999, lng:8.313, country:'Baden-Württemberg',
+    desc:'Large abandoned meander just south of Karlsruhe, cut off c.1846. The Rappenwörter peninsula formed when Tulla\'s straight canal isolated a large loop of the Rhine. Now a nature reserve with reed beds, fish ponds, and nesting water birds.',
+    fact:'💡 When a meander neck is sealed by sediment after a cutoff, the isolated loop becomes an "oxbow lake" (Altwasser). Without river current, it slowly fills with vegetation — following a natural succession from open water to reed marsh to carr woodland, over decades.' },
+
+  { id:5, era:'era1', type:'altrhein', waterway:'Rhine',
+    name:'Altrhein Eggenstein-Leopoldshafen', lat:49.093, lng:8.358, country:'Baden-Württemberg',
+    desc:'Well-preserved Rhine meander cut off c.1848 near Karlsruhe (49°5′N 8°21′E). Still retains water and forms part of the Rhine floodplain nature reserve. Documented on the Wikipedia "List of old waterbodies of the Rhine" with precise coordinates.',
+    fact:'💡 This is one of over 50 named Altrheins between Basel and Koblenz — each a relic of the pre-Tulla Rhine. Collectively they represent what the entire Upper Rhine once looked like: wide, shallow, ever-shifting, and rich with wetland life.' },
+
+  { id:6, era:'era1', type:'altrhein', waterway:'Rhine',
+    name:'Hagenbacher Altrhein', lat:49.029, lng:8.258, country:'Rhineland-Palatinate',
+    desc:'Rhine cutoff near Hagenbach on the Palatinate bank, c.1853 (49°1′N 8°15′E). After the meander was severed, the island of Nauas formed between the Altrhein and the new Rhine channel. Such islands were common after each meander cut — temporary geography that took decades to stabilise.',
+    fact:'💡 Many Rhine meander cuts created temporary islands that took 20–50 years to merge with the bank by sediment accumulation. The process reshaped the Rhine\'s floodplain geography entirely — villages, farmland, and ferry crossings had to adapt.' },
+
+  { id:7, era:'era1', type:'altrhein', waterway:'Rhine',
+    name:'Berghäuser Altrhein', lat:49.287, lng:8.433, country:'Rhineland-Palatinate',
+    desc:'Abandoned Rhine meander near Berghausen and Lingenfeld, cut off c.1858 (49°17′N 8°26′E). The Berghäuser Altrhein lies between the Palatinate bank and the area around Mechtersheim — an area whose geography was permanently altered by the rectification.',
+    fact:'💡 The straightening separated Mechtersheim from the Palatinate bank. As compensation, the village received the island of Flotzgrün — now enclosed between the Berghäuser Altrhein and the Rhine. Tulla\'s project required complex negotiations over land compensation with dozens of riverside communities.' },
+
+  { id:8, era:'era1', type:'altrhein', waterway:'Rhine',
+    name:'Gimbsheimer Altrhein', lat:49.752, lng:8.368, country:'Rhineland-Palatinate',
+    desc:'Abandoned Rhine meander between Eich and Gimbsheim north of Worms, cut off c.1862 (49°45′N 8°22′E). Now a protected nature area. One of the northernmost meander cuts of Tulla\'s main rectification project.',
+    fact:'💡 Tulla died in 1828, long before his project was finished. The rectification was completed by successors following his plans, running from 1817 to 1876. Tulla himself always insisted the work was a humanitarian project — ending the Rhine\'s annual floods that caused malaria and crop failure.' },
+
+  { id:9, era:'era1', type:'altrhein', waterway:'Rhine',
+    name:'Ginsheimer Altrhein', lat:49.950, lng:8.353, country:'Hesse',
+    desc:'Rhine cutoff near Ginsheim-Gustavsburg at the Rhine-Main confluence, c.1870 — one of the most northerly of Tulla\'s meander cuts. The Altrhein lies within the Ginsheimer Altrhein nature reserve, Kreis Groß-Gerau (49°57′N 8°21′E).',
+    fact:'💡 The Rhine-Main confluence was particularly complex to rectify because both rivers were being engineered simultaneously. The straightening changed how the Main floods entered the Rhine — raising flood peaks downstream while reducing them upstream. An unintended consequence Tulla had not fully anticipated.' },
+
+  // ERA 2 — Industrial Expansion (1871–1914) ────────────────────────────────
+  { id:10, era:'era2', type:'altrhein', waterway:'Rhine',
+    name:'Ilvericher Altrheinschlinge, Meerbusch', lat:51.276, lng:6.668, country:'North Rhine-Westphalia',
+    desc:'Abandoned Lower Rhine meander at Ilverich (Meerbusch), cut off c.1901 during Lower Rhine regulation works (51°16′N 6°40′E). Now a protected nature reserve — one of the best-preserved Rhine meander loops surviving in NRW.',
+    fact:'💡 The Lower Rhine regulation (1890s–1910s) was less dramatic than Tulla\'s Upper Rhine project, but still significantly narrowed and straightened the lower river. The Ilvericher Altrheinschlinge is today the best-preserved surviving Rhine oxbow loop in North Rhine-Westphalia.' },
+
+  { id:11, era:'era2', type:'canal', waterway:'DEK',
+    name:'Dortmund-Ems Canal — Dortmund Portal', lat:51.530, lng:7.476, country:'North Rhine-Westphalia',
+    desc:'Southern terminus of the Dortmund-Ems Canal (1892–1899), one of Germany\'s first great industrial canals. Running 269 km north to the Ems and North Sea ports, it was dug entirely as a new waterway through flat farmland — no river was straightened. Coal and steel could finally leave the Ruhr by water without using the silted Emscher or shallow Lippe.',
+    fact:'💡 The Dortmund-Ems Canal was built because no existing river could handle the tonnage the Ruhr industry demanded. The Kaiser himself turned the first sod in 1892. On opening day in 1899, 47 coal barges sailed in convoy from Dortmund to Emden — the first direct inland-water export route from the Ruhr to the sea.' },
+
+  { id:12, era:'era2', type:'canal', waterway:'RHK',
+    name:'Rhine-Herne Canal — Duisburg-Ruhrort Junction', lat:51.453, lng:6.727, country:'North Rhine-Westphalia',
+    desc:'Western junction of the Rhein-Herne-Kanal (1906–1914) with the Rhine at Duisburg-Ruhrort. The 45 km canal runs east to Dortmund, parallel to the Emscher river but entirely bypassing it — a new straight waterway through the heart of the Ruhr. Designed for 1,350-tonne barges.',
+    fact:'💡 The Rhine-Herne Canal runs almost dead straight through the dense Ruhr urban landscape — coal mines, steelworks, and refineries on either side. Its construction required relocating thousands of residents and rerouting roads and railways. It remains one of the most heavily trafficked inland waterways in Europe.' },
+
+  { id:13, era:'era2', type:'lock', waterway:'Weser',
+    name:'Lower Weser Correction — Bremen', lat:53.075, lng:8.807, country:'Bremen',
+    desc:'The Unterweserkorrektion (1887–1895) deepened and straightened the lower Weser for 60 km from Bremen to the sea, enabling ocean-going vessels to reach the city for the first time in decades. Directed by engineer Ludwig Franzius, it involved dredging, embanking, and cutting several tidal meanders.',
+    fact:'💡 Before the correction, Bremen\'s harbour had become useless — the Weser was too silted for modern ships. The city\'s survival as a trading port depended entirely on Franzius\'s project. After dredging, the Weser was deepened from 3 m to 5 m. Bremen immediately recovered as Germany\'s second port.' },
+
+  // ERA 3 — Weimar & WWII (1919–1945) ──────────────────────────────────────
+  { id:14, era:'era3', type:'canal', waterway:'MLK',
+    name:'Mittellandkanal — Minden Aqueduct (over Weser)', lat:52.280, lng:8.907, country:'Lower Saxony',
+    desc:'The Mittellandkanal\'s 370 m concrete aqueduct carries the east-west canal 12 m above the Weser at Minden (aqueduct built 1914; canal fully completed 1938). The 325 km canal connects Rhine ports in the west with Hannover, Magdeburg, and Berlin in the east — entirely a new waterway dug across the North German Plain.',
+    fact:'💡 Ships sail the Minden Aqueduct 12 metres above the Weser flowing beneath them. A second, larger aqueduct was added in 1998 to handle modern traffic. The Mittellandkanal is Germany\'s longest canal and carries more freight than any other artificial waterway in the country.' },
+
+  { id:15, era:'era3', type:'lock', waterway:'Neckar',
+    name:'Neckar — Feudenheim Lock, Mannheim (Phase 1 start, 1925)', lat:49.491, lng:8.530, country:'Baden-Württemberg',
+    desc:'The first lock completed on the Neckar canalization project (construction began 1921; Feudenheim lock operational 1925). This began Phase 1 — converting 113 km of natural, rapid-laden Neckar into a shipping canal as far as Heilbronn. At every lock, a bypass canal (Schleusenkanal) was cut through a natural river bend, leaving the old meander as a backwater.',
+    fact:'💡 Before canalization the Neckar was only seasonally navigable. Chain-boat steamers (Kettendampfer) dragged barges upstream against the current using chains laid on the riverbed. Canalization made year-round navigation possible for vessels up to 1,350 tonnes, transforming Württemberg\'s economy.' },
+
+  { id:16, era:'era3', type:'lock', waterway:'Neckar',
+    name:'Neckar — Heilbronn Lock (Phase 1 end, 1935)', lat:49.141, lng:9.214, country:'Baden-Württemberg',
+    desc:'Phase 1 end of the Neckar canalization: by 1935 eleven barrages and bypass locks had been built from Mannheim to Heilbronn (113 km). At each barrage, a straight bypass canal was cut through the natural river bend — the old channel silting up beside it. Heilbronn became an inland port for 1,350-tonne barges.',
+    fact:'💡 At each Neckar lock, the natural bend still exists alongside the straight bypass canal. These are Germany\'s equivalent of the Rhine\'s Altrheins — quiet backwater arms of the old river, now used for bathing, fishing, and as wildlife corridors running parallel to the navigation channel.' },
+
+  { id:17, era:'era3', type:'abandoned', waterway:'Ludwig',
+    name:'Ludwig-Donau-Main-Kanal — Erlangen (Abandoned 1950)', lat:49.598, lng:10.985, country:'Bavaria',
+    desc:'The Ludwig Canal (1836–1845) was Bavaria\'s first great canal, hand-dug by 9,000 workers over nine years. It linked the Main at Bamberg to the Danube at Kelheim via 177 km with 100 locks and a summit at 406 m. Bombed in WWII, it was never repaired and officially abandoned in 1950. Sections near Erlangen survive as a walking trail.',
+    fact:'💡 The Ludwig Canal fulfilled Charlemagne\'s dream of a Rhine-Danube waterway — 1,000 years later. But its 100 narrow locks (only 34 m long) were already obsolete by 1845. Modern barges couldn\'t fit. The canal never carried profitable traffic and was quietly left to nature after WWII. The modern Main-Danube Canal follows a very similar route.' },
+
+  // ERA 4 — Post-War Expansion (1945–1970) ─────────────────────────────────
+  { id:18, era:'era4', type:'lock', waterway:'Moselle',
+    name:'Mosel — Koblenz-Moselweiß Lock (first Moselle lock from Rhine)', lat:50.344, lng:7.597, country:'Rhineland-Palatinate',
+    desc:'The first lock on the canalized Moselle, at Koblenz-Moselweiß. Construction began 1958 after France, Germany, and Luxembourg signed the 1956 Moselle Treaty. The entire 170 km from Koblenz to Thionville was completed with 14 low-head dams and 11 locks by 1964. The Moselle was not straightened but deepened and dammed into a chain of navigable impoundments.',
+    fact:'💡 The Moselle canalization was a diplomatic achievement as much as an engineering one — three nations had to agree on construction, operation, and maintenance of an international waterway. The 1964 inauguration was attended by Adenauer, de Gaulle, and Grand Duchess Charlotte. It was a symbol of postwar European reconciliation.' },
+
+  { id:19, era:'era4', type:'lock', waterway:'Moselle',
+    name:'Mosel — Detzem Lock', lat:49.830, lng:6.820, country:'Rhineland-Palatinate',
+    desc:'Mid-Moselle lock at Detzem (completed c.1962), in the heart of Moselle wine country. The dam here created a broad impoundment through the winding valley. Unlike the Rhine, the Moselle\'s meanders were not cut off — instead the river was dammed into a series of still-water lakes, with locks lifting ships around each dam.',
+    fact:'💡 The Moselle\'s extreme meanders (some loops nearly 180°) were not straightened — the wine slopes are too valuable and the valley walls too steep. Instead 14 low-head dams created a chain of reservoir-like reaches. Ships travel in calm, nearly still water all the way from Koblenz to Thionville.' },
+
+  { id:20, era:'era4', type:'lock', waterway:'Moselle',
+    name:'Mosel — Trier Lock', lat:49.744, lng:6.641, country:'Rhineland-Palatinate',
+    desc:'Lock at Trier (completed 1963), Germany\'s oldest city, founded by Rome in 16 BC. The Moselle through Trier was the most complex section of the canalization due to the narrow valley, Roman bridge foundations, and dense urban infrastructure. The lock sits in the shadow of Roman monuments UNESCO-listed in 1986.',
+    fact:'💡 Trier was a major river port of the Western Roman Empire. Roman engineers had already improved Moselle navigation in antiquity. The 1964 canal essentially modernized a shipping route used for 2,000 years — reconnecting Trier to the European waterway network for the first time since the Roman era.' },
+
+  { id:21, era:'era4', type:'lock', waterway:'Neckar',
+    name:'Neckar — Bad Cannstatt Lock, Stuttgart (Phase 2 complete, 1958)', lat:48.806, lng:9.217, country:'Baden-Württemberg',
+    desc:'Lock at Bad Cannstatt marks Phase 2 completion of Neckar canalization (1958), when Stuttgart was finally connected to the European inland waterway network after construction resumed post-WWII. Stuttgart Harbour opened the same year, opened by President Theodor Heuß — turning a landlocked industrial city into a river port.',
+    fact:'💡 The harbour opening was a major political moment. For the first time, Daimler, Bosch, and Porsche could ship products by river — competing with Rhine ports. Stuttgart Harbour now handles over 3 million tonnes per year. Without the 1958 canalization, the Swabian industrial miracle would have remained landlocked.' },
+
+  { id:22, era:'era4', type:'lock', waterway:'Neckar',
+    name:'Neckar — Plochingen Lock (27th and final lock, 1968)', lat:48.706, lng:9.424, country:'Baden-Württemberg',
+    desc:'The 27th and final lock on the Neckar, at Plochingen, completed in 1968 — 47 years after construction began at Mannheim. The full 203 km from the Rhine to Plochingen is now navigable year-round. Each of the 27 barrages has a bypass lock canal cutting through a natural river bend, leaving the old meander as a quiet backwater.',
+    fact:'💡 At Plochingen the Neckar is only 230 km from the Danube at Ulm. Engineers considered extending the canal to the Danube, but the topographic barrier and costs were too great. The Neckar remains the German river with the highest density of locks per kilometre — one every 7.5 km on average.' },
+
+  { id:23, era:'era4', type:'lock', waterway:'Main',
+    name:'Main — Würzburg Lock', lat:49.793, lng:9.933, country:'Bavaria',
+    desc:'One of the 34 locks on the canalized Main river at Würzburg. The Main was progressively canalized from 1886 (lower Main near Frankfurt) to 1962 (upper Main at Bamberg). Each of the 34 locks has a bypass canal that cut through a natural river bend, leaving the old river arm as a backwater or ox-bow.',
+    fact:'💡 The Main makes an unusual geographic reversal — it flows west for almost its entire course before joining the Rhine near Mainz (which then flows north). Together they form the central axis of Germany\'s inland waterway system. The 34 locks raise and lower ships 138 m between the Rhine and Bamberg.' },
+
+  { id:24, era:'era4', type:'lock', waterway:'Main',
+    name:'Main — Bamberg Lock (limit of Main navigation, 1962)', lat:49.894, lng:10.891, country:'Bavaria',
+    desc:'The uppermost lock on the canalized Main at Bamberg, completed 1962 — the upstream limit of modern Main navigation. Beyond here, a completely new channel (the Main-Danube Canal) continues south to the Danube. The 34 Main locks allow 110 m vessels (CEMT Class V) to travel from the Rhine to Bamberg.',
+    fact:'💡 Bamberg was chosen as the Main/canal junction because it sits at the last naturally usable point before the river becomes too fast and shallow. The junction here marks where two eras of waterway engineering meet: the canalized natural river (19th–20th century) and the modern artificial canal (1960–1992).' },
+
+  // ERA 5 — Modern Completion (1970–1992) ──────────────────────────────────
+  { id:25, era:'era5', type:'canal', waterway:'MDK',
+    name:'Main-Danube Canal — Bamberg Entry', lat:49.897, lng:10.905, country:'Bavaria',
+    desc:'Northern terminus of the Main-Donau-Kanal (1960–1992), departing from the Main at Bamberg. The 171 km canal with 16 locks crosses the European watershed between the North Sea and Black Sea drainage basins. Canal width 55 m, draught 2.7 m. The culmination of a dream going back to Charlemagne in 793 AD.',
+    fact:'💡 Charlemagne\'s engineers tried to dig this canal in 793 — the "Fossa Carolina" near Treuchtlingen. Heavy rains collapsed the banks. Ludwig I of Bavaria tried again in 1836 (the Ludwig Canal). The modern canal, completed 1992 after 30 years and €1 billion, finally succeeded where they failed.' },
+
+  { id:26, era:'era5', type:'canal', waterway:'MDK',
+    name:'Main-Danube Canal — Hilpoltstein Summit (406 m altitude)', lat:49.178, lng:11.184, country:'Bavaria',
+    desc:'The summit reach of the Main-Danube Canal at 406 m above sea level — the highest navigable point in Germany and the entire Rhine-Main-Danube route. Locks 13 and 14 climb to this ridge. Water is actively pumped up from both the Main and Danube sides to maintain the summit level during dry periods.',
+    fact:'💡 At 406 m, ships crossing this watershed are sailing higher than the summit of many English or Irish mountains. The ridge divides Europe\'s two greatest drainage systems: rivers north of this line flow to the North Sea; rivers to the south flow to the Black Sea — 3,500 km apart. Ships cross the divide in minutes.' },
+
+  { id:27, era:'era5', type:'canal', waterway:'MDK',
+    name:'Main-Danube Canal — Kelheim Junction with Danube', lat:48.922, lng:11.875, country:'Bavaria',
+    desc:'Southern terminus of the Main-Danube Canal, where it meets the Danube at Kelheim (25 Sept 1992 inauguration). This point completed the first navigable Rhine-Danube connection in history — linking Rotterdam on the North Sea to Sulina on the Black Sea via 3,500 km of inland waterway.',
+    fact:'💡 Near Kelheim, the Altmühl valley was chosen for the canal because its floor nearly touches the Danube plain — a natural pass Roman surveyors had noticed. From here it is possible to travel entirely by water from the North Sea to the Black Sea, through 15 countries, without once touching the open ocean.' },
+];
+
+// ─── MAP INIT ────────────────────────────────────────────────────────────────
+const map = L.map('map', { center:[50.0, 9.5], zoom:6 });
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution:'© OpenStreetMap contributors © CARTO', subdomains:'abcd', maxZoom:18
+}).addTo(map);
+
+// Draw waterways
+const waterwayLayers = {};
+Object.entries(WATERWAYS).forEach(([key, w]) => {
+  const opts = { color:w.color, weight:w.weight, opacity:.7, smoothFactor:2 };
+  if (w.dash) opts.dashArray = w.dash;
+  const layer = L.polyline(w.path, opts).addTo(map)
+    .bindTooltip(w.label, { sticky:true, direction:'top' });
+  waterwayLayers[key] = layer;
+});
+
+// Waterway labels
+const labelData = [
+  { key:'Rhine',   pos:[50.0,7.35],   text:'Rhine' },
+  { key:'Main',    pos:[50.0,9.3],    text:'Main' },
+  { key:'Neckar',  pos:[48.6,9.0],    text:'Neckar' },
+  { key:'Moselle', pos:[49.9,7.05],   text:'Moselle' },
+  { key:'Weser',   pos:[52.0,9.1],    text:'Weser' },
+  { key:'RHK',     pos:[51.54,7.05],  text:'Rhein-Herne Canal' },
+  { key:'DEK',     pos:[51.88,7.6],   text:'Dortmund-Ems Canal' },
+  { key:'MLK',     pos:[52.32,9.5],   text:'Mittellandkanal' },
+  { key:'MDK',     pos:[49.05,11.3],  text:'Main-Danube Canal' },
+];
+labelData.forEach(d => {
+  const w = WATERWAYS[d.key];
+  const icon = L.divIcon({
+    className:'',
+    html:`<div style="background:${w.color}22;color:${w.color};padding:2px 7px;border-radius:99px;font-size:.6rem;font-weight:700;white-space:nowrap;border:1px solid ${w.color}66;pointer-events:none">${d.text}</div>`,
+    iconAnchor:[40,8]
+  });
+  L.marker(d.pos, { icon, interactive:false }).addTo(map);
+});
+
+// ─── FILTER STATE ────────────────────────────────────────────────────────────
+let filterEra  = 'all';
+let filterType = 'all';
+let markers    = [];
+let selectedId = null;
+
+function visibleSites() {
+  return SITES.filter(s =>
+    (filterEra  === 'all' || s.era  === filterEra)  &&
+    (filterType === 'all' || s.type === filterType)
+  );
+}
+
+// ─── ERA FILTER ──────────────────────────────────────────────────────────────
+const tbEl = document.getElementById('timeline-bar');
+Object.entries(ERAS).forEach(([k, e]) => {
+  const b = document.createElement('div');
+  b.className = 'era-btn' + (k === 'all' ? ' active' : '');
+  b.innerHTML = `<span class="era-year">${e.years}</span>${e.label}`;
+  b.style.borderBottomColor = e.color;
+  b.style.color = e.color;
+  b.addEventListener('click', () => {
+    filterEra = k;
+    document.querySelectorAll('.era-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    refresh();
+  });
+  tbEl.appendChild(b);
+});
+
+// ─── TYPE FILTER ─────────────────────────────────────────────────────────────
+const ftEl = document.getElementById('filter-type');
+[['all','All Types','#64748b','#1e293b','#94a3b8'], ...Object.entries(TYPES).map(([k,t])=>[k,t.label,t.color,t.bg,t.text])].forEach(([k,lbl,col,bg,tc]) => {
+  const b = document.createElement('button');
+  b.className = 'filter-btn' + (k === 'all' ? ' active' : '');
+  b.textContent = k === 'all' ? 'All Types' : lbl;
+  b.style.background = bg; b.style.color = tc; b.style.borderColor = col;
+  b.addEventListener('click', () => {
+    filterType = k;
+    document.querySelectorAll('#filter-type .filter-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    refresh();
+  });
+  ftEl.appendChild(b);
+});
+
+// ─── MARKER ICON ─────────────────────────────────────────────────────────────
+function makeIcon(site) {
+  const t = TYPES[site.type];
+  const e = ERAS[site.era];
+  // outer ring = era color, inner fill = type color
+  return L.divIcon({
+    className:'',
+    html:`<div style="width:22px;height:22px;border-radius:${site.type==='lock'?'4px':'50%'};background:${t.color};border:3px solid ${e.color};box-shadow:0 0 0 2px rgba(0,0,0,.4),0 3px 8px rgba(0,0,0,.5);cursor:pointer"></div>`,
+    iconAnchor:[11,11]
+  });
+}
+
+// ─── POPUP ───────────────────────────────────────────────────────────────────
+function makePopup(s) {
+  const t = TYPES[s.type];
+  const e = ERAS[s.era];
+  const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}`;
+  return `<div class="popup-inner">
+    <div class="popup-badges">
+      <span class="popup-badge" style="background:${t.bg};color:${t.text}">${t.label}</span>
+      <span class="popup-badge" style="background:${e.bg};color:${e.color};border:1px solid ${e.color}55">${e.label} ${e.years}</span>
+    </div>
+    <div class="popup-name">${s.name}</div>
+    <div class="popup-location">📍 ${s.country}</div>
+    <div class="popup-desc">${s.desc}</div>
+    <div class="popup-fact">${s.fact}</div>
+    <a class="popup-gmaps" href="${gmapsUrl}" target="_blank" rel="noopener noreferrer">🗺 View on Google Maps</a>
+  </div>`;
+}
+
+// ─── BUILD MARKERS ────────────────────────────────────────────────────────────
+function buildMarkers() {
+  markers.forEach(m => map.removeLayer(m.marker));
+  markers = [];
+  const vis = visibleSites();
+  document.getElementById('count-total').textContent = vis.length;
+  const eraLabel = filterEra === 'all' ? 'All phases' : ERAS[filterEra].label + ' ' + ERAS[filterEra].years;
+  const typeLabel = filterType === 'all' ? '' : ' · ' + TYPES[filterType].label;
+  document.getElementById('count-desc').textContent = eraLabel + typeLabel;
+  vis.forEach(s => {
+    const m = L.marker([s.lat, s.lng], { icon:makeIcon(s) });
+    m.addTo(map);
+    m.bindPopup(makePopup(s), { maxWidth:350 });
+    m.on('click', () => selectSite(s.id, false));
+    markers.push({ id:s.id, marker:m });
+  });
+}
+
+// ─── SIDEBAR ─────────────────────────────────────────────────────────────────
+function buildSidebar() {
+  const list = document.getElementById('site-list');
+  list.innerHTML = '';
+  const vis = visibleSites();
+  // group by era
+  const eraKeys = ['era1','era2','era3','era4','era5'];
+  eraKeys.forEach(ek => {
+    const sites = vis.filter(s => s.era === ek);
+    if (!sites.length) return;
+    const e = ERAS[ek];
+    const hdr = document.createElement('div');
+    hdr.className = 'era-group-header';
+    hdr.innerHTML = `<div class="era-swatch" style="background:${e.color}"></div><span style="color:${e.color}">${e.label}</span><span style="color:#475569;margin-left:4px;font-weight:400">${e.years}</span>`;
+    list.appendChild(hdr);
+    sites.forEach(s => {
+      const t = TYPES[s.type];
+      const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}`;
+      const div = document.createElement('div');
+      div.className = 'site-item';
+      div.dataset.id = s.id;
+      div.innerHTML = `<div class="site-dot" style="background:${t.color}"></div><div><div class="site-item-name">${s.name}</div><div class="site-item-sub">${s.country} · ${t.label}</div><a href="${gmapsUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="font-size:.62rem;color:#38bdf8;text-decoration:none;display:inline-flex;align-items:center;gap:3px;margin-top:2px;opacity:.7">🗺 Maps</a></div>`;
+      div.addEventListener('click', () => selectSite(s.id, true));
+      list.appendChild(div);
+    });
+  });
+}
+
+// ─── LEGEND ──────────────────────────────────────────────────────────────────
+function buildLegend() {
+  // Types
+  const tEl = document.getElementById('legend-types');
+  const tGrid = document.createElement('div'); tGrid.className = 'legend-grid';
+  Object.entries(TYPES).forEach(([k,t]) => {
+    const d = document.createElement('div'); d.className = 'legend-item';
+    d.innerHTML = `<div class="legend-dot" style="background:${t.color}"></div><span>${t.label}</span>`;
+    tGrid.appendChild(d);
+  });
+  tEl.appendChild(tGrid);
+  const note = document.createElement('div');
+  note.style.cssText = 'font-size:.62rem;color:#475569;margin-top:6px';
+  note.textContent = 'Marker shape: ● meanders & canals  ■ locks';
+  tEl.appendChild(note);
+  const note2 = document.createElement('div');
+  note2.style.cssText = 'font-size:.62rem;color:#475569;margin-top:2px';
+  note2.textContent = 'Ring color = historical phase';
+  tEl.appendChild(note2);
+
+  // Waterways
+  const wEl = document.getElementById('legend-waterways');
+  const wGrid = document.createElement('div'); wGrid.className = 'legend-grid';
+  Object.entries(WATERWAYS).forEach(([k,w]) => {
+    const d = document.createElement('div'); d.className = 'legend-item';
+    const lineStyle = `background:${w.dash?'transparent':w.color};border-top:${w.dash?`2px dashed ${w.color}`:'none'};width:20px;height:${w.dash?'0':'3px'};flex-shrink:0`;
+    d.innerHTML = `<div style="${lineStyle}"></div><span>${w.label}</span>`;
+    wGrid.appendChild(d);
+  });
+  wEl.appendChild(wGrid);
+
+  // Eras
+  const eEl = document.getElementById('legend-eras');
+  const eGrid = document.createElement('div'); eGrid.className = 'legend-grid';
+  Object.entries(ERAS).filter(([k]) => k !== 'all').forEach(([k,e]) => {
+    const d = document.createElement('div'); d.className = 'legend-item';
+    d.innerHTML = `<div class="legend-dot" style="background:${e.color}"></div><span style="color:${e.color};font-weight:700">${e.years}</span><span style="margin-left:4px">${e.label}</span>`;
+    eGrid.appendChild(d);
+  });
+  eEl.appendChild(eGrid);
+}
+
+// ─── SELECT SITE ─────────────────────────────────────────────────────────────
+function selectSite(id, fromSidebar) {
+  selectedId = id;
+  document.querySelectorAll('.site-item').forEach(el => {
+    el.classList.toggle('selected', parseInt(el.dataset.id) === id);
+    if (parseInt(el.dataset.id) === id) el.scrollIntoView({ block:'nearest' });
+  });
+  const s = SITES.find(x => x.id === id);
+  if (s) {
+    map.flyTo([s.lat, s.lng], 12, { duration:.9 });
+    const m = markers.find(x => x.id === id);
+    if (m) setTimeout(() => m.marker.openPopup(), 950);
+  }
+}
+
+// ─── TABS ────────────────────────────────────────────────────────────────────
+function showTab(t) {
+  document.getElementById('tab-list').classList.toggle('active', t === 'list');
+  document.getElementById('tab-legend').classList.toggle('active', t === 'legend');
+  document.getElementById('site-list').style.display = t === 'list' ? '' : 'none';
+  document.getElementById('legend-tab').style.display = t === 'legend' ? 'flex' : 'none';
+  if (t === 'legend') document.getElementById('legend-tab').style.flexDirection = 'column';
+}
+
+// ─── REFRESH ─────────────────────────────────────────────────────────────────
+function refresh() { buildMarkers(); buildSidebar(); }
+map.on('click', () => document.querySelectorAll('.site-item').forEach(el => el.classList.remove('selected')));
+
+// INIT
+buildLegend();
+refresh();
+</script>
+</body>
+</html>

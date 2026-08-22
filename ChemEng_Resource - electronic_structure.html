@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Electronic Structure &amp; Evidence — IB Chemistry HL</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b27;
+  --surface2: #1e2538;
+  --surface3: #252d45;
+  --accent: #4f8ef7;
+  --accent2: #a78bfa;
+  --green: #22c55e;
+  --red: #ef4444;
+  --yellow: #f59e0b;
+  --cyan: #22d3ee;
+  --text: #e2e8f0;
+  --text-muted: #8892aa;
+  --border: #2a3350;
+  --radius: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; min-height: 100vh; }
+
+/* NAV */
+nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 4px; position: sticky; top: 0; z-index: 100; flex-wrap: wrap; }
+.nav-brand { font-weight: 700; font-size: 1rem; color: var(--accent); padding: 16px 12px 16px 0; margin-right: 8px; white-space: nowrap; border-right: 1px solid var(--border); }
+.tab-btn { padding: 14px 16px; border: none; background: none; color: var(--text-muted); font-size: 0.88rem; font-weight: 500; cursor: pointer; border-bottom: 3px solid transparent; transition: all .2s; white-space: nowrap; }
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.score-badge { margin-left: auto; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 0.85rem; font-weight: 600; color: var(--accent); white-space: nowrap; }
+
+/* TABS */
+.tab-panel { display: none; padding: 32px 24px; max-width: 980px; margin: 0 auto; }
+.tab-panel.active { display: block; }
+
+/* CARDS */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+.card h2 { font-size: 1.15rem; font-weight: 700; color: var(--accent); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.card h3 { font-size: 1rem; font-weight: 600; margin: 18px 0 8px; color: var(--accent2); }
+.card p { color: var(--text-muted); font-size: 0.93rem; margin-bottom: 8px; }
+.card ul { padding-left: 20px; color: var(--text-muted); font-size: 0.93rem; }
+.card ul li { margin-bottom: 5px; }
+
+/* KEY BOX */
+.key-box { background: var(--surface2); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; font-size: 0.91rem; }
+.key-box strong { color: var(--accent); display: block; margin-bottom: 4px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: .05em; }
+
+.equation { font-family: 'Courier New', monospace; background: var(--surface3); padding: 10px 16px; border-radius: 6px; margin: 10px 0; font-size: 0.93rem; color: var(--cyan); }
+
+/* GRAPHS */
+.graph-container { position: relative; height: 340px; margin: 16px 0; }
+.graph-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.ctrl-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface2); color: var(--text-muted); font-size: 0.82rem; cursor: pointer; transition: all .2s; }
+.ctrl-btn:hover, .ctrl-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.graph-annotation { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; font-size: 0.85rem; color: var(--text-muted); margin-top: 10px; min-height: 44px; }
+.graph-annotation strong { color: var(--yellow); }
+
+/* MCQ */
+.mcq-section-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--accent2); padding: 8px 0 4px; margin-top: 8px; }
+.question-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; transition: border-color .2s; }
+.question-card.correct-card { border-color: var(--green); }
+.question-card.wrong-card { border-color: var(--red); }
+.question-num { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+.question-text { font-size: 0.95rem; margin-bottom: 14px; color: var(--text); font-weight: 500; }
+.options { display: flex; flex-direction: column; gap: 8px; }
+.option-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; text-align: left; cursor: pointer; font-size: 0.9rem; color: var(--text); transition: all .18s; display: flex; align-items: flex-start; gap: 10px; }
+.option-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--surface3); }
+.option-btn .opt-letter { min-width: 22px; height: 22px; border-radius: 50%; background: var(--surface3); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); flex-shrink: 0; margin-top: 1px; }
+.option-btn.selected { border-color: var(--accent); background: rgba(79,142,247,0.1); }
+.option-btn.correct { border-color: var(--green) !important; background: rgba(34,197,94,0.12) !important; color: var(--green); }
+.option-btn.correct .opt-letter { background: var(--green); color: #fff; }
+.option-btn.wrong { border-color: var(--red) !important; background: rgba(239,68,68,0.1) !important; color: var(--red); }
+.option-btn.wrong .opt-letter { background: var(--red); color: #fff; }
+.option-btn:disabled { cursor: default; }
+.q-footer { display: flex; gap: 8px; margin-top: 12px; align-items: center; flex-wrap: wrap; }
+.check-btn { padding: 7px 18px; background: var(--accent); border: none; border-radius: 8px; color: #fff; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: opacity .2s; }
+.check-btn:hover { opacity: .85; }
+.check-btn:disabled { opacity: .35; cursor: default; }
+.hint-btn { padding: 7px 14px; background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; transition: all .2s; }
+.hint-btn:hover { border-color: var(--yellow); color: var(--yellow); }
+.feedback-box { margin-top: 12px; padding: 12px 14px; border-radius: 8px; font-size: 0.88rem; display: none; }
+.feedback-box.correct { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: var(--green); }
+.feedback-box.wrong { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: #fca5a5; }
+.feedback-box .explanation { color: var(--text-muted); margin-top: 6px; font-size: 0.85rem; }
+.hint-box { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); border-radius: 8px; padding: 10px 14px; font-size: 0.85rem; color: #fbbf24; margin-top: 8px; display: none; }
+
+/* LONG ANSWER */
+.la-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+.la-card .marks { display: inline-block; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-size: 0.78rem; color: var(--accent2); font-weight: 700; margin-left: 8px; vertical-align: middle; }
+.la-card .q-text { font-size: 0.95rem; font-weight: 500; margin-bottom: 6px; }
+.la-card .context { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 14px; background: var(--surface2); border-radius: 8px; padding: 10px 14px; }
+.la-textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.9rem; padding: 12px 14px; resize: vertical; min-height: 120px; font-family: inherit; line-height: 1.5; transition: border-color .2s; }
+.la-textarea:focus { outline: none; border-color: var(--accent); }
+.la-footer { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.reveal-btn { padding: 7px 18px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; transition: all .2s; }
+.reveal-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+.model-answer { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--green); border-radius: 0 8px 8px 0; padding: 16px 18px; margin-top: 14px; display: none; }
+.model-answer h4 { color: var(--green); font-size: 0.82rem; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 10px; font-weight: 700; }
+.model-answer p, .model-answer li { font-size: 0.88rem; color: var(--text-muted); }
+.model-answer ul { padding-left: 18px; }
+.model-answer li { margin-bottom: 5px; }
+.mark-point { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 5px; }
+.mark-point::before { content: "✓"; color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+/* PROGRESS */
+.progress-bar-wrap { background: var(--surface2); border-radius: 20px; height: 6px; margin: 8px 0 16px; overflow: hidden; }
+.progress-bar-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .4s; }
+
+/* SUMMARY */
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 16px; }
+.summary-stat { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+.summary-stat .stat-val { font-size: 2rem; font-weight: 800; color: var(--accent); }
+.summary-stat .stat-label { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 4px; }
+
+/* TOOLTIP */
+.chartjs-tooltip { position: absolute; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; pointer-events: none; font-size: 0.82rem; color: var(--text); transition: all .1s; }
+
+/* subshell tag */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin-left: 6px; }
+.tag-s { background: rgba(79,142,247,0.2); color: var(--accent); }
+.tag-p { background: rgba(167,139,250,0.2); color: var(--accent2); }
+.tag-d { background: rgba(34,211,238,0.2); color: var(--cyan); }
+
+@media (max-width: 600px) {
+  .tab-panel { padding: 20px 14px; }
+  .graph-container { height: 260px; }
+  nav { padding: 0 12px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">⚛ IB Chemistry HL</div>
+  <button class="tab-btn active" onclick="showTab('notes')">📚 Revision Notes</button>
+  <button class="tab-btn" onclick="showTab('graphs')">📈 Interactive Graphs</button>
+  <button class="tab-btn" onclick="showTab('mcq')">✏️ MCQ (35 Qs)</button>
+  <button class="tab-btn" onclick="showTab('long')">📝 Long Answer</button>
+  <div class="score-badge" id="score-badge">MCQ: 0 / 35</div>
+</nav>
+
+<!-- ===================== REVISION NOTES ===================== -->
+<div id="tab-notes" class="tab-panel active">
+  <div class="card">
+    <h2>🔵 Topic: Electronic Structure &amp; Evidence</h2>
+    <p style="color:var(--text)">IB Chemistry HL · Structure 1.3 · Grades 11–12</p>
+  </div>
+
+  <div class="card">
+    <h2>1. Shells, Sub-shells and Orbitals</h2>
+    <p>Electrons occupy <strong style="color:var(--text)">shells</strong> (principal energy levels, n = 1, 2, 3…) which are divided into <strong style="color:var(--text)">sub-shells</strong>.</p>
+    <h3>Sub-shell types</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:0.88rem;margin-top:8px;">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border);text-align:left;">
+          <th style="padding:8px 10px;color:var(--text-muted)">Sub-shell</th>
+          <th style="padding:8px 10px;color:var(--text-muted)">No. of orbitals</th>
+          <th style="padding:8px 10px;color:var(--text-muted)">Max electrons</th>
+          <th style="padding:8px 10px;color:var(--text-muted)">Shape</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:8px 10px"><span class="tag tag-s">s</span></td>
+          <td style="padding:8px 10px">1</td><td style="padding:8px 10px">2</td><td style="padding:8px 10px">Spherical</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:8px 10px"><span class="tag tag-p">p</span></td>
+          <td style="padding:8px 10px">3</td><td style="padding:8px 10px">6</td><td style="padding:8px 10px">Dumbbell (3 axes)</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:8px 10px"><span class="tag tag-d">d</span></td>
+          <td style="padding:8px 10px">5</td><td style="padding:8px 10px">10</td><td style="padding:8px 10px">Complex</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 10px"><span style="color:#f97316;font-weight:700;font-size:.85rem">f</span></td>
+          <td style="padding:8px 10px">7</td><td style="padding:8px 10px">14</td><td style="padding:8px 10px">Very complex</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>Three key rules for filling</h3>
+    <ul>
+      <li><strong style="color:var(--text)">Aufbau principle:</strong> fill lowest energy sub-shells first (1s → 2s → 2p → 3s → 3p → 4s → 3d…)</li>
+      <li><strong style="color:var(--text)">Pauli exclusion principle:</strong> each orbital holds at most 2 electrons with opposite spins (↑↓)</li>
+      <li><strong style="color:var(--text)">Hund's rule:</strong> electrons occupy orbitals of equal energy singly before pairing</li>
+    </ul>
+    <div class="key-box" style="margin-top:14px">
+      <strong>Anomalous configurations (HL must know)</strong>
+      Cr (Z=24): [Ar] 3d⁵ 4s¹ — half-filled d is extra stable<br>
+      Cu (Z=29): [Ar] 3d¹⁰ 4s¹ — full d is extra stable
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. First Ionisation Energy (IE₁)</h2>
+    <div class="key-box">
+      <strong>Definition</strong>
+      The energy required to remove one mole of electrons from one mole of gaseous atoms in the ground state, forming one mole of gaseous 1+ ions.
+    </div>
+    <div class="equation">X(g) → X⁺(g) + e⁻&nbsp;&nbsp;&nbsp;&nbsp;ΔH = IE₁ (always positive)</div>
+    <h3>General trends</h3>
+    <ul>
+      <li><strong style="color:var(--text)">Across a period (→):</strong> IE₁ generally increases — nuclear charge increases, atomic radius decreases, shielding roughly constant → stronger attraction for outer electrons</li>
+      <li><strong style="color:var(--text)">Down a group (↓):</strong> IE₁ decreases — outer electrons are further from nucleus, more shielding from inner shells</li>
+    </ul>
+    <h3>Anomalies in Period 2 &amp; 3 — evidence for sub-shells</h3>
+    <div class="key-box" style="border-color:var(--yellow)">
+      <strong style="color:var(--yellow)">Anomaly 1 — Group 2 → Group 13 (Be→B, Mg→Al)</strong>
+      IE₁(B) &lt; IE₁(Be) even though B has higher Z. B removes a 2p electron (higher energy, more shielded by the 2s²), which is easier to remove than Be's 2s electron.
+    </div>
+    <div class="key-box" style="border-color:var(--red)">
+      <strong style="color:var(--red)">Anomaly 2 — Group 15 → Group 16 (N→O, P→S)</strong>
+      IE₁(O) &lt; IE₁(N) even though O has higher Z. O has a paired 2p electron (↑↓ in one orbital), which experiences extra electron–electron repulsion and is easier to remove. N has unpaired 2p electrons (↑ ↑ ↑) with no pairing repulsion.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>3. Successive Ionisation Energies — Evidence for Shell Structure</h2>
+    <p>Remove electrons one by one from the same element and plot the IE for each removal. <strong style="color:var(--text)">Sudden large jumps</strong> reveal when you cross from one shell to the next.</p>
+    <div class="equation">Na: IE₁=496, IE₂=4562, …, IE₉=28932, IE₁₀=141362, IE₁₁=157980 (kJ mol⁻¹)</div>
+    <ul style="margin-top:10px">
+      <li>IE₁ is low → Na has 1 outer electron (valence shell n=3)</li>
+      <li>IE₂ to IE₉ rise gradually → 8 electrons in n=2 shell</li>
+      <li>IE₁₀ is ~5× IE₉ → crossing into n=1 shell (only 2 electrons)</li>
+    </ul>
+    <div class="key-box" style="border-color:var(--green)">
+      <strong>Why use a log scale?</strong>
+      Successive IEs span three orders of magnitude. A log₁₀ scale compresses the large values so that jumps within each shell become clearly visible as distinct groups — revealing the <em>sub-shell</em> structure as well as shell boundaries.
+    </div>
+    <h3>Reading sub-shell structure from the log graph of Na</h3>
+    <ul>
+      <li>IE₁ (3s) — isolated low point</li>
+      <li>IE₂–IE₇ (2p) — cluster of 6 values rising gradually</li>
+      <li>IE₈–IE₉ (2s) — slightly higher cluster of 2 values</li>
+      <li>IE₁₀–IE₁₁ (1s) — massive jump, cluster of 2 very high values</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>4. First IE Across Z = 1–30 — Evidence for Sub-shells</h2>
+    <ul>
+      <li>Each new period starts with a sharp drop (e.g., Li, Na, K) — new outer shell, much further from nucleus</li>
+      <li>Noble gases peak each period — full shells, very stable</li>
+      <li>Dips at Group 13 (B, Al) — first 2p/3p electron, screened by 2s/3s</li>
+      <li>Dips at Group 16 (O, S) — first paired p electron, extra repulsion</li>
+      <li>D-block (Sc–Zn): 4s electrons are always removed first in ionisation; the 3d fills but 4s is exposed — relatively flat IE₁ across the d-block</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===================== GRAPHS ===================== -->
+<div id="tab-graphs" class="tab-panel">
+  <div class="card">
+    <h2>📊 Graph 1: First Ionisation Energies — Z = 1 to 30</h2>
+    <p style="margin-bottom:14px;color:var(--text-muted)">Hover over any data point to see element details. Use the buttons to highlight regions and anomalies.</p>
+    <div class="graph-controls">
+      <button class="ctrl-btn active" id="g1-all" onclick="g1Highlight('all')">Show All</button>
+      <button class="ctrl-btn" id="g1-sblock" onclick="g1Highlight('sblock')">s-block</button>
+      <button class="ctrl-btn" id="g1-pblock" onclick="g1Highlight('pblock')">p-block</button>
+      <button class="ctrl-btn" id="g1-dblock" onclick="g1Highlight('dblock')">d-block</button>
+      <button class="ctrl-btn" id="g1-anomaly" onclick="g1Highlight('anomaly')">Show Anomalies</button>
+    </div>
+    <div class="graph-container"><canvas id="graph1"></canvas></div>
+    <div class="graph-annotation" id="g1-annotation">
+      <strong>Hover or click a data point</strong> to see an explanation of that element's position.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📊 Graph 2: Successive Ionisation Energies of Na (Z=11)</h2>
+    <p style="margin-bottom:14px;color:var(--text-muted)">Toggle between linear and log scale. Switch to Mg to compare. The jumps reveal the shell and sub-shell structure.</p>
+    <div class="graph-controls">
+      <button class="ctrl-btn active" id="g2-linear" onclick="g2Scale('linear')">Linear Scale</button>
+      <button class="ctrl-btn" id="g2-log" onclick="g2Scale('log')">Log₁₀ Scale</button>
+      <button class="ctrl-btn active" id="g2-na" onclick="g2Element('na')">Sodium (Na)</button>
+      <button class="ctrl-btn" id="g2-mg" onclick="g2Element('mg')">Magnesium (Mg)</button>
+    </div>
+    <div class="graph-container"><canvas id="graph2"></canvas></div>
+    <div class="graph-annotation" id="g2-annotation">
+      Switch between <strong>Linear</strong> and <strong>Log</strong> scale and observe what each reveals. Log scale makes the sub-shell groups visible.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🔍 Interpret the Graphs</h2>
+    <h3>Questions to consider while exploring:</h3>
+    <ul>
+      <li>On Graph 1, identify the two periodic anomalies in Period 2. What sub-shell transitions do they mark?</li>
+      <li>Why is there a large drop in IE₁ from Ne→Na and from Ar→K?</li>
+      <li>On Graph 2 (linear), can you see any sub-shell structure, or only the main shell jump?</li>
+      <li>Switch to log scale. Now identify the 1s, 2s, 2p, and 3s groups for Na.</li>
+      <li>Compare Na and Mg: where is the <em>first</em> large jump for each? What does this confirm?</li>
+      <li>In the d-block (Z=21–30), the IE₁ values are relatively flat. Why?</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===================== MCQ ===================== -->
+<div id="tab-mcq" class="tab-panel">
+  <div class="card" style="padding:16px 24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-weight:700;font-size:1rem">Multiple Choice Questions</div>
+        <div style="font-size:0.83rem;color:var(--text-muted)">35 questions · IB HL standard · Self-marking</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:1.6rem;font-weight:800;color:var(--accent)" id="mcq-score-display">0 / 35</div>
+        <div style="font-size:0.78rem;color:var(--text-muted)">answered: <span id="mcq-answered">0</span></div>
+      </div>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="mcq-progress" style="width:0%"></div></div>
+  </div>
+  <div id="mcq-container"></div>
+</div>
+
+<!-- ===================== LONG ANSWER ===================== -->
+<div id="tab-long" class="tab-panel">
+  <div class="card" style="padding:16px 24px;margin-bottom:20px">
+    <div style="font-weight:700;font-size:1rem">Long Answer Questions</div>
+    <div style="font-size:0.83rem;color:var(--text-muted)">Write your answer in the box, then reveal the mark scheme. Use the IB command terms carefully.</div>
+  </div>
+
+  <!-- LA 1 -->
+  <div class="la-card">
+    <div class="q-text">1. The table below gives the successive ionisation energies (IE) for an element X. <span class="marks">8 marks</span></div>
+    <div class="context">
+      IE₁ = 578 &nbsp;|&nbsp; IE₂ = 1817 &nbsp;|&nbsp; IE₃ = 2745 &nbsp;|&nbsp; IE₄ = 11577 &nbsp;|&nbsp; IE₅ = 14842 &nbsp;|&nbsp; IE₆ = 18379 &nbsp;|&nbsp; IE₇ = 23326 &nbsp;|&nbsp; IE₈ = 27465 &nbsp;|&nbsp; IE₉ = 31853 &nbsp;|&nbsp; IE₁₀ = 38473 &nbsp;|&nbsp; IE₁₁ = 43962 &nbsp;|&nbsp; IE₁₂ = 48278 &nbsp;|&nbsp; IE₁₃ = 53265 (all kJ mol⁻¹)
+    </div>
+    <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:14px">
+      (a) Identify element X, giving your reasoning. [2]<br>
+      (b) Write the full electron configuration of X. [1]<br>
+      (c) Explain why there is a large jump between IE₃ and IE₄. [2]<br>
+      (d) Explain why the jumps between consecutive IEs within the n=2 shell are not all equal. [3]
+    </p>
+    <textarea class="la-textarea" placeholder="Write your answer here..."></textarea>
+    <div class="la-footer">
+      <button class="hint-btn" onclick="toggleHint('la1-hint')">💡 Hint</button>
+      <button class="reveal-btn" onclick="toggleModel('la1-model')">📋 Show Mark Scheme</button>
+    </div>
+    <div class="hint-box" id="la1-hint">
+      Look at where the LARGE jump is. The jump from IE₃ to IE₄ means 3 electrons are in the outer shell. Which element in Period 3 has 3 outer electrons? For part (d), think about whether the n=2 electrons are all in the same sub-shell.
+    </div>
+    <div class="model-answer" id="la1-model">
+      <h4>Mark Scheme</h4>
+      <div class="mark-point">(a) Element X is <strong>Aluminium (Al)</strong> — the large jump occurs between IE₃ and IE₄, indicating 3 electrons in the outer shell (n=3). Al is in Group 13 with 3 valence electrons. ✓✓</div>
+      <div class="mark-point">(b) 1s² 2s² 2p⁶ 3s² 3p¹ ✓</div>
+      <div class="mark-point">(c) After removing 3 electrons, the 4th electron must be removed from the n=2 shell (inner shell). ✓ The n=2 electrons are much closer to the nucleus and experience less shielding, so the attractive force is much greater. ✓</div>
+      <div class="mark-point">(d) Within the n=2 shell, there are two sub-shells: 2s (2 electrons) and 2p (6 electrons). ✓ The 2p electrons are higher in energy and slightly more shielded than the 2s electrons (IE₁₀–IE₁₃ are higher than IE₄–IE₉). ✓ Also, within the 2p sub-shell, when a paired electron is removed first (extra repulsion lowers IE), and subsequent removals from half-filled onwards rise more steeply. ✓</div>
+    </div>
+  </div>
+
+  <!-- LA 2 -->
+  <div class="la-card">
+    <div class="q-text">2. Explain fully the trend in first ionisation energies across Period 3 (Na to Ar), including the two anomalies. <span class="marks">7 marks</span></div>
+    <div class="context">
+      First IE values (kJ mol⁻¹): Na 496 · Mg 738 · Al 578 · Si 786 · P 1012 · S 1000 · Cl 1251 · Ar 1521
+    </div>
+    <textarea class="la-textarea" placeholder="Write your answer here..."></textarea>
+    <div class="la-footer">
+      <button class="hint-btn" onclick="toggleHint('la2-hint')">💡 Hint</button>
+      <button class="reveal-btn" onclick="toggleModel('la2-model')">📋 Show Mark Scheme</button>
+    </div>
+    <div class="hint-box" id="la2-hint">
+      General trend: nuclear charge vs. atomic radius vs. shielding. Two anomalies: (1) Mg→Al drops — think about which sub-shell Al's outer electron occupies. (2) P→S drops — think about electron pairing in the 3p orbital.
+    </div>
+    <div class="model-answer" id="la2-model">
+      <h4>Mark Scheme</h4>
+      <div class="mark-point">General trend: IE₁ increases from Na to Ar because nuclear charge increases (Z = 11→18) while shielding from inner electrons remains approximately constant, so the effective nuclear charge increases and outer electrons are more strongly attracted. ✓✓</div>
+      <div class="mark-point">Anomaly 1 — Mg to Al: IE₁(Al) &lt; IE₁(Mg) despite Al having higher Z. ✓ Al's outer electron is in the 3p sub-shell (3p¹), which is at higher energy and is additionally shielded by the 3s² electrons. ✓ Mg's outer electron (3s²) is in the lower-energy 3s sub-shell with less shielding.</div>
+      <div class="mark-point">Anomaly 2 — P to S: IE₁(S) &lt; IE₁(P) despite S having higher Z. ✓ S has a paired electron in one 3p orbital (↑↓ ↑ ↑). The electron–electron repulsion in that paired orbital lowers the energy required to remove one of those paired electrons. ✓ P has three unpaired 3p electrons (↑ ↑ ↑ — Hund's rule), with no pairing repulsion. ✓</div>
+    </div>
+  </div>
+
+  <!-- LA 3 -->
+  <div class="la-card">
+    <div class="q-text">3. Describe how a log graph of the successive ionisation energies of sodium provides evidence for the quantum shell structure 2,8,1 AND for the existence of sub-shells within the shells. <span class="marks">8 marks</span></div>
+    <textarea class="la-textarea" placeholder="Write your answer here..."></textarea>
+    <div class="la-footer">
+      <button class="hint-btn" onclick="toggleHint('la3-hint')">💡 Hint</button>
+      <button class="reveal-btn" onclick="toggleModel('la3-model')">📋 Show Mark Scheme</button>
+    </div>
+    <div class="hint-box" id="la3-hint">
+      Structure your answer: (1) Describe what the graph looks like — groups of points. (2) Link each group to a shell and number of electrons. (3) Then explain why sub-shells are visible — are all 8 electrons in n=2 at exactly the same energy? No — the 2s and 2p are different.
+    </div>
+    <div class="model-answer" id="la3-model">
+      <h4>Mark Scheme</h4>
+      <div class="mark-point">Log scale compresses the huge range of values (496 to ~158 000 kJ mol⁻¹) so that all data points are visible and groups within shells can be distinguished. ✓</div>
+      <div class="mark-point">IE₁ is very low (496 kJ mol⁻¹) and stands alone — this electron is the single outer (3s¹) electron, confirming the "1" in the 2,8,1 structure. ✓</div>
+      <div class="mark-point">IE₂ to IE₉ form a group of 8 values at intermediate energy, confirming 8 electrons in the second shell (n=2). ✓ There is a large jump between IE₁ and IE₂, confirming the boundary between the n=3 and n=2 shells. ✓</div>
+      <div class="mark-point">IE₁₀ and IE₁₁ are extremely high and form a separate group of 2 values, confirming 2 electrons in the first shell (n=1, the 1s sub-shell). ✓ The jump from IE₉ to IE₁₀ is very large (~5× increase), confirming the n=1/n=2 shell boundary. ✓</div>
+      <div class="mark-point">Within the n=2 group (IE₂–IE₉), the log graph shows two distinct sub-groups: IE₂–IE₇ (6 electrons, 2p sub-shell) at lower energy, and IE₈–IE₉ (2 electrons, 2s sub-shell) at slightly higher energy. ✓ This sub-shell splitting is only visible on the log scale and provides evidence that the n=2 shell contains sub-shells of differing energy. ✓</div>
+    </div>
+  </div>
+
+  <!-- LA 4 -->
+  <div class="la-card">
+    <div class="q-text">4. Sketch and annotate a graph of log(IE) against electron number for magnesium (Mg, Z=12). Label all shell and sub-shell boundaries. <span class="marks">6 marks</span></div>
+    <div class="context">
+      Data for Mg successive IEs (kJ mol⁻¹): 738, 1451, 7733, 10540, 13628, 18020, 21712, 25661, 31642, 35464, 169988, 189368
+    </div>
+    <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:14px">
+      Sketch your graph on paper, then use the box below to describe it and identify all features.
+    </p>
+    <textarea class="la-textarea" placeholder="Describe your sketch: where are the groups? Where are the jumps? What does each group represent?"></textarea>
+    <div class="la-footer">
+      <button class="hint-btn" onclick="toggleHint('la4-hint')">💡 Hint</button>
+      <button class="reveal-btn" onclick="toggleModel('la4-model')">📋 Show Mark Scheme</button>
+    </div>
+    <div class="hint-box" id="la4-hint">
+      Mg is [Ne] 3s². Think about how many electrons are in each shell: n=1 has 2, n=2 has 8, n=3 has 2. Where will the big jumps be? (After electron 2 and after electron 10.) Can you also see 2s vs 2p within the n=2 group?
+    </div>
+    <div class="model-answer" id="la4-model">
+      <h4>Mark Scheme</h4>
+      <div class="mark-point">Axes: log(IE / kJ mol⁻¹) on y-axis; electron number (1–12) on x-axis. ✓</div>
+      <div class="mark-point">Group 1 (IE₁–IE₂): two low points at ~2.87 and ~3.16. These are the 2 outer 3s² electrons (n=3 shell). ✓</div>
+      <div class="mark-point">Large jump between IE₂ and IE₃ — crossing from n=3 to n=2 shell. ✓</div>
+      <div class="mark-point">Group 2 (IE₃–IE₁₀): 8 values rising from ~3.89 to ~4.55. These are the 8 electrons in the n=2 shell. ✓ Sub-groups: IE₃–IE₈ (2p, 6 electrons) slightly lower than IE₉–IE₁₀ (2s, 2 electrons). ✓</div>
+      <div class="mark-point">Large jump between IE₁₀ and IE₁₁ — crossing from n=2 to n=1 shell. ✓</div>
+      <div class="mark-point">Group 3 (IE₁₁–IE₁₂): 2 very high values (~5.23 and ~5.28), representing the 2 electrons in the 1s sub-shell (n=1). ✓</div>
+    </div>
+  </div>
+
+  <!-- LA 5 -->
+  <div class="la-card">
+    <div class="q-text">5. Chromium (Cr, Z=24) and copper (Cu, Z=29) have electron configurations that deviate from the expected Aufbau order. <span class="marks">7 marks</span></div>
+    <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:14px">
+      (a) Write the expected and actual configurations of Cr and Cu. [4]<br>
+      (b) Explain why the actual configurations are more stable. [2]<br>
+      (c) Suggest why the first IE of Cu (745 kJ mol⁻¹) is higher than that of Ni (737 kJ mol⁻¹) but lower than that of Zn (906 kJ mol⁻¹). [3]
+    </p>
+    <textarea class="la-textarea" placeholder="Write your answer here..."></textarea>
+    <div class="la-footer">
+      <button class="hint-btn" onclick="toggleHint('la5-hint')">💡 Hint</button>
+      <button class="reveal-btn" onclick="toggleModel('la5-model')">📋 Show Mark Scheme</button>
+    </div>
+    <div class="hint-box" id="la5-hint">
+      For Cr: expected is [Ar]3d⁴4s², actual is [Ar]3d⁵4s¹. For Cu: expected [Ar]3d⁹4s², actual [Ar]3d¹⁰4s¹. The stability comes from half-filled and fully-filled d sub-shells. For part (c) think about what is being removed in each case and what Zn's 3d¹⁰ does.
+    </div>
+    <div class="model-answer" id="la5-model">
+      <h4>Mark Scheme</h4>
+      <div class="mark-point">(a) Cr expected: [Ar] 3d⁴ 4s² ; actual: [Ar] 3d⁵ 4s¹ ✓✓</div>
+      <div class="mark-point">Cu expected: [Ar] 3d⁹ 4s² ; actual: [Ar] 3d¹⁰ 4s¹ ✓✓</div>
+      <div class="mark-point">(b) A half-filled d sub-shell (3d⁵, Cr) and a fully-filled d sub-shell (3d¹⁰, Cu) have extra stability due to the symmetrical distribution of electron density and exchange energy. ✓ The energy gained from achieving these configurations outweighs the cost of promoting a 4s electron to 3d. ✓</div>
+      <div class="mark-point">(c) Cu (3d¹⁰ 4s¹): the single 4s¹ electron is removed. This is slightly higher than Ni because increasing Z gives higher effective nuclear charge on the outer 4s electron. ✓ Zn (3d¹⁰ 4s²) has IE₁ much higher because the 3d¹⁰ provides less effective shielding of the 4s² pair (d electrons shield poorly compared to s/p), and the 4s² electrons experience a higher effective nuclear charge. ✓ Also, Zn's 3d subshell is fully filled and contributes to a contraction of the 4s orbital, raising IE₁. ✓</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// TAB NAVIGATION
+// ============================================================
+function showTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ============================================================
+// GRAPH DATA
+// ============================================================
+const elements = ['H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg','Al','Si','P','S','Cl','Ar','K','Ca','Sc','Ti','V','Cr','Mn','Fe','Co','Ni','Cu','Zn'];
+const firstIEvals = [1312,2372,520,900,801,1086,1402,1314,1681,2081,496,738,578,786,1012,1000,1251,1521,419,590,633,659,651,653,717,762,760,737,745,906];
+
+// Block classifications (0=s,1=p,2=d)
+const blockType = [0,0, 0,0,1,1,1,1,1,1, 0,0,1,1,1,1,1,1, 0,0,2,2,2,2,2,2,2,2,2,2];
+
+const annotations = [
+  "H (Z=1): Only 1 electron, 1s¹. Very high IE for a period-1 element.",
+  "He (Z=2): 1s² — full shell. Highest IE of all elements. Noble gas.",
+  "Li (Z=3): 2s¹ — sharp drop from He. New outer shell (n=2). Very easy to ionise.",
+  "Be (Z=4): 2s² — higher than Li. Full 2s sub-shell, no pairing repulsion.",
+  "B (Z=5): 2p¹ — ANOMALY: lower than Be. First 2p electron is higher energy and shielded by 2s².",
+  "C (Z=6): 2p² — rising trend continues. Two unpaired 2p electrons.",
+  "N (Z=7): 2p³ — three unpaired 2p electrons (Hund's rule). Local maximum within 2p.",
+  "O (Z=8): 2p⁴ — ANOMALY: lower than N. Paired 2p electron experiences repulsion, easier to remove.",
+  "F (Z=9): 2p⁵ — near-full shell, high IE.",
+  "Ne (Z=10): 2p⁶ — full shell. Second highest IE overall.",
+  "Na (Z=11): 3s¹ — sharp drop from Ne. New outer shell (n=3). IE₁ = 496 kJ mol⁻¹.",
+  "Mg (Z=12): 3s² — full 3s. Higher than Na.",
+  "Al (Z=13): 3p¹ — ANOMALY: lower than Mg. First 3p electron, shielded by 3s².",
+  "Si (Z=14): 3p² — two unpaired 3p electrons.",
+  "P (Z=15): 3p³ — three unpaired 3p electrons (Hund's rule). Local max within 3p.",
+  "S (Z=16): 3p⁴ — ANOMALY: lower than P. Paired 3p electron repulsion.",
+  "Cl (Z=17): 3p⁵ — near-full 3p.",
+  "Ar (Z=18): 3p⁶ — full outer shell. Noble gas, high IE.",
+  "K (Z=19): 4s¹ — sharp drop from Ar. New outer shell (n=4).",
+  "Ca (Z=20): 4s² — full 4s.",
+  "Sc (Z=21): [Ar]3d¹4s² — d-block begins. 4s² is removed in ionisation.",
+  "Ti (Z=22): [Ar]3d²4s² — 3d filling. IE₁ slightly higher than Sc.",
+  "V (Z=23): [Ar]3d³4s² — 3d filling continues.",
+  "Cr (Z=24): [Ar]3d⁵4s¹ — anomalous! Half-filled 3d⁵ is extra stable. 4s¹ outer electron.",
+  "Mn (Z=25): [Ar]3d⁵4s² — 3d⁵ is half-filled; 4s² restored.",
+  "Fe (Z=26): [Ar]3d⁶4s² — paired 3d electron. IE slightly above Mn.",
+  "Co (Z=27): [Ar]3d⁷4s²",
+  "Ni (Z=28): [Ar]3d⁸4s²",
+  "Cu (Z=29): [Ar]3d¹⁰4s¹ — anomalous! Full 3d¹⁰. Single 4s¹ outer electron.",
+  "Zn (Z=30): [Ar]3d¹⁰4s² — 3d fully filled. Noticeably higher IE; d¹⁰ contracts 4s."
+];
+
+// ============================================================
+// GRAPH 1 — First IE
+// ============================================================
+let g1Chart, g1Mode = 'all';
+
+function g1Colors(mode) {
+  return firstIEvals.map((v, i) => {
+    if (mode === 'sblock') return blockType[i] === 0 ? 'rgba(79,142,247,0.9)' : 'rgba(79,142,247,0.12)';
+    if (mode === 'pblock') return blockType[i] === 1 ? 'rgba(167,139,250,0.9)' : 'rgba(167,139,250,0.12)';
+    if (mode === 'dblock') return blockType[i] === 2 ? 'rgba(34,211,238,0.9)' : 'rgba(34,211,238,0.12)';
+    if (mode === 'anomaly') {
+      const anomalies = [4,7,12,15]; // B, O, Al, S (0-indexed)
+      return anomalies.includes(i) ? 'rgba(245,158,11,1)' : 'rgba(100,116,139,0.4)';
+    }
+    // all: colour by block
+    if (blockType[i] === 0) return 'rgba(79,142,247,0.85)';
+    if (blockType[i] === 1) return 'rgba(167,139,250,0.85)';
+    return 'rgba(34,211,238,0.85)';
+  });
+}
+
+function initGraph1() {
+  const ctx = document.getElementById('graph1').getContext('2d');
+  g1Chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: elements,
+      datasets: [{
+        label: 'First IE (kJ mol⁻¹)',
+        data: firstIEvals,
+        backgroundColor: g1Colors('all'),
+        borderRadius: 4,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: (items) => elements[items[0].dataIndex] + ' (Z=' + (items[0].dataIndex+1) + ')',
+            label: (item) => 'IE₁ = ' + item.raw + ' kJ mol⁻¹',
+            afterLabel: (item) => {
+              const b = ['s-block','p-block','d-block'][blockType[item.dataIndex]];
+              return '● ' + b;
+            }
+          },
+          backgroundColor: '#1e2538', titleColor: '#e2e8f0', bodyColor: '#8892aa',
+          borderColor: '#2a3350', borderWidth: 1, padding: 10, cornerRadius: 8
+        }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(42,51,80,0.5)' }, ticks: { color: '#8892aa', font: { size: 10 } } },
+        y: {
+          grid: { color: 'rgba(42,51,80,0.5)' },
+          ticks: { color: '#8892aa', font: { size: 10 } },
+          title: { display: true, text: 'First IE / kJ mol⁻¹', color: '#8892aa', font: { size: 11 } }
+        }
+      },
+      onClick: (event, elements) => {
+        if (elements.length > 0) {
+          const idx = elements[0].index;
+          document.getElementById('g1-annotation').innerHTML =
+            '<strong style="color:var(--yellow)">' + annotations[idx].split(':')[0] + ':</strong> ' +
+            annotations[idx].substring(annotations[idx].indexOf(':')+1);
+        }
+      }
+    }
+  });
+}
+
+function g1Highlight(mode) {
+  g1Mode = mode;
+  document.querySelectorAll('[id^="g1-"]').forEach(b => b.classList.remove('active'));
+  document.getElementById('g1-' + mode).classList.add('active');
+  g1Chart.data.datasets[0].backgroundColor = g1Colors(mode);
+  g1Chart.update();
+  const msgs = {
+    all: 'Elements coloured by block: <span style="color:var(--accent)">■ s-block</span> &nbsp; <span style="color:var(--accent2)">■ p-block</span> &nbsp; <span style="color:var(--cyan)">■ d-block</span>. Click any bar for details.',
+    sblock: '<span style="color:var(--accent)">s-block highlighted</span>: Groups 1, 2 and He. Each new period shows a sharp drop — new outer shell. Full s² (Be, Mg, Ca) are local maxima within each period.',
+    pblock: '<span style="color:var(--accent2)">p-block highlighted</span>: Groups 13–18. Note the two anomalous dips in each period (Group 13 and Group 16) providing evidence for 2s/2p and 3s/3p sub-shell energy differences.',
+    dblock: '<span style="color:var(--cyan)">d-block highlighted</span>: Z=21–30. Relatively flat because the 4s outer electron is ionised; the 3d is filling underneath. Cr and Cu are slightly anomalous (half-filled / full-d).',
+    anomaly: '<span style="color:var(--yellow)">Anomalies highlighted</span>: B (lower than Be) and O (lower than N) in Period 2; Al (lower than Mg) and S (lower than P) in Period 3. These dips provide direct evidence for sub-shell energy differences.'
+  };
+  document.getElementById('g1-annotation').innerHTML = msgs[mode];
+}
+
+// ============================================================
+// GRAPH 2 — Successive IE
+// ============================================================
+let g2Chart, g2ScaleMode = 'linear', g2El = 'na';
+
+const naIE = [496, 4562, 6912, 9543, 13353, 16610, 20114, 25490, 28932, 141362, 157980];
+const mgIE = [738, 1451, 7733, 10540, 13628, 18020, 21712, 25661, 31642, 35464, 169988, 189368];
+
+// Colour code by sub-shell for Na
+const naColors = [
+  '#4f8ef7', // 3s (1)
+  '#a78bfa','#a78bfa','#a78bfa','#a78bfa','#a78bfa','#a78bfa', // 2p (6)
+  '#f59e0b','#f59e0b', // 2s (2)
+  '#22d3ee','#22d3ee'  // 1s (2)
+];
+const mgColors = [
+  '#4f8ef7','#4f8ef7', // 3s (2)
+  '#a78bfa','#a78bfa','#a78bfa','#a78bfa','#a78bfa','#a78bfa', // 2p (6)
+  '#f59e0b','#f59e0b', // 2s (2)
+  '#22d3ee','#22d3ee'  // 1s (2)
+];
+const naLabels = ['3s¹','2p⁶','2p⁵','2p⁴','2p³','2p²','2p¹','2s²','2s¹','1s²','1s¹'];
+const mgLabels = ['3s²','3s¹','2p⁶','2p⁵','2p⁴','2p³','2p²','2p¹','2s²','2s¹','1s²','1s¹'];
+
+function getG2Data() {
+  return g2El === 'na' ? naIE : mgIE;
+}
+function getG2Colors() {
+  return g2El === 'na' ? naColors : mgColors;
+}
+function getG2Labels() {
+  return (g2El === 'na' ? naLabels : mgLabels).map((l,i) => 'e⁻' + (i+1) + ' (' + l + ')');
+}
+
+function initGraph2() {
+  const ctx = document.getElementById('graph2').getContext('2d');
+  const data = getG2Data();
+  g2Chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: getG2Labels(),
+      datasets: [{
+        label: 'IE (kJ mol⁻¹)',
+        data: data,
+        borderColor: '#4f8ef7',
+        backgroundColor: getG2Colors(),
+        pointBackgroundColor: getG2Colors(),
+        pointRadius: 7,
+        pointHoverRadius: 10,
+        tension: 0.1,
+        fill: false,
+        segment: { borderColor: ctx => 'rgba(79,142,247,0.4)' }
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: (items) => 'Electron #' + (items[0].dataIndex+1),
+            label: (item) => 'IE = ' + item.raw.toLocaleString() + ' kJ mol⁻¹',
+            afterLabel: (item) => {
+              const idx = item.dataIndex;
+              const lbl = g2El === 'na' ? naLabels[idx] : mgLabels[idx];
+              return 'Removing from: ' + lbl;
+            }
+          },
+          backgroundColor: '#1e2538', titleColor: '#e2e8f0', bodyColor: '#8892aa',
+          borderColor: '#2a3350', borderWidth: 1, padding: 10, cornerRadius: 8
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(42,51,80,0.5)' },
+          ticks: { color: '#8892aa', font: { size: 9 }, maxRotation: 45 }
+        },
+        y: {
+          type: 'linear',
+          grid: { color: 'rgba(42,51,80,0.5)' },
+          ticks: { color: '#8892aa', font: { size: 10 } },
+          title: { display: true, text: 'IE / kJ mol⁻¹', color: '#8892aa', font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+function g2Scale(mode) {
+  g2ScaleMode = mode;
+  document.getElementById('g2-linear').classList.toggle('active', mode === 'linear');
+  document.getElementById('g2-log').classList.toggle('active', mode === 'log');
+  const data = getG2Data();
+  if (mode === 'log') {
+    g2Chart.data.datasets[0].data = data.map(v => Math.log10(v));
+    g2Chart.options.scales.y.title.text = 'log₁₀(IE / kJ mol⁻¹)';
+    document.getElementById('g2-annotation').innerHTML =
+      '<strong>Log scale:</strong> Now the sub-shell groups are clearly visible. For Na: the single 3s electron, then a group of 6 (2p), then a group of 2 (2s), then a group of 2 (1s). Each jump between groups marks a sub-shell or shell boundary.';
+  } else {
+    g2Chart.data.datasets[0].data = data;
+    g2Chart.options.scales.y.title.text = 'IE / kJ mol⁻¹';
+    document.getElementById('g2-annotation').innerHTML =
+      '<strong>Linear scale:</strong> The huge jump to the last electrons (innermost shell) dominates. The sub-shell structure within n=2 is hard to see. Switch to log scale to reveal it.';
+  }
+  g2Chart.update();
+}
+
+function g2Element(el) {
+  g2El = el;
+  document.getElementById('g2-na').classList.toggle('active', el === 'na');
+  document.getElementById('g2-mg').classList.toggle('active', el === 'mg');
+  const data = g2ScaleMode === 'log' ? getG2Data().map(v => Math.log10(v)) : getG2Data();
+  g2Chart.data.labels = getG2Labels();
+  g2Chart.data.datasets[0].data = data;
+  g2Chart.data.datasets[0].pointBackgroundColor = getG2Colors();
+  g2Chart.update();
+  const msg = el === 'na'
+    ? '<strong>Sodium (Na):</strong> Configuration 2,8,1. First large jump between e⁻1 and e⁻2 (n=3→n=2). Second huge jump between e⁻9 and e⁻10 (n=2→n=1).'
+    : '<strong>Magnesium (Mg):</strong> Configuration 2,8,2. First large jump between e⁻2 and e⁻3 (n=3→n=2) — confirming 2 outer electrons. Second huge jump between e⁻10 and e⁻11 (n=2→n=1).';
+  document.getElementById('g2-annotation').innerHTML = msg;
+}
+
+// ============================================================
+// MCQ DATA
+// ============================================================
+const mcqSections = [
+  { title: "Section A — Definitions & Concepts", range: [0,7] },
+  { title: "Section B — Trends in First Ionisation Energy", range: [8,17] },
+  { title: "Section C — Successive IE & Evidence from Graphs", range: [18,26] },
+  { title: "Section D — Electron Configurations", range: [27,34] }
+];
+
+const questions = [
+// SECTION A
+{t:"Which of the following correctly defines first ionisation energy?",
+ o:["Energy to remove one electron from one mole of gaseous atoms","Energy released when one electron is added to a gaseous atom","Energy to remove all electrons from one mole of atoms in the solid state","Energy to remove one mole of electrons from one mole of gaseous atoms"],
+ c:3, h:"The equation is X(g) → X⁺(g) + e⁻. Note: per mole of atoms, and the atoms must be gaseous.",
+ e:"First IE is defined per mole of atoms, and atoms must be in the gaseous state so there are no intermolecular forces to overcome. Option A says 'one electron' (not per mole). Option D is correct — one mole of electrons from one mole of gaseous atoms."},
+
+{t:"Which equation correctly represents the second ionisation energy of sodium?",
+ o:["Na(g) → Na²⁺(g) + 2e⁻","Na⁺(g) → Na²⁺(g) + e⁻","Na(g) → Na⁺(g) + e⁻","Na²⁺(g) + e⁻ → Na⁺(g)"],
+ c:1, h:"The 2nd IE removes the 2nd electron — from the already singly-charged ion.",
+ e:"The 2nd IE starts from Na⁺(g): Na⁺(g) → Na²⁺(g) + e⁻. You remove a second electron from an ion that has already lost one."},
+
+{t:"The first ionisation energy is always endothermic (positive). Why?",
+ o:["Electrons are negatively charged","Energy is needed to overcome the attractive force between the nucleus and the electron","Ionisation always releases heat","The nucleus repels the electron"],
+ c:1, h:"What holds the electron in place?",
+ e:"Electrons are attracted to the positively charged nucleus. Energy must be supplied to overcome this attraction and remove the electron to infinity. Hence ΔH is always positive."},
+
+{t:"In which state must atoms be when first ionisation energy is measured?",
+ o:["Solid","Liquid","Aqueous","Gaseous"],
+ c:3, h:"Why gaseous? Think about what other forces would need to be overcome if atoms were in a different state.",
+ e:"Atoms must be gaseous so that only the nuclear–electron attraction is overcome. In solid or liquid states, lattice or intermolecular forces would also contribute, giving misleading values."},
+
+{t:"What is the correct SI unit for ionisation energy?",
+ o:["kJ mol⁻¹","J atom⁻¹","eV","kJ"],
+ c:0, h:"Ionisation energy is defined per mole of atoms.",
+ e:"kJ mol⁻¹ is the standard unit used for molar quantities of energy in chemistry. eV is used in physics for single-atom values, and J atom⁻¹ would be valid in principle, but IB chemistry uses kJ mol⁻¹."},
+
+{t:"Which quantum number (n) describes an electron in the 3p sub-shell?",
+ o:["n = 1","n = 2","n = 3","n = 4"],
+ c:2, h:"The number before the letter in the sub-shell notation indicates the principal quantum number.",
+ e:"In 3p, the 3 is the principal quantum number (shell number). The p tells us the sub-shell type. n = 3 is the third shell."},
+
+{t:"The maximum number of electrons in the n = 3 shell is:",
+ o:["6","8","10","18"],
+ c:3, h:"Use the formula 2n². What is 2 × 3²?",
+ e:"Maximum electrons in shell n = 2n². For n=3: 2 × 9 = 18. The n=3 shell contains 3s (2e), 3p (6e), 3d (10e) = 18 electrons total."},
+
+{t:"Hund's rule states that:",
+ o:["Electrons fill lower energy orbitals before higher ones","No two electrons in the same atom can have the same set of four quantum numbers","Electrons occupy orbitals of equal energy singly before pairing","s orbitals are always filled before p orbitals"],
+ c:2, h:"Hund's rule specifically concerns how electrons distribute within orbitals of the same sub-shell.",
+ e:"Hund's rule: within a sub-shell, electrons fill each orbital singly with the same spin before any pairing occurs. This minimises electron–electron repulsion. Option A is Aufbau, option B is Pauli exclusion."},
+
+// SECTION B
+{t:"The general trend in first IE across Period 3 is that it increases from Na to Ar. This is because:",
+ o:["Atomic radius increases across the period","Nuclear charge increases while shielding from inner shells remains approximately constant","The number of electron shells increases","Electronegativity decreases"],
+ c:1, h:"As Z increases across a period, what happens to the force on outer electrons?",
+ e:"Across a period, Z increases from 11 to 18 while electrons are added to the same shell (n=3), so shielding changes very little. The effective nuclear charge (Z_eff = Z − shielding) increases, pulling outer electrons more tightly. Atomic radius actually decreases, not increases."},
+
+{t:"Why is the first IE of boron (B, 801 kJ mol⁻¹) lower than that of beryllium (Be, 900 kJ mol⁻¹)?",
+ o:["B has more protons than Be","B's outer electron is in a 2p orbital, which is at higher energy and is partially shielded by the 2s² electrons","B has a larger atomic radius than Be","B forms covalent bonds more easily"],
+ c:1, h:"Think about which sub-shell each element's outermost electron occupies. Which is higher in energy: 2s or 2p?",
+ e:"Be has its outermost electrons in 2s², while B places its extra electron in 2p¹. The 2p orbital is higher in energy than 2s and is partially shielded by the 2s² electrons (they lie between the 2p electron and the nucleus). This lowers the effective nuclear charge felt by B's outer electron."},
+
+{t:"Why is the first IE of oxygen (O, 1314 kJ mol⁻¹) lower than that of nitrogen (N, 1402 kJ mol⁻¹)?",
+ o:["N has more protons than O","O's 2p⁴ configuration has a paired electron experiencing extra repulsion, making it easier to remove","N's 2p orbitals are completely empty","Oxygen is more electronegative than nitrogen"],
+ c:1, h:"Write out the 2p configurations of N (2p³) and O (2p⁴). Which has a paired electron?",
+ e:"N has three singly-occupied 2p orbitals (↑ ↑ ↑) — no pairing. O has one paired 2p orbital (↑↓ ↑ ↑). The paired electrons in O repel each other, destabilising that orbital and reducing the energy needed to remove one of them."},
+
+{t:"Which of the following correctly explains why first IE decreases from Period 2 to Period 3 in Group 1 (Li to Na)?",
+ o:["Na has a smaller atomic radius than Li","The outer electron in Na is in a higher energy shell (n=3), further from the nucleus, and more effectively shielded","Na is more reactive and therefore easier to ionise","Na has a higher nuclear charge, making electrons easier to remove"],
+ c:1, h:"Going down a group — what happens to the distance of the outer electron from the nucleus?",
+ e:"From Li (2s¹) to Na (3s¹), the outer electron is in the n=3 shell rather than n=2 — further from the nucleus and with additional inner shells (n=1 and n=2 for Na, only n=1 for Li) providing more shielding. Both effects reduce the effective nuclear charge felt by the outer electron."},
+
+{t:"The first IE of magnesium (738 kJ mol⁻¹) is greater than that of aluminium (578 kJ mol⁻¹). This provides evidence that:",
+ o:["Aluminium has fewer protons than magnesium","The 3p sub-shell is at higher energy than the 3s sub-shell","Aluminium is a metal","The 3s sub-shell can hold only 1 electron"],
+ c:1, h:"Mg removes a 3s electron; Al removes a 3p electron. Which sub-shell is higher in energy?",
+ e:"Mg's outer electrons are in 3s² and Al's outer electron is in 3p¹. The 3p sub-shell is at slightly higher energy than 3s and is partially shielded by the 3s² electrons. This demonstrates a measurable energy difference between the 3s and 3p sub-shells."},
+
+{t:"Which of the following elements has the highest first ionisation energy in Period 2?",
+ o:["N","F","O","Ne"],
+ c:3, h:"Noble gases have complete outer shells — they are extremely stable.",
+ e:"Ne (Z=10) has a complete 2p⁶ outer shell and the highest effective nuclear charge in Period 2, giving IE₁ = 2081 kJ mol⁻¹, the highest in the period. F is very high but Ne is higher."},
+
+{t:"The first IE of phosphorus (P, 1012 kJ mol⁻¹) is greater than that of sulfur (S, 1000 kJ mol⁻¹), even though S has a higher nuclear charge. This is best explained by:",
+ o:["P has fewer electrons than S","P's three 3p electrons are unpaired (Hund's rule), while S has one paired 3p electron with extra repulsion","S is a larger atom than P","P is in a higher period than S"],
+ c:1, h:"Write the 3p electron configurations: P = 3p³, S = 3p⁴. Which has a paired electron?",
+ e:"P (3p³): each 3p orbital is singly occupied — ↑ ↑ ↑. No pairing repulsion. S (3p⁴): one 3p orbital has a pair — ↑↓ ↑ ↑. The repulsion between the paired electrons lowers the energy required to remove one of them from S. This is the same type of anomaly as N→O in Period 2."},
+
+{t:"Across the d-block (Sc to Zn, Z=21–30), the first IE values are relatively constant (around 630–760 kJ mol⁻¹). The best explanation is:",
+ o:["The 3d sub-shell is filling, but the outer electron removed is the 4s¹ or 4s², which changes little across the block","All d-block elements have the same electron configuration","Nuclear charge is constant across the d-block","The d-block elements all have the same atomic radius"],
+ c:0, h:"Which electrons are removed in ionisation of the d-block elements? Is it the 3d or 4s electrons?",
+ e:"In the d-block, the 3d sub-shell is filling beneath the 4s. The electron removed in first ionisation is from 4s (the outer shell). The increasing nuclear charge is largely offset by the poor shielding of 3d electrons, so Z_eff on the 4s changes only gradually across the block, keeping IE₁ relatively constant."},
+
+{t:"The noble gas with the lowest first IE in the set {He, Ne, Ar} is:",
+ o:["He (IE₁ = 2372)","Ne (IE₁ = 2081)","Ar (IE₁ = 1521)","They are all equal"],
+ c:2, h:"Going down Group 18 — what happens to the principal quantum number of the outer shell?",
+ e:"Ar has its outermost electrons in n=3 (3p⁶), further from the nucleus than Ne (n=2) or He (n=1). Despite the increasing nuclear charge, the increased distance and shielding reduce the effective nuclear charge felt by Ar's outer electrons. Ar has the lowest IE₁ of the three."},
+
+{t:"The large drop in first IE from Ne (2081 kJ mol⁻¹) to Na (496 kJ mol⁻¹) is best explained by:",
+ o:["Na has more protons than Ne","Na's outer electron is in the n=3 shell, much further from the nucleus and with two inner shells of shielding","Na forms ionic bonds more easily","Neon has a paired outer electron"],
+ c:1, h:"Compare the shells: Ne's outermost electrons are in n=2; Na's outermost electron is in n=3.",
+ e:"Ne has a full n=2 shell. Na's additional electron enters the n=3 shell — it is much further from the nucleus and shielded by the filled n=1 and n=2 shells. The effective nuclear charge felt by Na's 3s¹ electron is much lower than that felt by Ne's 2p⁶ electrons."},
+
+// SECTION C
+{t:"The successive ionisation energies of an element are: 590, 1145, 4912, 6474, 8144, 10496, 12321, 14206, 18191, 20425 kJ mol⁻¹. How many electrons does this element have in its outer shell?",
+ o:["1","2","3","4"],
+ c:1, h:"Find the LARGE jump in the successive IE sequence. The jump occurs when you cross from the outer shell to the next shell in.",
+ e:"There is a large jump between IE₂ (1145) and IE₃ (4912) — roughly a factor of 4. This indicates that the first 2 electrons are easy to remove (outer shell) and the 3rd electron is in a much lower, inner shell. Therefore, the element has 2 electrons in its outer shell. (This is calcium, Ca.)"},
+
+{t:"On a graph of successive IE for sodium, why is log₁₀(IE) plotted rather than IE directly?",
+ o:["Log scale makes all values negative","Log scale compresses the enormous range of IE values so that sub-shell groups within each shell become distinguishable","Log scale is required by the IB syllabus","It converts kJ mol⁻¹ to eV"],
+ c:1, h:"IE₁ of Na is ~500 kJ mol⁻¹ and IE₁₁ is ~158 000 kJ mol⁻¹. What is the ratio?",
+ e:"The ratio of highest to lowest IE for Na is about 320:1. On a linear scale, the small differences within each shell group would be invisible because the graph would be dominated by the enormous final values. Log scale makes all groups equally visible, revealing sub-shell structure."},
+
+{t:"From the successive IE data for Na: IE₁=496, IE₂=4562, …, IE₉=28932, IE₁₀=141362 kJ mol⁻¹. The large jump between IE₉ and IE₁₀ indicates:",
+ o:["The 9th electron is removed from a 3p orbital","Electrons 10 and 11 are in the n=1 shell (1s), much closer to the nucleus","Sodium has 10 electrons in total","The 10th electron is in the 2p sub-shell"],
+ c:1, h:"If IE₉ is still in the n=2 shell and IE₁₀ is in the n=1 shell, what does the jump tell you?",
+ e:"After removing 9 electrons from Na (1 from n=3, 8 from n=2), the 10th electron must come from the n=1 shell (1s). The n=1 electrons experience almost no shielding and feel the full nuclear charge at very close range — hence the enormous IE₁₀. This confirms the 2,8,1 structure."},
+
+{t:"Which observation from the successive IE data for sodium BEST provides evidence for the existence of electron sub-shells?",
+ o:["There is a large jump from IE₁ to IE₂","There is a large jump from IE₉ to IE₁₀","The 8 electrons in the n=2 shell form two sub-groups of 6 and 2 on the log scale","Sodium has 11 electrons in total"],
+ c:2, h:"Shell boundaries show BIG jumps. Sub-shell boundaries show SMALLER but still distinguishable steps. Where in the log graph would you look for sub-shell evidence?",
+ e:"The large jumps (IE₁→IE₂ and IE₉→IE₁₀) tell us about shell boundaries, not sub-shells. The evidence for sub-shells comes from within the n=2 group: on a log scale, IE₂–IE₇ (the 2p electrons) form a slightly lower cluster of 6 values, while IE₈–IE₉ (the 2s electrons) form a slightly higher cluster of 2 values. This shows that 2s and 2p have different energies."},
+
+{t:"For magnesium (Mg, configuration 2,8,2), the first large jump in successive IEs occurs between:",
+ o:["IE₁ and IE₂","IE₂ and IE₃","IE₈ and IE₉","IE₁₀ and IE₁₁"],
+ c:1, h:"How many electrons are in Mg's outer shell?",
+ e:"Mg has 2 electrons in its outer shell (3s²). The first 2 are relatively easy to remove. The 3rd electron must be removed from n=2 — a much lower, inner shell. So the large jump is between IE₂ and IE₃, confirming 2 outer electrons."},
+
+{t:"An element has successive IEs: 800, 2430, 3660, 25020, 32820 kJ mol⁻¹. What is the most likely electron configuration of this element?",
+ o:["1s² 2s² 2p⁶ 3s¹","1s² 2s² 2p⁶ 3s² 3p¹","1s² 2s² 2p⁶ 3s² 3p³","1s² 2s² 2p⁶ 3s² 3p²"],
+ c:2, h:"Find the large jump. After which electron does it occur? That tells you how many outer electrons the element has.",
+ e:"The large jump is between IE₃ (3660) and IE₄ (25020) — about a factor of 7. This means 3 electrons are in the outer shell. An element with 3 outer electrons in Period 3 is phosphorus (P): 1s² 2s² 2p⁶ 3s² 3p³ — but wait, P has 5 outer electrons (3s²3p³). Looking again, the first large jump at 3→4 confirms 3 outer electrons. That is actually Al (3 outer = 3s²3p¹)... but Al is 1s²2s²2p⁶3s²3p¹. The values given (800, 2430, 3660 rising gradually then huge jump) suggest 3 electrons come off at moderate energy, matching 3s²3p¹ pattern. Answer: 1s²2s²2p⁶3s²3p³ is P, which has the jump after IE₅. The element here is Al-like but the question has 3 moderate then big jump = Al pattern. Answer is B actually — let me reconsider... 3 outer electrons → most likely Al configuration: 1s²2s²2p⁶3s²3p¹. But that is option B. Answer should be B.",
+},
+// Fix Q25 (index 24) — let me redo below in the array correctly
+
+{t:"Photoelectron spectroscopy (PES) of Period 2 elements provides evidence for sub-shells because:",
+ o:["Each element gives a single peak","Electrons of different energies produce peaks at different binding energies, with peak heights proportional to the number of electrons","PES measures only the outermost electrons","PES data always agrees with spectroscopic data"],
+ c:1, h:"PES separates electrons by their binding energy. What would you expect to see for carbon (1s²2s²2p²)?",
+ e:"PES ionises all electrons and sorts them by their binding energy (∝ IE). Different sub-shells have different energies, so they appear as separate peaks. The relative heights (or areas) of the peaks reflect the number of electrons in each sub-shell. For carbon, three peaks would appear: 1s (2e), 2s (2e), 2p (2e)."},
+
+{t:"On the log successive IE graph for Na, the cluster of 6 data points at intermediate energy (IE₂–IE₇) corresponds to:",
+ o:["The 3s sub-shell","The 2p sub-shell","The 2s sub-shell","The 1s sub-shell"],
+ c:1, h:"After removing 1 outer 3s electron (IE₁), the next 6 electrons should come from...?",
+ e:"After the 3s¹ electron (IE₁), the next 6 electrons come from the 2p sub-shell (6 electrons in 2p⁶). These form a cluster of 6 points at intermediate values on the log graph, slightly below the 2s cluster (IE₈–IE₉)."},
+
+// SECTION D
+{t:"The electron configuration of iron (Fe, Z=26) is:",
+ o:["[Ar] 3d⁸","[Ar] 3d⁶ 4s²","[Ar] 3d⁵ 4s² 4p¹","[Ar] 4s² 3d⁴"],
+ c:1, h:"Fe is in the d-block. Fill 4s first, then 3d. Z=26, [Ar]=18e, leaving 8 more electrons.",
+ e:"[Ar] = 1s²2s²2p⁶3s²3p⁶ (18 electrons). Fe has 26−18 = 8 more: 4s² 3d⁶. Written conventionally: [Ar] 3d⁶ 4s². Note that in ionisation, 4s electrons are removed first."},
+
+{t:"Chromium (Cr, Z=24) has the electron configuration [Ar] 3d⁵ 4s¹, not the expected [Ar] 3d⁴ 4s². This is because:",
+ o:["The 4s orbital is fully occupied in all transition metals","A half-filled 3d sub-shell (3d⁵) with one 4s electron is of lower energy than 3d⁴ 4s²","Chromium has too many protons for 4s² to be stable","The Pauli principle prevents 3d⁴ 4s²"],
+ c:1, h:"Half-filled d sub-shells have special stability. What is the configuration of 3d⁵?",
+ e:"A half-filled d sub-shell (3d⁵: one electron in each of the 5 d orbitals) has extra stability due to the symmetric distribution of electron density and exchange energy interactions. The energy gained by achieving 3d⁵ is sufficient to promote one electron from 4s to 3d."},
+
+{t:"What is the electron configuration of Cu (Z=29)?",
+ o:["[Ar] 3d⁹ 4s²","[Ar] 3d¹⁰ 4s¹","[Ar] 3d¹⁰ 4s²","[Ar] 3d⁸ 4s² 4p¹"],
+ c:1, h:"Like Cr, Cu is one of the two anomalous d-block configurations. What is special about a full d sub-shell?",
+ e:"Cu has the anomalous configuration [Ar] 3d¹⁰ 4s¹. A completely filled 3d¹⁰ sub-shell has extra stability (all orbitals paired). Promoting one 4s electron to complete the 3d sub-shell lowers the overall energy, despite the expected configuration being [Ar] 3d⁹ 4s²."},
+
+{t:"The electron configuration of the chloride ion Cl⁻ is:",
+ o:["1s² 2s² 2p⁶ 3s² 3p⁵","1s² 2s² 2p⁶ 3s² 3p⁶","1s² 2s² 2p⁶ 3s² 3p⁴","1s² 2s² 2p⁶ 3s² 3p⁶ 4s¹"],
+ c:1, h:"Cl has Z=17 (17 electrons). Cl⁻ has gained one extra electron — how many total?",
+ e:"Cl (Z=17): 1s²2s²2p⁶3s²3p⁵. Cl⁻ gains one electron: 1s²2s²2p⁶3s²3p⁶. This is isoelectronic with Ar."},
+
+{t:"According to the Aufbau principle, which sub-shell fills immediately AFTER the 4s sub-shell?",
+ o:["4p","3d","4d","5s"],
+ c:1, h:"Remember the filling order: …3p, 4s, 3d, 4p… The 3d is at lower energy than 4p but higher than 4s.",
+ e:"The Aufbau filling order: 1s, 2s, 2p, 3s, 3p, 4s, 3d, 4p, 5s, 4d… The 4s fills before 3d because in neutral atoms 4s is slightly lower in energy. After 4s is full (2 electrons), 3d begins to fill across the d-block (Sc to Zn)."},
+
+{t:"Nitrogen (N, Z=7) has three electrons in its 2p sub-shell. How are they arranged according to Hund's rule?",
+ o:["↑↓ in one orbital, ↑ in another, empty third","↑ in each of the three 2p orbitals (one per orbital, parallel spins)","All three in one 2p orbital as ↑↓↑","↑↓ ↑↓ in two orbitals, empty third"],
+ c:1, h:"Hund's rule: fill singly before pairing, with the same spin direction.",
+ e:"Hund's rule: electrons in the same sub-shell occupy separate orbitals singly with parallel spins before any pairing occurs. For N (2p³): each of the three 2p orbitals has one electron with spin up (↑ ↑ ↑). This minimises electron–electron repulsion."},
+
+{t:"The electron configuration of zinc (Zn, Z=30) is:",
+ o:["[Ar] 3d¹⁰ 4s²","[Ar] 3d¹⁰ 4s¹","[Ar] 3d⁹ 4s² 4p¹","[Kr] 3d¹⁰"],
+ c:0, h:"Zn is the last d-block element (Z=30). It fills 4s completely and 3d completely.",
+ e:"Zn: [Ar] + 12 electrons: 4s² 3d¹⁰ = [Ar] 3d¹⁰ 4s². Unlike Cu, Zn has both a full 3d¹⁰ AND a full 4s² — no reason to demote a 4s electron. Zn is not anomalous."},
+
+{t:"The first IE of Zn (906 kJ mol⁻¹) is noticeably higher than that of Cu (745 kJ mol⁻¹). The best explanation is:",
+ o:["Zn has more protons than Cu","Zn's 4s² pair has extra repulsion, making it easier to remove","In Zn (3d¹⁰ 4s²), the filled 3d¹⁰ sub-shell contracts the 4s shell inwards, increasing Z_eff on the 4s electrons, AND Zn has Z=30 vs Cu's Z=29","Cu's single 4s electron is more exposed"],
+ c:2, h:"Zn has Z=30 and a full 3d¹⁰. What effect does a full 3d¹⁰ have on the 4s electrons compared to 3d⁹?",
+ e:"Zn (Z=30) has one more proton than Cu (Z=29). Furthermore, the complete 3d¹⁰ shell provides slightly less shielding per electron than a partially filled sub-shell, leading to greater Z_eff on Zn's 4s² electrons. The combination of higher Z and better orbital contraction gives Zn a notably higher IE₁ than Cu."}
+];
+
+// Fix Q25 (index 24) — the previous one had a confusing explanation; replace with a better question:
+questions[24] = {
+  t:"An unknown element has successive IEs (kJ mol⁻¹): 578, 1817, 2745, 11577, 14842… The element is most likely:",
+  o:["Sodium (Na) — 1 outer electron","Magnesium (Mg) — 2 outer electrons","Aluminium (Al) — 3 outer electrons","Silicon (Si) — 4 outer electrons"],
+  c:2,
+  h:"Find the large jump. After which IE does it appear? That tells you how many outer-shell electrons the element has.",
+  e:"The large jump occurs between IE₃ (2745) and IE₄ (11577) — roughly a factor of 4. This means 3 electrons are in the outer shell (n=3). In Period 3, the element with 3 outer electrons is aluminium: 1s²2s²2p⁶3s²3p¹. The IE₁ value of 578 kJ mol⁻¹ also matches Al."
+};
+
+// ============================================================
+// MCQ RENDERING
+// ============================================================
+let mcqScore = 0, mcqAnswered = 0, mcqResults = new Array(questions.length).fill(null);
+
+function renderMCQ() {
+  const container = document.getElementById('mcq-container');
+  let html = '';
+  let sIdx = 0;
+  questions.forEach((q, i) => {
+    // Section header
+    mcqSections.forEach(s => {
+      if (s.range[0] === i) {
+        html += `<div class="mcq-section-title">${s.title}</div>`;
+      }
+    });
+    const letters = ['A','B','C','D'];
+    html += `<div class="question-card" id="qcard-${i}">
+      <div class="question-num">Question ${i+1} of ${questions.length}</div>
+      <div class="question-text">${q.t}</div>
+      <div class="options" id="opts-${i}">
+        ${q.o.map((opt,j) => `
+          <button class="option-btn" id="opt-${i}-${j}" onclick="selectOpt(${i},${j})">
+            <span class="opt-letter">${letters[j]}</span>
+            <span>${opt}</span>
+          </button>`).join('')}
+      </div>
+      <div class="q-footer">
+        <button class="check-btn" id="check-${i}" onclick="checkAnswer(${i})" disabled>Check Answer</button>
+        <button class="hint-btn" onclick="toggleHint('hint-${i}')">💡 Hint</button>
+      </div>
+      <div class="hint-box" id="hint-${i}">${q.h}</div>
+      <div class="feedback-box" id="fb-${i}">
+        <div id="fb-result-${i}"></div>
+        <div class="explanation" id="fb-exp-${i}"></div>
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+let selectedOpts = {};
+
+function selectOpt(qIdx, optIdx) {
+  if (mcqResults[qIdx] !== null) return; // already answered
+  selectedOpts[qIdx] = optIdx;
+  const letters = ['opt-letter'];
+  for (let j = 0; j < questions[qIdx].o.length; j++) {
+    const btn = document.getElementById(`opt-${qIdx}-${j}`);
+    btn.classList.toggle('selected', j === optIdx);
+  }
+  document.getElementById(`check-${qIdx}`).disabled = false;
+}
+
+function checkAnswer(qIdx) {
+  const q = questions[qIdx];
+  const selected = selectedOpts[qIdx];
+  if (selected === undefined) return;
+  const isCorrect = selected === q.c;
+  mcqResults[qIdx] = isCorrect;
+  if (isCorrect) mcqScore++;
+  mcqAnswered++;
+
+  // Disable all options
+  for (let j = 0; j < q.o.length; j++) {
+    const btn = document.getElementById(`opt-${qIdx}-${j}`);
+    btn.disabled = true;
+    if (j === q.c) btn.classList.add('correct');
+    if (j === selected && !isCorrect) btn.classList.add('wrong');
+  }
+
+  // Feedback
+  const fb = document.getElementById(`fb-${qIdx}`);
+  fb.style.display = 'block';
+  fb.className = 'feedback-box ' + (isCorrect ? 'correct' : 'wrong');
+  document.getElementById(`fb-result-${qIdx}`).textContent = isCorrect ? '✓ Correct!' : '✗ Incorrect — the correct answer is ' + ['A','B','C','D'][q.c] + '.';
+  document.getElementById(`fb-exp-${qIdx}`).textContent = q.e;
+
+  // Card border
+  const card = document.getElementById(`qcard-${qIdx}`);
+  card.classList.add(isCorrect ? 'correct-card' : 'wrong-card');
+
+  // Disable check button
+  document.getElementById(`check-${qIdx}`).disabled = true;
+
+  // Update score
+  updateScore();
+}
+
+function updateScore() {
+  const pct = (mcqAnswered / questions.length) * 100;
+  document.getElementById('mcq-progress').style.width = pct + '%';
+  document.getElementById('mcq-answered').textContent = mcqAnswered;
+  document.getElementById('mcq-score-display').textContent = mcqScore + ' / ' + questions.length;
+  document.getElementById('score-badge').textContent = 'MCQ: ' + mcqScore + ' / ' + questions.length;
+}
+
+function toggleHint(id) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+
+function toggleModel(id) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  renderMCQ();
+  initGraph1();
+  initGraph2();
+  // initial annotation
+  setTimeout(() => {
+    document.getElementById('g2-annotation').innerHTML =
+      'Switch between <strong>Linear</strong> and <strong>Log</strong> scale and observe what each reveals. The log scale makes sub-shell groups within each shell visible.';
+  }, 100);
+});
+</script>
+</body>
+</html>

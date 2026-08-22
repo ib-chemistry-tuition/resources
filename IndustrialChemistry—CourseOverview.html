@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Industrial Chemistry &mdash; Course Overview</title>
+<style>
+:root{
+  --ink:#1b1f24;
+  --ink-soft:#4a545e;
+  --rule:#dfe3e8;
+  --paper:#ffffff;
+  --wash:#f6f7f9;
+  --u1:#8a6d1f;  --u1w:#fbf5e4;
+  --u2:#9a4a2a;  --u2w:#fbeee8;
+  --u3:#1f6b63;  --u3w:#e6f3f1;
+  --u4:#3b4b91;  --u4w:#eceff9;
+  --u5:#8a2f4d;  --u5w:#fbebf0;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--wash);
+  color:var(--ink);
+  font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+  font-size:16.5px;
+  line-height:1.6;
+}
+.sheet{max-width:1080px;margin:0 auto;background:var(--paper);box-shadow:0 1px 3px rgba(0,0,0,.06),0 14px 44px rgba(0,0,0,.07)}
+
+/* ---------- masthead ---------- */
+header.masthead{
+  padding:56px 60px 40px;
+  border-bottom:3px double var(--rule);
+  background:
+    radial-gradient(1200px 220px at 15% -60px, #eef1f6 0%, transparent 70%),
+    var(--paper);
+}
+.eyebrow{
+  font-family:ui-sans-serif,"Helvetica Neue",Arial,sans-serif;
+  font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--ink-soft);margin:0 0 14px;
+}
+h1{font-size:clamp(30px,4.6vw,46px);line-height:1.1;margin:0 0 10px;font-weight:600;letter-spacing:-.01em}
+h1 .sub{display:block;font-size:.46em;font-weight:400;font-style:italic;color:var(--ink-soft);margin-top:14px;letter-spacing:0}
+.standfirst{max-width:64ch;color:var(--ink-soft);margin:22px 0 0;font-size:1.02em}
+.meta-row{
+  display:flex;flex-wrap:wrap;gap:10px;margin-top:26px;
+  font-family:ui-sans-serif,"Helvetica Neue",Arial,sans-serif;font-size:12px;
+}
+.chip{border:1px solid var(--rule);border-radius:999px;padding:5px 13px;color:var(--ink-soft);background:#fff}
+
+/* ---------- contents strip ---------- */
+nav.toc{padding:26px 60px;background:var(--wash);border-bottom:1px solid var(--rule)}
+nav.toc h2{
+  font-family:ui-sans-serif,"Helvetica Neue",Arial,sans-serif;
+  font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft);
+  margin:0 0 14px;font-weight:600;
+}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.toc-card{
+  display:block;text-decoration:none;color:inherit;background:#fff;
+  border:1px solid var(--rule);border-radius:9px;padding:13px 15px;
+  border-top:3px solid var(--accent);transition:transform .12s ease, box-shadow .12s ease;
+}
+.toc-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.toc-card .n{
+  font-family:ui-sans-serif,"Helvetica Neue",Arial,sans-serif;font-size:10px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700;
+}
+.toc-card .t{display:block;margin-top:5px;font-size:15px;line-height:1.32}
+
+/* ---------- units ---------- */
+main{padding:0 60px 20px}
+section.unit{padding:46px 0;border-bottom:1px solid var(--rule)}
+section.unit:last-of-type{border-bottom:0}
+.unit-head{display:flex;gap:22px;align-items:flex-start}
+.numeral{
+  flex:0 0 auto;width:64px;height:64px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--wash-accent);color:var(--accent);
+  border:1.5px solid var(--accent);
+  font-size:26px;font-weight:600;line-height:1;
+}
+.unit-titles{flex:1 1 auto;min-width:0}
+.kicker{
+  font-family:ui-sans-serif,"Helvetica Neue",Arial,sans-serif;
+  font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--accent);font-weight:700;margin:0 0 7px;
+}
+h2.unit-title{font-size:clamp(21px,2.6vw,28px);line-height:1.24;margin:0;font-weight:600}
+h2.unit-title em{font-style:italic;font-weight:400;color:var(--ink-soft)}
+.duration{
+  display:inline-block;margin-top:9px;
+  font-family:ui-sans-serif,"Helvetica Neue",Arial,sans-serif;font-size:11.5px;
+  color:var(--ink-soft);border:1px solid var(--rule);border-radius:999px;padding:3px 11px;
+}
+.thread{
+  margin:22px 0 0;padding:15px 20px;background:var(--wash-accent);
+  border-left:3px solid var(--accent);border-radius:0 7px 7px 0;
+  font-style:italic;color:#333;max-width:78ch;
+}
+.thread strong{font-style:normal;font-weight:600}
+
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:34px;margin-top:30px}
+@media (max-width:880px){.cols{grid-template-columns:1fr;gap:26px}}
+h3.block{
+  font-family:ui-sans-serif,"Helvetica Neue",Arial,sans-serif;
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-soft);font-weight:700;margin:0 0 12px;
+  padding-bottom:7px;border-bottom:1px solid var(--rule);
+}
+ul.content{margin:0;padding:0;list-style:none}
+ul.content > li{position:relative;padding-left:19px;margin-bottom:11px}
+ul.content > li::before{
+  content:"";position:absolute;left:0;top:.62em;
+  width:6px;height:6px;border-radius:50%;background:var(--accent);opacity:.75;
+}
+ul.content li b{font-weight:600}
+ul.content ul{margin:7px 0 0;padding-left:16px;list-style:none}
+ul.content ul li{position:relative;padding-left:14px;margin-bottom:5px;font-size:.94em;color:var(--ink-soft)}
+ul.content ul li::before{content:"–";position:absolute;left:0;color:var(--accent)}
+.eqn{
+  font-family:"Iowan Old Style",Georgia,serif;font-style:italic;
+  background:var(--wash);border:1px solid var(--rule);border-radius:5px;
+  padding:1px 7px;white-space:nowrap;font-size:.95em;font-style:normal;
+}
+.skills{margin-top:30px;padding:18px 22px;border:1px dashed var(--rule);border-radius:9px;background:#fcfcfd}
+.skills h3.block{border-bottom:0;padding-bottom:0;margin-bottom:9px}
+.skills ul{margin:0;padding-left:18px}
+.skills li{margin-bottom:6px;color:var(--ink-soft);font-size:.96em}
+
+details.res{margin-top:26px;border:1px solid var(--rule);border-radius:9px;background:#fcfcfd;overflow:hidden}
+details.res > summary{
+  cursor:pointer;list-style:none;padding:12px 18px;
+  font-family:ui-sans-serif,"Helvetica Neue",Arial,sans-serif;font-size:11.5px;
+  letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--accent);
+  background:var(--wash-accent);
+}
+details.res > summary::-webkit-details-marker{display:none}
+details.res > summary::after{content:" ▸";font-size:12px}
+details.res[open] > summary::after{content:" ▾"}
+.res-body{padding:16px 20px}
+.res-group{margin-bottom:14px}
+.res-group:last-child{margin-bottom:0}
+.res-group h4{
+  font-family:ui-sans-serif,"Helvetica Neue",Arial,sans-serif;font-size:10.5px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);
+  margin:0 0 7px;font-weight:700;
+}
+.res-list{display:flex;flex-wrap:wrap;gap:7px}
+.res-list a{
+  font-family:ui-sans-serif,"Helvetica Neue",Arial,sans-serif;font-size:12px;
+  text-decoration:none;color:var(--ink);background:#fff;
+  border:1px solid var(--rule);border-radius:6px;padding:5px 10px;line-height:1.35;
+}
+.res-list a:hover{border-color:var(--accent);color:var(--accent)}
+.res-list a::before{content:"";display:inline-block;width:6px;height:6px;border-radius:1px;background:var(--accent);opacity:.55;margin-right:7px;vertical-align:middle}
+
+footer.colophon{
+  padding:34px 60px 48px;background:var(--wash);border-top:1px solid var(--rule);
+  font-family:ui-sans-serif,"Helvetica Neue",Arial,sans-serif;font-size:12px;color:var(--ink-soft);
+}
+footer.colophon p{margin:0 0 8px;max-width:74ch}
+
+@media print{
+  body{background:#fff;font-size:10.5pt}
+  .sheet{box-shadow:none;max-width:none}
+  header.masthead{padding:0 0 18pt}
+  nav.toc{display:none}
+  main{padding:0}
+  section.unit{padding:16pt 0;break-inside:auto}
+  .unit-head{break-after:avoid}
+  .cols{gap:18pt}
+  details.res{break-inside:avoid}
+  details.res > summary{display:none}
+  details.res .res-body{padding:10pt 0 0}
+  .res-list a{border:0;padding:0;display:block;width:100%;color:#333}
+  footer.colophon{padding:14pt 0 0}
+  a{color:inherit}
+}
+@media (max-width:700px){
+  header.masthead,nav.toc,main,footer.colophon{padding-left:24px;padding-right:24px}
+}
+
+</style>
+</head>
+<body>
+<div class="sheet">
+
+<header class="masthead">
+  <p class="eyebrow">Science Department</p>
+  <h1>Industrial Chemistry
+    <span class="sub">Five units, from the blast furnace to the ammonia plant — the chemistry that built the modern world</span>
+  </h1>
+
+  <p class="standfirst">The course follows a single argument: that the industrial history of the nineteenth and early twentieth centuries is, underneath, a history of key chemical ideas we still use today — <b>stoichiometry, energetics, rate, equilibrium, reduction and oxidation, acid–base chemistry</b> and <b>organic chemistry</b>.</p>
+  <p class="standfirst">Our ideas about the periodic table, and about the electronic structure of atoms, give us a framework to understand chemical reactions and element behaviour.</p>
+  <p class="standfirst">Our course will briefly review the units you explored last year, but add new experiments and a local historical context for you. Then we will move on into the new avenues!</p>
+  <div class="meta-row">
+    <span class="chip">5 units</span>
+    <span class="chip">Grade 10</span>
+    <span class="chip">Course overview</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <h2>The five units</h2>
+  <div class="toc-grid">
+    <a class="toc-card" href="#u1" style="--accent:var(--u1)"><span class="n">Unit 1</span><span class="t">Review of Chemical Ideas from Last Year</span></a>
+    <a class="toc-card" href="#u2" style="--accent:var(--u2)"><span class="n">Unit 2</span><span class="t">The Railway Explosion — Iron, Steel and the Engineering Metals</span></a>
+    <a class="toc-card" href="#u3" style="--accent:var(--u3)"><span class="n">Unit 3</span><span class="t">The Haber Process</span></a>
+    <a class="toc-card" href="#u4" style="--accent:var(--u4)"><span class="n">Unit 4</span><span class="t">The Periodic Table, 1866 — Electronic Structure and the Aufbau Notation</span></a>
+    <a class="toc-card" href="#u5" style="--accent:var(--u5)"><span class="n">Unit 5</span><span class="t">The Historical Growth of the German Chemical Industries</span></a>
+  </div>
+</nav>
+
+<main>
+
+<section class="unit" id="u1" style="--accent:var(--u1);--wash-accent:var(--u1w)">
+  <div class="unit-head">
+    <div class="numeral">I</div>
+    <div class="unit-titles">
+      <p class="kicker">Foundations</p>
+      <h2 class="unit-title">Review of Chemical Ideas from Last Year</h2>
+      <span class="duration">4 weeks · our starting point</span>
+    </div>
+  </div>
+
+  <p class="thread"><strong>The thread:</strong> Four short readings, and four questions you will end up asking about every industrial process in this course. How much? (equations and moles) · How hot? (thermochemistry) · How fast? (kinetics) · How far? (equilibrium). Almost none of this is new to you — but this year you will use it on real chemical plant, running at an economic gain.</p>
+
+  <div class="cols">
+    <div>
+      <h3 class="block">1 · Chemical reactions and equations</h3>
+      <ul class="content">
+        <li><b>Writing equations properly</b> — from words to symbols, balanced, with state symbols <span class="eqn">(s) (l) (g) (aq)</span>. You will be doing this all year, so get it fluent now.</li>
+        <li><b>Conservation of mass</b> — the reason balancing is not just a rule your teacher invented.</li>
+        <li><b>The mole</b> — <span class="eqn">n = m / M</span>, Avogadro's constant, molar gas volume and concentration <span class="eqn">c = n / V</span>.</li>
+        <li><b>Reacting-mass calculations</b>, limiting reagent, percentage yield and atom economy. This is the arithmetic that decides whether a factory runs at an economic profit.</li>
+        <li>Recognising reaction types: combination, decomposition, displacement, neutralisation, precipitation, combustion and redox.</li>
+      </ul>
+
+      <h3 class="block">2 · Thermochemistry</h3>
+      <ul class="content">
+        <li><b>Exothermic and endothermic</b> changes, and why <span class="eqn">ΔH</span> is negative when heat comes out.</li>
+        <li><b>Energy-level diagrams</b> — and reading activation energy off one as the barrier you have to get over.</li>
+        <li><b>Breaking bonds takes energy in, making bonds gives energy out</b> — you will use this to estimate <span class="eqn">ΔH</span> from bond energies.</li>
+        <li>Measuring heat in the lab: <span class="eqn">q = mcΔT</span>, and working out why your answer always comes out too low.</li>
+        <li>Why a strongly exothermic reaction is both good news (it keeps itself going) and a headache (you have to get the heat out before something melts).</li>
+      </ul>
+
+      <h3 class="block">3 · Kinetics</h3>
+      <ul class="content">
+        <li><b>Measuring a rate</b> — by loss of mass, volume of gas, colour change or cloudiness; and reading a rate off the gradient of a graph.</li>
+        <li><b>Collision theory</b>: a collision only works if the particles hit with the right orientation and with at least the activation energy, <span class="eqn">E<sub>a</sub></span>.</li>
+        <li>What changes a rate — <b>concentration, pressure, temperature, surface area, catalyst</b> — and being able to explain each one in terms of collisions.</li>
+        <li><b>Catalysts</b> give the reaction an easier route with a lower <span class="eqn">E<sub>a</sub></span>. They are not used up, and they do not change how much product you end up with.</li>
+        <li>Why heating something by only 10 °C can roughly double the rate.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="block">4 · Equilibrium and reversibility</h3>
+      <ul class="content">
+        <li><b>Reversible reactions</b> and what the <span class="eqn">⇌</span> sign is telling you.</li>
+        <li><b>Dynamic equilibrium</b> — the forward and backward rates are equal, the amounts stop changing, but the reaction has not stopped.</li>
+        <li><b>Le Chatelier's principle</b> — predicting what happens when you change concentration, pressure or temperature.</li>
+        <li>Yield versus rate. Keep these two apart in your head: this distinction is what the whole course turns on.</li>
+        <li><b>The compromise problem</b>, which comes back in Units 3 and 5: the conditions that give you the best yield are usually far too slow to be worth using.</li>
+      </ul>
+
+      <h3 class="block">By the end of this unit you should be able to</h3>
+      <ul class="content">
+        <li>Write a balanced equation with state symbols, without being prompted.</li>
+        <li>Do mole calculations, including yield and limiting reagent.</li>
+        <li>Read an energy-level diagram and a rate curve.</li>
+        <li>Predict what a change does to an equilibrium — and say what it costs you in rate.</li>
+      </ul>
+    </div>
+  </div>
+
+  <details class="res">
+    <summary>Resources for this unit on Canvas</summary>
+    <div class="res-body">
+        <div class="res-group">
+          <h4>Introductory texts</h4>
+          <div class="res-list">
+            <a>Introduction 1 — Chemical Reactions and Chemical Equations</a>
+            <a>Introduction 2 — Thermochemistry</a>
+            <a>Introduction 3 — Kinetics</a>
+            <a>Introduction 4 — Equilibrium Reactions and Reversibility</a>
+          </div>
+        </div>
+    </div>
+  </details>
+</section>
+
+<section class="unit" id="u2" style="--accent:var(--u2);--wash-accent:var(--u2w)">
+  <div class="unit-head">
+    <div class="numeral">II</div>
+    <div class="unit-titles">
+      <p class="kicker">The Industrial Revolution</p>
+      <h2 class="unit-title">The Railway Explosion — Iron, Steel and the Engineering Metals</h2>
+      <span class="duration">Structure &amp; bonding · redox · extraction · process design</span>
+    </div>
+  </div>
+
+  <p class="thread"><strong>The thread:</strong> A railway needs a metal that is cheap, stiff, tough, and available by the thousand tonnes. Getting that metal out of the ground is a redox problem. Making it useful is a bonding and structure problem. Stopping it rusting away is a corrosion problem. By the end of the unit you will step up from the test tube to the reactor and the process flow diagram.</p>
+
+  <div class="cols">
+    <div>
+      <h3 class="block">Bonding and structure</h3>
+      <ul class="content">
+        <li><b>Metallic bonding</b> — positive ions in a sea of delocalised electrons. Use this one picture to explain conduction, malleability, ductility, shine and high melting point.</li>
+        <li><b>Ionic bonding</b> — electron transfer and giant lattices, and the properties that follow: high melting points, brittleness, and conducting only when molten or dissolved. You need this for the ores and for the electrolysis cell.</li>
+        <li><b>Oxides</b> — basic, acidic, amphoteric and neutral; how they react with acids and alkalis; and how the position of the element in the periodic table lets you predict which is which.</li>
+      </ul>
+
+      <h3 class="block">Properties, uses and alloys</h3>
+      <ul class="content">
+        <li>Matching a property to a job: iron for structures, copper for wiring, aluminium when weight matters.</li>
+        <li><b>Alloys</b> — why a mixture is harder than a pure metal: atoms of different sizes stop the layers sliding.
+          <ul>
+            <li>Mild and high-carbon steel — what the carbon content does to hardness and brittleness</li>
+            <li>Stainless steel (chromium, nickel), and the oxide layer that repairs itself</li>
+            <li>Brass, bronze, solder, duralumin</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3 class="block">Reactivity and extraction</h3>
+      <ul class="content">
+        <li><b>The reactivity series</b>, worked out from displacement reactions and from reactions with water, steam and acid.</li>
+        <li><b>How reactive a metal is decides how you extract it.</b> This is the big idea of the unit:
+          <ul>
+            <li>K, Na, Ca, Mg, Al → electrolysis of the molten compound</li>
+            <li>Zn, Fe, Sn, Pb → reduction with carbon or carbon monoxide</li>
+            <li>Cu, Ag, Au → roasting, or simply found as the metal</li>
+          </ul>
+        </li>
+        <li><b>The blast furnace</b> — you load ore, coke and limestone in at the top, and you should be able to say what each one is for:
+          <ul>
+            <li><span class="eqn">C + O<sub>2</sub> → CO<sub>2</sub></span>, then <span class="eqn">CO<sub>2</sub> + C → 2CO</span></li>
+            <li><span class="eqn">Fe<sub>2</sub>O<sub>3</sub> + 3CO → 2Fe + 3CO<sub>2</sub></span></li>
+            <li><span class="eqn">CaCO<sub>3</sub> → CaO + CO<sub>2</sub></span> ; <span class="eqn">CaO + SiO<sub>2</sub> → CaSiO<sub>3</sub></span> (slag)</li>
+          </ul>
+        </li>
+        <li><b>Aluminium from bauxite</b> — <span class="eqn">Al<sub>2</sub>O<sub>3</sub></span> dissolved in molten cryolite so you do not have to melt it; the reactions at each electrode; why the carbon anodes burn away and have to be replaced; and why the electricity bill is the real cost.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="block">Corrosion</h3>
+      <ul class="content">
+        <li><b>Rust needs both water and oxygen</b> — the three-test-tube experiment proves it. Salt and acid make it worse.</li>
+        <li>Stopping it: barriers (paint, grease, plastic, plating), <b>galvanising</b>, and <b>sacrificial protection</b> with a more reactive metal.</li>
+        <li>Corrosion costs economies billions a year. That is why anyone bothers.</li>
+      </ul>
+
+      <h3 class="block">Redox — the language underneath all of it</h3>
+      <ul class="content">
+        <li>Three ways of saying the same thing: gain or loss of oxygen, <b>transfer of electrons</b>, and change in oxidation number.</li>
+        <li>Spotting the oxidising agent and the reducing agent in an extraction equation.</li>
+        <li>Writing half-equations, and putting two of them together into a balanced overall equation.</li>
+      </ul>
+
+      <h3 class="block">From the bench to the plant</h3>
+      <ul class="content">
+        <li><b>Reactor design</b> — batch or continuous, how long the mixture stays in, mixing, and getting heat in and out.</li>
+        <li><b>Process flow diagrams</b> — reading them and drawing them, using the standard symbols engineers actually use.</li>
+      </ul>
+    </div>
+  </div>
+
+  <details class="res">
+    <summary>Resources for this unit on Canvas</summary>
+    <div class="res-body">
+        <div class="res-group">
+          <h4>Course pages</h4>
+          <div class="res-list">
+            <a>9.1 Properties of Metals</a>
+            <a>9.2 Uses of Metals</a>
+            <a>9.3 Alloys and their properties</a>
+            <a>9.4 Reactivity Series</a>
+            <a>9.5 Corrosion of Metals</a>
+            <a>9.6 The extraction of metals</a>
+            <a>2.4 Ions and Ionic Bonding</a>
+            <a>2.7 Metallic Bonding</a>
+            <a>7.2 Oxides</a>
+            <a>C9 Oxidation and Reduction reactions</a>
+          </div>
+        </div>
+        <div class="res-group">
+          <h4>Reading</h4>
+          <div class="res-list">
+            <a>Metals — Earl &amp; Wilford, Cambridge Chemistry 4e</a>
+            <a>Electrolysis and aluminium extraction — Earl &amp; Wilford 4e</a>
+            <a>The Chemical Reactor Omnibook — Levenspiel</a>
+            <a>ISO 15926 for PFDs — DEXPI Process 1.0 Manual</a>
+          </div>
+        </div>
+        <div class="res-group">
+          <h4>Your notes and activities</h4>
+          <div class="res-list">
+            <a>Review of ideas (unit opener)</a>
+            <a>chemEng — Reviewing the ideas we have introduced</a>
+            <a>ChemEng Part II — Reviewing the ideas</a>
+            <a>Industrial Chemistry (2026-03-05)</a>
+          </div>
+        </div>
+        <div class="res-group">
+          <h4>Assessment</h4>
+          <div class="res-list">
+            <a>Unit 2 Practice Test 2026 (PDF)</a>
+            <a>Unit 2 Practice Test 2026 (DOCX)</a>
+          </div>
+        </div>
+    </div>
+  </details>
+</section>
+
+<section class="unit" id="u3" style="--accent:var(--u3);--wash-accent:var(--u3w)">
+  <div class="unit-head">
+    <div class="numeral">III</div>
+    <div class="unit-titles">
+      <p class="kicker">Acids, Bases and Ammonia</p>
+      <h2 class="unit-title">The Haber Process</h2>
+      <span class="duration">Acid–base theory · titration and data logging · transition-metal chemistry</span>
+    </div>
+  </div>
+
+  <p class="thread"><strong>The thread:</strong> Ammonia is one of the most important substances in the modern world — it becomes the fertiliser that feeds about half the planet, and it also becomes explosives. To understand it you need a proper theory of acids and bases, the careful measuring habits of titration, and a first look at the transition metals, whose catalytic and colourful behaviour makes the whole industry possible.</p>
+
+  <div class="cols">
+    <div>
+      <h3 class="block">What an acid actually is</h3>
+      <ul class="content">
+        <li><b>From Arrhenius to Brønsted–Lowry</b>: you move from “an acid makes <span class="eqn">H<sup>+</sup></span> in water” to the better idea of a <b>proton donor and a proton acceptor</b>, and conjugate acid–base pairs.</li>
+        <li><b>Strong and weak</b> is about how much the acid splits up. <b>Concentrated and dilute</b> is about how much water you added. These are not the same thing, and mixing them up is the single most common mistake in this topic.</li>
+        <li><b>The pH scale</b> and what a logarithmic scale means; indicators and the ranges they work over; universal indicator against a pH probe.</li>
+        <li>The reactions of acids, with a balanced equation for each:
+          <ul>
+            <li>acid + metal → salt + hydrogen</li>
+            <li>acid + base or alkali → salt + water</li>
+            <li>acid + carbonate → salt + water + carbon dioxide</li>
+          </ul>
+        </li>
+        <li><b>Neutralisation</b> is really just <span class="eqn">H<sup>+</sup>(aq) + OH<sup>−</sup>(aq) → H<sub>2</sub>O(l)</span>. You will make salts by titration, by adding excess solid, and by precipitation.</li>
+      </ul>
+
+      <h3 class="block">Measuring it</h3>
+      <ul class="content">
+        <li><b>Titration</b> — making a standard solution, good technique, getting concordant titres, and choosing the right indicator.</li>
+        <li>Concentration calculations in <span class="eqn">mol dm<sup>−3</sup></span>, working back to an unknown concentration from a balanced equation.</li>
+        <li><b>Data logging with LoggerPro and a pH probe</b> — you will record your own titration curves, find the equivalence point in the steep section, and compare a strong acid with a weak one.</li>
+        <li>There are vocabulary sheets for this unit and the words are assessed, so learn them as you go rather than the night before.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="block">Ammonia and the nitrogen chemicals</h3>
+      <ul class="content">
+        <li><b>Ammonia is a weak base</b>: <span class="eqn">NH<sub>3</sub> + H<sub>2</sub>O ⇌ NH<sub>4</sub><sup>+</sup> + OH<sup>−</sup></span>. You will meet the ammonium ion and the dative covalent bond that makes it.</li>
+        <li>Ammonium salts as fertilisers, what NPK means, and the test for an ammonium ion using warm alkali.</li>
+        <li>A first look at <b>the Haber process</b>, which is where all of this ammonia comes from. You will come back to it properly in Unit 5.</li>
+      </ul>
+
+      <h3 class="block">Transition metals and complex ions</h3>
+      <ul class="content">
+        <li>What makes the d-block different: <b>variable oxidation states, coloured compounds, catalytic activity</b> and <b>complex formation</b>.</li>
+        <li><b>Ligands and coordination number</b>; water and ammonia acting as ligands; and ligand exchange you can see happening — pale blue <span class="eqn">[Cu(H<sub>2</sub>O)<sub>6</sub>]<sup>2+</sup></span> turning deep blue <span class="eqn">[Cu(NH<sub>3</sub>)<sub>4</sub>(H<sub>2</sub>O)<sub>2</sub>]<sup>2+</sup></span>.</li>
+        <li>Adding a little ammonia and then a lot: precipitates that form and then dissolve again. This is a genuinely useful way to identify an unknown metal ion.</li>
+        <li>Why d-block metals make such good catalysts — which is the bridge into Unit 5.</li>
+      </ul>
+    </div>
+  </div>
+
+  <details class="res">
+    <summary>Resources for this unit on Canvas</summary>
+    <div class="res-body">
+        <div class="res-group">
+          <h4>Software you will need</h4>
+          <div class="res-list">
+            <a href="https://www.vernier.com/d/hh8tb">LoggerPro download (School Pro licence)</a>
+          </div>
+        </div>
+        <div class="res-group">
+          <h4>Vocabulary and reading</h4>
+          <div class="res-list">
+            <a>Unit 3 — acids and bases vocabulary sheets</a>
+            <a>8. Acids and Bases (background reading)</a>
+            <a>Periodicity extract — transition metal compounds and key properties</a>
+            <a>Periodicity extract — d-block element compounds and properties</a>
+          </div>
+        </div>
+        <div class="res-group">
+          <h4>Practice and help</h4>
+          <div class="res-list">
+            <a>Acids and bases — ten easy pieces</a>
+            <a href="https://app.magicschool.ai/tools">“Ask Wilko!” — generate practice questions and worked answers</a>
+          </div>
+        </div>
+    </div>
+  </details>
+</section>
+
+<section class="unit" id="u4" style="--accent:var(--u4);--wash-accent:var(--u4w)">
+  <div class="unit-head">
+    <div class="numeral">IV</div>
+    <div class="unit-titles">
+      <p class="kicker">The Birth of German Chemistry</p>
+      <h2 class="unit-title">The Periodic Table, 1866 — Electronic Structure and the Aufbau Notation</h2>
+      <span class="duration">Atomic structure · periodicity · oxidation numbers</span>
+    </div>
+  </div>
+
+  <p class="thread"><strong>The thread:</strong> In the 1860s chemists sorted the elements into a table without having the faintest idea why it worked. Fifty years later the electron explained it. You will follow that story in order — first the pattern, then the reason — and end up seeing that the shape of the periodic table is simply the order in which electrons fill up.</p>
+
+  <div class="cols">
+    <div>
+      <h3 class="block">The problem they were trying to solve</h3>
+      <ul class="content">
+        <li><b>Newlands' law of octaves (1866)</b> — a real pattern that people laughed at, and which fell apart after calcium.</li>
+        <li><b>Lothar Meyer and Mendeleev (1869)</b> — putting the elements in order of atomic mass, leaving gaps, and predicting the missing elements. When eka-silicon turned up as germanium, people stopped laughing.</li>
+        <li><b>Moseley</b> and the switch to <b>atomic number</b>, which finally sorted out the awkward pairs (Ar/K, Te/I).</li>
+      </ul>
+
+      <h3 class="block">Inside the atom</h3>
+      <ul class="content">
+        <li>Protons, neutrons and electrons: relative masses and charges; atomic number and mass number.</li>
+        <li><b>Isotopes</b>, and calculating relative atomic mass from the abundances; radioisotopes used in medicine and industry.</li>
+        <li>Ions: working out the charge from the group number, and writing formulae of ionic compounds.</li>
+      </ul>
+
+      <h3 class="block">Electron configuration and Aufbau</h3>
+      <ul class="content">
+        <li>Shells → <b>sub-shells</b> (s, p, d, f) → orbitals, and how many electrons fit in each.</li>
+        <li><b>The Aufbau principle</b>, with Pauli and Hund's rule; writing full and shorthand configurations and drawing orbital-box diagrams.</li>
+        <li>The odd <b>3d and 4s ordering</b>, the exceptions at <b>chromium and copper</b>, and the rule that transition metals lose their 4s electrons first when they form ions.</li>
+        <li>Reading the table as s, p, d and f blocks — once you see this, the shape of the periodic table stops being arbitrary.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="block">Periodicity — the trends and why they happen</h3>
+      <ul class="content">
+        <li>Across a period and down a group: <b>atomic radius, ionisation energy</b> and <b>electronegativity</b>, explained by nuclear charge, shielding and distance. You will be asked for the explanation, not just the trend.</li>
+        <li>Melting points across period 3, which is really a story about structure: giant metallic → giant covalent → simple molecular.</li>
+        <li>Sorting the elements by structure and bonding, and how metallic character changes across the table.</li>
+      </ul>
+
+      <h3 class="block">The groups, close up</h3>
+      <ul class="content">
+        <li><b>Group I</b> — how reactivity with water changes down the group, and why losing that one electron gets easier.</li>
+        <li><b>Group VII</b> — trends in colour, volatility and reactivity, and <b>displacement reactions</b> as a direct test of which halogen is the better oxidising agent.</li>
+        <li><b>Group 0</b> — full outer shells, and what we use the noble gases for.</li>
+        <li><b>The transition elements</b> — back again from Unit 3, but now you can explain them using the d sub-shell.</li>
+      </ul>
+
+      <h3 class="block">Oxidation numbers, done properly</h3>
+      <ul class="content">
+        <li>The <b>rules for assigning oxidation numbers</b> — worked through systematically rather than guessed at.</li>
+        <li>Using oxidation numbers to spot what has been oxidised and what has been reduced in a reaction you have never seen before.</li>
+        <li>Writing and balancing <b>half-equations</b>; disproportionation; and reading names like iron(III) and manganese(VII).</li>
+      </ul>
+    </div>
+  </div>
+
+  <details class="res">
+    <summary>Resources for this unit on Canvas</summary>
+    <div class="res-body">
+        <div class="res-group">
+          <h4>Course pages</h4>
+          <div class="res-list">
+            <a>8.1 The arrangement of elements</a>
+            <a>8.2 Group I properties</a>
+            <a>8.3 Group VII properties</a>
+            <a>8.4 Transition Elements</a>
+            <a>8.5 The Noble Gases</a>
+            <a>2.2 Atomic Structure and the Periodic Table</a>
+            <a>C3 Elements and the Periodic Table</a>
+            <a>C2 The atom — isotopes for medicinal use</a>
+          </div>
+        </div>
+        <div class="res-group">
+          <h4>Reading and reference</h4>
+          <div class="res-list">
+            <a>S1.3 Electron configurations</a>
+            <a>S1.3 Answers — Pearson HL Chemistry</a>
+            <a>S3.1 The Periodic Table — classification of structure</a>
+            <a>9 — Redox</a>
+            <a href="https://enjoychemistry.com/chem-apps/electron.html">Interactive: electron shells, sub-shells and the periodic table</a>
+            <a>Blank colour periodic tables to learn from</a>
+          </div>
+        </div>
+        <div class="res-group">
+          <h4>Assessment</h4>
+          <div class="res-list">
+            <a>Unit 4 Vocabulary</a>
+            <a>Unit 4 Sample Chemistry Test</a>
+            <a>Unit 4 Sample Chemistry Test (1)</a>
+            <a>Sample Chemistry Paper, June 2026</a>
+            <a>Mark scheme, June 2026 sample paper</a>
+            <a>Test — acids and bases (2026-05-12)</a>
+          </div>
+        </div>
+    </div>
+  </details>
+</section>
+
+<section class="unit" id="u5" style="--accent:var(--u5);--wash-accent:var(--u5w)">
+  <div class="unit-head">
+    <div class="numeral">V</div>
+    <div class="unit-titles">
+      <p class="kicker">Putting it all together</p>
+      <h2 class="unit-title">The Historical Growth of the German Chemical Industries</h2>
+      <span class="duration">Haber–Bosch · the Contact process · catalysis · industrial geography</span>
+    </div>
+  </div>
+
+  <p class="thread"><strong>The thread:</strong> Now you take everything the course has built and use it on two real processes, in a landscape you can visit at the weekend. Why did the world's chemical industry end up along the Rhine and the Main, on your doorstep? Part of the answer is chemistry — equilibrium, catalysis, heat. Part of it is rivers, railways, universities and patents. You will need to hold both halves at once.</p>
+
+  <div class="cols">
+    <div>
+      <h3 class="block">The Haber–Bosch process</h3>
+      <ul class="content">
+        <li><span class="eqn">N<sub>2</sub>(g) + 3H<sub>2</sub>(g) ⇌ 2NH<sub>3</sub>(g)</span>, with <span class="eqn">ΔH = −92 kJ mol<sup>−1</sup></span>.</li>
+        <li><b>Working out the compromise for yourself, using Le Chatelier:</b>
+          <ul>
+            <li>A low temperature gives a better yield, but the reaction is then far too slow → about 400–450 °C</li>
+            <li>A high pressure gives a better yield (4 moles of gas become 2), but the plant costs a fortune → around 200 atm</li>
+            <li>An iron catalyst speeds it up without changing the yield at all</li>
+            <li>The unreacted gases are recycled, and the ammonia is removed by cooling it to a liquid, which drags the equilibrium further across</li>
+          </ul>
+        </li>
+        <li><b>Where the raw materials come from</b>: nitrogen from the air, hydrogen from steam reforming of methane — which is where nearly all of the carbon footprint sits.</li>
+        <li>What happens next: ammonia → nitric acid → ammonium nitrate. Fertiliser and explosive come out of the same plant, and we are not going to dodge what that has meant historically. You will be asked what you think about it.</li>
+      </ul>
+
+      <h3 class="block">Catalysts and promoters</h3>
+      <ul class="content">
+        <li><b>How a solid catalyst works</b>: gas molecules stick to active sites on the surface, react there, then leave. This is why surface area matters so much.</li>
+        <li><b>Promoters</b> — substances that are not catalysts themselves but make the catalyst better:
+          <ul>
+            <li>A structural promoter — alumina, <span class="eqn">Al<sub>2</sub>O<sub>3</sub></span> — keeps the iron in tiny particles and stops it clumping together</li>
+            <li>An electronic promoter — potassium oxide, <span class="eqn">K<sub>2</sub>O</span> — pushes more electron density onto the iron surface</li>
+          </ul>
+        </li>
+        <li><b>Catalyst poisoning</b> by sulphur compounds, and why the gas has to be cleaned before it ever reaches the catalyst.</li>
+      </ul>
+
+      <h3 class="block">The Contact process</h3>
+      <ul class="content">
+        <li>Stage 1 — <span class="eqn">S + O<sub>2</sub> → SO<sub>2</sub></span> (or roast a sulphide ore).</li>
+        <li>Stage 2 — <span class="eqn">2SO<sub>2</sub>(g) + O<sub>2</sub>(g) ⇌ 2SO<sub>3</sub>(g)</span>, <span class="eqn">ΔH = −196 kJ mol<sup>−1</sup></span>, over <b>vanadium(V) oxide</b> at about 450 °C and only 1–2 atm.</li>
+        <li><b>Why is the pressure low here, when the Haber process needs 200 atm?</b> Because the yield is already over 95 % at ordinary pressure, so paying for a high-pressure plant would buy you almost nothing. Be ready to compare the two — it is a favourite exam question.</li>
+        <li>Stage 3 — the <span class="eqn">SO<sub>3</sub></span> is absorbed into concentrated sulphuric acid to make <b>oleum</b>, which is then diluted. Putting it straight into water gives a choking mist you cannot collect.</li>
+        <li>Sulphuric acid turns up everywhere: fertilisers, detergents, dyes, batteries and metal treatment. Economists once measured how industrialised a country was by how much of it they made.</li>
+        <li>You will study two Contact plants in the Frankfurt area, with notes, diagrams and questions.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="block">Why Germany, and why here</h3>
+      <ul class="content">
+        <li><b>The Rhine–Main corridor</b> — BASF at Ludwigshafen, Bayer at Leverkusen, Hoechst at Frankfurt, and later IG Farben.</li>
+        <li><b>Rivers as infrastructure</b> — moving coal, salt and acid in bulk, water for cooling, and somewhere for the waste to go. You will look at the canalisation projects that made the rivers reliable enough to build a factory beside.</li>
+        <li><b>Railway freight</b> — the network that let raw materials and products move at industrial scale.</li>
+        <li><b>Universities, technical high schools and patents</b> — the coal-tar dye industry was the first industry built directly on laboratory research, and Germany had the laboratories.</li>
+        <li>Mapping work and a student activity on Frankfurt's industries in the 1920s.</li>
+      </ul>
+
+      <h3 class="block">Simulations and modelling</h3>
+      <ul class="content">
+        <li><b>The Haber–Bosch plant simulator</b> — you change the temperature, the pressure and the catalyst, and watch yield and rate fight each other. Try to find the best operating point, then explain why it is the best.</li>
+        <li>Interactive worksheets, contact-process simulations, and process flow diagrams read the way an engineer would read them.</li>
+      </ul>
+    </div>
+  </div>
+
+  <details class="res">
+    <summary>Resources for this unit on Canvas</summary>
+    <div class="res-body">
+        <div class="res-group">
+          <h4>German development of its chemical industry</h4>
+          <div class="res-list">
+            <a>Largest chemical industries along the Rhine and Main — map</a>
+            <a>Germany's rivers with locations of chemical works</a>
+            <a>Historical development of the chemical industries — chemical map</a>
+            <a>Germany's river canalisation projects — history map</a>
+            <a>Student activity — Frankfurt industries, 1920s</a>
+            <a>Frankfurt industries — answer key</a>
+          </div>
+        </div>
+        <div class="res-group">
+          <h4>Haber–Bosch, catalysts and promoters</h4>
+          <div class="res-list">
+            <a>Haber Process worksheet</a>
+            <a>Catalyst promoters — concepts and applications</a>
+            <a>Promoters worksheet (interactive)</a>
+            <a>Haber–Bosch simulator</a>
+            <a>Interactive worksheet v1</a>
+            <a>Interactive worksheet v2</a>
+            <a>Haber–Bosch worksheet (DOCX)</a>
+            <a>Haber–Bosch Germany map</a>
+            <a>Haber–Bosch Germany map v2</a>
+            <a>Notes 2</a>
+            <a>Questions 2</a>
+            <a>Answers 2</a>
+            <a>Diagrams 2</a>
+          </div>
+        </div>
+        <div class="res-group">
+          <h4>The Contact process</h4>
+          <div class="res-list">
+            <a>Contact process v3</a>
+            <a>Contact process v5</a>
+            <a>Contact process v5 worksheet</a>
+            <a>Monsanto contact process</a>
+            <a>Monsanto contact process worksheet</a>
+            <a>Notes</a>
+            <a>Questions</a>
+            <a>Answers</a>
+            <a>Diagrams</a>
+            <a>Video</a>
+            <a>Shreve's Chemical Process Industries</a>
+          </div>
+        </div>
+    </div>
+  </details>
+</section>
+
+</main>
+
+<footer class="colophon">
+  <p style="font-weight:600;color:#1b1f24;margin-bottom:10px">How the course fits together</p>
+  <p>Unit 1 hands you the tools. Unit 2 uses redox and structure to get metals out of rocks, and introduces you to reactors and flow diagrams. Unit 3 builds a proper theory of acids and bases and introduces the transition metals. Unit 4 finally explains <b>why</b> the elements behave the way the earlier units assumed they would. Unit 5 takes the whole lot and runs it on two real processes, in a real landscape, twenty minutes down the road.</p>
+  <p><b>Things you will be assessed on, again and again:</b> writing balanced equations and half-equations · mole and yield calculations · explaining a property from a structural model · applying Le Chatelier to a process you have never seen · the vocabulary for each unit · reading a process flow diagram.</p>
+  <p style="margin-top:14px;opacity:.75">Science Department · Grade 10 · Refined with IA</p>
+</footer>
+
+</div>
+</body>
+</html>

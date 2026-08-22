@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Contact Process – Monsanto Single-Absorption Plant</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',Arial,sans-serif}
+#outer{display:flex;flex-direction:column;align-items:center;padding:6px 0}
+h2{margin:3px 0;font-size:13px;color:#58a6ff;letter-spacing:0.8px;text-transform:uppercase;text-align:center}
+h3{margin:1px 0;font-size:9px;color:#6e7681;text-align:center;font-weight:normal}
+#wrap{position:relative;width:980px;height:560px;flex-shrink:0}
+canvas{position:absolute;top:0;left:0}
+#ctrl{display:flex;gap:10px;align-items:flex-start;width:980px;margin-top:4px;flex-wrap:nowrap}
+.sbox{background:#161b22;border:1px solid #30363d;border-radius:5px;padding:7px 10px}
+.sbox label{font-size:10px;color:#8b949e;display:block;margin-bottom:2px}
+.sbox b{color:#c9d1d9}
+input[type=range]{width:160px;accent-color:#58a6ff;display:block;margin:3px 0}
+.note{font-size:8px;color:#6e7681;line-height:1.4}
+#prod{flex:1}
+#prod table{font-size:10px;width:100%;border-collapse:collapse}
+#prod td{padding:2px 5px;border-bottom:1px solid #21262d}
+#prod .v{color:#7ee787;font-weight:bold;text-align:right;font-family:monospace}
+#prod .hd{color:#58a6ff;font-weight:bold;font-size:8px;padding-top:4px}
+#hm-box canvas{display:block}
+#hm-box .hl{font-size:8px;color:#8b949e;text-align:center;margin-bottom:2px}
+#hmInfo{font-size:8px;color:#58a6ff;text-align:center;min-height:10px}
+</style>
+</head>
+<body>
+<div id="outer">
+<h2>Contact Process &mdash; Monsanto Single-Absorption Plant (Interactive)</h2>
+<h3>Sulfur-burning plant with air-injection inter-bed cooling &bull; Basis: 1000 kg/hr liquid sulfur</h3>
+<div id="wrap">
+  <canvas id="bg" width="980" height="560"></canvas>
+  <canvas id="anim" width="980" height="560"></canvas>
+</div>
+<div id="ctrl">
+  <div class="sbox">
+    <label>Converter Temp: <b id="Tlbl">450</b> °C</label>
+    <input type="range" id="Tsl" min="200" max="700" value="450" step="5">
+    <div class="note">↑ Higher T → lower equilibrium yield<br>Industrial optimum: 430–490°C</div>
+  </div>
+  <div class="sbox">
+    <label>Converter Pressure: <b id="Plbl">1.5</b> atm</label>
+    <input type="range" id="Psl" min="1" max="200" value="34" step="1">
+    <div class="note">↑ Higher P → higher yield (Le Chatelier)<br>Most plants: 1–2 atm</div>
+  </div>
+  <div class="sbox" id="prod">
+    <table>
+      <tr><td class="hd" colspan="2">CONVERTER</td></tr>
+      <tr><td>SO₂ conversion (α)</td><td class="v" id="dAlpha">—</td></tr>
+      <tr><td>Kp</td><td class="v" id="dKp">—</td></tr>
+      <tr><td class="hd" colspan="2">PRODUCTS</td></tr>
+      <tr><td>H₂SO₄ production</td><td class="v" id="dProd">—</td></tr>
+      <tr><td>Oleum (SO₃ absorbed)</td><td class="v" id="dOleum">—</td></tr>
+      <tr><td>Tail gas SO₂</td><td class="v" id="dTail">—</td></tr>
+      <tr><td class="hd" colspan="2">HEAT RECOVERY</td></tr>
+      <tr><td>WHB steam output</td><td class="v" id="dSteam">—</td></tr>
+      <tr><td>Economiser duty</td><td class="v" id="dEco">—</td></tr>
+    </table>
+  </div>
+  <div class="sbox" id="hm-box">
+    <div class="hl">T-P Yield Map — click to set conditions</div>
+    <canvas id="hm" width="210" height="140"></canvas>
+    <div id="hmInfo">&nbsp;</div>
+  </div>
+</div>
+</div>
+<script>
+// ── EQUILIBRIUM CHEMISTRY ────────────────────────────────────────────────────
+const R=8.314, dH=-197000, Tref=723, KpRef=190;
+function calcKp(Tk){return KpRef*Math.exp((dH/R)*(1/Tref-1/Tk));}
+function solveAlpha(Kp,P){
+  let lo=0,hi=0.99999;
+  for(let i=0;i<80;i++){
+    const a=(lo+hi)/2,tot=1-0.05*a;
+    const ySO2=0.1*(1-a)/tot,yO2=(0.1-0.05*a)/tot,ySO3=0.1*a/tot;
+    ySO3*ySO3/(ySO2*ySO2*yO2*P)<Kp?lo=a:hi=a;
+  }
+  return (lo+hi)/2;
+}
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let T_C=450, P_atm=1.5, alpha=0.97;
+
+// ── EQUIPMENT LAYOUT ─────────────────────────────────────────────────────────
+const U={
+  blower:    {x:58,  y:280, r:22},
+  dryTower:  {x:148, y:192, w:40, h:126},
+  melter:    {x:88,  y:466, w:80, h:44},
+  burner:    {x:270, y:288, w:60, h:56},
+  whb:       {x:358, y:280, w:48, h:68},
+  filter:    {x:440, y:282, w:36, h:56},
+  hx:        {x:520, y:286, w:50, h:70},
+  converter: {x:630, y:232, w:60, h:164},
+  economizer:{x:730, y:282, w:42, h:78},
+  oleumTower:{x:815, y:224, w:40, h:118},
+  absTower:  {x:902, y:198, w:46, h:138},
+  exitStack: {x:952, y:80,  w:14, h:56},
+  absCooler: {x:840, y:432, w:50, h:26},
+  dryCooler: {x:634, y:432, w:50, h:26},
+  circTank:  {x:762, y:474, w:60, h:42},
+  oleumCool: {x:902, y:432, w:50, h:26},
+  oleumPump: {x:944, y:490, r:13},
+  storage:   {x:108, y:498, w:88, h:46},
+};
+
+// ── PIPES ────────────────────────────────────────────────────────────────────
+// Each pipe: id, pts (waypoints), base colour
+const PIPES=[
+  // Air intake → blower
+  {id:'air_in',       pts:[[8,280],[36,280]],                                col:'#79c0ff'},
+  // Blower → drying tower bottom
+  {id:'wet_air',      pts:[[58,258],[58,220],[148,220],[148,255]],            col:'#79c0ff88'},
+  // Drying tower top → air header
+  {id:'dry_hdr',      pts:[[148,129],[148,68],[415,68]],                     col:'#c0eaff'},
+  // Air header → sulfur burner
+  {id:'dry_to_burn',  pts:[[270,68],[270,260]],                              col:'#c0eaff'},
+  // Air header → converter (inter-bed cooling injection)
+  {id:'air_inject',   pts:[[415,68],[630,68],[630,150]],                     col:'#c0eaff66'},
+  // Sulfur solid feed
+  {id:'sulf_feed',    pts:[[8,466],[48,466]],                                col:'#ffe066'},
+  // Steam to melter
+  {id:'steam_melt',   pts:[[8,484],[48,484]],                                col:'#ffffff44'},
+  // Melter → sulfur burner (molten sulfur)
+  {id:'mol_sulf',     pts:[[88,444],[88,370],[200,370],[200,288],[240,288]], col:'#ffe066'},
+  // Burner → WHB (hot SO2 gas)
+  {id:'so2_hot',      pts:[[300,288],[334,288]],                             col:'#ff9900'},
+  // WHB → filter
+  {id:'so2_whb',      pts:[[382,280],[422,280]],                             col:'#ff9900'},
+  // Filter → HX cold side (bottom)
+  {id:'so2_filt',     pts:[[458,282],[495,282]],                             col:'#ffaa00'},
+  // HX cold side top → converter pass 1 (top)
+  {id:'so2_hx_out',   pts:[[520,251],[520,176],[630,176],[630,150]],         col:'#ffd700'},
+  // Converter bottom → HX hot side (bottom)
+  {id:'so3_conv',     pts:[[660,314],[720,314],[720,320],[730,320]],         col:'#ff7b72'},
+  // HX hot side top → economizer
+  {id:'so3_hx',       pts:[[730,244],[730,230],[768,230],[768,282]],         col:'#ff7b72'},
+  // Economizer → oleum tower bottom
+  {id:'so3_eco',      pts:[[752,282],[752,350],[815,350]],                   col:'#ffa657'},
+  // Oleum tower top → absorbing tower bottom
+  {id:'gas_abs',      pts:[[815,165],[815,116],[902,116],[902,267]],         col:'#ffa65799'},
+  // Absorbing tower top → exit stack
+  {id:'tail',         pts:[[902,129],[902,80],[938,80]],                     col:'#8b949e'},
+  // WHB steam outlet (up)
+  {id:'steam_out',    pts:[[358,246],[358,68],[440,68]],                     col:'#ffffff55'},
+  // Feedwater into economizer
+  {id:'feedwater',    pts:[[730,360],[730,344]],                             col:'#79c0ff44'},
+  // Absorber bottom acid → abs cooler
+  {id:'acid_abs_dn',  pts:[[902,337],[902,390],[902,419]],                   col:'#ff7b72'},
+  // Abs cooler → circ tank
+  {id:'acid_to_tank', pts:[[815,445],[815,474],[792,474]],                   col:'#ff7b72'},
+  // Circ tank → drying tower recycle (acid)
+  {id:'acid_dry',     pts:[[732,474],[200,474],[200,130],[148,130]],         col:'#cc3333'},
+  // Circ tank → absorber top (acid)
+  {id:'acid_abs_rec', pts:[[792,458],[850,458],[902,458],[902,337]],         col:'#cc333366'},
+  // Circ tank → H2SO4 product storage
+  {id:'acid_prod',    pts:[[732,490],[148,490],[148,521]],                   col:'#aaaaaa'},
+  // Drying tower acid drain → dry cooler
+  {id:'dry_acid',     pts:[[148,256],[148,432],[609,432]],                   col:'#cc333366'},
+  // Dry cooler → circ tank
+  {id:'dry_cool_tank',pts:[[659,432],[720,432],[720,474],[732,474]],         col:'#cc333366'},
+  // Oleum tower bottom → oleum cooler
+  {id:'oleum_dn',     pts:[[835,342],[880,342],[880,432],[877,432]],         col:'#cc2222'},
+  // Oleum cooler → oleum pump
+  {id:'oleum_cool',   pts:[[927,432],[944,432],[944,477]],                   col:'#cc2222'},
+  // Oleum pump → storage label
+  {id:'oleum_store',  pts:[[944,503],[944,530]],                             col:'#cc222288'},
+];
+
+// ── CANVAS SETUP ─────────────────────────────────────────────────────────────
+const bgC=document.getElementById('bg'),bgCtx=bgC.getContext('2d');
+const animC=document.getElementById('anim'),animCtx=animC.getContext('2d');
+
+// ── HELPER: colour interpolation ─────────────────────────────────────────────
+function interpColor(c1,c2,t){
+  const h=s=>[parseInt(s.slice(1,3),16),parseInt(s.slice(3,5),16),parseInt(s.slice(5,7),16)];
+  const [r1,g1,b1]=h(c1),[r2,g2,b2]=h(c2);
+  return '#'+[r1+(r2-r1)*t,g1+(g2-g1)*t,b1+(b2-b1)*t]
+    .map(v=>Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,'0')).join('');
+}
+
+// ── BS 1553 DRAWING FUNCTIONS ─────────────────────────────────────────────────
+
+function bsVessel(c,x,y,w,h,fillCol,strokeCol){
+  // Generic rectangular vessel with bold flat heads
+  c.beginPath();c.rect(x-w/2,y-h/2,w,h);
+  c.fillStyle=fillCol;c.fill();c.strokeStyle=strokeCol;c.lineWidth=2;c.stroke();
+  c.beginPath();c.moveTo(x-w/2,y-h/2);c.lineTo(x+w/2,y-h/2);
+  c.strokeStyle=strokeCol;c.lineWidth=3.5;c.stroke();
+  c.beginPath();c.moveTo(x-w/2,y+h/2);c.lineTo(x+w/2,y+h/2);
+  c.strokeStyle=strokeCol;c.lineWidth=3.5;c.stroke();
+}
+
+function drawBlower(c,x,y,r){
+  c.beginPath();c.arc(x,y,r,0,Math.PI*2);
+  c.fillStyle='#101828';c.fill();c.strokeStyle='#5588cc';c.lineWidth=2;c.stroke();
+  // 6 curved impeller blades
+  c.strokeStyle='#5588cccc';c.lineWidth=1.3;
+  for(let i=0;i<6;i++){
+    const a=i*Math.PI/3;
+    c.beginPath();
+    c.moveTo(x+Math.cos(a)*4,y+Math.sin(a)*4);
+    c.quadraticCurveTo(x+Math.cos(a+0.45)*r*0.62,y+Math.sin(a+0.45)*r*0.62,
+                       x+Math.cos(a+0.22)*r*0.87,y+Math.sin(a+0.22)*r*0.87);
+    c.stroke();
+  }
+  c.beginPath();c.arc(x,y,4,0,Math.PI*2);c.fillStyle='#5588cc';c.fill();
+  // Inlet duct stub
+  c.beginPath();c.rect(x-r-7,y-4,7,8);c.fillStyle='#3366aa44';c.fill();
+  c.strokeStyle='#5588cc88';c.lineWidth=1;c.stroke();
+}
+
+function drawColumn(c,x,y,w,h){
+  // BS 1553 packed column with full × crosshatch
+  bsVessel(c,x,y,w,h,'#0e1820','#5599bb');
+  const pkTop=y-h/2+4,pkBot=y+h/2-4,pH=pkBot-pkTop;
+  c.save();c.beginPath();c.rect(x-w/2+2,pkTop,w-4,pH);c.clip();
+  c.strokeStyle='#5599bb44';c.lineWidth=0.7;
+  for(let d=-pH;d<w+pH;d+=5){
+    c.beginPath();c.moveTo(x-w/2+2+d,pkTop);c.lineTo(x-w/2+2+d+pH,pkBot);c.stroke();
+    c.beginPath();c.moveTo(x+w/2-2-d,pkTop);c.lineTo(x+w/2-2-d-pH,pkBot);c.stroke();
+  }
+  c.restore();
+  c.beginPath();c.rect(x-2,y-h/2-5,4,5);c.fillStyle='#5599bb77';c.fill();
+  c.beginPath();c.rect(x-2,y+h/2,4,5);c.fillStyle='#5599bb77';c.fill();
+}
+
+function drawFiredHeater(c,x,y,w,h){
+  // BS 1553 fired heater (sulfur burner)
+  c.beginPath();c.rect(x-w/2,y-h/2,w,h);
+  c.fillStyle='#1e0c04';c.fill();c.strokeStyle='#c07030';c.lineWidth=2.5;c.stroke();
+  const dv=y-h/2+h*0.52;
+  c.beginPath();c.moveTo(x-w/2+2,dv);c.lineTo(x+w/2-2,dv);
+  c.strokeStyle='#c07030';c.lineWidth=1.5;c.stroke();
+  // Brick courses (radiant section)
+  c.strokeStyle='#c0703044';c.lineWidth=0.8;
+  for(let iy=dv+5;iy<y+h/2-5;iy+=5){
+    c.beginPath();c.moveTo(x-w/2+2,iy);c.lineTo(x+w/2-2,iy);c.stroke();
+  }
+  // Flame (radiant)
+  const fT=dv-h*0.22,fB=dv-2;
+  c.beginPath();c.moveTo(x-10,fB);c.quadraticCurveTo(x-8,fT+5,x,fT);
+  c.quadraticCurveTo(x+8,fT+5,x+10,fB);c.closePath();
+  c.fillStyle='#ff660066';c.fill();c.strokeStyle='#ff8800aa';c.lineWidth=1;c.stroke();
+  // Tube cross-sections (convection section, top)
+  c.fillStyle='#c0703055';
+  for(let iy=y-h/2+5;iy<dv-5;iy+=7){
+    for(let ix=x-w/2+5;ix<x+w/2-3;ix+=8){
+      c.beginPath();c.arc(ix,iy,2.2,0,Math.PI*2);c.fill();
+    }
+  }
+  c.fillStyle='#ffe06655';c.font='6px Arial';c.textAlign='center';
+  c.fillText('S(l)+O₂→SO₂',x,y+h/2-5);
+}
+
+function drawWHB(c,x,y,w,h){
+  // Waste heat boiler: vertical vessel with serpentine coil
+  bsVessel(c,x,y,w,h,'#182030','#7799bb');
+  // Steam drum symbol at top
+  c.beginPath();c.ellipse(x,y-h/2+6,w/2-3,6,0,0,Math.PI*2);
+  c.fillStyle='#202e44';c.fill();c.strokeStyle='#7799bb';c.lineWidth=1.5;c.stroke();
+  // Serpentine coil (3 loops)
+  c.strokeStyle='#99bbddbb';c.lineWidth=2;
+  const cw=w-12;
+  [-10,2,14].forEach(dy=>{
+    c.beginPath();
+    c.moveTo(x-cw/2,y+dy);
+    c.bezierCurveTo(x-cw/4,y+dy-9,x+cw/4,y+dy+9,x+cw/2,y+dy);
+    c.stroke();
+  });
+  // Steam outlet top nozzle
+  c.beginPath();c.rect(x-2,y-h/2-7,4,7);c.fillStyle='#7799bb88';c.fill();
+  // Gas inlet/outlet side nozzles
+  c.fillStyle='#7799bb44';
+  c.beginPath();c.rect(x-w/2-5,y-h/4-3,5,6);c.fill();
+  c.beginPath();c.rect(x+w/2,y+h/4-3,5,6);c.fill();
+}
+
+function drawFilter(c,x,y,w,h){
+  bsVessel(c,x,y,w,h,'#1e1628','#aa77bb');
+  // Zigzag filter media lines
+  c.strokeStyle='#aa77bb88';c.lineWidth=1;
+  for(let iy=y-h/2+7;iy<y+h/2-7;iy+=6){
+    c.beginPath();let tog=0;c.moveTo(x-w/2+3,iy);
+    for(let ix=x-w/2+3;ix<=x+w/2-3;ix+=4){tog=1-tog;c.lineTo(ix,iy+(tog?4:0));}
+    c.stroke();
+  }
+  c.fillStyle='#aa77bb66';c.font='6px Arial';c.textAlign='center';
+  c.fillText('FILTER',x,y+h/2-4);
+}
+
+function drawHeatExchanger(c,x,y,w,h){
+  // Shell-and-tube HX – vertical (BS 1553)
+  bsVessel(c,x,y,w,h,'#162820','#55aa77');
+  // Tube bundle: vertical parallel lines
+  c.strokeStyle='#55aa7788';c.lineWidth=1;
+  for(let ix=x-w/2+7;ix<x+w/2-5;ix+=6){
+    c.beginPath();c.moveTo(ix,y-h/2+5);c.lineTo(ix,y+h/2-5);c.stroke();
+  }
+  // Cut-and-segmental baffles
+  c.strokeStyle='#55aa7766';c.lineWidth=1.5;
+  [y-h*0.25,y,y+h*0.25].forEach((by,i)=>{
+    const lft=(i%2===0);
+    c.beginPath();
+    c.moveTo(lft?x-w/2+2:x+w/2-2,by-7);
+    c.lineTo(lft?x+w/2-9:x-w/2+9,by-7);
+    c.lineTo(lft?x+w/2-9:x-w/2+9,by+7);
+    c.lineTo(lft?x-w/2+2:x+w/2-2,by+7);
+    c.stroke();
+  });
+  // Top/bottom nozzles
+  c.fillStyle='#55aa7777';
+  c.beginPath();c.rect(x-2,y-h/2-6,4,6);c.fill();
+  c.beginPath();c.rect(x-2,y+h/2,4,6);c.fill();
+  // Side nozzles (shell-side)
+  c.beginPath();c.rect(x+w/2,y+h/4-3,5,6);c.fillStyle='#55aa7744';c.fill();
+  c.beginPath();c.rect(x-w/2-5,y-h/4-3,5,6);c.fillStyle='#55aa7744';c.fill();
+}
+
+function drawConverter(c,x,y,w,h){
+  // 4-pass catalytic converter with air injection nozzles
+  bsVessel(c,x,y,w,h,'#0e1e0e','#4caf50');
+  // Override head thickness to 4px
+  c.beginPath();c.moveTo(x-w/2,y-h/2);c.lineTo(x+w/2,y-h/2);
+  c.strokeStyle='#4caf50';c.lineWidth=4;c.stroke();
+  c.beginPath();c.moveTo(x-w/2,y+h/2);c.lineTo(x+w/2,y+h/2);
+  c.strokeStyle='#4caf50';c.lineWidth=4;c.stroke();
+  // Top and bottom nozzles
+  c.beginPath();c.rect(x-3,y-h/2-8,6,8);c.fillStyle='#1a3a1a';c.fill();
+  c.strokeStyle='#4caf5088';c.lineWidth=1.2;c.stroke();
+  c.beginPath();c.rect(x-3,y+h/2,6,8);c.fillStyle='#1a3a1a';c.fill();
+  c.strokeStyle='#4caf5088';c.lineWidth=1.2;c.stroke();
+  // 4 catalyst beds with 45° diagonal hatching (BS)
+  const bT=y-h/2+10,bB=y+h/2-10,bH=bB-bT;
+  const nB=4,bedH=(bH*0.72)/nB,gapH=(bH*0.28)/3;
+  for(let i=0;i<nB;i++){
+    const by=bT+i*(bedH+gapH);
+    c.fillStyle='#1c3c1c';c.fillRect(x-w/2+4,by,w-8,bedH);
+    c.save();c.beginPath();c.rect(x-w/2+4,by,w-8,bedH);c.clip();
+    c.strokeStyle='#4caf5066';c.lineWidth=1;
+    for(let d=-bedH;d<w+bedH;d+=7){
+      c.beginPath();c.moveTo(x-w/2+4+d,by);c.lineTo(x-w/2+4+d+bedH,by+bedH);c.stroke();
+    }
+    c.restore();
+    c.strokeStyle='#4caf50aa';c.lineWidth=1;
+    c.beginPath();c.moveTo(x-w/2+4,by);c.lineTo(x+w/2-4,by);c.stroke();
+    c.beginPath();c.moveTo(x-w/2+4,by+bedH);c.lineTo(x+w/2-4,by+bedH);c.stroke();
+    c.fillStyle='#4caf5099';c.font='bold 7px monospace';c.textAlign='center';
+    c.fillText('Pass '+(i+1),x,by+bedH/2+2.5);
+    // Air injection nozzles (right side, between beds)
+    if(i<nB-1){
+      const gy=by+bedH+gapH/2;
+      c.beginPath();c.rect(x+w/2,gy-3,9,6);
+      c.fillStyle='#79c0ff22';c.fill();c.strokeStyle='#79c0ff44';c.lineWidth=1;c.stroke();
+      c.fillStyle='#79c0ff55';c.font='5px Arial';c.textAlign='left';
+      c.fillText('air',x+w/2+1,gy+2);
+    }
+  }
+  c.fillStyle='#4caf5077';c.font='bold 7px monospace';c.textAlign='center';
+  c.fillText('V₂O₅',x,bB+10);
+}
+
+function drawEconomizer(c,x,y,w,h){
+  bsVessel(c,x,y,w,h,'#1a2820','#66aa88');
+  // Finned tube coils (3 rows)
+  c.strokeStyle='#66aa88bb';c.lineWidth=1.8;
+  [-12,0,12].forEach(dy=>{
+    c.beginPath();
+    c.moveTo(x-w/2+4,y+dy);
+    c.bezierCurveTo(x-w/4,y+dy-8,x+w/4,y+dy+8,x+w/2-4,y+dy);
+    c.stroke();
+    // Fins
+    for(let fx=x-w/2+6;fx<x+w/2-4;fx+=6){
+      c.beginPath();c.moveTo(fx,y+dy-4);c.lineTo(fx,y+dy+4);
+      c.strokeStyle='#66aa8855';c.lineWidth=0.8;c.stroke();
+      c.strokeStyle='#66aa88bb';c.lineWidth=1.8;
+    }
+  });
+}
+
+function drawCooler(c,x,y,w,h,sc){
+  // Small plate/shell cooler – BS X symbol
+  sc=sc||'#5599aa';
+  c.beginPath();c.rect(x-w/2,y-h/2,w,h);
+  c.fillStyle='#0e1820';c.fill();c.strokeStyle=sc;c.lineWidth=1.5;c.stroke();
+  c.strokeStyle=sc+'88';c.lineWidth=1;
+  c.beginPath();c.moveTo(x-w/2+3,y-h/2+3);c.lineTo(x+w/2-3,y+h/2-3);c.stroke();
+  c.beginPath();c.moveTo(x+w/2-3,y-h/2+3);c.lineTo(x-w/2+3,y+h/2-3);c.stroke();
+  // Side nozzles
+  [[x-w/2-4,y],[x+w/2,y]].forEach(([nx,ny])=>{
+    c.beginPath();c.rect(nx,ny-2.5,4,5);c.fillStyle=sc+'44';c.fill();
+  });
+}
+
+function drawCircTank(c,x,y,w,h){
+  c.beginPath();c.rect(x-w/2,y-h/2,w,h);
+  c.fillStyle='#0c1825';c.fill();c.strokeStyle='#4477aa';c.lineWidth=2;c.stroke();
+  c.beginPath();c.moveTo(x-w/2,y+h/2);c.lineTo(x+w/2,y+h/2);
+  c.strokeStyle='#4477aa';c.lineWidth=3;c.stroke();
+  c.beginPath();c.moveTo(x-w/2,y-h/2);c.lineTo(x+w/2,y-h/2);
+  c.strokeStyle='#4477aa77';c.lineWidth=1;c.setLineDash([3,3]);c.stroke();c.setLineDash([]);
+  c.fillStyle='#ff7b7220';
+  c.fillRect(x-w/2+2,y,w-4,h/2-2);
+  c.fillStyle='#4477aa77';c.font='6px Arial';c.textAlign='center';
+  c.fillText('CIRCULATING',x,y+3);c.fillText('TANK',x,y+11);
+}
+
+function drawPump(c,x,y,r){
+  c.beginPath();c.arc(x,y,r,0,Math.PI*2);
+  c.fillStyle='#182030';c.fill();c.strokeStyle='#6688bb';c.lineWidth=1.5;c.stroke();
+  c.beginPath();c.moveTo(x,y-r*0.55);c.lineTo(x+r*0.55,y+r*0.38);c.lineTo(x-r*0.55,y+r*0.38);c.closePath();
+  c.fillStyle='#6688bbaa';c.fill();
+}
+
+function drawStorage(c,x,y,w,h){
+  [[-24,-8],[0,8],[24,-8]].forEach(([dx,dy])=>{
+    const tx=x+dx,ty=y+dy;
+    c.beginPath();c.rect(tx-15,ty-14,30,28);
+    c.fillStyle='#1a2535';c.fill();c.strokeStyle='#6677aa';c.lineWidth=1.5;c.stroke();
+    c.beginPath();c.moveTo(tx-16,ty+14);c.lineTo(tx+16,ty+14);
+    c.strokeStyle='#6677aa';c.lineWidth=2.5;c.stroke();
+    c.beginPath();c.moveTo(tx-15,ty-14);c.lineTo(tx,ty-22);c.lineTo(tx+15,ty-14);
+    c.closePath();c.fillStyle='#22304a';c.fill();c.strokeStyle='#6677aa';c.lineWidth=1.5;c.stroke();
+    c.beginPath();c.rect(tx-1,ty-26,2,5);c.fillStyle='#6677aaaa';c.fill();
+  });
+}
+
+function drawStack(c,x,y,w,h){
+  c.beginPath();c.rect(x-w/2,y-h/2,w,h);
+  c.fillStyle='#1a1a1a';c.fill();c.strokeStyle='#666666';c.lineWidth=1.5;c.stroke();
+  c.beginPath();c.moveTo(x-w/2-3,y-h/2);c.lineTo(x+w/2+3,y-h/2);
+  c.strokeStyle='#888888';c.lineWidth=2;c.stroke();
+  // Emission wisps
+  c.strokeStyle='#88888833';c.lineWidth=1;
+  [-4,0,4].forEach(dx=>{
+    c.beginPath();c.moveTo(x+dx,y-h/2-2);
+    c.bezierCurveTo(x+dx-3,y-h/2-12,x+dx+3,y-h/2-22,x+dx,y-h/2-30);
+    c.stroke();
+  });
+}
+
+function drawMelter(c,x,y,w,h){
+  // Horizontal melter-settler vessel
+  c.beginPath();c.rect(x-w/2,y-h/2,w,h);
+  c.fillStyle='#201808';c.fill();c.strokeStyle='#aa8833';c.lineWidth=2;c.stroke();
+  // Vertical end-heads
+  [[x-w/2],[x+w/2]].forEach(vx=>{
+    c.beginPath();c.moveTo(vx,y-h/2);c.lineTo(vx,y+h/2);
+    c.strokeStyle='#aa8833';c.lineWidth=3.5;c.stroke();
+  });
+  // Internal steam coil (2 loops)
+  c.strokeStyle='#ffffff55';c.lineWidth=1.5;
+  [-7,7].forEach(dy=>{
+    c.beginPath();
+    c.moveTo(x-w/2+8,y+dy);
+    c.bezierCurveTo(x-w/4,y+dy-8,x+w/4,y+dy+8,x+w/2-8,y+dy);
+    c.stroke();
+  });
+  c.fillStyle='#aa883366';c.font='5.5px Arial';c.textAlign='center';
+  c.fillText('MELTER-SETTLER',x,y-h/2+9);
+}
+
+// ── PIPE & ARROW DRAWING ─────────────────────────────────────────────────────
+function drawPipe(c,pts,col){
+  c.beginPath();c.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]);
+  c.strokeStyle=col;c.lineWidth=2.5;c.lineJoin='round';c.stroke();
+}
+function drawArrow(c,from,to,col){
+  const dx=to[0]-from[0],dy=to[1]-from[1],len=Math.hypot(dx,dy);
+  if(len<4)return;
+  const ux=dx/len,uy=dy/len,sz=7;
+  const mx=to[0]-ux*sz,my=to[1]-uy*sz;
+  const px=-uy*sz*0.45,py=ux*sz*0.45;
+  c.beginPath();c.moveTo(to[0],to[1]);c.lineTo(mx+px,my+py);c.lineTo(mx-px,my-py);c.closePath();
+  c.fillStyle=col;c.fill();
+}
+
+// ── BACKGROUND ────────────────────────────────────────────────────────────────
+function rebuildBg(){
+  bgCtx.clearRect(0,0,980,560);bgCtx.fillStyle='#0d1117';bgCtx.fillRect(0,0,980,560);
+  // Compute SO3 colour (shifts red→orange with conversion)
+  const so3col=interpColor('#ffcc00','#ff7b72',alpha);
+  const pipeColOverride={so3_conv:so3col,so3_hx:so3col,so3_eco:so3col,gas_abs:so3col+'99'};
+  // Pipes
+  PIPES.forEach(p=>{
+    const col=pipeColOverride[p.id]||p.col;
+    drawPipe(bgCtx,p.pts,col);
+    const pts=p.pts;drawArrow(bgCtx,pts[pts.length-2],pts[pts.length-1],col);
+  });
+  // Equipment (BS 1553)
+  drawBlower(bgCtx,U.blower.x,U.blower.y,U.blower.r);
+  drawColumn(bgCtx,U.dryTower.x,U.dryTower.y,U.dryTower.w,U.dryTower.h);
+  drawMelter(bgCtx,U.melter.x,U.melter.y,U.melter.w,U.melter.h);
+  drawFiredHeater(bgCtx,U.burner.x,U.burner.y,U.burner.w,U.burner.h);
+  drawWHB(bgCtx,U.whb.x,U.whb.y,U.whb.w,U.whb.h);
+  drawFilter(bgCtx,U.filter.x,U.filter.y,U.filter.w,U.filter.h);
+  drawHeatExchanger(bgCtx,U.hx.x,U.hx.y,U.hx.w,U.hx.h);
+  drawConverter(bgCtx,U.converter.x,U.converter.y,U.converter.w,U.converter.h);
+  drawEconomizer(bgCtx,U.economizer.x,U.economizer.y,U.economizer.w,U.economizer.h);
+  drawColumn(bgCtx,U.oleumTower.x,U.oleumTower.y,U.oleumTower.w,U.oleumTower.h);
+  drawColumn(bgCtx,U.absTower.x,U.absTower.y,U.absTower.w,U.absTower.h);
+  drawStack(bgCtx,U.exitStack.x,U.exitStack.y,U.exitStack.w,U.exitStack.h);
+  drawCooler(bgCtx,U.absCooler.x,U.absCooler.y,U.absCooler.w,U.absCooler.h,'#ff7b72');
+  drawCooler(bgCtx,U.dryCooler.x,U.dryCooler.y,U.dryCooler.w,U.dryCooler.h,'#ff7b72');
+  drawCircTank(bgCtx,U.circTank.x,U.circTank.y,U.circTank.w,U.circTank.h);
+  drawCooler(bgCtx,U.oleumCool.x,U.oleumCool.y,U.oleumCool.w,U.oleumCool.h,'#cc4444');
+  drawPump(bgCtx,U.oleumPump.x,U.oleumPump.y,U.oleumPump.r);
+  drawStorage(bgCtx,U.storage.x,U.storage.y,U.storage.w,U.storage.h);
+
+  // Stream labels (small inline)
+  bgCtx.textAlign='left';bgCtx.font='6.5px Arial';bgCtx.fillStyle='#58a6ff88';
+  [
+    ['Air',10,272],['Dry air',162,62],['SO₂',310,280],
+    ['SO₂/SO₃',665,328],['Tail gas',908,74],['H₂SO₄ product',156,484],
+    ['Oleum',858,338],['Feedwater',734,370],['Steam',364,62],
+  ].forEach(([t,x,y])=>bgCtx.fillText(t,x,y));
+
+  // Equipment labels
+  bgCtx.textAlign='center';bgCtx.font='bold 8.5px Segoe UI,Arial';bgCtx.fillStyle='#8b949e';
+  [
+    ['TURBO-BLOWER',58,248],['DRYING TOWER',148,56],
+    ['MELTER-SETTLER',88,444],['SULFUR BURNER',270,256],
+    ['WASTE HEAT BOILER',358,244],['HOT GAS FILTER',440,248],
+    ['GAS-GAS H/X',520,248],['4-PASS CONVERTER',630,58],
+    ['ECONOMIZER',730,246],['OLEUM TOWER',815,96],
+    ['ABSORBING TOWER',902,50],['EXIT STACK',952,18],
+    ['H₂SO₄ STORAGE',108,466],['ABS. COOLER',840,416],
+    ['DRY. COOLER',634,416],['OLEUM COOLER',902,416],
+    ['OLEUM PUMP',944,468],
+  ].forEach(([t,x,y])=>bgCtx.fillText(t,x,y));
+
+  // Reaction annotation
+  bgCtx.font='7px Arial';bgCtx.fillStyle='#ffa65777';
+  bgCtx.fillText('2SO₂ + O₂ ⇌ 2SO₃  (V₂O₅ cat.)',U.converter.x,U.converter.y+U.converter.h/2+14);
+  bgCtx.fillStyle='#79c0ff55';
+  bgCtx.fillText('SO₃+H₂SO₄→H₂S₂O₇',U.oleumTower.x,U.oleumTower.y+U.oleumTower.h/2+12);
+  bgCtx.fillStyle='#ff7b7255';
+  bgCtx.fillText('SO₃+H₂O→H₂SO₄',U.absTower.x,U.absTower.y+U.absTower.h/2+12);
+
+  // Dimension line across top (air header)
+  bgCtx.setLineDash([]);
+  drawHeatmap();
+}
+
+// ── PARTICLES ─────────────────────────────────────────────────────────────────
+class Particle{
+  constructor(pipe,col,sm){
+    this.pipe=pipe;this.color=col;this.t=Math.random();
+    this.speed=(0.003+Math.random()*0.003)*sm;this.r=2.5+Math.random()*2;this.a=0.5+Math.random()*0.45;
+  }
+  update(){this.t+=this.speed;if(this.t>1)this.t=0;}
+  pos(){
+    const pts=this.pipe.pts;let segs=[],total=0;
+    for(let i=1;i<pts.length;i++){
+      const dx=pts[i][0]-pts[i-1][0],dy=pts[i][1]-pts[i-1][1];
+      segs.push(Math.hypot(dx,dy));total+=segs[segs.length-1];
+    }
+    let d=this.t*total;
+    for(let i=0;i<segs.length;i++){
+      if(d<=segs[i]){const f=d/segs[i];return[pts[i][0]+f*(pts[i+1][0]-pts[i][0]),pts[i][1]+f*(pts[i+1][1]-pts[i][1])];}
+      d-=segs[i];
+    }
+    return pts[pts.length-1];
+  }
+}
+
+let particles=[];
+function buildParticles(){
+  particles=[];
+  const so3c=interpColor('#ffcc00','#ff7b72',alpha);
+  const cfg={
+    air_in:      {n:4,c:'#79c0ff',s:1.3},
+    wet_air:     {n:4,c:'#79c0ff88',s:1},
+    dry_hdr:     {n:5,c:'#c0eaff',s:1.2},
+    dry_to_burn: {n:3,c:'#c0eaff',s:1},
+    air_inject:  {n:3,c:'#c0eaff66',s:0.8},
+    sulf_feed:   {n:3,c:'#ffe066',s:0.8},
+    steam_melt:  {n:2,c:'#ffffff44',s:0.7},
+    mol_sulf:    {n:4,c:'#ffe066',s:0.9},
+    so2_hot:     {n:5,c:'#ff9900',s:1.3},
+    so2_whb:     {n:4,c:'#ff9900',s:1.1},
+    so2_filt:    {n:4,c:'#ffaa00',s:1.1},
+    so2_hx_out:  {n:4,c:'#ffd700',s:1},
+    so3_conv:    {n:5,c:so3c,s:1},
+    so3_hx:      {n:4,c:so3c,s:1},
+    so3_eco:     {n:4,c:so3c,s:0.9},
+    gas_abs:     {n:3,c:so3c,s:0.8},
+    tail:        {n:3,c:'#8b949e',s:0.7},
+    steam_out:   {n:4,c:'#ffffff55',s:1.1},
+    feedwater:   {n:2,c:'#79c0ff44',s:0.7},
+    acid_abs_dn: {n:4,c:'#ff7b72',s:0.8},
+    acid_to_tank:{n:3,c:'#ff7b72',s:0.8},
+    acid_dry:    {n:4,c:'#cc3333',s:0.7},
+    acid_abs_rec:{n:3,c:'#cc333366',s:0.7},
+    acid_prod:   {n:3,c:'#aaaaaa',s:0.6},
+    dry_acid:    {n:3,c:'#cc333344',s:0.6},
+    dry_cool_tank:{n:2,c:'#cc333344',s:0.6},
+    oleum_dn:    {n:3,c:'#cc2222',s:0.8},
+    oleum_cool:  {n:2,c:'#cc2222',s:0.7},
+    oleum_store: {n:2,c:'#cc222288',s:0.6},
+  };
+  PIPES.forEach(p=>{
+    const cf=cfg[p.id];if(!cf)return;
+    for(let i=0;i<cf.n;i++)particles.push(new Particle(p,cf.c,cf.s));
+  });
+}
+
+// ── MASS BALANCE ─────────────────────────────────────────────────────────────
+const S_KMOL=31.25; // basis: 1000 kg/hr sulfur
+function updateCalcs(){
+  const Tk=T_C+273.15;
+  const Kp=calcKp(Tk);
+  alpha=solveAlpha(Kp,P_atm);
+  const SO3=S_KMOL*alpha;
+  const H2SO4=SO3*98;
+  const SO2tail=S_KMOL*(1-alpha);
+  // Approx 20% SO3 goes to oleum tower, 80% to absorber (simplified)
+  const oleumFrac=0.20;
+  const oleumKmol=SO3*oleumFrac;
+  const h2so4Net=H2SO4*(1-oleumFrac);
+  // WHB steam (approx from combustion heat + sensible cooling)
+  // S combustion: ΔHc = -297 kJ/mol → 297000*31.25/3600 kW ≈ 2576 kW
+  // latent heat steam at 250°C ≈ 1715 kJ/kg → steam ≈ 1500 kg/hr
+  const steamKg=Math.round(1380+120*P_atm);
+  // Economizer duty (approx from converter exit cooling)
+  const ecoDuty=Math.round(SO3*40); // kW approx
+  document.getElementById('dAlpha').textContent=(alpha*100).toFixed(2)+'%';
+  document.getElementById('dKp').textContent=Kp>1e5?Kp.toExponential(2)+'  atm⁻¹':Kp.toFixed(1)+' atm⁻¹';
+  document.getElementById('dProd').textContent=h2so4Net.toFixed(0)+' kg/hr H₂SO₄ 98%';
+  document.getElementById('dOleum').textContent=(oleumKmol*80).toFixed(0)+' kg/hr SO₃ equiv.';
+  document.getElementById('dTail').textContent=SO2tail.toFixed(2)+' kmol/hr SO₂';
+  document.getElementById('dSteam').textContent=steamKg+' kg/hr (est.)';
+  document.getElementById('dEco').textContent=ecoDuty+' kW (est.)';
+  buildParticles();
+  rebuildBg();
+}
+
+// ── HEATMAP ──────────────────────────────────────────────────────────────────
+const HM_W=210,HM_H=140,HM_NT=54,HM_NP=36;
+const HM_TMIN=200,HM_TMAX=700,HM_PMIN=0.5,HM_PMAX=5.0;
+const hmC=document.getElementById('hm'),hmCtx=hmC.getContext('2d');
+// Pre-compute
+const hmGrid=[];
+for(let ip=0;ip<HM_NP;ip++){
+  hmGrid.push([]);
+  for(let it=0;it<HM_NT;it++){
+    hmGrid[ip].push(solveAlpha(
+      calcKp(HM_TMIN+(HM_TMAX-HM_TMIN)*it/(HM_NT-1)+273.15),
+      HM_PMIN+(HM_PMAX-HM_PMIN)*ip/(HM_NP-1)));
+  }
+}
+function hsl2rgb(h,s,l){
+  const q=l<0.5?l*(1+s):l+s-l*s,p=2*l-q;
+  const f=(t)=>{t=(t%1+1)%1;return t<1/6?p+(q-p)*6*t:t<0.5?q:t<2/3?p+(q-p)*(2/3-t)*6:p;};
+  return[f(h+1/3),f(h),f(h-1/3)].map(v=>Math.round(v*255));
+}
+function drawHeatmap(){
+  const img=hmCtx.createImageData(HM_W,HM_H);
+  for(let py=0;py<HM_H;py++){
+    const ip=Math.floor(((HM_H-1-py)/(HM_H-1))*(HM_NP-1));
+    for(let px=0;px<HM_W;px++){
+      const it=Math.floor((px/(HM_W-1))*(HM_NT-1));
+      const a=hmGrid[Math.min(ip,HM_NP-1)][Math.min(it,HM_NT-1)];
+      const [r,g,b]=hsl2rgb(a*120/360,0.88,0.42);
+      const i=4*(py*HM_W+px);img.data[i]=r;img.data[i+1]=g;img.data[i+2]=b;img.data[i+3]=225;
+    }
+  }
+  hmCtx.putImageData(img,0,0);
+  // Axes labels
+  hmCtx.fillStyle='#8b949e';hmCtx.font='7px Arial';hmCtx.textAlign='center';
+  hmCtx.fillText('Temperature →',HM_W/2,HM_H-1);
+  hmCtx.save();hmCtx.translate(7,HM_H/2);hmCtx.rotate(-Math.PI/2);
+  hmCtx.fillText('Pressure →',0,0);hmCtx.restore();
+  // Axis ticks
+  hmCtx.fillStyle='#6e7681';hmCtx.font='6px Arial';
+  [200,300,400,500,600,700].forEach(T=>{
+    const px=(T-HM_TMIN)/(HM_TMAX-HM_TMIN)*HM_W;
+    hmCtx.fillText(T,px,HM_H-8);
+  });
+  [0.5,1,2,3,5].forEach(P=>{
+    const py=HM_H-1-((P-HM_PMIN)/(HM_PMAX-HM_PMIN))*HM_H;
+    hmCtx.fillText(P.toFixed(1),12,py+3);
+  });
+  // 1 atm line
+  const y1atm=HM_H-1-((1-HM_PMIN)/(HM_PMAX-HM_PMIN))*HM_H;
+  hmCtx.beginPath();hmCtx.moveTo(14,y1atm);hmCtx.lineTo(HM_W,y1atm);
+  hmCtx.strokeStyle='#ffffff22';hmCtx.lineWidth=0.8;hmCtx.setLineDash([2,3]);hmCtx.stroke();hmCtx.setLineDash([]);
+  // Current point
+  const cpx=Math.max(0,Math.min(HM_W,(T_C-HM_TMIN)/(HM_TMAX-HM_TMIN)*HM_W));
+  const cpy=Math.max(0,Math.min(HM_H,HM_H-1-((P_atm-HM_PMIN)/(HM_PMAX-HM_PMIN))*HM_H));
+  hmCtx.beginPath();hmCtx.arc(cpx,cpy,5,0,Math.PI*2);
+  hmCtx.fillStyle='#ffffff';hmCtx.fill();
+  hmCtx.beginPath();hmCtx.arc(cpx,cpy,5,0,Math.PI*2);
+  hmCtx.strokeStyle='#333';hmCtx.lineWidth=1;hmCtx.stroke();
+}
+hmC.addEventListener('click',e=>{
+  const r=hmC.getBoundingClientRect();
+  const px=e.clientX-r.left,py=e.clientY-r.top;
+  T_C=Math.round((HM_TMIN+(px/HM_W)*(HM_TMAX-HM_TMIN))/5)*5;
+  P_atm=Math.round((HM_PMIN+((HM_H-py)/HM_H)*(HM_PMAX-HM_PMIN))*10)/10;
+  T_C=Math.max(200,Math.min(700,T_C));
+  P_atm=Math.max(0.5,Math.min(5.0,P_atm));
+  document.getElementById('Tsl').value=T_C;
+  document.getElementById('Plbl').textContent=P_atm.toFixed(1);
+  document.getElementById('Tlbl').textContent=T_C;
+  const pct=Math.round(((P_atm-0.5)/4.5)*200);
+  document.getElementById('Psl').value=pct;
+  document.getElementById('hmInfo').textContent='T='+T_C+'°C  P='+P_atm+'atm  α='+(solveAlpha(calcKp(T_C+273.15),P_atm)*100).toFixed(1)+'%';
+  updateCalcs();
+});
+hmC.addEventListener('mousemove',e=>{
+  const r=hmC.getBoundingClientRect();
+  const px=e.clientX-r.left,py=e.clientY-r.top;
+  const T=Math.round((HM_TMIN+(px/HM_W)*(HM_TMAX-HM_TMIN))/5)*5;
+  const P=Math.round((HM_PMIN+((HM_H-py)/HM_H)*(HM_PMAX-HM_PMIN))*10)/10;
+  if(T>=200&&T<=700&&P>=0.5&&P<=5)
+    document.getElementById('hmInfo').textContent='T='+T+'°C  P='+P+'atm → α='+(solveAlpha(calcKp(T+273.15),P)*100).toFixed(1)+'%';
+});
+
+// ── UI CONTROLS ───────────────────────────────────────────────────────────────
+document.getElementById('Tsl').addEventListener('input',e=>{
+  T_C=+e.target.value;
+  document.getElementById('Tlbl').textContent=T_C;
+  updateCalcs();
+});
+document.getElementById('Psl').addEventListener('input',e=>{
+  P_atm=Math.round((0.5+(+e.target.value/200)*4.5)*10)/10;
+  document.getElementById('Plbl').textContent=P_atm.toFixed(1);
+  updateCalcs();
+});
+
+// ── ANIMATION LOOP ────────────────────────────────────────────────────────────
+function animate(){
+  requestAnimationFrame(animate);
+  animCtx.clearRect(0,0,980,560);
+  // Glow on converter beds
+  const conv=U.converter;
+  const g=animCtx.createRadialGradient(conv.x,conv.y,4,conv.x,conv.y,conv.w/2+10);
+  const gIntensity=Math.max(0.05,alpha*0.18);
+  g.addColorStop(0,'rgba(76,175,80,'+gIntensity+')');
+  g.addColorStop(1,'rgba(76,175,80,0)');
+  animCtx.fillStyle=g;animCtx.fillRect(conv.x-60,conv.y-100,120,200);
+  // Furnace glow
+  const fn=U.burner;
+  const fg=animCtx.createRadialGradient(fn.x,fn.y+5,2,fn.x,fn.y+5,32);
+  fg.addColorStop(0,'rgba(200,100,0,0.12)');fg.addColorStop(1,'rgba(200,100,0,0)');
+  animCtx.fillStyle=fg;animCtx.fillRect(fn.x-40,fn.y-20,80,60);
+  // Particles
+  particles.forEach(p=>{
+    p.update();const [px,py]=p.pos();
+    animCtx.beginPath();animCtx.arc(px,py,p.r,0,Math.PI*2);
+    animCtx.fillStyle=p.color.length>7
+      ?p.color
+      :p.color+(Math.round(p.a*255).toString(16).padStart(2,'0'));
+    animCtx.fill();
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+updateCalcs();
+animate();
+</script>
+</body>
+</html>

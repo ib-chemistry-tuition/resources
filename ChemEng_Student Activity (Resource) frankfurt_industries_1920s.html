@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Frankfurt · Taunus · Wiesbaden — Industrie &amp; Güterverkehr 1920–1935</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      background: #111008;
+      color: #f0e6d0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    #header {
+      background: linear-gradient(135deg, #1e0e06 0%, #3a1e08 60%, #1e0e06 100%);
+      border-bottom: 3px solid #b87a08;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      gap: 12px;
+    }
+    #header .title-block h1 {
+      font-size: 17px;
+      font-weight: bold;
+      color: #f0d060;
+      letter-spacing: 1px;
+    }
+    #header .title-block p {
+      font-size: 11px;
+      color: #b09060;
+      margin-top: 3px;
+      letter-spacing: 0.5px;
+    }
+    #header .era-badge {
+      background: #b87a08;
+      color: #1a0900;
+      padding: 5px 14px;
+      font-weight: bold;
+      font-size: 15px;
+      letter-spacing: 3px;
+      border-radius: 2px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    #header .subtitle {
+      font-size: 11px;
+      color: #907850;
+      text-align: center;
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* ── MAP ── */
+    #map {
+      flex: 1;
+      width: 100%;
+    }
+
+    /* ── POPUP STYLES ── */
+    .leaflet-popup-content-wrapper {
+      background: #18100a !important;
+      border: 1.5px solid #b87a08 !important;
+      border-radius: 4px !important;
+      color: #f0e6d0 !important;
+      max-width: 340px !important;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.7) !important;
+    }
+    .leaflet-popup-content { margin: 12px 14px !important; }
+    .leaflet-popup-tip-container { display: none; }
+    .leaflet-popup-close-button { color: #b87a08 !important; font-size: 18px !important; }
+
+    .pu-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #f0d060;
+      margin-bottom: 5px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #3a2010;
+      line-height: 1.3;
+    }
+    .pu-badge {
+      display: inline-block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #907040;
+      margin-bottom: 7px;
+    }
+    .pu-desc {
+      font-size: 11.5px;
+      line-height: 1.55;
+      color: #c8bea0;
+      margin-bottom: 8px;
+    }
+    .pu-meta {
+      font-size: 10.5px;
+      color: #907860;
+      line-height: 1.6;
+      padding: 6px 0 0 0;
+      border-top: 1px solid #2a1808;
+    }
+    .pu-meta strong { color: #c8a060; }
+    .gmaps-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 9px;
+      background: #1a73e8;
+      color: #fff !important;
+      padding: 5px 11px;
+      border-radius: 3px;
+      text-decoration: none !important;
+      font-size: 11px;
+      font-family: Arial, sans-serif;
+      transition: background 0.15s;
+    }
+    .gmaps-btn:hover { background: #1557b0; }
+
+    /* ── LEAFLET LAYER CONTROL ── */
+    .leaflet-control-layers {
+      background: rgba(20, 12, 4, 0.93) !important;
+      border: 1.5px solid #b87a08 !important;
+      border-radius: 4px !important;
+      color: #e0d0b0 !important;
+      font-family: Georgia, serif !important;
+    }
+    .leaflet-control-layers-expanded { padding: 8px 12px !important; }
+    .leaflet-control-layers-separator { border-top: 1px solid #3a2010 !important; margin: 4px 0 !important; }
+    .leaflet-control-layers label { cursor: pointer; font-size: 12px !important; }
+    .leaflet-control-layers-toggle {
+      background-color: #3a1e08 !important;
+      border: 1px solid #b87a08 !important;
+    }
+
+    /* ── LEGEND ── */
+    #legend {
+      position: absolute;
+      bottom: 28px;
+      left: 10px;
+      z-index: 1000;
+      background: rgba(20, 12, 4, 0.93);
+      border: 1.5px solid #b87a08;
+      padding: 11px 14px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      min-width: 210px;
+    }
+    #legend h4 {
+      color: #f0d060;
+      font-size: 12px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #3a2010;
+      padding-bottom: 5px;
+      letter-spacing: 0.5px;
+    }
+    .leg-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 5px 0;
+      color: #c8bea0;
+    }
+    .leg-dot {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.25);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px;
+    }
+    .leg-sq {
+      width: 16px; height: 16px;
+      border-radius: 3px;
+      border: 2px solid rgba(255,255,255,0.25);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px;
+    }
+    .leg-line {
+      width: 28px; height: 5px;
+      flex-shrink: 0;
+      border-radius: 3px;
+    }
+    .leg-line.dashed {
+      background: repeating-linear-gradient(
+        90deg,
+        #6a4a22 0px, #6a4a22 8px,
+        transparent 8px, transparent 12px
+      );
+    }
+    #legend .note {
+      font-size: 10px;
+      color: #706050;
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px solid #2a1808;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div class="title-block">
+    <h1>Frankfurt · Taunus · Wiesbaden</h1>
+    <p>Industrie &amp; Güterverkehr — Industrial Sites &amp; Freight Transport</p>
+  </div>
+  <div class="subtitle">Click markers for history &amp; Google Maps links<br>Use layer control (top-right) to toggle layers</div>
+  <div class="era-badge">1920 – 1935</div>
+</div>
+
+<div id="map"></div>
+
+<div id="legend">
+  <h4>Legende / Legend</h4>
+  <div class="leg-row"><div class="leg-dot" style="background:#cc4a10">⚙</div> Schwerindustrie / Heavy Industry</div>
+  <div class="leg-row"><div class="leg-dot" style="background:#c89010">⚗</div> Chemieindustrie / Chemical Industry</div>
+  <div class="leg-row"><div class="leg-sq" style="background:#1a5090">⚓</div> Hafen / Freight Port</div>
+  <div class="leg-row"><div class="leg-line dashed"></div> Gütereisenbahnstrecke / Rail Freight</div>
+  <div class="leg-row"><div class="leg-line" style="background:#1a5090"></div> Schiffbarer Wasserweg / Waterway</div>
+  <div class="note">All sites are approximate historical locations, 1920–1935.<br>Click any feature for details.</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  MAP INITIALISATION
+// ═══════════════════════════════════════════════════════════════════
+const map = L.map('map', {
+  center: [50.08, 8.48],
+  zoom: 11,
+  zoomControl: true
+});
+
+// Base tile: CartoDB Positron — clean, lets markers stand out
+L.tileLayer(
+  'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+  {
+    attribution: '© <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a> | Historical data ca. 1920–1935',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }
+).addTo(map);
+
+// ═══════════════════════════════════════════════════════════════════
+//  ICON HELPERS
+// ═══════════════════════════════════════════════════════════════════
+function circleIcon(bg, emoji, size) {
+  size = size || 32;
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:${size}px;height:${size}px;background:${bg};border:2px solid rgba(255,255,255,0.5);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:${size*0.45}px;box-shadow:0 2px 8px rgba(0,0,0,0.6);cursor:pointer;">${emoji}</div>`,
+    iconSize: [size, size],
+    iconAnchor: [size/2, size/2],
+    popupAnchor: [0, -size/2 - 4]
+  });
+}
+function squareIcon(bg, emoji) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:26px;height:26px;background:${bg};border:2px solid rgba(255,255,255,0.5);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,0.6);cursor:pointer;">${emoji}</div>`,
+    iconSize: [26, 26],
+    iconAnchor: [13, 13],
+    popupAnchor: [0, -16]
+  });
+}
+
+function gLink(lat, lng) {
+  return `<a class="gmaps-btn" href="https://www.google.com/maps/search/?api=1&query=${lat},${lng}" target="_blank">📍 Open in Google Maps</a>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  DATA — CHEMICAL INDUSTRY
+// ═══════════════════════════════════════════════════════════════════
+const chemData = [
+  {
+    name: "IG Farbenindustrie AG / Farbwerke Hoechst",
+    lat: 50.0952, lng: 8.5522,
+    founded: "1863; merged into IG Farben 1925",
+    products: "Dyes · Pharmaceuticals · Solvents · Synthetic fibres",
+    employees: "~10,000 (Hoechst plant alone)",
+    notable: "Novocain, Salvarsan, Prontosil; world's largest dye complex",
+    desc: "The Hoechst Works were among the largest chemical plants on Earth. In 1925 they merged with BASF, Bayer, and six other firms into IG Farbenindustrie AG — a trust controlling 95 % of German dye output and a major global force in pharmaceuticals and synthetic materials. In the 1930s the plant produced Buna synthetic rubber precursors and employed over 12,000 workers. The Main river provided cooling water and barge access for bulk raw materials."
+  },
+  {
+    name: "Cassella AG — Werk Mainkur (Fechenheim)",
+    lat: 50.1175, lng: 8.7739,
+    founded: "1870; merged into IG Farben 1925",
+    products: "Synthetic dyes · Pharmaceutical intermediates",
+    employees: "~3,000",
+    notable: "Congo Red dye (1884 discovery); azo dye technology pioneer",
+    desc: "Situated in Frankfurt-Fechenheim on the north bank of the Main, the Cassella dye works were one of Germany's oldest synthetic dye factories. Their riverside quay allowed direct barge loading — a critical freight advantage for heavy chemical drums and bulk raw materials (aniline, benzene, acids). After the 1925 IG Farben merger it became 'Werk Mainkur' and specialised in fine chemicals and pharmaceutical intermediates."
+  },
+  {
+    name: "Chemische Fabrik Griesheim-Elektron",
+    lat: 50.0850, lng: 8.5780,
+    founded: "1856; merged into IG Farben 1925",
+    products: "Electrochemicals · Chlorine · Caustic soda · Electron alloys (Mg-Al)",
+    employees: "~2,500",
+    notable: "Electron light-metal alloy for Zeppelin frames and early aircraft",
+    desc: "Griesheim-Elektron pioneered industrial electrochemistry in Germany — producing chlorine and caustic soda by electrolysis decades before it was commonplace. Their 'Electron' magnesium-aluminium alloy, developed in the 1900s, was critical for Zeppelin construction and later for aircraft fuselages. The Main riverbank site received bauxite and salt by barge and dispatched finished chemicals the same way, minimising overland freight costs."
+  },
+  {
+    name: "Kalle & Co AG — Wiesbaden-Biebrich",
+    lat: 50.0183, lng: 8.2536,
+    founded: "1863",
+    products: "Photographic papers · Cellulose films · Tracing paper · Specialty dyes",
+    employees: "~1,800",
+    notable: "Kalle blueprint/tracing paper; early photographic materials",
+    desc: "Kalle's Biebrich factory sat directly on the Rhine — essential for receiving timber-pulp cellulose by barge from Scandinavia via Rotterdam. The Rhine's current made barge transport dramatically cheaper than rail for bulk organic raw materials. Kalle produced the finest architectural tracing papers and photographic base materials in the 1920s, and after the IG Farben association (1925) gained access to Hoechst's dye chemistry to broaden its product range."
+  },
+  {
+    name: "Degussa AG (Dt. Gold- und Silber-Scheideanstalt)",
+    lat: 50.1082, lng: 8.6731,
+    founded: "1873",
+    products: "Precious-metal refining · Carbon black · Electroplating chemicals",
+    employees: "~4,000 (all plants)",
+    notable: "Largest European precious-metals refiner; carbon black for Dunlop & Continental tyres",
+    desc: "Degussa's Frankfurt headquarters coordinated Europe's largest precious-metals refining network. In the 1920s their strategically crucial product was carbon black — the filler that gives rubber tyres their durability — supplied to the booming German automotive industry. Carbon black arrived via Frankfurt Hauptgüterbahnhof in coal-tar form and departed as refined pigment. In the inflation years Degussa also handled foreign-currency gold trades for the Reichsbank."
+  },
+  {
+    name: "Rütgerswerke AG — Werk Fechenheim",
+    lat: 50.1150, lng: 8.7500,
+    founded: "1886",
+    products: "Coal-tar distillates · Creosote · Anthracene · Naphthalene · Pitch",
+    employees: "~800",
+    notable: "Creosote for Reichsbahn railway sleepers; anthracene for dye industry",
+    desc: "Rütgerswerke converted coal tar — a by-product of Ruhr coking plants — into a range of industrial chemicals. Their Fechenheim plant received tar-laden rail tank wagons from the Ruhr and produced creosote (used by the Reichsbahn to preserve millions of wooden railway sleepers), naphthalene (feedstock for dyes and explosives), and hard pitch for road surfacing. The Main provided cheap disposal routes for waste water and bulky finished-product shipments."
+  }
+];
+
+// ═══════════════════════════════════════════════════════════════════
+//  DATA — HEAVY INDUSTRY
+// ═══════════════════════════════════════════════════════════════════
+const heavyData = [
+  {
+    name: "Metallgesellschaft AG",
+    lat: 50.1196, lng: 8.6712,
+    founded: "1881",
+    products: "Non-ferrous metals trading · Copper/zinc/lead · Lurgi process engineering",
+    employees: "~8,000 (global group)",
+    notable: "Controlled global copper & lead markets; Lurgi high-pressure chemistry",
+    desc: "One of the world's dominant non-ferrous metals companies, headquartered in Frankfurt's Westend. Metallgesellschaft orchestrated copper, zinc, and lead flows from Mansfeld (Saxony) smelters and Ruhr refineries to German industry. In the Weimar period it also built up the Lurgi subsidiary for coal pressure-gasification and process engineering — a forerunner of synthetic-fuel technologies. Frankfurt's rail junction made it the natural nerve-centre for metal commodity flows."
+  },
+  {
+    name: "Adlerwerke AG — Werk Gallus (Kleyerstraße)",
+    lat: 50.1048, lng: 8.6307,
+    founded: "1880 (Heinrich Kleyer)",
+    products: "Bicycles · Motorcycles · Automobiles (to 1939) · Typewriters",
+    employees: "~4,500",
+    notable: "Adler motorcycles; Adler typewriters dominating German office market by 1930",
+    desc: "One of Germany's most versatile manufacturers. In the 1920s Adlerwerke pivoted from bicycles and motorcycles toward typewriters, which became hugely profitable as German offices modernised. The Gallus plant received steel strip and aluminium castings via a rail freight siding on the Güterring and dispatched finished machines across the Reichsbahn network. Typewriter production grew tenfold 1920–1932, even through the Depression."
+  },
+  {
+    name: "AEG — Fabrik Frankfurt-Niederrad",
+    lat: 50.0789, lng: 8.6519,
+    founded: "Frankfurt plant: ~1910s",
+    products: "Electric motors · Transformers · Switchgear · Tram equipment",
+    employees: "~2,000",
+    notable: "Power station equipment; Frankfurt tram-network motors",
+    desc: "The Allgemeine Elektricitäts-Gesellschaft's Niederrad plant produced electric motors, transformers, and high-voltage switchgear during the Weimar period — a boom time for German electrification. AEG Niederrad supplied motors for Frankfurt's expanding electrified tram network and turbine generators for new Rhine-Main power stations. Heavy copper and steel deliveries arrived on the Main-Neckar rail line."
+  },
+  {
+    name: "Pokorny & Wittekind Maschinenfabrik",
+    lat: 50.1177, lng: 8.6449,
+    founded: "1864",
+    products: "Hydraulic presses · Stamping machines · Industrial machinery",
+    employees: "~600",
+    notable: "Hydraulic presses for Ruhr steelworks and packaging industry",
+    desc: "A specialist Frankfurt machine-tool maker in Bockenheim, supplying heavy stamping presses and hydraulic forming equipment to steelworks, automotive-body suppliers, and packaging manufacturers. Pig-iron and steel billets arrived by rail; finished 20-tonne presses departed on heavy-lift rail wagons. Business peaked 1924–28 during the stabilisation boom when German industry re-equipped after wartime rundown."
+  },
+  {
+    name: "Dyckerhoff Zementwerke — Werk Amöneburg",
+    lat: 50.0450, lng: 8.2750,
+    founded: "1864",
+    products: "Portland cement · Blast-furnace cement · Construction materials",
+    employees: "~900",
+    notable: "Cement for Frankfurt's Römerstadt new-build estate (Ernst May, 1925–30)",
+    desc: "The Amöneburg quarry-and-kiln complex exploited local limestone beds at the Rhine-Main confluence. In the Weimar building boom, Dyckerhoff supplied cement for Frankfurt's ambitious Neue Frankfurt housing programme and for early Autobahn construction. Bulk cement departed by Rhine barge to construction sites across the Rhine-Main region — dramatically cheaper than rail for heavy bulk material. Production reached 500,000 tonnes per year in the late 1920s."
+  },
+  {
+    name: "Städt. Gaswerk Frankfurt — Werk Osthafen",
+    lat: 50.1047, lng: 8.7063,
+    founded: "1828; major expansion 1920s",
+    products: "Town gas · Coke · Coal tar · Ammonium sulphate (fertiliser)",
+    employees: "~1,200",
+    notable: "Supplied gas to all Frankfurt households; by-product coke to metal foundries",
+    desc: "Frankfurt's gas production plant was deliberately sited at the Osthafen (East Harbour) so that coal could arrive directly by Main barge without road haulage. Coal was carbonised in tall retort batteries to produce town gas for cooking, heating, and lighting. Valuable by-products included metallurgical coke (sold to local foundries), coal tar (sold to Rütgerswerke), and ammonium sulphate (sold as fertiliser). In the 1920s Frankfurt's population grew from 400,000 to 555,000, requiring constant plant expansion."
+  },
+  {
+    name: "Naxos-Union Schleifmittelwerke",
+    lat: 50.0950, lng: 8.6800,
+    founded: "1870",
+    products: "Abrasive grinding wheels · Corundum products · Industrial abrasives",
+    employees: "~500",
+    notable: "Grinding wheels supplied to all Rhine-Main metal and automotive factories",
+    desc: "Naxos-Union manufactured the grinding wheels and abrasive discs essential for precision metalworking throughout the Rhine-Main industrial region. Their Frankfurt plant supplied Adlerwerke, AEG Niederrad, and dozens of smaller toolmakers. Raw corundum (aluminium oxide) was imported from Greece via Rotterdam and the Rhine, refined at Frankfurt, and shaped into wheels. A small factory by headcount, but strategically critical to the region's machining supply chain."
+  },
+  {
+    name: "Nassauische Maschinenfabrik Wiesbaden",
+    lat: 50.0810, lng: 8.2380,
+    founded: "1875",
+    products: "Steam boilers · Industrial heating · Pressure vessels",
+    employees: "~350",
+    notable: "Boilers for Wiesbaden's famous Kurhaus and spa complexes",
+    desc: "Wiesbaden's main heavy-engineering works, serving the town's spa and hotel economy as well as local agriculture and light industry. In the early 1920s it rebuilt its boiler business (devastated by war and inflation) on the growing demand for central heating in Wiesbaden's grand hotels and the Kurbetrieb. Steel plate arrived by Rhine barge at Biebrich and was transported by road the few kilometres to the works."
+  }
+];
+
+// ═══════════════════════════════════════════════════════════════════
+//  DATA — FREIGHT PORTS
+// ═══════════════════════════════════════════════════════════════════
+const portData = [
+  {
+    name: "Frankfurt Osthafen (East Harbour)",
+    lat: 50.1050, lng: 8.7063,
+    throughput: "~3 million tonnes/year (1928 peak)",
+    goods: "Coal, grain, chemicals, building materials, metals, petroleum",
+    desc: "Frankfurt's dominant freight harbour, opened 1912 after years of planning. Seven long quays stretched 700 m along the north bank of the Main, equipped with electric portal cranes, cold-storage warehouses, and grain silos. In 1928 the Osthafen handled over 3 million tonnes. Dedicated rail connections (the Güterring) allowed barges to be unloaded directly into freight wagons. The harbour drove Frankfurt's growth as a logistics hub rivalling Mannheim."
+  },
+  {
+    name: "Frankfurt Gutleut- / Westhafen",
+    lat: 50.1030, lng: 8.6460,
+    throughput: "~800,000 tonnes/year",
+    goods: "Petroleum products, industrial goods, general cargo, wine",
+    desc: "The western harbour received petroleum products (arriving in tank barges from Rotterdam refineries), wine from the Rheingau, and general cargo. As petrol-engine vehicles multiplied in Frankfurt through the 1920s, petroleum imports grew rapidly. The harbour was also the primary discharge point for Hessian wine transported from Eltville and Rüdesheim by barge."
+  },
+  {
+    name: "Mainz Rheinhafen (Rhine Transhipment Port)",
+    lat: 49.9929, lng: 8.2591,
+    throughput: "~5 million tonnes/year",
+    goods: "Rhine–Main transhipment: Ruhr coal south/east; chemicals & grain west/north",
+    desc: "The Rhine-Main confluence made Mainz the busiest transhipment point in the Middle Rhine region. Large Rhine barges (up to 2,000 tonnes) could not navigate far upstream on the Main; their loads were transferred at Mainz into smaller push-tow convoys for the journey to Frankfurt. In the reverse direction, IG Farben chemical products, Frankfurt manufactures, and Hessian agricultural goods were consolidated here for Rhine journey to Rotterdam."
+  },
+  {
+    name: "Wiesbaden-Biebrich Rheinhafen",
+    lat: 50.0183, lng: 8.2536,
+    throughput: "~400,000 tonnes/year",
+    goods: "Chemicals (Kalle), cement (Dyckerhoff), cellulose pulp, Rhine stone",
+    desc: "Biebrich's Rhine quays served Wiesbaden's industrial district — primarily Kalle & Co's chemical works (immediately adjacent) and Dyckerhoff's Amöneburg cement plant a few kilometres south. Cellulose pulp from Scandinavia arrived here in bulk; finished chemical products and cement departed. The Rheingau railway (Wiesbaden–Rüdesheim) also had a direct siding onto the quay for combined rail-barge operations."
+  },
+  {
+    name: "Hanau Mainhafen",
+    lat: 50.1340, lng: 8.9160,
+    throughput: "~600,000 tonnes/year",
+    goods: "Precious metals, timber, coal transhipment, general freight",
+    desc: "Hanau's harbour served two specialised trades. First, Germany's national goldsmithing and jewellery-manufacturing centre (Hanau was Europe's leading jewellery town) needed continuous precious-metal deliveries from Degussa in Frankfurt. Second, timber floated down the Main from the Spessart and Odenwald forests was caught and processed at Hanau's sawmills, then shipped west by barge. Coal for Hanau's industries came by rail from the north and was transhipped to barge here."
+  }
+];
+
+// ═══════════════════════════════════════════════════════════════════
+//  DATA — RAILWAY FREIGHT LINES
+// ═══════════════════════════════════════════════════════════════════
+const railData = [
+  {
+    name: "Main-Bahn: Frankfurt Hbf → Mainz (Hessische Ludwigsbahn)",
+    desc: "Opened 1858, this was the primary Frankfurt–Rhine freight artery. Ruhr coal, raw materials, and manufactured goods flowed continuously. IG Farben Hoechst had dedicated freight sidings at km 14. In peak 1928 up to 300 freight trains used this double-track line per day.",
+    coords: [[50.1072,8.6630],[50.0933,8.5557],[50.0730,8.5120],[50.0420,8.4680],[49.9990,8.4130],[49.9860,8.3300],[49.9929,8.2591]]
+  },
+  {
+    name: "Frankfurt Hbf → Wiesbaden (Main-Taunus-Bahn)",
+    desc: "The Nassau state railway link, running via Höchst and Hattersheim to Wiesbaden. Freight traffic included manufactured goods outbound and spa supplies inbound. Kalle & Co at Biebrich used a connecting spur from this line for chemical shipments.",
+    coords: [[50.1072,8.6630],[50.0933,8.5557],[50.0790,8.4820],[50.0620,8.4050],[50.0048,8.3590],[50.0190,8.2887],[50.0714,8.2422]]
+  },
+  {
+    name: "Main-Weser-Bahn: Frankfurt Hbf → Friedberg (north)",
+    desc: "The dominant route for heavy Ruhr coal into Frankfurt and central Germany. So busy in the 1920s that quadruple-tracking was planned along most of its length. Iron ore moved south; coal, coke, and manufactures moved north and south. Junction to Kassel and the Ruhr.",
+    coords: [[50.1072,8.6630],[50.1400,8.6780],[50.1800,8.6980],[50.2500,8.7200],[50.3280,8.7700]]
+  },
+  {
+    name: "Frankfurt Hbf → Bad Homburg (Hochtaunusbahn)",
+    desc: "Opened 1860; electrified for suburban passengers in 1910 but freight continued steam-hauled. Building materials for Taunus suburban development (Nordweststadt projects) and agricultural produce from the Taunus villages moved on this line. Bad Homburg's spa also required continuous coal deliveries.",
+    coords: [[50.1320,8.6810],[50.1600,8.6640],[50.1950,8.6330],[50.2270,8.6110]]
+  },
+  {
+    name: "Frankfurt Hbf → Hanau (Main-Spessart-Bahn east)",
+    desc: "The eastern Main valley artery, running along the south bank of the Main toward Hanau and Bavaria. Cassella's Mainkur works (Fechenheim) had a direct freight siding. Spessart timber, Hanau jewellery metals, and Bavarian grain all moved on this corridor.",
+    coords: [[50.1072,8.6630],[50.1100,8.7200],[50.1050,8.7700],[50.1040,8.7970],[50.1140,8.8600],[50.1340,8.9160]]
+  },
+  {
+    name: "Main-Neckar-Bahn: Frankfurt Hbf → Darmstadt (south)",
+    desc: "The southern freight line crossing the Main at Frankfurt-Sachsenhausen, serving Darmstadt's chemical and machine industries and connecting onward to Heidelberg and Mannheim. Important for potash and carbide shipments from central Germany. Frankfurt's southern industrial zone had sidings along this corridor.",
+    coords: [[50.1072,8.6630],[50.0750,8.6550],[50.0400,8.6560],[50.0100,8.6590],[49.8980,8.6330]]
+  },
+  {
+    name: "Rheingauer Bahn: Wiesbaden → Rüdesheim (Rhine north bank)",
+    desc: "The freight railway following the Hessian (north) bank of the Rhine through the Rheingau wine region. Wine casks, Rheingau building stone from Rhine-gorge quarries, and imported goods unloaded at Bingen-Rüdesheim from large Rhine barges all moved on this line. Combined rail-barge operations at Biebrich and Rüdesheim were highly efficient.",
+    coords: [[50.0714,8.2422],[50.0450,8.2350],[50.0320,8.1720],[50.0170,8.1140],[49.9990,8.0440],[49.9870,7.9610],[49.9790,7.9240]]
+  },
+  {
+    name: "Frankfurt Innerer Güterring (Internal Freight Ring)",
+    desc: "Frankfurt's internal freight bypass ring connected all major industrial sidings — the Osthafen, the Gaswerk, Adlerwerke, AEG Niederrad, and the chemical works — without routing wagons through the passenger Hauptbahnhof. Expanded 1922–1928 under the Deutsche Reichsbahn, the ring allowed up to 4,000 wagon movements per day at peak.",
+    coords: [[50.1047,8.7063],[50.1150,8.7250],[50.1220,8.7050],[50.1250,8.6850],[50.1220,8.6630],[50.1100,8.6450],[50.1030,8.6460],[50.0950,8.6520],[50.0900,8.6720],[50.0950,8.6980],[50.1047,8.7063]]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════════════
+//  DATA — WATERWAYS
+// ═══════════════════════════════════════════════════════════════════
+const waterwayData = [
+  {
+    name: "Main — Güterreiche Wasserstraße (Frankfurt to Rhine)",
+    desc: "The River Main was the backbone of Rhine-Main freight. Push-tow barge convoys of up to 2,000 tonnes moved Ruhr coal upstream to Frankfurt's Osthafen; return loads carried chemical products from IG Farben Hoechst, Cassella, and Griesheim-Elektron, plus grain, sand, and gravel. Approximately 9 million tonnes per year passed Frankfurt in the early 1930s, making the Main one of Europe's busiest inland waterways.",
+    coords: [[50.1380,8.9160],[50.1200,8.8200],[50.1100,8.7700],[50.1080,8.7200],[50.1080,8.6820],[50.1020,8.6480],[50.0933,8.5557],[50.0720,8.5230],[50.0200,8.4400],[49.9850,8.3500],[49.9900,8.2700]],
+    weight: 5
+  },
+  {
+    name: "Rhein — Europäische Güter-Wasserstraße (Rhine freight artery)",
+    desc: "The Rhine was the busiest freight waterway in Europe. In the 1920s–30s massive push-tow convoys (up to 5,000 tonnes) moved Ruhr coal southward and French Lorraine iron ore northward. Chemical products from IG Farben's Rhine-Main plants joined this international stream bound for Rotterdam and the world. The Rheingau section carried lighter traffic — wine, Rhine-stone, and local goods — but the Mainz confluence was a critical junction for the entire Rhine-Main system.",
+    coords: [[49.9900,8.2700],[50.0190,8.2550],[50.0350,8.1700],[50.0150,8.0800],[49.9990,8.0440],[49.9870,7.9610],[49.9790,7.9240]],
+    weight: 7
+  }
+];
+
+// ═══════════════════════════════════════════════════════════════════
+//  BUILD LAYER GROUPS
+// ═══════════════════════════════════════════════════════════════════
+const lgChemical = L.layerGroup();
+const lgHeavy    = L.layerGroup();
+const lgPorts    = L.layerGroup();
+const lgRail     = L.layerGroup();
+const lgWater    = L.layerGroup();
+
+// Chemical markers
+chemData.forEach(d => {
+  L.marker([d.lat, d.lng], { icon: circleIcon('#c89010', '⚗', 34) })
+    .bindPopup(`
+      <div class="pu-title">${d.name}</div>
+      <div class="pu-badge">⚗ Chemieindustrie · Chemical Industry</div>
+      <div class="pu-desc">${d.desc}</div>
+      <div class="pu-meta">
+        <strong>Gegründet:</strong> ${d.founded}<br>
+        <strong>Produkte:</strong> ${d.products}<br>
+        <strong>Belegschaft ca.:</strong> ${d.employees}<br>
+        <strong>Bekannt für:</strong> ${d.notable}
+      </div>
+      ${gLink(d.lat, d.lng)}
+    `, { maxWidth: 340 })
+    .addTo(lgChemical);
+});
+
+// Heavy industry markers
+heavyData.forEach(d => {
+  L.marker([d.lat, d.lng], { icon: circleIcon('#cc4a10', '⚙', 34) })
+    .bindPopup(`
+      <div class="pu-title">${d.name}</div>
+      <div class="pu-badge">⚙ Schwerindustrie · Heavy Industry</div>
+      <div class="pu-desc">${d.desc}</div>
+      <div class="pu-meta">
+        <strong>Gegründet:</strong> ${d.founded}<br>
+        <strong>Produkte:</strong> ${d.products}<br>
+        <strong>Belegschaft ca.:</strong> ${d.employees}<br>
+        <strong>Bekannt für:</strong> ${d.notable}
+      </div>
+      ${gLink(d.lat, d.lng)}
+    `, { maxWidth: 340 })
+    .addTo(lgHeavy);
+});
+
+// Port markers
+portData.forEach(d => {
+  L.marker([d.lat, d.lng], { icon: squareIcon('#1a5090', '⚓') })
+    .bindPopup(`
+      <div class="pu-title">${d.name}</div>
+      <div class="pu-badge">⚓ Binnenhafen · Freight Harbour</div>
+      <div class="pu-desc">${d.desc}</div>
+      <div class="pu-meta">
+        <strong>Jahresumschlag:</strong> ${d.throughput}<br>
+        <strong>Hauptgüter:</strong> ${d.goods}
+      </div>
+      ${gLink(d.lat, d.lng)}
+    `, { maxWidth: 340 })
+    .addTo(lgPorts);
+});
+
+// Railway lines
+railData.forEach(d => {
+  L.polyline(d.coords, {
+    color: '#7a5028',
+    weight: 4,
+    opacity: 0.9,
+    dashArray: '10, 5'
+  })
+  .bindPopup(`
+    <div class="pu-title">🚂 ${d.name}</div>
+    <div class="pu-badge">Gütereisenbahnstrecke · Railway Freight Line</div>
+    <div class="pu-desc">${d.desc}</div>
+  `, { maxWidth: 320 })
+  .addTo(lgRail);
+});
+
+// Waterways
+waterwayData.forEach(d => {
+  L.polyline(d.coords, {
+    color: '#1a5090',
+    weight: d.weight || 5,
+    opacity: 0.72
+  })
+  .bindPopup(`
+    <div class="pu-title">🚢 ${d.name}</div>
+    <div class="pu-badge">Schiffbare Wasserstraße · Navigable Freight Waterway</div>
+    <div class="pu-desc">${d.desc}</div>
+  `, { maxWidth: 320 })
+  .addTo(lgWater);
+});
+
+// ═══════════════════════════════════════════════════════════════════
+//  ADD LAYERS TO MAP (waterways first = under railway = under markers)
+// ═══════════════════════════════════════════════════════════════════
+lgWater.addTo(map);
+lgRail.addTo(map);
+lgPorts.addTo(map);
+lgChemical.addTo(map);
+lgHeavy.addTo(map);
+
+// ═══════════════════════════════════════════════════════════════════
+//  LAYER CONTROL
+// ═══════════════════════════════════════════════════════════════════
+L.control.layers(null, {
+  "⚙ Schwerindustrie / Heavy Industry": lgHeavy,
+  "⚗ Chemieindustrie / Chemical Industry": lgChemical,
+  "⚓ Häfen / Freight Ports": lgPorts,
+  "🚂 Eisenbahn-Güterverkehr / Rail Freight": lgRail,
+  "🚢 Wasserstraßen / Waterways": lgWater
+}, {
+  collapsed: false,
+  position: 'topright'
+}).addTo(map);
+
+// ═══════════════════════════════════════════════════════════════════
+//  FIT MAP TO DATA BOUNDS ON LOAD
+// ═══════════════════════════════════════════════════════════════════
+map.fitBounds([[49.87, 7.90], [50.38, 8.93]], { padding: [10, 10] });
+
+</script>
+</body>
+</html>

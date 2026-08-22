@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galvanic cell experiment</title>
+<style>
+  :root {
+    --surface-2: #ffffff;
+    --surface-1: #f1efe8;
+    --surface-0: #f7f6f2;
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-muted: #888780;
+    --text-accent: #185fa5;
+    --text-danger: #a32d2d;
+    --border: #e3e1d9;
+    --border-strong: #b4b2a9;
+    --bg-accent: #e6f1fb;
+    --radius: 8px;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--surface-0);
+    font-family: var(--font-sans);
+    color: var(--text-primary);
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 3rem;
+    box-sizing: border-box;
+  }
+  button, select {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    padding: 7px 10px;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border-strong);
+    background: var(--surface-2);
+    color: var(--text-primary);
+    cursor: pointer;
+  }
+  button { background: transparent; padding: 8px 14px; }
+  button:hover { background: var(--surface-1); }
+  select:hover { background: var(--surface-1); }
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--border-strong);
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--text-accent);
+    cursor: pointer;
+    border: none;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--text-accent);
+    cursor: pointer;
+    border: none;
+  }
+  .ex-section {
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .ex-section:last-child { margin-bottom: 0; }
+  .ex-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+  }
+  .ex-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .ex-table th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--text-muted);
+    padding: 5px 12px 5px 0;
+    border-bottom: 1px solid var(--border-strong);
+    white-space: nowrap;
+  }
+  .ex-table td {
+    padding: 6px 12px 6px 0;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .ex-table tr:last-child td { border-bottom: none; }
+  .ex-warn {
+    background: var(--surface-1);
+    border-left: 3px solid var(--text-danger);
+    border-radius: 4px;
+    padding: 10px 12px;
+  }
+  .ex-warn .ex-label { color: var(--text-danger); }
+  .ex-warn ul { margin: 4px 0 0; padding-left: 18px; }
+  .ex-warn li { margin-bottom: 8px; }
+  .ex-warn li:last-child { margin-bottom: 0; }
+  .src-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+  .src-table th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--text-muted);
+    padding: 6px 12px 6px 0;
+    border-bottom: 1px solid var(--border-strong);
+  }
+  .src-table td {
+    padding: 7px 12px 7px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .src-table tr:last-child td { border-bottom: none; }
+  .src-footnotes {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 10px;
+    line-height: 1.6;
+  }
+  .src-footnotes sup { margin-right: 3px; }
+</style>
+</head>
+<body>
+<svg id="swap-connector-overlay" style="position:fixed; top:0; left:0; width:100vw; height:100vh; pointer-events:none; z-index:9999; display:none;">
+  <polyline id="swap-connector-line" fill="none" stroke="#b02a2a" stroke-width="1" opacity="0.3"/>
+</svg>
+<div class="wrap">
+<h1 id="page-title" style="font-size:19px; font-weight:600; color:var(--text-primary); margin:0 0 12px; line-height:1.4; white-space:pre-line;">Exploring the effect of electrode identity, aqueous ion concentration and temperature on the EMF of a cell</h1>
+<h2 class="sr-only">Interactive galvanic cell experiment: choose any two metal electrodes from magnesium, aluminium, zinc, iron, lead, copper, silver and gold for the left and right half-cells, and independently adjust each solution's concentration from 0.01 to 1.00 M and each solution's own temperature from 10 to 50&deg;C, and read the resulting emf. A "more exotic metals" checkbox adds bismuth, tin, scandium, vanadium, chromium, manganese, nickel, uranium and plutonium to the electrode choices, with safety notes shown for the radioactive and fissile ones. Temperature shifts each electrode's standard potential according to its own empirical temperature coefficient, while the Nernst log term is evaluated at the fixed reference temperature of 298 K. A vintage mercury thermometer sits in each beaker and its column rises and falls with that beaker's own temperature slider, so only one variable changes at a time. Reversed wiring shows a negative digital reading and a needle pegged just past zero.</h2>
+
+<div style="background:#eaf3fc; border:1px solid #cfe3f7; border-radius:16px; padding:16px 18px; margin-bottom:1rem; box-sizing:border-box;">
+<div style="display:flex; align-items:center; gap:16px; margin-bottom:0.75rem; flex-wrap:wrap;">
+  <label style="display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-secondary);">Left electrode
+    <select id="left-select"></select>
+  </label>
+  <label style="display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-secondary);">Right electrode
+    <select id="right-select"></select>
+  </label>
+  <label style="display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-secondary); margin-left:auto;">
+    <input type="checkbox" id="exotic-toggle" style="width:15px; height:15px; cursor:pointer;">
+    <span style="color:#d1352c;">More exotic metals</span>
+  </label>
+</div>
+
+<div style="display:flex; align-items:center; gap:16px; margin-bottom:0.75rem; flex-wrap:wrap;">
+  <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-secondary); flex:1; min-width:220px;">Left conc.
+    <input type="range" id="left-conc" min="0.01" max="1" step="0.01" value="1" style="flex:1;">
+    <span id="left-conc-val" style="min-width:52px; font-weight:500; color:var(--text-primary);">1.00 M</span>
+  </label>
+  <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-secondary); flex:1; min-width:220px;">Right conc.
+    <input type="range" id="right-conc" min="0.01" max="1" step="0.01" value="1" style="flex:1;">
+    <span id="right-conc-val" style="min-width:52px; font-weight:500; color:var(--text-primary);">1.00 M</span>
+  </label>
+</div>
+
+<div style="display:flex; align-items:center; gap:16px; margin-bottom:0.75rem; flex-wrap:wrap;">
+  <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-secondary); flex:1; min-width:220px;">Left temp.
+    <input type="range" id="left-temp" min="10" max="50" step="0.5" value="25" style="flex:1;">
+    <span id="left-temp-val" style="min-width:48px; font-weight:500; color:var(--text-primary);">25 &deg;C</span>
+  </label>
+  <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text-secondary); flex:1; min-width:220px;">Right temp.
+    <input type="range" id="right-temp" min="10" max="50" step="0.5" value="25" style="flex:1;">
+    <span id="right-temp-val" style="min-width:48px; font-weight:500; color:var(--text-primary);">25 &deg;C</span>
+  </label>
+</div>
+
+<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:1.25rem; flex-wrap:wrap;">
+  <div id="cell-notation" style="font-size:14px; color:var(--text-secondary);">Zn | Zn&sup2;&#8314; (1.00 M) || Cu&sup2;&#8314; (1.00 M) | Cu</div>
+  <button id="reset-satp-btn" type="button" style="font-size:12px; padding:5px 10px;">Reset&nbsp;&nbsp;to&nbsp;&nbsp;SATP (25&#730;C, 298.15 K)</button>
+  <div style="display:flex; align-items:center; gap:8px; cursor:pointer;" id="switch-wrap" role="switch" aria-checked="false" tabindex="0">
+    <span style="font-size:14px; color:var(--text-secondary);" id="switch-label">Circuit open</span>
+    <span id="switch-track" style="width:40px; height:22px; border-radius:12px; background:var(--surface-1); border:0.5px solid var(--border-strong); position:relative; transition:background 0.2s; display:inline-block;">
+      <span id="switch-thumb" style="position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:var(--text-secondary); transition:left 0.2s, background 0.2s;"></span>
+    </span>
+  </div>
+</div>
+</div>
+
+<h3 style="text-align:left; font-size:14px; font-weight:600; color:var(--text-primary); margin:1.5rem 0 0.5rem;">The basic controls (above) for the IA style investigation using The Apparatus (below)</h3>
+<p style="margin:0 0 0.5rem 1.5rem; font-size:13.5px; color:var(--text-secondary); line-height:1.6;">Try changing the metals for other metals and see what you notice. What combination of metals give you the highest positive EMF for the cell?</p>
+
+<svg id="circuit-svg" viewBox="0 -40 680 360" style="width:100%; height:auto; display:block;">
+  <defs>
+    <pattern id="hatchLiquid" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="6" stroke="#1a1a18" stroke-width="1"/>
+    </pattern>
+    <pattern id="hatchMetal" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="4" stroke="#1a1a18" stroke-width="1.2"/>
+    </pattern>
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a1a18"/>
+    </marker>
+  </defs>
+
+  <rect x="4" y="30" width="370" height="280" fill="#f4efdf" stroke="#1a1a18" stroke-width="1.5"/>
+
+  <path id="wire-black" d="M67,90 L67,4 L593,4 L593,22" fill="none" stroke="#111111" stroke-width="2.5"/>
+  <path id="wire-red" d="M293,90 L293,16 L467,16 L467,22" fill="none" stroke="#d1352c" stroke-width="3.5" stroke-linecap="round"/>
+
+  <g id="line-switch" style="cursor:pointer;">
+    <rect id="switch-gap-cover" x="153" y="0" width="54" height="8" fill="#f4efdf"/>
+    <rect x="150" y="-14" width="60" height="26" fill="#ffffff" opacity="0" style="pointer-events:all;"/>
+    <circle cx="155" cy="4" r="2.5" fill="#111111"/>
+    <circle cx="205" cy="4" r="2.5" fill="#111111"/>
+    <line id="switch-lever" x1="155" y1="4" x2="205" y2="4" stroke="#111111" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <g transform="translate(0,20)" font-family="Georgia, 'Times New Roman', serif">
+    <path d="M24,140 L24,210 Q24,216 30,216 L150,216 Q156,216 156,210 L156,140 Z" fill="url(#hatchLiquid)"/>
+    <path d="M20,90 L20,214 Q20,220 26,220 L154,220 Q160,220 160,214 L160,90" fill="none" stroke="#1a1a18" stroke-width="2.5"/>
+    <line x1="140" y1="140" x2="150" y2="140" stroke="#1a1a18" stroke-width="1"/>
+    <line x1="140" y1="170" x2="150" y2="170" stroke="#1a1a18" stroke-width="1"/>
+    <line x1="140" y1="200" x2="150" y2="200" stroke="#1a1a18" stroke-width="1"/>
+    <text x="163" y="143" font-size="9" fill="#1a1a18">200</text>
+    <text x="163" y="173" font-size="9" fill="#1a1a18">100</text>
+    <text x="163" y="203" font-size="9" fill="#1a1a18">50</text>
+    <rect x="60" y="70" width="14" height="130" fill="url(#hatchMetal)" stroke="#1a1a18" stroke-width="1"/>
+    <path d="M24,134 Q29,140 34,140 L50,140 Q55,140 60,134" fill="none" stroke="#1a1a18" stroke-width="1"/>
+    <path d="M74,134 Q80,140 86,140 L132,140 Q138,140 144,134" fill="none" stroke="#1a1a18" stroke-width="1"/>
+    <text id="left-electrode-label" x="90" y="65" text-anchor="middle" font-size="26" font-style="italic" font-weight="400" fill="#1a1a18">Zn</text>
+    <text id="left-solution-label" x="90" y="232" text-anchor="middle" font-size="12" fill="#1a1a18">ZnSO&#8324;, 1.00 M</text>
+    <text id="left-role-label" x="112" y="82" text-anchor="middle" font-size="10" fill="#1a1a18" font-style="italic">anode (&#8211;)</text>
+    <text id="left-temp-reading" x="90" y="250" text-anchor="middle" font-size="15" font-style="italic" font-weight="600" fill="#1a1a18">25.0 &#176;C</text>
+
+    <path d="M204,140 L204,210 Q204,216 210,216 L330,216 Q336,216 336,210 L336,140 Z" fill="url(#hatchLiquid)"/>
+    <path d="M200,90 L200,214 Q200,220 206,220 L334,220 Q340,220 340,214 L340,90" fill="none" stroke="#1a1a18" stroke-width="2.5"/>
+    <line x1="320" y1="140" x2="330" y2="140" stroke="#1a1a18" stroke-width="1"/>
+    <line x1="320" y1="170" x2="330" y2="170" stroke="#1a1a18" stroke-width="1"/>
+    <line x1="320" y1="200" x2="330" y2="200" stroke="#1a1a18" stroke-width="1"/>
+    <text x="343" y="143" font-size="9" fill="#1a1a18">200</text>
+    <text x="343" y="173" font-size="9" fill="#1a1a18">100</text>
+    <text x="343" y="203" font-size="9" fill="#1a1a18">50</text>
+    <rect x="286" y="70" width="14" height="130" fill="url(#hatchMetal)" stroke="#1a1a18" stroke-width="1"/>
+    <path d="M216,134 Q222,140 228,140 L278,140 Q284,140 286,134" fill="none" stroke="#1a1a18" stroke-width="1"/>
+    <path d="M300,134 Q305,140 310,140 L326,140 Q331,140 336,134" fill="none" stroke="#1a1a18" stroke-width="1"/>
+    <text id="right-electrode-label" x="316" y="65" text-anchor="middle" font-size="26" font-style="italic" font-weight="400" fill="#1a1a18">Cu</text>
+    <text id="right-solution-label" x="270" y="232" text-anchor="middle" font-size="12" fill="#1a1a18">CuSO&#8324;, 1.00 M</text>
+    <text id="right-role-label" x="327" y="82" text-anchor="middle" font-size="10" fill="#1a1a18" font-style="italic">cathode (+)</text>
+    <text id="right-temp-reading" x="270" y="250" text-anchor="middle" font-size="15" font-style="italic" font-weight="600" fill="#1a1a18">25.0 &#176;C</text>
+
+    <path d="M144,160 L144,50 Q180,30 216,50 L216,160 L204,160 L204,60 Q180,45 156,60 L156,160 Z" fill="url(#hatchLiquid)" stroke="#1a1a18" stroke-width="2"/>
+    <ellipse cx="150" cy="160" rx="8" ry="4" fill="#f4efdf" stroke="#1a1a18" stroke-width="1.5"/>
+    <ellipse cx="210" cy="160" rx="8" ry="4" fill="#f4efdf" stroke="#1a1a18" stroke-width="1.5"/>
+    <path d="M150,164 Q130,178 112,190" fill="none" stroke="#1a1a18" stroke-width="1.2" marker-end="url(#arrowhead)"/>
+    <path d="M210,164 Q230,178 248,190" fill="none" stroke="#1a1a18" stroke-width="1.2" marker-end="url(#arrowhead)"/>
+    <text x="92" y="200" font-size="8" font-style="italic" fill="#1a1a18">NO&#8323;&#8315;</text>
+    <text x="252" y="200" font-size="8" font-style="italic" fill="#1a1a18">K&#8314;</text>
+    <text x="180" y="22" text-anchor="middle" font-size="12" font-style="italic" font-weight="700" fill="#1a1a18">salt bridge</text>
+    <path d="M180,26 L180,29" stroke="#1a1a18" stroke-width="1" marker-end="url(#arrowhead)"/>
+
+    <g id="therm-left">
+      <circle cx="42" cy="50" r="4" fill="none" stroke="#1a1a18" stroke-width="1.3"/>
+      <rect x="39" y="54" width="6" height="146" rx="3" fill="#f4efdf" stroke="#1a1a18" stroke-width="1.3"/>
+      <circle cx="42" cy="205" r="9" fill="#f4efdf" stroke="#1a1a18" stroke-width="1.3"/>
+      <rect id="therm-left-fill" x="40.5" y="190" width="3" height="15" fill="#1a1a18"/>
+      <circle cx="42" cy="205" r="7" fill="#1a1a18"/>
+      <line x1="46" y1="190" x2="50" y2="190" stroke="#1a1a18" stroke-width="1"/>
+      <line x1="46" y1="145" x2="50" y2="145" stroke="#1a1a18" stroke-width="1"/>
+      <line x1="46" y1="100" x2="50" y2="100" stroke="#1a1a18" stroke-width="1"/>
+      <text x="53" y="193" font-size="7" fill="#1a1a18">10</text>
+      <text x="53" y="148" font-size="7" fill="#1a1a18">30</text>
+      <text x="53" y="103" font-size="7" fill="#1a1a18">50</text>
+    </g>
+
+    <g id="therm-right">
+      <circle cx="250" cy="50" r="4" fill="none" stroke="#1a1a18" stroke-width="1.3"/>
+      <rect x="247" y="54" width="6" height="146" rx="3" fill="#f4efdf" stroke="#1a1a18" stroke-width="1.3"/>
+      <circle cx="250" cy="205" r="9" fill="#f4efdf" stroke="#1a1a18" stroke-width="1.3"/>
+      <rect id="therm-right-fill" x="248.5" y="190" width="3" height="15" fill="#1a1a18"/>
+      <circle cx="250" cy="205" r="7" fill="#1a1a18"/>
+      <line x1="254" y1="190" x2="258" y2="190" stroke="#1a1a18" stroke-width="1"/>
+      <line x1="254" y1="145" x2="258" y2="145" stroke="#1a1a18" stroke-width="1"/>
+      <line x1="254" y1="100" x2="258" y2="100" stroke="#1a1a18" stroke-width="1"/>
+      <text x="261" y="193" font-size="7" fill="#1a1a18">10</text>
+      <text x="261" y="148" font-size="7" fill="#1a1a18">30</text>
+      <text x="261" y="103" font-size="7" fill="#1a1a18">50</text>
+    </g>
+
+    <text id="fig-caption" x="190" y="272" text-anchor="middle" font-size="11" font-style="italic" fill="#1a1a18">Fig. 1 &#8212; Zn&#8211;Cu galvanic cell, 1.00 M solutions</text>
+  </g>
+
+  <g transform="translate(380,20)">
+    <rect x="10" y="10" width="280" height="280" rx="14" fill="#3b2414" stroke="#2a1a0d"/>
+    <circle cx="26" cy="26" r="6" fill="#2a1a0d"/>
+    <circle cx="274" cy="26" r="6" fill="#2a1a0d"/>
+    <circle cx="26" cy="274" r="6" fill="#2a1a0d"/>
+    <circle cx="274" cy="274" r="6" fill="#2a1a0d"/>
+    <rect x="26" y="26" width="248" height="248" rx="8" fill="#eceae3"/>
+    <text id="meter-v-label" x="42" y="70" font-size="22" fill="#2c2c2a" style="cursor:pointer;">V</text>
+    <g id="ticks"></g>
+    <path id="needle" fill="#3a3a38" stroke="#3a3a38" stroke-width="0.6" stroke-linejoin="round"/>
+    <circle id="pivot" cx="230" cy="230" r="9" fill="#3a3a38"/>
+    <line id="pivot-screw-slot" x1="223" y1="230" x2="237" y2="230" stroke="#1a1a18" stroke-width="1.6"/>
+    <text x="44" y="256" font-size="11" fill="#2c2c2a">&#937; &#8784; 0.05 &#8869; (&plusmn; 0.05 V)</text>
+    <text id="meter-face-readout" x="256" y="256" text-anchor="end" font-size="13" font-style="italic" font-family="'Century Gothic','Trebuchet MS','Futura',sans-serif" fill="#6b3a1f" style="transition:filter 0.2s, opacity 0.2s;">0.00 V</text>
+    <g transform="translate(150,270)">
+      <text x="0" y="3.5" text-anchor="middle" font-size="14" font-weight="700" fill="#2c2c2a" letter-spacing="1">WEIGEL</text>
+    </g>
+
+    <g>
+      <rect x="78" y="2" width="18" height="8" rx="1" fill="#d1352c"/>
+      <rect x="84" y="-6" width="6" height="8" fill="#d1352c"/>
+      <circle id="red-terminal-circle" cx="87" cy="-6" r="7" fill="#d1352c" stroke="#7a1a15" stroke-width="1"/>
+      <text x="100" y="9" text-anchor="start" font-size="12" fill="#d1352c">+</text>
+    </g>
+
+    <g>
+      <rect x="204" y="2" width="18" height="8" rx="1" fill="#111111"/>
+      <rect x="210" y="-6" width="6" height="8" fill="#111111"/>
+      <circle id="black-terminal-circle" cx="213" cy="-6" r="7" fill="#111111" stroke="#000000" stroke-width="1"/>
+      <text x="200" y="9" text-anchor="end" font-size="12" fill="#111111">-</text>
+    </g>
+
+    <g id="swap-leads-btn" style="cursor:pointer;">
+      <rect x="232" y="-18" width="64" height="20" rx="4" fill="var(--surface-2)" stroke="var(--border-strong)" stroke-width="0.75"/>
+      <text x="264" y="-5" text-anchor="middle" font-size="9" fill="var(--text-primary)" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">Swap leads</text>
+    </g>
+  </g>
+</svg>
+
+<div style="float:left; width:53%; box-sizing:border-box; text-align:left; padding-right:12px;">
+  <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;">
+    <a href="reactivity_series.html" target="_blank" rel="noopener" style="display:inline-block; font-size:13px; padding:7px 12px; border-radius:8px; border:0.5px solid var(--border-strong); background:var(--surface-2); color:var(--text-primary); text-decoration:none;">Reactivity Series</a>
+    <a href="reduction_potentials_table.html" target="_blank" rel="noopener" style="display:inline-block; font-size:13px; padding:7px 12px; border-radius:8px; border:0.5px solid var(--border-strong); background:var(--surface-2); color:var(--text-primary); text-decoration:none;">Standard Reduction Potentials table</a>
+    <a href="temperature_coefficients_table.html" target="_blank" rel="noopener" style="display:inline-block; font-size:13px; padding:7px 12px; border-radius:8px; border:0.5px solid var(--border-strong); background:var(--surface-2); color:var(--text-primary); text-decoration:none;">Temperature Coefficients (dE&deg;/dT)</a>
+    <a href="galvanic_cell_cheat_sheet.html" target="_blank" rel="noopener" style="display:inline-block; font-size:13px; padding:7px 12px; border-radius:8px; border:0.5px solid var(--border-strong); background:var(--surface-2); color:var(--text-primary); text-decoration:none;">Open the Vocabulary Sheet</a>
+    <a href="VantHoff_Entropy_Nernst_Overlap_MindMap.svg" target="_blank" rel="noopener" style="display:inline-block; font-size:13px; padding:7px 12px; border-radius:8px; border:0.5px solid var(--border-strong); background:var(--surface-2); color:var(--text-primary); text-decoration:none;">&Delta;G and the associated ideas you are using here</a>
+  </div>
+</div>
+
+<div style="width:41%; margin-left:57%; box-sizing:border-box; text-align:center;">
+
+  <div style="font-size:22px; color:#2c2c2a; margin-top:4px; margin-bottom:4px;">E.M.F. / V</div>
+
+  <div style="font-size:12px; font-style:italic; color:var(--text-secondary); margin-bottom:12px;">High-resistance voltmeter (0 &ndash; 4 V, custom scale)</div>
+
+  <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:10px;">
+    <span style="font-size:13px; color:#d1352c;">For advanced students</span>
+    <span id="advanced-track" role="switch" aria-checked="false" tabindex="0" style="width:36px; height:20px; border-radius:11px; background:var(--surface-1); border:0.5px solid var(--border-strong); position:relative; cursor:pointer; display:inline-block; transition:background 0.2s;">
+      <span id="advanced-thumb" style="position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%; background:var(--text-secondary); transition:left 0.2s, background 0.2s;"></span>
+    </span>
+  </div>
+
+  <div id="zero-controls" style="margin-bottom:10px; display:none;">
+    <button id="zero-btn" type="button">Use a screwdriver to adjust the needle to zero</button>
+    <div id="zero-status" style="font-size:12px; font-style:italic; margin-top:5px;"></div>
+  </div>
+
+  <div style="margin-bottom:8px;">
+    <button id="about-meter-btn" type="button">About the voltmeter</button>
+  </div>
+
+  <div id="about-meter-panel" style="display:none; margin-bottom:1rem; background:var(--surface-2); border:0.5px solid var(--border); border-radius:var(--radius); padding:14px 16px; box-sizing:border-box; text-align:left;">
+    <span class="ex-label">About the voltmeter</span>
+    <p style="font-size:13px; color:var(--text-secondary); font-style:italic; line-height:1.6; margin:0;">&ldquo;I received today a Weigel 0&ndash;30V voltmeter that I had purchased for my lab use. It's such a beautiful design, and in operation elegant, that I asked Claude to rescale it from 0&ndash;4V and estimated a correspondingly smaller uncertainty. There is most likely no corresponding model in their catalogue! So this is a custom voltmeter, but I'm acknowledging their design and dial face.&rdquo;</p>
+  </div>
+
+  <div style="margin-bottom:8px;">
+    <a href="Supporting_Ideas_Free_Energy_and_vant_hoff_entropy_change.html" target="_blank" rel="noopener" style="display:inline-block; font-size:13px; padding:7px 12px; border-radius:8px; border:0.5px solid var(--border-strong); background:var(--surface-2); color:var(--text-primary); text-decoration:none;">Supporting ideas about K, &Delta;H and &Delta;S</a>
+  </div>
+
+  <div id="leads-swapped-note" style="display:none; margin-bottom:12px; font-size:12.5px; font-style:italic; color:var(--text-danger); background:var(--surface-1); border-left:3px solid var(--text-danger); border-radius:4px; padding:8px 10px; text-align:left;">Now the connecting leads have been swapped over, you need to read any positive readings from the meter now as negative, of course!</div>
+
+</div>
+
+<div style="clear:both;"></div>
+
+<h3 style="text-align:left; font-size:14px; font-weight:600; color:var(--text-primary); margin:1.5rem 0 0.5rem;">At the electrodes</h3>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+  <div style="background:var(--surface-1); border-radius:var(--radius); padding:1rem; box-sizing:border-box;">
+    <p style="font-size:13px; color:var(--text-secondary); margin:0 0 4px;">Left electrode &mdash; black terminal</p>
+    <p id="card-left-role" style="font-size:12px; color:var(--text-muted); margin:0 0 4px; font-weight:500;">Oxidation (anode)</p>
+    <p id="card-left-reaction" style="font-size:15px; margin:0;">Zn(s) &#8594; Zn&sup2;&#8314;(aq) + 2e&#8315;</p>
+    <p id="card-left-e" style="font-size:12px; color:var(--text-muted); margin:6px 0 0;">E&deg; = -0.76 V</p>
+  </div>
+  <div style="background:var(--surface-1); border-radius:var(--radius); padding:1rem; box-sizing:border-box;">
+    <p style="font-size:13px; color:var(--text-secondary); margin:0 0 4px;">Right electrode &mdash; red terminal</p>
+    <p id="card-right-role" style="font-size:12px; color:var(--text-muted); margin:0 0 4px; font-weight:500;">Reduction (cathode)</p>
+    <p id="card-right-reaction" style="font-size:15px; margin:0;">Cu&sup2;&#8314;(aq) + 2e&#8315; &#8594; Cu(s)</p>
+    <p id="card-right-e" style="font-size:12px; color:var(--text-muted); margin:6px 0 0;">E&deg; = +0.34 V</p>
+  </div>
+</div>
+
+<h3 style="text-align:left; font-size:14px; font-weight:600; color:var(--text-primary); margin:1.5rem 0 0.5rem;">The data from the literature (Bratsch, 1989)</h3>
+
+<p style="text-align:left; font-size:11.5px; font-style:italic; color:var(--text-muted); margin:0 0 0.75rem;">Bratsch, S. G. (1989). Standard electrode potentials and temperature coefficients in water at 298.15&nbsp;K. <em>Journal of Physical and Chemical Reference Data</em>, <em>18</em>, 1.</p>
+
+<div id="explain-text" style="font-size:13px; color:var(--text-secondary); background:var(--surface-2); border:0.5px solid var(--border); border-radius:var(--radius); padding:14px 16px; box-sizing:border-box;">
+  E&deg;cell = 1.10 V. The salt bridge (an agar-agar gel infused with saturated KNO&#8323; solution, set inside the glass U-tube) completes the circuit internally. Read the analogue needle first, then use "Show reading" to check yourself.
+</div>
+
+<div style="font-size:11px; color:var(--text-muted); margin-top:8px;">
+  Standard potentials and temperature coefficients (dE&deg;/dT) for magnesium, aluminium, zinc, iron, lead, copper and silver are literature values (Bratsch, 1989). Gold's E&deg; is derived via Hess's law from two Bratsch couples (Au&sup3;&#8314;/Au&#8314; and Au&#8314;/Au); its dE&deg;/dT remains an approximation, since Bratsch's table gives no coefficient for the Au&sup3;&#8314;/Au&#8314; couple. See the full table and sources below.
+</div>
+
+<div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-top:10px; flex-wrap:wrap;">
+  <button id="sources-btn" type="button">Show all metals &amp; sources</button>
+  <button id="reveal-btn" type="button">Show reading</button>
+  <button id="error-btn" type="button">Introduce an instrument reading error</button>
+</div>
+
+<div id="sources-panel" style="display:none; margin-top:10px; background:var(--surface-2); border:0.5px solid var(--border); border-radius:var(--radius); padding:14px 16px; box-sizing:border-box;">
+  <span class="ex-label">All electrodes &mdash; standard potentials and temperature coefficients</span>
+  <table class="src-table">
+    <tr><th>Metal</th><th>Couple</th><th>n</th><th>E&deg; (298 K)</th><th>dE&deg;/dT</th></tr>
+    <tbody id="sources-tbody"></tbody>
+  </table>
+  <div class="src-footnotes" id="sources-footnotes"></div>
+</div>
+
+<div style="display:flex; align-items:flex-start; gap:8px; margin-top:2rem; flex-wrap:wrap;">
+  <a href="https://candlelit342.github.io/US_Chemistry_Support/contact.html" target="_blank" rel="noopener" style="display:inline-flex; flex-shrink:0;" aria-label="IB Chemistry Tutors website">
+    <svg width="24" height="24" viewBox="0 0 24 24" style="flex-shrink:0;">
+      <circle cx="12" cy="12" r="11" fill="#185fa5" stroke="#ffffff" stroke-width="1.5"/>
+      <text x="12" y="16.5" text-anchor="middle" font-size="10" font-weight="700" fill="#ffffff" font-family="Georgia, 'Times New Roman', serif">W3</text>
+    </svg>
+  </a>
+  <span style="font-size:11px; font-weight:400; color:var(--text-muted); line-height:1.4; padding-top:4px;">Copyright &copy; 2026 Wilkie&rsquo;s Wonky Wonders. Free for educational use under the MIT license.</span>
+  <button id="license-btn" type="button" style="font-size:11px; padding:3px 8px;">View license</button>
+</div>
+
+<div id="license-panel" style="display:none; margin-top:10px; background:var(--surface-2); border:0.5px solid var(--border); border-radius:var(--radius); padding:14px 16px; box-sizing:border-box;">
+  <span class="ex-label">MIT License</span>
+  <p style="font-size:11px; color:var(--text-secondary); line-height:1.6; margin:0 0 8px;">Copyright &copy; 2026 Wilkie&rsquo;s Wonky Wonders</p>
+  <p style="font-size:11px; color:var(--text-secondary); line-height:1.6; margin:0 0 8px;">Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &ldquo;Software&rdquo;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+  <p style="font-size:11px; color:var(--text-secondary); line-height:1.6; margin:0 0 8px;">The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+  <p style="font-size:11px; color:var(--text-secondary); line-height:1.6; margin:0;">THE SOFTWARE IS PROVIDED &ldquo;AS IS&rdquo;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+</div>
+</div>
+
+<script>
+(function(){
+  var METALS = {
+    Mg:{name:'magnesium', E:-2.360, n:2, dEdT:0.199, eSrc:1, dSrc:1, group:'core'},
+    Al:{name:'aluminium', E:-1.677, n:3, dEdT:0.533, eSrc:1, dSrc:1, group:'core'},
+    Zn:{name:'zinc', E:-0.762, n:2, dEdT:0.119, eSrc:1, dSrc:1, group:'core'},
+    Fe:{name:'iron', E:-0.44, n:2, dEdT:0.07, eSrc:1, dSrc:1, group:'core'},
+    Pb:{name:'lead', E:-0.126, n:2, dEdT:-0.395, eSrc:1, dSrc:1, group:'core'},
+    Cu:{name:'copper', E:0.339, n:2, dEdT:0.011, eSrc:1, dSrc:1, group:'core'},
+    Ag:{name:'silver', E:0.7993, n:1, dEdT:-0.989, eSrc:1, dSrc:1, group:'core'},
+    Au:{name:'gold', E:1.503, n:3, dEdT:1.10, eSrc:2, dSrc:3, group:'core'},
+    Bi:{name:'bismuth', E:0.308, n:3, dEdT:0.18, eSrc:1, dSrc:1, group:'exotic', lessCertainD:true},
+    Sn:{name:'tin', E:-0.141, n:2, dEdT:-0.32, eSrc:1, dSrc:1, group:'exotic'},
+    Sc:{name:'scandium', E:-2.09, n:3, dEdT:0.41, eSrc:1, dSrc:1, group:'exotic'},
+    V:{name:'vanadium', E:-1.125, n:2, dEdT:-0.11, eSrc:1, dSrc:1, group:'exotic', lessCertainD:true},
+    Cr:{name:'chromium', E:-0.74, n:3, dEdT:0.44, eSrc:1, dSrc:1, group:'exotic'},
+    Mn:{name:'manganese', E:-1.182, n:2, dEdT:-0.129, eSrc:1, dSrc:1, group:'exotic'},
+    Ni:{name:'nickel', E:-0.236, n:2, dEdT:0.146, eSrc:1, dSrc:1, group:'exotic'},
+    U:{name:'uranium', E:-1.642, n:3, dEdT:0.16, eSrc:1, dSrc:1, group:'exotic', hazard:'radioactive', maxConc:0.04},
+    Pu:{name:'plutonium', E:-1.978, n:3, dEdT:0.23, eSrc:1, dSrc:1, group:'exotic', hazard:'fissile', maxConc:0.03}
+  };
+  var CORE_ORDER=['Mg','Al','Zn','Fe','Pb','Cu','Ag','Au'];
+  var EXOTIC_ORDER=['Bi','Sn','Sc','V','Cr','Mn','Ni','U','Pu'];
+  var ORDER=CORE_ORDER.concat(EXOTIC_ORDER);
+  function fmtSig(v, sig){
+    if(v===0) return (0).toFixed(sig-1);
+    var d = sig - 1 - Math.floor(Math.log10(Math.abs(v)));
+    d = Math.max(0, d);
+    return v.toFixed(d);
+  }
+
+  var HAZARD_INFO={
+    radioactive:function(conc){
+      return 'radioactive (an alpha emitter). Water is such an effective neutron moderator that a few hundred grams of dissolved uranium can reach criticality. To avoid this embarrassment, the concentration slider for this half-cell is capped at 0.04 M — within this safe, sub-criticality range. In practice, uranium metal can be handled on an open bench in a designated radiological ("red") area rather than a sealed glovebox; alpha particles are stopped by about a foot of air. This is a simulated experiment only.';
+    },
+    fissile:function(conc){
+      var grams = conc*239.05;
+      return 'both radioactive and fissile. Water is such an effective neutron moderator that only a small aqueous concentration of dissolved plutonium can trigger criticality. Therefore, the concentration slider for this half-cell is capped at 0.03 M — within this safe, sub-criticality range. An aqueous plutonium concentration of '+fmtSig(conc,3)+' M you can calculate to be about '+grams.toFixed(1)+' g of plutonium per litre. In research, plutonium is always handled inside a glovebox at a licensed nuclear facility under a suitably inert atmosphere. This is a simulated experiment only.';
+    }
+  };
+  var SUP2='²', SUP3='³', SUPP='⁺', SUPM='⁻', SUB3='₃', DEG='°';
+
+  function ionStr(sym){
+    var m=METALS[sym];
+    var sup = m.n===1?SUPP:(m.n===2?SUP2+SUPP:SUP3+SUPP);
+    return sym+sup;
+  }
+  function saltFormula(sym){
+    var m=METALS[sym];
+    if(m.n===1) return sym+'NO'+SUB3;
+    return sym+'(NO'+SUB3+')'+(m.n===2?'₂':'₃');
+  }
+  function oxidationText(sym){
+    var m=METALS[sym];
+    return sym+'(s) → '+ionStr(sym)+'(aq) + '+m.n+'e'+SUPM;
+  }
+  function reductionText(sym){
+    var m=METALS[sym];
+    return ionStr(sym)+'(aq) + '+m.n+'e'+SUPM+' → '+sym+'(s)';
+  }
+  function fmtE(v){ return (v>=0?'+':'')+v.toFixed(3)+' V'; }
+  function fmtDEdT(v){ return (v>=0?'+':'')+v.toFixed(2)+' mV/K'; }
+  function stdEatT(sym, tempC){
+    var m=METALS[sym];
+    return m.E + (m.dEdT/1000)*(tempC-25);
+  }
+  function halfCellE(sym, conc, tempC){
+    var m=METALS[sym];
+    return stdEatT(sym,tempC) + (NERNST_K/m.n)*Math.log(conc)/Math.LN10;
+  }
+  var SCALE_MAX=4;
+  var PEG_V=-0.25;
+  var NERNST_K=0.0592;
+
+  var mgroupCx=230, mgroupCy=230, outerR=185;
+  var ticksG=document.getElementById('ticks');
+  function angleFor(v){
+    var t0=180, t1=90;
+    var t=t0+(v/SCALE_MAX)*(t1-t0);
+    return t*Math.PI/180;
+  }
+  function pt(v,r){
+    var a=angleFor(v);
+    return [mgroupCx+r*Math.cos(a), mgroupCy-r*Math.sin(a)];
+  }
+  function buildMajorTickPath(v, len){
+    var a=angleFor(v);
+    var dx=Math.cos(a), dy=-Math.sin(a);
+    var px=-dy, py=dx;
+    var rOuter=outerR, rInner=outerR-len, rMid=outerR-len/2;
+    var halfThin=0.5, halfThick=1.4;
+    function at(r){ return [mgroupCx+r*dx, mgroupCy+r*dy]; }
+    var oPt=at(rOuter), mPt=at(rMid), iPt=at(rInner);
+    var oL=[oPt[0]+px*halfThin, oPt[1]+py*halfThin];
+    var oR=[oPt[0]-px*halfThin, oPt[1]-py*halfThin];
+    var mLthin=[mPt[0]+px*halfThin, mPt[1]+py*halfThin];
+    var mRthin=[mPt[0]-px*halfThin, mPt[1]-py*halfThin];
+    var mLthick=[mPt[0]+px*halfThick, mPt[1]+py*halfThick];
+    var mRthick=[mPt[0]-px*halfThick, mPt[1]-py*halfThick];
+    var iL=[iPt[0]+px*halfThick, iPt[1]+py*halfThick];
+    var iR=[iPt[0]-px*halfThick, iPt[1]-py*halfThick];
+    return 'M'+oL[0].toFixed(2)+','+oL[1].toFixed(2)+
+      ' L'+mLthin[0].toFixed(2)+','+mLthin[1].toFixed(2)+
+      ' L'+mLthick[0].toFixed(2)+','+mLthick[1].toFixed(2)+
+      ' L'+iL[0].toFixed(2)+','+iL[1].toFixed(2)+
+      ' L'+iR[0].toFixed(2)+','+iR[1].toFixed(2)+
+      ' L'+mRthick[0].toFixed(2)+','+mRthick[1].toFixed(2)+
+      ' L'+mRthin[0].toFixed(2)+','+mRthin[1].toFixed(2)+
+      ' L'+oR[0].toFixed(2)+','+oR[1].toFixed(2)+' Z';
+  }
+  for(var i=0;i<=40;i++){
+    var v=i/10;
+    var isLabel = (i%10===0);
+    var isHalf = (i%5===0);
+    var len = isLabel?18:(isHalf?12:7);
+    if(isLabel){
+      var tickPath=document.createElementNS('http://www.w3.org/2000/svg','path');
+      tickPath.setAttribute('d', buildMajorTickPath(v, len));
+      tickPath.setAttribute('fill','#3a3a38');
+      ticksG.appendChild(tickPath);
+    } else {
+      var p1=pt(v, outerR);
+      var p2=pt(v, outerR-len);
+      var line=document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1',p1[0]); line.setAttribute('y1',p1[1]);
+      line.setAttribute('x2',p2[0]); line.setAttribute('y2',p2[1]);
+      line.setAttribute('stroke','#3a3a38');
+      line.setAttribute('stroke-width', 1);
+      ticksG.appendChild(line);
+    }
+    if(isLabel){
+      var lp=pt(v, outerR-34);
+      var text=document.createElementNS('http://www.w3.org/2000/svg','text');
+      text.setAttribute('x',lp[0]); text.setAttribute('y',lp[1]+5);
+      text.setAttribute('text-anchor','middle');
+      text.setAttribute('font-size','16');
+      text.setAttribute('fill','#2c2c2a');
+      text.textContent=v.toFixed(0);
+      ticksG.appendChild(text);
+    }
+  }
+
+  var needle=document.getElementById('needle');
+  var pivot=document.getElementById('pivot');
+  pivot.setAttribute('cx', mgroupCx);
+  pivot.setAttribute('cy', mgroupCy);
+
+  var switchWrap=document.getElementById('switch-wrap');
+  var track=document.getElementById('switch-track');
+  var thumb=document.getElementById('switch-thumb');
+  var switchLabel=document.getElementById('switch-label');
+  var revealBtn=document.getElementById('reveal-btn');
+  var wireBlack=document.getElementById('wire-black');
+  var wireRed=document.getElementById('wire-red');
+  var swapLeadsBtn=document.getElementById('swap-leads-btn');
+  var leadsSwapped=false;
+  var WIRE_BLACK_D='M67,90 L67,4 L593,4 L593,22';
+  var WIRE_BLACK_D_SWAPPED='M67,90 L67,4 L467,4 L467,22';
+  var WIRE_RED_D='M293,90 L293,16 L467,16 L467,22';
+  var WIRE_RED_D_SWAPPED='M293,90 L293,10 A6,6 0 0 1 293,-2 L593,-2 L593,22';
+  var leadsSwappedNote=document.getElementById('leads-swapped-note');
+  var connectorOverlay=document.getElementById('swap-connector-overlay');
+  var connectorLine=document.getElementById('swap-connector-line');
+  function updateConnectorLine(){
+    if(!leadsSwapped){ connectorOverlay.style.display='none'; return; }
+    var btnRect=swapLeadsBtn.getBoundingClientRect();
+    var noteRect=leadsSwappedNote.getBoundingClientRect();
+    var x1=btnRect.right, y1=btnRect.top+btnRect.height/2;
+    var xMid=btnRect.right+20;
+    var y2=noteRect.top+noteRect.height/2;
+    var x3=noteRect.right;
+    var pts = x1+','+y1+' '+xMid+','+y1+' '+xMid+','+y2+' '+x3+','+y2;
+    connectorLine.setAttribute('points', pts);
+    connectorOverlay.style.display='block';
+  }
+  window.addEventListener('resize', updateConnectorLine);
+  window.addEventListener('scroll', updateConnectorLine, true);
+  var redTerminalCircle=document.getElementById('red-terminal-circle');
+  var blackTerminalCircle=document.getElementById('black-terminal-circle');
+  swapLeadsBtn.addEventListener('click', function(){
+    leadsSwapped=!leadsSwapped;
+    wireBlack.setAttribute('d', leadsSwapped ? WIRE_BLACK_D_SWAPPED : WIRE_BLACK_D);
+    wireRed.setAttribute('d', leadsSwapped ? WIRE_RED_D_SWAPPED : WIRE_RED_D);
+    redTerminalCircle.setAttribute('fill', leadsSwapped ? '#111111' : '#d1352c');
+    redTerminalCircle.setAttribute('stroke', leadsSwapped ? '#000000' : '#7a1a15');
+    blackTerminalCircle.setAttribute('fill', leadsSwapped ? '#d1352c' : '#111111');
+    blackTerminalCircle.setAttribute('stroke', leadsSwapped ? '#7a1a15' : '#000000');
+    leadsSwappedNote.style.display = leadsSwapped ? 'block' : 'none';
+    updateConnectorLine();
+    render();
+  });
+  var leftSelect=document.getElementById('left-select');
+  var rightSelect=document.getElementById('right-select');
+  var leftConc=document.getElementById('left-conc');
+  var rightConc=document.getElementById('right-conc');
+  var leftConcVal=document.getElementById('left-conc-val');
+  var rightConcVal=document.getElementById('right-conc-val');
+  var leftTemp=document.getElementById('left-temp');
+  var rightTemp=document.getElementById('right-temp');
+  var leftTempVal=document.getElementById('left-temp-val');
+  var rightTempVal=document.getElementById('right-temp-val');
+  var thermLeftFill=document.getElementById('therm-left-fill');
+  var thermRightFill=document.getElementById('therm-right-fill');
+  var leftTempReading=document.getElementById('left-temp-reading');
+  var rightTempReading=document.getElementById('right-temp-reading');
+  var exoticToggle=document.getElementById('exotic-toggle');
+  var connected=false, revealed=false, readoutUseSig3=false;
+  var pendingNeedle=0, pendingDigital=0;
+  var needleCurrent=0, needleTarget=0, digitalCurrent=0, digitalTarget=0, raf=null;
+  var ZERO_ERROR=0.15, zeroed=false;
+  var manualZeroOffset=0, zeroAnimating=false, zeroAnimRAF=null, zeroAnimToken=0;
+  var zeroBtn=document.getElementById('zero-btn');
+  var zeroStatus=document.getElementById('zero-status');
+  var screwSlot=document.getElementById('pivot-screw-slot');
+  function randomizeZeroError(){
+    var mag = 0.05 + Math.random()*0.20;
+    var sign = Math.random()<0.5 ? -1 : 1;
+    ZERO_ERROR = Math.round(sign*mag*1000)/1000;
+  }
+  function updateZeroStatus(){
+    if(zeroed){
+      zeroStatus.textContent='Zeroed — the systematic (zero) error has been eliminated.';
+      zeroStatus.style.color='var(--text-secondary)';
+      zeroBtn.disabled=true;
+      zeroBtn.textContent='Needle adjusted to zero';
+    } else {
+      zeroStatus.textContent='Zero error present — notice the needle does not rest exactly on 0 V. Use the screwdriver to eliminate/reduce this systematic error.';
+      zeroStatus.style.color='var(--text-danger)';
+      zeroBtn.disabled=false;
+      zeroBtn.textContent='Use a screwdriver to adjust the needle to zero';
+    }
+  }
+
+  var advancedMode=false;
+  var advancedTrack=document.getElementById('advanced-track');
+  var advancedThumb=document.getElementById('advanced-thumb');
+  var zeroControls=document.getElementById('zero-controls');
+  var pageTitle=document.getElementById('page-title');
+  var TITLE_DEFAULT='Exploring the effect of electrode identity, aqueous ion concentration and temperature on the EMF of a cell';
+  var GOTHIC_FONT = "'Century Gothic', 'Trebuchet MS', 'Futura', sans-serif";
+  var TITLE_ADVANCED_HTML =
+    '<span style="display:block; font-family:'+GOTHIC_FONT+'; font-style:italic; font-weight:400; font-size:13px; color:var(--text-muted); letter-spacing:0.03em; margin-bottom:4px;">A simulated IA experimental study</span>' +
+    '<span style="display:block; font-family:'+GOTHIC_FONT+'; font-weight:700; font-size:18px; color:var(--text-primary); line-height:1.45;">What is the effect on the Reduction Potential of a metal as:</span>' +
+    '<span style="display:block; font-family:'+GOTHIC_FONT+'; font-weight:700; font-size:18px; color:var(--text-primary); line-height:1.45; padding-left:22px;">a)&nbsp;&nbsp;the concentration of the electrolyte is changed?</span>' +
+    '<span style="display:block; font-family:'+GOTHIC_FONT+'; font-weight:700; font-size:18px; color:var(--text-primary); line-height:1.45; padding-left:22px;">b)&nbsp;&nbsp;the temperature of the electrolyte is changed?</span>' +
+    '<span style="display:block; font-family:'+GOTHIC_FONT+'; font-style:italic; font-weight:400; font-size:12px; color:var(--text-muted); margin-top:6px;">(for an IA you would choose one metal, and choose either (a) or (b) but not both!)</span>';
+  function setAdvanced(state){
+    advancedMode=state;
+    advancedTrack.setAttribute('aria-checked', advancedMode ? 'true' : 'false');
+    advancedTrack.style.background = advancedMode ? '#d1352c' : 'var(--surface-1)';
+    advancedThumb.style.left = advancedMode ? '18px' : '2px';
+    advancedThumb.style.background = advancedMode ? '#ffffff' : 'var(--text-secondary)';
+    zeroControls.style.display = advancedMode ? 'block' : 'none';
+    if(advancedMode){ pageTitle.innerHTML = TITLE_ADVANCED_HTML; }
+    else { pageTitle.textContent = TITLE_DEFAULT; }
+    if(zeroAnimRAF){ cancelAnimationFrame(zeroAnimRAF); zeroAnimRAF=null; }
+    zeroAnimToken++;
+    zeroAnimating=false;
+    screwSlot.setAttribute('stroke', '#1a1a18');
+    screwSlot.removeAttribute('transform');
+    if(advancedMode){
+      randomizeZeroError();
+      manualZeroOffset = ZERO_ERROR;
+      zeroed = false;
+    } else {
+      manualZeroOffset = 0;
+      zeroed = true;
+    }
+    updateZeroStatus();
+    applyTarget();
+  }
+  advancedTrack.addEventListener('click', function(){ setAdvanced(!advancedMode); });
+  advancedTrack.addEventListener('keydown', function(e){
+    if(e.key===' ' || e.key==='Enter'){ e.preventDefault(); setAdvanced(!advancedMode); }
+  });
+  setAdvanced(false);
+
+  function updateConcSlider(sliderEl, sym){
+    var m = METALS[sym];
+    var max = m.maxConc || 1;
+    var step = m.maxConc ? 0.001 : 0.01;
+    sliderEl.max = max;
+    sliderEl.step = step;
+    if(parseFloat(sliderEl.value) > max) sliderEl.value = max;
+  }
+
+  function buildOptgroup(label, list){
+    var g=document.createElement('optgroup');
+    g.label=label;
+    list.forEach(function(sym){
+      var o=document.createElement('option');
+      o.value=sym; o.textContent=sym+' — '+METALS[sym].name;
+      g.appendChild(o);
+    });
+    return g;
+  }
+  function populateSelects(){
+    var prevLeft=leftSelect.value, prevRight=rightSelect.value;
+    leftSelect.innerHTML=''; rightSelect.innerHTML='';
+    leftSelect.appendChild(buildOptgroup('Core metals', CORE_ORDER));
+    rightSelect.appendChild(buildOptgroup('Core metals', CORE_ORDER));
+    if(exoticToggle.checked){
+      leftSelect.appendChild(buildOptgroup('Exotic / hazardous metals', EXOTIC_ORDER));
+      rightSelect.appendChild(buildOptgroup('Exotic / hazardous metals', EXOTIC_ORDER));
+    }
+    leftSelect.value = METALS[prevLeft] ? prevLeft : 'Zn';
+    rightSelect.value = METALS[prevRight] ? prevRight : 'Cu';
+    if(!leftSelect.value) leftSelect.value='Zn';
+    if(!rightSelect.value) rightSelect.value='Cu';
+  }
+  populateSelects();
+  leftSelect.value='Zn';
+  rightSelect.value='Zn';
+  exoticToggle.addEventListener('change', function(){
+    populateSelects();
+    updateConcSlider(leftConc, leftSelect.value);
+    updateConcSlider(rightConc, rightSelect.value);
+    render();
+  });
+
+  var NEEDLE_TIP_R = outerR;
+  var NEEDLE_BASE_R = 10;
+  var NEEDLE_MAIN_HALF_W = 3;
+  var NEEDLE_HAIR_HALF_W = 0.35;
+  var NEEDLE_NARROW_ZONE_R = NEEDLE_TIP_R - 0.15*(NEEDLE_TIP_R-NEEDLE_BASE_R);
+  var NEEDLE_STEP_R = NEEDLE_NARROW_ZONE_R + 0.18*(NEEDLE_TIP_R-NEEDLE_NARROW_ZONE_R);
+  function setNeedle(v){
+    var a=angleFor(v);
+    var dx=Math.cos(a), dy=-Math.sin(a);
+    var px=-dy, py=dx;
+    function at(r){ return [mgroupCx+r*dx, mgroupCy+r*dy]; }
+    var base=at(NEEDLE_BASE_R), narrowStart=at(NEEDLE_NARROW_ZONE_R), step=at(NEEDLE_STEP_R), tip=at(NEEDLE_TIP_R);
+    var bL=[base[0]+px*NEEDLE_MAIN_HALF_W, base[1]+py*NEEDLE_MAIN_HALF_W];
+    var bR=[base[0]-px*NEEDLE_MAIN_HALF_W, base[1]-py*NEEDLE_MAIN_HALF_W];
+    var nL=[narrowStart[0]+px*NEEDLE_MAIN_HALF_W, narrowStart[1]+py*NEEDLE_MAIN_HALF_W];
+    var nR=[narrowStart[0]-px*NEEDLE_MAIN_HALF_W, narrowStart[1]-py*NEEDLE_MAIN_HALF_W];
+    var sL=[step[0]+px*NEEDLE_HAIR_HALF_W, step[1]+py*NEEDLE_HAIR_HALF_W];
+    var sR=[step[0]-px*NEEDLE_HAIR_HALF_W, step[1]-py*NEEDLE_HAIR_HALF_W];
+    var d='M'+bL[0].toFixed(2)+','+bL[1].toFixed(2)+
+      ' L'+nL[0].toFixed(2)+','+nL[1].toFixed(2)+
+      ' L'+sL[0].toFixed(2)+','+sL[1].toFixed(2)+
+      ' L'+tip[0].toFixed(2)+','+tip[1].toFixed(2)+
+      ' L'+sR[0].toFixed(2)+','+sR[1].toFixed(2)+
+      ' L'+nR[0].toFixed(2)+','+nR[1].toFixed(2)+
+      ' L'+bR[0].toFixed(2)+','+bR[1].toFixed(2)+' Z';
+    needle.setAttribute('d', d);
+  }
+  var meterFaceReadout=document.getElementById('meter-face-readout');
+  function setReadoutText(v){
+    var numTxt = readoutUseSig3 ? fmtSig(v,3) : v.toFixed(2);
+    if(v>0) numTxt = '+'+numTxt;
+    meterFaceReadout.textContent = numTxt+' V';
+  }
+  setNeedle(0);
+  setReadoutText(0);
+
+  function updateThermometer(fillEl, tempC){
+    var scaleBottomY=190, scaleTopY=100;
+    var frac=(tempC-10)/40;
+    frac=Math.max(0,Math.min(1,frac));
+    var fillY = scaleBottomY - frac*(scaleBottomY-scaleTopY);
+    var bulbTop=205;
+    fillEl.setAttribute('y', fillY);
+    fillEl.setAttribute('height', bulbTop-fillY);
+  }
+
+  function applyReveal(){
+    meterFaceReadout.style.filter = revealed ? 'none' : 'blur(4px)';
+    meterFaceReadout.style.opacity = revealed ? '1' : '0';
+    revealBtn.textContent = revealed ? 'Hide reading' : 'Show reading';
+  }
+  applyReveal();
+  revealBtn.addEventListener('click', function(){
+    revealed=!revealed;
+    applyReveal();
+  });
+  var meterVLabel=document.getElementById('meter-v-label');
+  meterVLabel.addEventListener('click', function(){
+    revealed=!revealed;
+    applyReveal();
+  });
+
+  function animate(){
+    var d1=needleTarget-needleCurrent, d2=digitalTarget-digitalCurrent;
+    var done=true;
+    if(Math.abs(d1)>0.003){ needleCurrent+=d1*0.12; done=false; } else needleCurrent=needleTarget;
+    if(Math.abs(d2)>0.003){ digitalCurrent+=d2*0.12; done=false; } else digitalCurrent=digitalTarget;
+    setNeedle(needleCurrent);
+    setReadoutText(digitalCurrent);
+    if(!done) raf=requestAnimationFrame(animate); else raf=null;
+  }
+
+  function applyTarget(){
+    var zOff = zeroed ? 0 : manualZeroOffset;
+    needleTarget = (connected ? pendingNeedle : 0) + zOff;
+    digitalTarget = (connected ? pendingDigital : 0) + zOff;
+    if(raf) cancelAnimationFrame(raf);
+    raf=requestAnimationFrame(animate);
+  }
+
+  function easeInOutQuad(t){ return t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2; }
+  function easeOutQuad(t){ return 1-(1-t)*(1-t); }
+
+  function runZeroAnimation(onComplete){
+    if(zeroed || zeroAnimating) return;
+    zeroAnimating=true;
+    zeroBtn.disabled=true;
+    screwSlot.setAttribute('stroke', '#d1352c');
+    screwSlot.setAttribute('stroke-width', '2');
+
+    var myToken = ++zeroAnimToken;
+    var startVal = manualZeroOffset;
+    // needle below zero (negative) -> screw turns clockwise; needle above zero (positive) -> anticlockwise
+    var dir = startVal >= 0 ? -1 : 1;
+    var overshoot = (startVal >= 0 ? -1 : 1) * 0.02;
+    var currentAngle = 0;
+
+    var segments = [
+      { fromOffset: startVal,      toOffset: startVal*0.35, angleDelta: dir*360, duration: 550, ease: easeInOutQuad, pauseAfter: 160 },
+      { fromOffset: startVal*0.35, toOffset: startVal*0.04, angleDelta: dir*360, duration: 500, ease: easeInOutQuad, pauseAfter: 160 },
+      { fromOffset: startVal*0.04, toOffset: overshoot,      angleDelta: dir*130, duration: 420, ease: easeOutQuad,   pauseAfter: 180 },
+      { fromOffset: overshoot,     toOffset: 0,               angleDelta: -dir*70, duration: 480, ease: easeOutQuad,   pauseAfter: 0 }
+    ];
+
+    var segIndex = 0;
+    function runSegment(){
+      if(myToken !== zeroAnimToken) return;
+      if(segIndex >= segments.length){
+        manualZeroOffset = 0;
+        zeroed = true;
+        zeroAnimating = false;
+        screwSlot.setAttribute('stroke', '#1a1a18');
+        screwSlot.setAttribute('stroke-width', '1.6');
+        screwSlot.removeAttribute('transform');
+        applyTarget();
+        updateZeroStatus();
+        if(onComplete) onComplete();
+        return;
+      }
+      var seg = segments[segIndex];
+      var startAngle = currentAngle;
+      var t0 = performance.now();
+      function step(now){
+        if(myToken !== zeroAnimToken) return;
+        var t = Math.min(1, (now-t0)/seg.duration);
+        var eased = seg.ease(t);
+        manualZeroOffset = seg.fromOffset + (seg.toOffset-seg.fromOffset)*eased;
+        var angle = startAngle + seg.angleDelta*eased;
+        screwSlot.setAttribute('transform', 'rotate('+angle+' 230 230)');
+        applyTarget();
+        if(t<1){
+          zeroAnimRAF = requestAnimationFrame(step);
+        } else {
+          currentAngle = startAngle + seg.angleDelta;
+          segIndex++;
+          if(seg.pauseAfter>0){
+            setTimeout(runSegment, seg.pauseAfter);
+          } else {
+            runSegment();
+          }
+        }
+      }
+      zeroAnimRAF = requestAnimationFrame(step);
+    }
+    runSegment();
+  }
+
+  var errorBtn=document.getElementById('error-btn');
+  var manualErrorActive=false;
+  var ERROR_BTN_DEFAULT='Introduce an instrument reading error';
+
+  zeroBtn.addEventListener('click', function(){
+    runZeroAnimation(function(){
+      if(manualErrorActive){
+        manualErrorActive = false;
+        errorBtn.textContent = ERROR_BTN_DEFAULT;
+        if(!advancedMode){ zeroControls.style.display = 'none'; }
+      }
+    });
+  });
+
+  errorBtn.addEventListener('click', function(){
+    if(zeroAnimating) return;
+    if(!manualErrorActive){
+      var mag = 0.01 + Math.random()*0.24;
+      ZERO_ERROR = Math.round(mag*100)/100;
+      manualZeroOffset = ZERO_ERROR;
+      zeroed = false;
+      manualErrorActive = true;
+      errorBtn.textContent = '+'+ZERO_ERROR.toFixed(2)+' V systematic error introduced';
+      zeroControls.style.display = 'block';
+      updateZeroStatus();
+      applyTarget();
+    } else {
+      runZeroAnimation(function(){
+        manualErrorActive = false;
+        errorBtn.textContent = ERROR_BTN_DEFAULT;
+        if(!advancedMode){ zeroControls.style.display = 'none'; }
+      });
+    }
+  });
+
+  var switchLever=document.getElementById('switch-lever');
+  function setConnected(state){
+    connected = state;
+    switchWrap.setAttribute('aria-checked', connected ? 'true' : 'false');
+    switchLabel.textContent = connected ? 'Circuit closed' : 'Circuit open';
+    track.style.background = connected ? 'var(--bg-accent)' : 'var(--surface-1)';
+    thumb.style.left = connected ? '20px' : '2px';
+    thumb.style.background = connected ? 'var(--text-accent)' : 'var(--text-secondary)';
+    if(connected){
+      switchLever.setAttribute('x2', '205');
+      switchLever.setAttribute('y2', '4');
+    } else {
+      switchLever.setAttribute('x2', '199');
+      switchLever.setAttribute('y2', '-10');
+    }
+    revealed=false;
+    applyReveal();
+    applyTarget();
+  }
+
+  switchWrap.addEventListener('click', function(){ setConnected(!connected); });
+  var lineSwitch=document.getElementById('line-switch');
+  lineSwitch.addEventListener('click', function(){ setConnected(!connected); });
+  switchWrap.addEventListener('keydown', function(e){
+    if(e.key===' ' || e.key==='Enter'){ e.preventDefault(); setConnected(!connected); }
+  });
+
+  var leftElLabel=document.getElementById('left-electrode-label');
+  var rightElLabel=document.getElementById('right-electrode-label');
+  var leftSolLabel=document.getElementById('left-solution-label');
+  var rightSolLabel=document.getElementById('right-solution-label');
+  var leftRoleLabel=document.getElementById('left-role-label');
+  var rightRoleLabel=document.getElementById('right-role-label');
+  var cellNotation=document.getElementById('cell-notation');
+  var figCaption=document.getElementById('fig-caption');
+  var cardLeftRole=document.getElementById('card-left-role');
+  var cardRightRole=document.getElementById('card-right-role');
+  var cardLeftReaction=document.getElementById('card-left-reaction');
+  var cardRightReaction=document.getElementById('card-right-reaction');
+  var cardLeftE=document.getElementById('card-left-e');
+  var cardRightE=document.getElementById('card-right-e');
+  var explainText=document.getElementById('explain-text');
+  var sourcesBtn=document.getElementById('sources-btn');
+  var sourcesPanel=document.getElementById('sources-panel');
+  var sourcesTbody=document.getElementById('sources-tbody');
+  var sourcesFootnotes=document.getElementById('sources-footnotes');
+
+  (function buildSourcesTable(){
+    var rows='';
+    ORDER.forEach(function(sym){
+      var m=METALS[sym];
+      var hazIcon = m.hazard ? ' &#9762;' : '';
+      var eTag = m.lessCertainE ? ' <sup>&dagger;</sup>' : '';
+      var dTag = m.lessCertainD ? ' <sup>&dagger;</sup>' : '';
+      rows += '<tr><td>'+m.name.charAt(0).toUpperCase()+m.name.slice(1)+hazIcon+'</td><td>'+ionStr(sym)+'/'+sym+'</td><td>'+m.n+'</td><td>'+fmtE(m.E)+' <sup>['+m.eSrc+']</sup>'+eTag+'</td><td>'+fmtDEdT(m.dEdT)+' <sup>['+m.dSrc+']</sup>'+dTag+'</td></tr>';
+    });
+    sourcesTbody.innerHTML = rows;
+    sourcesFootnotes.innerHTML =
+      '<div><sup>[1]</sup> E&deg; and dE&deg;/dT from Bratsch, S. G. (1989). Standard electrode potentials and temperature coefficients in water at 298.15 K. <em>Journal of Physical and Chemical Reference Data</em>, <em>18</em>, 1 (values as supplied by the user from a scanned excerpt of the table).</div>' +
+      '<div><sup>[2]</sup> Au<sup>3+</sup>/Au: E&deg; derived via Hess\'s law from two Bratsch (1989) table entries the user supplied &mdash; Au<sup>3+</sup>/Au<sup>+</sup> (E&deg; = +1.41 V) and Au<sup>+</sup>/Au (E&deg; = +1.69 V), both flagged as less-certain values in the original table: E&deg;(Au<sup>3+</sup>/Au) = [2 &times; 1.41 + 1 &times; 1.69] / 3 = +1.503 V.</div>' +
+      '<div><sup>[3]</sup> Au<sup>3+</sup>/Au: dE&deg;/dT. Bratsch\'s table gives no temperature coefficient for the Au<sup>3+</sup>/Au<sup>+</sup> couple, so the Hess\'s-law route used for E&deg; above cannot be completed for dE&deg;/dT. The value shown is instead this tool\'s own approximation derived from standard third-law entropies, dE&deg;/dT = &Delta;S&deg;<sub>rxn</sub>/(nF). Treat this figure as indicative only.</div>' +
+      '<div><sup>&dagger;</sup> Shown in parentheses in the original scanned table, meaning Bratsch himself rated this value as less certain (e.g. because the metal is rare, radioactive, or the couple is poorly studied experimentally).</div>' +
+      '<div>&#9762; Radioactive or fissile element &mdash; included for completeness only; see the safety note shown when selected.</div>';
+  })();
+
+  sourcesBtn.addEventListener('click', function(){
+    var showing = sourcesPanel.style.display !== 'none';
+    sourcesPanel.style.display = showing ? 'none' : 'block';
+    sourcesBtn.textContent = showing ? 'Show all metals & sources' : 'Hide all metals & sources';
+  });
+
+  var aboutMeterBtn=document.getElementById('about-meter-btn');
+  var aboutMeterPanel=document.getElementById('about-meter-panel');
+  aboutMeterBtn.addEventListener('click', function(){
+    var showing = aboutMeterPanel.style.display !== 'none';
+    aboutMeterPanel.style.display = showing ? 'none' : 'block';
+    aboutMeterBtn.textContent = showing ? 'About the voltmeter' : 'Hide voltmeter note';
+  });
+
+  var licenseBtn=document.getElementById('license-btn');
+  var licensePanel=document.getElementById('license-panel');
+  licenseBtn.addEventListener('click', function(){
+    var showing = licensePanel.style.display !== 'none';
+    licensePanel.style.display = showing ? 'none' : 'block';
+    licenseBtn.textContent = showing ? 'View license' : 'Hide license';
+  });
+
+  function render(){
+    var Lsym=leftSelect.value, Rsym=rightSelect.value;
+    var L=METALS[Lsym], R=METALS[Rsym];
+    var cLeft=parseFloat(leftConc.value), cRight=parseFloat(rightConc.value);
+    var tLeft=parseFloat(leftTemp.value), tRight=parseFloat(rightTemp.value);
+    readoutUseSig3 = !!(L.maxConc || R.maxConc);
+    leftConcVal.textContent=(L.maxConc ? fmtSig(cLeft,3) : cLeft.toFixed(2))+' M';
+    rightConcVal.textContent=(R.maxConc ? fmtSig(cRight,3) : cRight.toFixed(2))+' M';
+    leftTempVal.textContent=tLeft.toFixed(1)+' °C';
+    rightTempVal.textContent=tRight.toFixed(1)+' °C';
+    updateThermometer(thermLeftFill, tLeft);
+    updateThermometer(thermRightFill, tRight);
+    leftTempReading.textContent = tLeft.toFixed(1)+' °C';
+    rightTempReading.textContent = tRight.toFixed(1)+' °C';
+
+    leftElLabel.textContent=Lsym;
+    rightElLabel.textContent=Rsym;
+    leftSolLabel.textContent=saltFormula(Lsym)+', '+cLeft.toFixed(2)+' M';
+    rightSolLabel.textContent=saltFormula(Rsym)+', '+cRight.toFixed(2)+' M';
+    cellNotation.textContent=Lsym+' | '+ionStr(Lsym)+' ('+cLeft.toFixed(2)+' M) || '+ionStr(Rsym)+' ('+cRight.toFixed(2)+' M) | '+Rsym;
+    figCaption.textContent='Fig. 1 — '+Lsym+'–'+Rsym+' galvanic cell';
+
+    var LE_T = stdEatT(Lsym, tLeft), RE_T = stdEatT(Rsym, tRight);
+    var Leff = halfCellE(Lsym, cLeft, tLeft), Reff = halfCellE(Rsym, cRight, tRight);
+    var signed = Reff - Leff;
+    var trueE = Math.abs(signed);
+    var same = trueE < 0.0001;
+    var reversed = !same && signed < 0;
+
+    if(same){
+      leftRoleLabel.textContent='';
+      rightRoleLabel.textContent='';
+    } else if(!reversed){
+      leftRoleLabel.textContent='anode ('+SUPM+')';
+      rightRoleLabel.textContent='cathode (+)';
+    } else {
+      leftRoleLabel.textContent='cathode (+)';
+      rightRoleLabel.textContent='anode ('+SUPM+')';
+    }
+
+    cardLeftRole.textContent = same? 'No net reaction' : (reversed? 'Reduction (cathode)' : 'Oxidation (anode)');
+    cardRightRole.textContent = same? 'No net reaction' : (reversed? 'Oxidation (anode)' : 'Reduction (cathode)');
+    cardLeftReaction.textContent = reversed? reductionText(Lsym) : oxidationText(Lsym);
+    cardRightReaction.textContent = reversed? oxidationText(Rsym) : reductionText(Rsym);
+    cardLeftE.textContent = 'E'+DEG+'(298K) = '+fmtE(L.E)+', dE'+DEG+'/dT = '+fmtDEdT(L.dEdT)+' → E'+DEG+'('+tLeft.toFixed(0)+'°C) = '+fmtE(LE_T)+' · E = '+fmtE(Leff)+' at '+cLeft.toFixed(2)+' M';
+    cardRightE.textContent = 'E'+DEG+'(298K) = '+fmtE(R.E)+', dE'+DEG+'/dT = '+fmtDEdT(R.dEdT)+' → E'+DEG+'('+tRight.toFixed(0)+'°C) = '+fmtE(RE_T)+' · E = '+fmtE(Reff)+' at '+cRight.toFixed(2)+' M';
+
+    var cathodeSym = reversed? Lsym : Rsym, anodeSym = reversed? Rsym : Lsym;
+    var cathodeEff = reversed? Leff : Reff, anodeEff = reversed? Reff : Leff;
+
+    var html = '';
+    html += '<div class="ex-section"><span class="ex-label">Half-cell potentials</span>';
+    html += '<table class="ex-table"><tr><th>Electrode</th><th>E'+DEG+'(298K)</th><th>dE'+DEG+'/dT</th><th>E'+DEG+'(T)</th><th>E (Nernst)</th></tr>';
+    html += '<tr><td>'+Lsym+' — '+cLeft.toFixed(2)+' M, '+tLeft.toFixed(0)+DEG+'C</td><td>'+fmtE(L.E)+'</td><td>'+fmtDEdT(L.dEdT)+'</td><td>'+fmtE(LE_T)+'</td><td>'+fmtE(Leff)+'</td></tr>';
+    html += '<tr><td>'+Rsym+' — '+cRight.toFixed(2)+' M, '+tRight.toFixed(0)+DEG+'C</td><td>'+fmtE(R.E)+'</td><td>'+fmtDEdT(R.dEdT)+'</td><td>'+fmtE(RE_T)+'</td><td>'+fmtE(Reff)+'</td></tr>';
+    html += '</table></div>';
+
+    if(same){
+      html += '<div class="ex-section"><span class="ex-label">Cell potential</span>Left and right half-cells have equal potentials — no potential difference, so the meter reads 0.00 V.</div>';
+    } else {
+      html += '<div class="ex-section"><span class="ex-label">Cell potential</span>E<sub>cell</sub> = E<sub>cathode</sub> &minus; E<sub>anode</sub> = '+cathodeEff.toFixed(3)+' &minus; ('+anodeEff.toFixed(3)+') = <strong>'+(trueE>0?'+':'')+trueE.toFixed(2)+' V</strong> ('+cathodeSym+' is the cathode, '+anodeSym+' the anode).</div>';
+      if(reversed){
+        html += '<div class="ex-section ex-warn"><span class="ex-label">Reversed wiring</span>The black ('+SUPM+') lead is wired to the left electrode and red (+) to the right, but here '+Rsym+' is the true anode and '+Lsym+' the true cathode. The digital meter shows a negative reading ('+signed.toFixed(2)+' V); the analogue needle strains just past zero and pegs near the &Omega; mark. Swap the electrodes (or the leads) so the more negative electrode is on the left.</div>';
+      }
+    }
+
+    if(L.hazard || R.hazard){
+      var hazItems='';
+      if(L.hazard) hazItems += '<li>&#9762; Left electrode &mdash; '+L.name.charAt(0).toUpperCase()+L.name.slice(1)+' is '+HAZARD_INFO[L.hazard](cLeft)+'</li>';
+      if(R.hazard) hazItems += '<li>&#9762; Right electrode &mdash; '+R.name.charAt(0).toUpperCase()+R.name.slice(1)+' is '+HAZARD_INFO[R.hazard](cRight)+'</li>';
+      html += '<div class="ex-section ex-warn"><span class="ex-label">Safety note</span><ul>'+hazItems+'</ul></div>';
+    }
+
+    html += '<div class="ex-section"><span class="ex-label">Method note</span>Each electrode has its own temperature and shifts independently via E'+DEG+'(T) = E'+DEG+'(298 K) + (dE'+DEG+'/dT)(T &minus; 298). The Nernst log term itself is always evaluated at the fixed reference T = 298 K, giving the constant 0.0592/n V coefficient.</div>';
+    html += '<div class="ex-section"><span class="ex-label">Salt bridge</span>An agar-agar gel infused with saturated KNO'+SUB3+' solution, set inside the glass U-tube, completes the circuit internally. Read the analogue needle first, then use "Show reading" to check yourself.</div>';
+    if(leadsSwapped){
+      html += '<div class="ex-section ex-warn"><span class="ex-label">Leads swapped</span>The black and red leads have been swapped over at the terminals, so the meter now reads the reverse polarity of the true cell potential: a positive true E<sub>cell</sub> now displays as negative, and vice versa. Click "Swap leads" again to restore the normal (black &minus;, red +) connection.</div>';
+    }
+    explainText.innerHTML = html;
+
+    var meterSigned = leadsSwapped ? -signed : signed;
+    if(same){
+      pendingNeedle = 0; pendingDigital = 0;
+    } else if(meterSigned < 0){
+      pendingNeedle = Math.max(meterSigned, PEG_V); pendingDigital = meterSigned;
+    } else {
+      pendingNeedle = Math.min(meterSigned, SCALE_MAX); pendingDigital = meterSigned;
+    }
+    applyTarget();
+  }
+
+  leftSelect.addEventListener('change', function(){
+    updateConcSlider(leftConc, leftSelect.value);
+    if(METALS[leftSelect.value].maxConc){ revealed=true; applyReveal(); }
+    render();
+  });
+  rightSelect.addEventListener('change', function(){
+    updateConcSlider(rightConc, rightSelect.value);
+    if(METALS[rightSelect.value].maxConc){ revealed=true; applyReveal(); }
+    render();
+  });
+  leftConc.addEventListener('input', render);
+  rightConc.addEventListener('input', render);
+  leftTemp.addEventListener('input', render);
+  rightTemp.addEventListener('input', render);
+  var resetSatpBtn=document.getElementById('reset-satp-btn');
+  resetSatpBtn.addEventListener('click', function(){
+    leftTemp.value=25;
+    rightTemp.value=25;
+    render();
+  });
+  updateConcSlider(leftConc, leftSelect.value);
+  updateConcSlider(rightConc, rightSelect.value);
+  render();
+  setConnected(true);
+})();
+</script>
+</body>
+</html>

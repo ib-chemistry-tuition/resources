@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Exercise 9-A — Redox Processes</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f8f7ff;color:#1e1340;min-height:100vh;display:flex;flex-direction:column;font-size:15px}
+
+/* TOP BAR */
+.topbar{background:#ede9fe;border-bottom:2px solid #c4b5fd;padding:9px 22px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.topbar-title{font-size:.83rem;font-weight:700;color:#5b21b6;white-space:nowrap}
+.progress-steps{display:flex;gap:3px;flex:1;max-width:520px}
+.ps{flex:1;height:5px;border-radius:3px;background:#ddd6fe;transition:background .3s}
+.ps.done{background:#7c3aed}
+.ps.active{background:#a78bfa}
+
+/* PAGES */
+.page{display:none;flex:1;overflow-y:auto;padding:26px 22px;max-width:800px;margin:0 auto;width:100%}
+.page.active{display:block}
+
+/* NAV BAR */
+.navbar{background:#ede9fe;border-top:1px solid #c4b5fd;padding:11px 22px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.nbtn{padding:8px 20px;border-radius:8px;border:none;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .15s}
+.nbtn.fwd{background:#7c3aed;color:#fff}
+.nbtn.fwd:hover{background:#6d28d9}
+.nbtn.bck{background:#fff;color:#4c1d95;border:1px solid #c4b5fd}
+.nbtn.bck:hover{background:#ede9fe;color:#3b0764}
+.nbtn:disabled{opacity:.25;cursor:default;pointer-events:none}
+.pg-ind{font-size:.68rem;color:#7c6fa0}
+
+/* SECTION TAGS */
+.sec-tag{display:inline-flex;align-items:center;gap:6px;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;border-radius:99px;padding:3px 12px;margin-bottom:9px;border:1px solid}
+.sec-tag.mcq{color:#92400e;background:#fef3c7;border-color:#fcd34d}
+.sec-tag.calc{color:#4c1d95;background:#ede9fe;border-color:#c4b5fd}
+.sec-tag.open{color:#065f46;background:#d1fae5;border-color:#6ee7b7}
+
+/* TYPOGRAPHY */
+h1{font-size:1.5rem;font-weight:800;color:#2d0a6e;margin-bottom:6px;line-height:1.2}
+.subtitle{font-size:.8rem;color:#4b3a7a;margin-bottom:20px;line-height:1.6}
+h2{font-size:.95rem;font-weight:700;color:#5b21b6;margin:20px 0 10px}
+h2:first-of-type{margin-top:4px}
+p{font-size:.81rem;line-height:1.78;color:#3b2a6a;margin-bottom:10px}
+p strong{color:#1e1340}
+hr{border:none;border-top:1px solid #ddd6fe;margin:20px 0}
+
+/* SCORE CHIPS */
+.score-chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.chip{background:#ede9fe;border:1px solid #c4b5fd;border-radius:99px;padding:5px 14px;font-size:.75rem;color:#4b3a7a}
+.chip span{color:#5b21b6;font-weight:700}
+
+/* RULE CARDS */
+.rule-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0}
+.rule-card{background:#fff;border:1px solid #ddd6fe;border-radius:10px;padding:12px 14px;box-shadow:0 1px 3px rgba(109,40,217,.06)}
+.rule-num{font-size:.62rem;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.rule-text{font-size:.78rem;color:#3b2a6a;line-height:1.6}
+.rule-text strong{color:#1e1340}
+
+/* KEY FACT */
+.key-fact{background:#faf5ff;border-left:3px solid #7c3aed;padding:10px 14px;border-radius:0 9px 9px 0;margin:10px 0;font-size:.78rem;color:#4c1d95;line-height:1.7}
+.key-fact strong{color:#2d0a6e}
+.key-fact.amber{background:#fffbeb;border-color:#f59e0b;color:#92400e}
+.key-fact.amber strong{color:#78350f}
+
+/* WORKED EXAMPLE */
+.worked{background:#fff;border:1px solid #ddd6fe;border-radius:11px;padding:14px 16px;margin:11px 0;box-shadow:0 1px 3px rgba(109,40,217,.06)}
+.worked-formula{font-size:1rem;font-weight:700;color:#1e1340;margin-bottom:6px}
+.worked-steps{font-size:.78rem;color:#4b3a7a;line-height:1.75}
+.worked-steps .step{margin-bottom:3px}
+.worked-answer{margin-top:8px;display:inline-block;background:#ede9fe;border:1px solid #a78bfa;border-radius:6px;padding:4px 12px;font-size:.8rem;font-weight:700;color:#4c1d95}
+
+/* MCQ */
+.mcq-box{background:#fff;border:1px solid #ddd6fe;border-radius:12px;padding:16px 18px;margin:14px 0;box-shadow:0 1px 3px rgba(109,40,217,.06)}
+.mcq-qnum{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#7c3aed;margin-bottom:8px}
+.mcq-q{font-size:.87rem;color:#1e1340;font-weight:600;margin-bottom:11px;line-height:1.55}
+.mcq-context{background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:10px 13px;margin-bottom:11px;font-size:.78rem;color:#4b3a7a;line-height:1.75}
+.mcq-context .row{display:grid;grid-template-columns:80px 1fr;gap:6px;margin:3px 0;align-items:start}
+.mcq-context .rlabel{font-weight:700;color:#7c3aed;font-size:.75rem}
+.mcq-opts{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:11px}
+.mcq-opt{background:#f5f3ff;border:2px solid #ddd6fe;border-radius:8px;padding:10px 13px;font-size:.79rem;color:#3b2a6a;cursor:pointer;transition:all .15s;font-family:inherit;text-align:left;line-height:1.5}
+.mcq-opt:hover:not(:disabled){border-color:#7c3aed;color:#1e1340;background:#ede9fe}
+.mcq-opt.selected{border-color:#7c3aed;color:#1e1340;background:#ede9fe}
+.mcq-opt.correct{background:#d1fae5;border-color:#059669;color:#065f46}
+.mcq-opt.wrong{background:#fee2e2;border-color:#dc2626;color:#7f1d1d}
+.mcq-opt.show-correct{background:#d1fae5;border-color:#059669;color:#065f46;opacity:.65}
+.mcq-opt:disabled{cursor:default}
+.mcq-btn{background:#7c3aed;color:#fff;border:none;border-radius:7px;padding:8px 18px;font-family:inherit;font-size:.77rem;font-weight:700;cursor:pointer;transition:all .15s}
+.mcq-btn:hover{background:#6d28d9}
+.mcq-btn:disabled{opacity:.3;cursor:default}
+.mcq-fb{border-radius:8px;padding:11px 14px;font-size:.77rem;line-height:1.7;display:none;margin-top:8px}
+.mcq-fb.correct{background:#d1fae5;border:1px solid #059669;color:#065f46}
+.mcq-fb.wrong{background:#fee2e2;border:1px solid #dc2626;color:#7f1d1d}
+
+/* Q6 INPUT SECTION */
+.q6-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0}
+.q6-item{background:#fff;border:1px solid #ddd6fe;border-radius:10px;padding:12px 14px;box-shadow:0 1px 3px rgba(109,40,217,.06)}
+.q6-label{font-size:.72rem;font-weight:700;color:#7c3aed;margin-bottom:5px}
+.q6-formula{font-size:.9rem;font-weight:700;color:#1e1340;margin-bottom:8px}
+.q6-element{font-size:.72rem;color:#7c6fa0;margin-bottom:8px}
+.q6-row{display:flex;gap:7px;align-items:center}
+.q6-input{background:#f5f3ff;border:2px solid #c4b5fd;border-radius:7px;padding:7px 11px;font-family:inherit;font-size:.9rem;font-weight:700;color:#1e1340;width:80px;text-align:center;transition:border-color .15s}
+.q6-input:focus{outline:none;border-color:#7c3aed}
+.q6-input.correct{border-color:#059669;background:#d1fae5;color:#065f46}
+.q6-input.wrong{border-color:#dc2626;background:#fee2e2;color:#7f1d1d}
+.q6-check{background:#ede9fe;border:1px solid #c4b5fd;border-radius:7px;padding:7px 13px;font-family:inherit;font-size:.75rem;font-weight:700;color:#4c1d95;cursor:pointer;transition:all .15s;white-space:nowrap}
+.q6-check:hover{background:#ddd6fe;color:#3b0764}
+.q6-check:disabled{opacity:.3;cursor:default}
+.q6-fb{font-size:.72rem;line-height:1.65;margin-top:7px;display:none}
+.q6-fb.correct{color:#065f46}
+.q6-fb.wrong{color:#7f1d1d}
+.q6-working{font-size:.72rem;color:#6b5ea8;margin-top:5px;line-height:1.6;display:none}
+.q6-working.show{display:block}
+
+/* THINK/REVEAL */
+.think-box{background:#fff;border:1px solid #ddd6fe;border-radius:11px;padding:14px 16px;margin:13px 0;box-shadow:0 1px 3px rgba(109,40,217,.06)}
+.think-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#b45309;margin-bottom:7px}
+.think-q{font-size:.85rem;color:#1e1340;font-weight:600;margin-bottom:11px;line-height:1.55}
+.think-btn{background:#ede9fe;color:#4c1d95;border:1px solid #c4b5fd;border-radius:7px;padding:8px 16px;font-family:inherit;font-size:.75rem;font-weight:700;cursor:pointer;transition:all .15s}
+.think-btn:hover{background:#ddd6fe;color:#3b0764}
+.model-answer{display:none;margin-top:12px;padding:12px 14px;background:#f5f3ff;border-left:3px solid #7c3aed;border-radius:0 8px 8px 0;font-size:.78rem;line-height:1.78}
+.ma-head{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#7c3aed;margin-bottom:6px}
+.ma-text{color:#3b2a6a;line-height:1.72}
+.ma-formula{font-family:'Courier New',monospace;background:#ede9fe;padding:7px 12px;border-radius:6px;font-size:.82rem;color:#4c1d95;margin:8px 0;display:block}
+.ma-row{display:flex;align-items:baseline;gap:10px;margin:5px 0;font-size:.78rem;color:#4b3a7a}
+.ma-row strong{color:#1e1340;min-width:60px}
+
+/* Q8 TRANSFORM TABLE */
+.transform-table{width:100%;border-collapse:collapse;font-size:.78rem;margin:10px 0}
+.transform-table th{background:#ede9fe;color:#4c1d95;padding:9px 12px;border:1px solid #ddd6fe;font-weight:700;font-size:.72rem;text-align:left}
+.transform-table td{padding:9px 12px;border:1px solid #e5e7eb;color:#374151;vertical-align:top;line-height:1.5;background:#fff}
+.transform-table td.on{color:#7c3aed;font-family:'Courier New',monospace;font-size:.82rem}
+.transform-table td.ox{color:#b91c1c;font-weight:700}
+.transform-table td.red{color:#065f46;font-weight:700}
+.transform-table td.neither{color:#92400e;font-weight:700}
+.transform-table td.transform{color:#1e1340;font-weight:700;font-family:'Courier New',monospace;font-size:.82rem}
+
+/* SUMMARY PAGE */
+.score-box{background:#fff;border:2px solid #c4b5fd;border-radius:14px;padding:24px;text-align:center;margin:16px 0;box-shadow:0 2px 8px rgba(109,40,217,.08)}
+.score-big{font-size:3rem;font-weight:800;color:#5b21b6;line-height:1}
+.score-sub{font-size:.8rem;color:#7c6fa0;margin-top:5px}
+.score-breakdown{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin:16px 0}
+.score-cell{background:#fff;border:1px solid #ddd6fe;border-radius:10px;padding:12px;text-align:center}
+.score-cell .sc-val{font-size:1.5rem;font-weight:800;color:#7c3aed}
+.score-cell .sc-label{font-size:.68rem;color:#7c6fa0;margin-top:3px}
+.rating{font-size:.88rem;font-weight:700;margin:12px 0;padding:10px;border-radius:8px;border:1px solid}
+.rating.excellent{color:#065f46;background:#d1fae5;border-color:#059669}
+.rating.good{color:#92400e;background:#fef3c7;border-color:#fcd34d}
+.rating.ok{color:#7f1d1d;background:#fee2e2;border-color:#dc2626}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-title">⚗️ Exercise 9-A — Redox Processes</div>
+  <div class="progress-steps" id="prog"></div>
+  <div style="font-size:.65rem;color:#7c6fa0;flex-shrink:0" id="pg-tag">Page 1 of 8</div>
+</div>
+
+<!-- PAGE 0: COVER -->
+<div class="page active" id="pg0">
+  <div class="sec-tag mcq">Chapter 9 · Topic 9.1</div>
+  <h1>Redox Processes</h1>
+  <p class="subtitle">Interactive worksheet for Exercise 9-A &nbsp;·&nbsp; 8 pages &nbsp;·&nbsp; 5 MCQs · 10 oxidation number calculations · 3 extended questions</p>
+
+  <div class="key-fact"><strong>OIL RIG</strong> &nbsp;— &nbsp;<strong>O</strong>xidation <strong>I</strong>s <strong>L</strong>oss of electrons &nbsp;|&nbsp; <strong>R</strong>eduction <strong>I</strong>s <strong>G</strong>ain of electrons<br>In terms of oxidation numbers: <strong>oxidation = increase in ON</strong> &nbsp;|&nbsp; <strong>reduction = decrease in ON</strong></div>
+
+  <h2>Key Rules for Oxidation Numbers</h2>
+  <div class="rule-grid">
+    <div class="rule-card"><div class="rule-num">Rule 1</div><div class="rule-text">Pure elements have ON = <strong>0</strong>. (H<sub>2</sub>, Fe, P<sub>4</sub>, S<sub>8</sub>…)</div></div>
+    <div class="rule-card"><div class="rule-num">Rule 2</div><div class="rule-text">For an ion, the sum of ONs = <strong>the ion's charge</strong>. (Fe<sup>2+</sup> → Fe = +2)</div></div>
+    <div class="rule-card"><div class="rule-num">Rule 3</div><div class="rule-text">For a neutral molecule, sum of all ONs = <strong>0</strong>.</div></div>
+    <div class="rule-card"><div class="rule-num">Fluorine</div><div class="rule-text">Always <strong>−1</strong>. No exceptions.</div></div>
+    <div class="rule-card"><div class="rule-num">Hydrogen</div><div class="rule-text">Usually <strong>+1</strong>. Exception: metal hydrides (e.g. NaH) → −1.</div></div>
+    <div class="rule-card"><div class="rule-num">Oxygen</div><div class="rule-text">Usually <strong>−2</strong>. Exception: peroxides (H<sub>2</sub>O<sub>2</sub>) → −1.</div></div>
+    <div class="rule-card"><div class="rule-num">Group 1 metals</div><div class="rule-text">Always <strong>+1</strong> in compounds. (Na, K, Li…)</div></div>
+    <div class="rule-card"><div class="rule-num">Group 2 metals</div><div class="rule-text">Always <strong>+2</strong> in compounds. (Mg, Ca, Ba…)</div></div>
+  </div>
+
+  <h2>Textbook Worked Examples</h2>
+  <div class="rule-grid">
+    <div class="worked"><div class="worked-formula">Carbon in CH<sub>4</sub></div><div class="worked-steps"><div class="step">Neutral molecule → sum = 0</div><div class="step">H = +1, four H = +4</div><div class="step">C + 4 = 0</div></div><div class="worked-answer">C = −4</div></div>
+    <div class="worked"><div class="worked-formula">Sulfur in H<sub>2</sub>SO<sub>4</sub></div><div class="worked-steps"><div class="step">Neutral molecule → sum = 0</div><div class="step">2H = +2 · 4O = −8 · total = −6</div><div class="step">S + (−6) = 0</div></div><div class="worked-answer">S = +6</div></div>
+    <div class="worked"><div class="worked-formula">Phosphorus in PCl<sub>4</sub><sup>+</sup></div><div class="worked-steps"><div class="step">Ion charge = +1 → sum = +1</div><div class="step">Cl = −1, four Cl = −4</div><div class="step">P + (−4) = +1</div></div><div class="worked-answer">P = +5</div></div>
+    <div class="worked"><div class="worked-formula">Iodine in IO<sub>4</sub><sup>−</sup></div><div class="worked-steps"><div class="step">Ion charge = −1 → sum = −1</div><div class="step">O = −2, four O = −8</div><div class="step">I + (−8) = −1</div></div><div class="worked-answer">I = +7</div></div>
+  </div>
+
+  <div class="score-chips">
+    <div class="chip">MCQ score: <span id="chip-mcq">0 / 5</span></div>
+    <div class="chip">Q6 score: <span id="chip-q6">0 / 10</span></div>
+  </div>
+</div>
+
+<!-- PAGE 1: Q1 & Q2 -->
+<div class="page" id="pg1">
+  <div class="sec-tag mcq">Questions 1–2 · Multiple Choice</div>
+  <h1>Identifying Redox Reactions</h1>
+  <p class="subtitle">Select your answer then click Check.</p>
+
+  <div class="mcq-box">
+    <div class="mcq-qnum">Question 1</div>
+    <div class="mcq-q">Which one of the following reactions is <strong>not</strong> a redox reaction?</div>
+    <div class="mcq-opts">
+      <button class="mcq-opt" id="mcq0-o0" onclick="selMcq(0,0)"><strong>A</strong> &nbsp; CH<sub>4</sub> + 2O<sub>2</sub> → CO<sub>2</sub> + 2H<sub>2</sub>O</button>
+      <button class="mcq-opt" id="mcq0-o1" onclick="selMcq(0,1)"><strong>B</strong> &nbsp; CuO + H<sub>2</sub>SO<sub>4</sub> → CuSO<sub>4</sub> + H<sub>2</sub>O</button>
+      <button class="mcq-opt" id="mcq0-o2" onclick="selMcq(0,2)"><strong>C</strong> &nbsp; 2Al + Fe<sub>2</sub>O<sub>3</sub> → Al<sub>2</sub>O<sub>3</sub> + 2Fe</button>
+      <button class="mcq-opt" id="mcq0-o3" onclick="selMcq(0,3)"><strong>D</strong> &nbsp; PbO + CO → Pb + CO<sub>2</sub></button>
+    </div>
+    <button class="mcq-btn" id="mcq0-btn" onclick="chkMcq(0)" disabled>Check Answer</button>
+    <div class="mcq-fb" id="mcq0-fb"></div>
+  </div>
+
+  <div class="mcq-box">
+    <div class="mcq-qnum">Question 2</div>
+    <div class="mcq-q">In which one of the following reactions is the <strong>first reagent reduced</strong>?</div>
+    <div class="mcq-opts">
+      <button class="mcq-opt" id="mcq1-o0" onclick="selMcq(1,0)"><strong>A</strong> &nbsp; Fe + Pb(NO<sub>3</sub>)<sub>2</sub> → Fe(NO<sub>3</sub>)<sub>2</sub> + Pb</button>
+      <button class="mcq-opt" id="mcq1-o1" onclick="selMcq(1,1)"><strong>B</strong> &nbsp; NaOH + HNO<sub>3</sub> → NaNO<sub>3</sub> + H<sub>2</sub>O</button>
+      <button class="mcq-opt" id="mcq1-o2" onclick="selMcq(1,2)"><strong>C</strong> &nbsp; H<sub>2</sub> + CuO → H<sub>2</sub>O + Cu</button>
+      <button class="mcq-opt" id="mcq1-o3" onclick="selMcq(1,3)"><strong>D</strong> &nbsp; CO<sub>2</sub> + C → 2CO</button>
+    </div>
+    <button class="mcq-btn" id="mcq1-btn" onclick="chkMcq(1)" disabled>Check Answer</button>
+    <div class="mcq-fb" id="mcq1-fb"></div>
+  </div>
+</div>
+
+<!-- PAGE 2: Q3, Q4, Q5 -->
+<div class="page" id="pg2">
+  <div class="sec-tag mcq">Questions 3–5 · Multiple Choice</div>
+  <h1>Oxidation Numbers &amp; Redox Agents</h1>
+
+  <div class="mcq-box">
+    <div class="mcq-qnum">Question 3</div>
+    <div class="mcq-q">In which of the following changes has the oxidation number of <strong>sulfur increased</strong>?</div>
+    <div class="mcq-opts">
+      <button class="mcq-opt" id="mcq2-o0" onclick="selMcq(2,0)"><strong>A</strong> &nbsp; H<sub>2</sub>SO<sub>4</sub> → SO<sub>2</sub></button>
+      <button class="mcq-opt" id="mcq2-o1" onclick="selMcq(2,1)"><strong>B</strong> &nbsp; H<sub>2</sub>S → S<sub>8</sub></button>
+      <button class="mcq-opt" id="mcq2-o2" onclick="selMcq(2,2)"><strong>C</strong> &nbsp; SO<sub>2</sub> → H<sub>2</sub>S</button>
+      <button class="mcq-opt" id="mcq2-o3" onclick="selMcq(2,3)"><strong>D</strong> &nbsp; SO<sub>2</sub> → S<sub>8</sub></button>
+    </div>
+    <button class="mcq-btn" id="mcq2-btn" onclick="chkMcq(2)" disabled>Check Answer</button>
+    <div class="mcq-fb" id="mcq2-fb"></div>
+  </div>
+
+  <div class="mcq-box">
+    <div class="mcq-qnum">Question 4</div>
+    <div class="mcq-q">The three reactions below can all be used to prepare iron(II) sulfate. Which option best summarises what is happening to the <strong>iron</strong> in each reaction?</div>
+    <div class="mcq-context">
+      <div class="row"><span class="rlabel">Reaction I</span><span>FeCl<sub>2</sub> + Ag<sub>2</sub>SO<sub>4</sub> → FeSO<sub>4</sub> + 2AgCl</span></div>
+      <div class="row"><span class="rlabel">Reaction II</span><span>Fe<sub>2</sub>(SO<sub>4</sub>)<sub>3</sub> + SO<sub>2</sub> + 2H<sub>2</sub>O → 2FeSO<sub>4</sub> + 2H<sub>2</sub>SO<sub>4</sub></span></div>
+      <div class="row"><span class="rlabel">Reaction III</span><span>Fe + H<sub>2</sub>SO<sub>4</sub> → FeSO<sub>4</sub> + H<sub>2</sub></span></div>
+    </div>
+    <div style="font-size:.72rem;color:#6b7280;margin-bottom:10px;display:grid;grid-template-columns:40px 1fr 1fr 1fr;gap:6px;padding:0 2px">
+      <div></div><div style="color:#a78bfa;font-weight:700">Reaction I</div><div style="color:#a78bfa;font-weight:700">Reaction II</div><div style="color:#a78bfa;font-weight:700">Reaction III</div>
+    </div>
+    <div class="mcq-opts" style="grid-template-columns:1fr">
+      <button class="mcq-opt" id="mcq3-o0" onclick="selMcq(3,0)" style="display:grid;grid-template-columns:40px 1fr 1fr 1fr;gap:6px"><span><strong>A</strong></span><span>reduction</span><span>neither</span><span>neither</span></button>
+      <button class="mcq-opt" id="mcq3-o1" onclick="selMcq(3,1)" style="display:grid;grid-template-columns:40px 1fr 1fr 1fr;gap:6px"><span><strong>B</strong></span><span>neither</span><span>oxidation</span><span>reduction</span></button>
+      <button class="mcq-opt" id="mcq3-o2" onclick="selMcq(3,2)" style="display:grid;grid-template-columns:40px 1fr 1fr 1fr;gap:6px"><span><strong>C</strong></span><span>neither</span><span>reduction</span><span>oxidation</span></button>
+      <button class="mcq-opt" id="mcq3-o3" onclick="selMcq(3,3)" style="display:grid;grid-template-columns:40px 1fr 1fr 1fr;gap:6px"><span><strong>D</strong></span><span>reduction</span><span>reduction</span><span>oxidation</span></button>
+    </div>
+    <button class="mcq-btn" id="mcq3-btn" onclick="chkMcq(3)" disabled>Check Answer</button>
+    <div class="mcq-fb" id="mcq3-fb"></div>
+  </div>
+
+  <div class="mcq-box">
+    <div class="mcq-qnum">Question 5</div>
+    <div class="mcq-q">In which one of the following reactions is the species shown in <strong>bold</strong> acting as an <strong>oxidising agent</strong>?</div>
+    <div class="mcq-opts">
+      <button class="mcq-opt" id="mcq4-o0" onclick="selMcq(4,0)"><strong>A</strong> &nbsp; <strong>FeCl<sub>3</sub></strong> + 3AgNO<sub>3</sub> → Fe(NO<sub>3</sub>)<sub>3</sub> + 3AgCl</button>
+      <button class="mcq-opt" id="mcq4-o1" onclick="selMcq(4,1)"><strong>B</strong> &nbsp; <strong>Fe</strong> + 2Ag<sup>+</sup> → Fe<sup>2+</sup> + 2Ag</button>
+      <button class="mcq-opt" id="mcq4-o2" onclick="selMcq(4,2)"><strong>C</strong> &nbsp; <strong>2H<sup>+</sup></strong> + Mg → Mg<sup>2+</sup> + H<sub>2</sub></button>
+      <button class="mcq-opt" id="mcq4-o3" onclick="selMcq(4,3)"><strong>D</strong> &nbsp; <strong>2Fe<sup>2+</sup></strong> + Cl<sub>2</sub> → 2Fe<sup>3+</sup> + 2Cl<sup>−</sup></button>
+    </div>
+    <button class="mcq-btn" id="mcq4-btn" onclick="chkMcq(4)" disabled>Check Answer</button>
+    <div class="mcq-fb" id="mcq4-fb"></div>
+  </div>
+</div>
+
+<!-- PAGE 3: Q6 -->
+<div class="page" id="pg3">
+  <div class="sec-tag calc">Question 6 · Oxidation Number Calculations</div>
+  <h1>Find the Oxidation Number</h1>
+  <p class="subtitle">Type your answer (e.g. <strong>+6</strong> or <strong>−2</strong> or <strong>0</strong>) then press Enter or click Check.</p>
+  <div class="score-chips"><div class="chip">Q6 score: <span id="q6-score-display">0 / 10</span></div></div>
+
+  <div class="q6-grid">
+    <div class="q6-item"><div class="q6-label">a)</div><div class="q6-formula">Fe<sup>2+</sup></div><div class="q6-element">Iron in Fe<sup>2+</sup></div><div class="q6-row"><input class="q6-input" id="q6a-inp" type="text" placeholder="?"/><button class="q6-check" id="q6a-btn" onclick="chkQ6('a')">Check</button></div><div class="q6-fb" id="q6a-fb"></div><div class="q6-working" id="q6a-wk"></div></div>
+    <div class="q6-item"><div class="q6-label">b)</div><div class="q6-formula">P<sub>4</sub></div><div class="q6-element">Phosphorus in P<sub>4</sub></div><div class="q6-row"><input class="q6-input" id="q6b-inp" type="text" placeholder="?"/><button class="q6-check" id="q6b-btn" onclick="chkQ6('b')">Check</button></div><div class="q6-fb" id="q6b-fb"></div><div class="q6-working" id="q6b-wk"></div></div>
+    <div class="q6-item"><div class="q6-label">c)</div><div class="q6-formula">SiO<sub>2</sub></div><div class="q6-element">Silicon in SiO<sub>2</sub></div><div class="q6-row"><input class="q6-input" id="q6c-inp" type="text" placeholder="?"/><button class="q6-check" id="q6c-btn" onclick="chkQ6('c')">Check</button></div><div class="q6-fb" id="q6c-fb"></div><div class="q6-working" id="q6c-wk"></div></div>
+    <div class="q6-item"><div class="q6-label">d)</div><div class="q6-formula">SCl<sub>4</sub></div><div class="q6-element">Sulfur in SCl<sub>4</sub></div><div class="q6-row"><input class="q6-input" id="q6d-inp" type="text" placeholder="?"/><button class="q6-check" id="q6d-btn" onclick="chkQ6('d')">Check</button></div><div class="q6-fb" id="q6d-fb"></div><div class="q6-working" id="q6d-wk"></div></div>
+    <div class="q6-item"><div class="q6-label">e)</div><div class="q6-formula">N<sub>2</sub>O</div><div class="q6-element">Nitrogen in N<sub>2</sub>O</div><div class="q6-row"><input class="q6-input" id="q6e-inp" type="text" placeholder="?"/><button class="q6-check" id="q6e-btn" onclick="chkQ6('e')">Check</button></div><div class="q6-fb" id="q6e-fb"></div><div class="q6-working" id="q6e-wk"></div></div>
+    <div class="q6-item"><div class="q6-label">f)</div><div class="q6-formula">CH<sub>3</sub>OH</div><div class="q6-element">Carbon in CH<sub>3</sub>OH</div><div class="q6-row"><input class="q6-input" id="q6f-inp" type="text" placeholder="?"/><button class="q6-check" id="q6f-btn" onclick="chkQ6('f')">Check</button></div><div class="q6-fb" id="q6f-fb"></div><div class="q6-working" id="q6f-wk"></div></div>
+    <div class="q6-item"><div class="q6-label">g)</div><div class="q6-formula">VO<sup>2+</sup></div><div class="q6-element">Vanadium in VO<sup>2+</sup></div><div class="q6-row"><input class="q6-input" id="q6g-inp" type="text" placeholder="?"/><button class="q6-check" id="q6g-btn" onclick="chkQ6('g')">Check</button></div><div class="q6-fb" id="q6g-fb"></div><div class="q6-working" id="q6g-wk"></div></div>
+    <div class="q6-item"><div class="q6-label">h)</div><div class="q6-formula">BrO<sup>−</sup></div><div class="q6-element">Bromine in BrO<sup>−</sup></div><div class="q6-row"><input class="q6-input" id="q6h-inp" type="text" placeholder="?"/><button class="q6-check" id="q6h-btn" onclick="chkQ6('h')">Check</button></div><div class="q6-fb" id="q6h-fb"></div><div class="q6-working" id="q6h-wk"></div></div>
+    <div class="q6-item"><div class="q6-label">i)</div><div class="q6-formula">IF<sub>6</sub><sup>−</sup></div><div class="q6-element">Iodine in IF<sub>6</sub><sup>−</sup></div><div class="q6-row"><input class="q6-input" id="q6i-inp" type="text" placeholder="?"/><button class="q6-check" id="q6i-btn" onclick="chkQ6('i')">Check</button></div><div class="q6-fb" id="q6i-fb"></div><div class="q6-working" id="q6i-wk"></div></div>
+    <div class="q6-item"><div class="q6-label">j)</div><div class="q6-formula">Cr<sub>2</sub>O<sub>7</sub><sup>2−</sup></div><div class="q6-element">Chromium in Cr<sub>2</sub>O<sub>7</sub><sup>2−</sup></div><div class="q6-row"><input class="q6-input" id="q6j-inp" type="text" placeholder="?"/><button class="q6-check" id="q6j-btn" onclick="chkQ6('j')">Check</button></div><div class="q6-fb" id="q6j-fb"></div><div class="q6-working" id="q6j-wk"></div></div>
+  </div>
+</div>
+
+<!-- PAGE 4: Q7 -->
+<div class="page" id="pg4">
+  <div class="sec-tag open">Question 7 · Give Examples</div>
+  <h1>Name a Compound</h1>
+  <p class="subtitle">Give one example of each compound described. Think first, then reveal the model answer.</p>
+
+  <div class="think-box"><div class="think-label">Question 7a</div><div class="think-q">An <strong>iron compound with an oxidation state of +2</strong>.</div><button class="think-btn" onclick="revealModel(this)">Reveal Model Answer</button><div class="model-answer"><div class="ma-head">Examples (any one correct)</div><div class="ma-text"><strong>FeCl<sub>2</sub></strong> · <strong>FeSO<sub>4</sub></strong> · <strong>FeO</strong> · <strong>Fe(OH)<sub>2</sub></strong><br><br>Check in FeCl<sub>2</sub>: Cl = −1, two Cl = −2. Fe + (−2) = 0. <strong>Fe = +2</strong> ✓</div></div></div>
+
+  <div class="think-box"><div class="think-label">Question 7b</div><div class="think-q">A <strong>nitrogen compound with an oxidation state of −3</strong>.</div><button class="think-btn" onclick="revealModel(this)">Reveal Model Answer</button><div class="model-answer"><div class="ma-head">Examples (any one correct)</div><div class="ma-text"><strong>NH<sub>3</sub></strong> (ammonia) · <strong>NH<sub>4</sub>Cl</strong> (ammonium chloride)<br><br>Check in NH<sub>3</sub>: neutral, H = +1, three H = +3. N + 3 = 0. <strong>N = −3</strong> ✓</div></div></div>
+
+  <div class="think-box"><div class="think-label">Question 7c</div><div class="think-q">A <strong>manganese compound with an oxidation state of +7</strong>.</div><button class="think-btn" onclick="revealModel(this)">Reveal Model Answer</button><div class="model-answer"><div class="ma-head">Model Answer</div><div class="ma-text"><strong>KMnO<sub>4</sub></strong> (potassium manganate(VII))<br><br>Check: K = +1, O = −2, four O = −8. Mn + (+1) + (−8) = 0. Mn = <strong>+7</strong> ✓</div></div></div>
+
+  <div class="think-box"><div class="think-label">Question 7d</div><div class="think-q">A <strong>carbon compound with an oxidation state of 0</strong>.</div><button class="think-btn" onclick="revealModel(this)">Reveal Model Answer</button><div class="model-answer"><div class="ma-head">Model Answer</div><div class="ma-text"><strong>CH<sub>2</sub>O</strong> (methanal / formaldehyde)<br><br>Check: H = +1, O = −2. C + 2(+1) + (−2) = 0. C + 2 − 2 = 0. <strong>C = 0</strong> ✓<br><br>Also accept: C<sub>6</sub>H<sub>12</sub>O<sub>6</sub> (glucose) — average C oxidation state = 0.</div></div></div>
+
+  <div class="think-box"><div class="think-label">Question 7e</div><div class="think-q">A <strong>phosphorus compound with an oxidation state of +5</strong>.</div><button class="think-btn" onclick="revealModel(this)">Reveal Model Answer</button><div class="model-answer"><div class="ma-head">Examples (any one correct)</div><div class="ma-text"><strong>H<sub>3</sub>PO<sub>4</sub></strong> · <strong>PCl<sub>5</sub></strong> · <strong>P<sub>4</sub>O<sub>10</sub></strong><br><br>Check in H<sub>3</sub>PO<sub>4</sub>: neutral. 3(+1) + P + 4(−2) = 0. 3 + P − 8 = 0. <strong>P = +5</strong> ✓</div></div></div>
+</div>
+
+<!-- PAGE 5: Q8 -->
+<div class="page" id="pg5">
+  <div class="sec-tag calc">Question 8 · Oxidation Number Changes</div>
+  <h1>Tracking Oxidation Number Changes</h1>
+  <p class="subtitle">For each transformation, the initial and final oxidation number of the bold element, and whether it has been oxidised, reduced, or neither.</p>
+
+  <table class="transform-table">
+    <tr><th>Transformation</th><th>Element</th><th>Initial ON</th><th>Final ON</th><th>Result</th></tr>
+    <tr><td class="transform"><strong>Cu<sup>2+</sup></strong> → CuI</td><td style="background:#09060f;color:#94a3b8">Cu</td><td class="on">+2</td><td class="on">+1</td><td class="red">REDUCED</td></tr>
+    <tr><td class="transform"><strong>NO<sub>2</sub></strong> → N<sub>2</sub>O<sub>4</sub></td><td style="background:#09060f;color:#94a3b8">N</td><td class="on">+4</td><td class="on">+4</td><td class="neither">NEITHER</td></tr>
+    <tr><td class="transform"><strong>PH<sub>3</sub></strong> → HPO<sub>2</sub><sup>2−</sup></td><td style="background:#09060f;color:#94a3b8">P</td><td class="on">−3</td><td class="on">+1</td><td class="ox">OXIDISED</td></tr>
+    <tr><td class="transform"><strong>CH<sub>3</sub>OH</strong> → HCOOH</td><td style="background:#09060f;color:#94a3b8">C</td><td class="on">−2</td><td class="on">+2</td><td class="ox">OXIDISED</td></tr>
+    <tr><td class="transform"><strong>S<sub>2</sub>O<sub>3</sub><sup>2−</sup></strong> → S<sub>4</sub>O<sub>6</sub><sup>2−</sup></td><td style="background:#09060f;color:#94a3b8">S</td><td class="on">+2</td><td class="on">+2.5</td><td class="ox">OXIDISED</td></tr>
+  </table>
+
+  <h2>Worked Solutions</h2>
+
+  <div class="think-box"><div class="think-label">Q8a</div><div class="think-q"><strong>Cu<sup>2+</sup> → CuI</strong></div><button class="think-btn" onclick="revealModel(this)">Show Working</button><div class="model-answer"><div class="ma-row"><strong>Cu²⁺:</strong> Single ion, charge +2. Cu = <strong>+2</strong></div><div class="ma-row"><strong>CuI:</strong> Neutral. I (halide) = −1. Cu + (−1) = 0. Cu = <strong>+1</strong></div><div class="ma-row"><strong>Change:</strong> +2 → +1. ON decreased. Cu has been <strong>REDUCED</strong>.</div></div></div>
+
+  <div class="think-box"><div class="think-label">Q8b</div><div class="think-q"><strong>NO<sub>2</sub> → N<sub>2</sub>O<sub>4</sub></strong></div><button class="think-btn" onclick="revealModel(this)">Show Working</button><div class="model-answer"><div class="ma-row"><strong>NO₂:</strong> Neutral. O = −2, two O = −4. N + (−4) = 0. N = <strong>+4</strong></div><div class="ma-row"><strong>N₂O₄:</strong> Neutral. O = −2, four O = −8. 2N + (−8) = 0. N = <strong>+4</strong></div><div class="ma-row"><strong>Change:</strong> +4 → +4. No change. <strong>NEITHER.</strong> (N₂O₄ is the dimer of NO₂ — dimerisation doesn't change ON.)</div></div></div>
+
+  <div class="think-box"><div class="think-label">Q8c</div><div class="think-q"><strong>PH<sub>3</sub> → HPO<sub>2</sub><sup>2−</sup></strong></div><button class="think-btn" onclick="revealModel(this)">Show Working</button><div class="model-answer"><div class="ma-row"><strong>PH₃:</strong> Neutral. H = +1, three H = +3. P + 3 = 0. P = <strong>−3</strong></div><div class="ma-row"><strong>HPO₂²⁻:</strong> Charge = −2. H = +1, O = −2, two O = −4. P + 1 + (−4) = −2. P = <strong>+1</strong></div><div class="ma-row"><strong>Change:</strong> −3 → +1. ON increased. P has been <strong>OXIDISED</strong>.</div></div></div>
+
+  <div class="think-box"><div class="think-label">Q8d</div><div class="think-q"><strong>CH<sub>3</sub>OH → HCOOH</strong></div><button class="think-btn" onclick="revealModel(this)">Show Working</button><div class="model-answer"><div class="ma-row"><strong>CH₃OH:</strong> Neutral. 3H = +3, O = −2, H on O = +1. C + 3 + (−2) + 1 = 0. C = <strong>−2</strong></div><div class="ma-row"><strong>HCOOH:</strong> Neutral. 2H = +2, 2O = −4. C + 2 + (−4) = 0. C = <strong>+2</strong></div><div class="ma-row"><strong>Change:</strong> −2 → +2. ON increased. C has been <strong>OXIDISED</strong>. (This is why converting an alcohol to a carboxylic acid is called an oxidation reaction.)</div></div></div>
+
+  <div class="think-box"><div class="think-label">Q8e</div><div class="think-q"><strong>S<sub>2</sub>O<sub>3</sub><sup>2−</sup> → S<sub>4</sub>O<sub>6</sub><sup>2−</sup></strong></div><button class="think-btn" onclick="revealModel(this)">Show Working</button><div class="model-answer"><div class="ma-row"><strong>S₂O₃²⁻:</strong> Charge = −2. 3O = −6. 2S + (−6) = −2. 2S = +4. S = <strong>+2</strong></div><div class="ma-row"><strong>S₄O₆²⁻:</strong> Charge = −2. 6O = −12. 4S + (−12) = −2. 4S = +10. S = <strong>+2.5</strong></div><div class="ma-row"><strong>Change:</strong> +2 → +2.5. ON increased. S has been <strong>OXIDISED</strong>. (Fractional ONs are valid — they represent an average across the sulfur atoms.)</div></div></div>
+</div>
+
+<!-- PAGE 6: Q9 -->
+<div class="page" id="pg6">
+  <div class="sec-tag open">Question 9 · Extended Question</div>
+  <h1>Hydrazine &amp; Dinitrogen Tetroxide</h1>
+  <div class="key-fact amber">Hydrazine (N<sub>2</sub>H<sub>4</sub>) and dinitrogen tetroxide (N<sub>2</sub>O<sub>4</sub>) react violently to form nitrogen gas as a product from <em>both</em> reactants. This reaction has been used as rocket fuel.</div>
+
+  <div class="think-box"><div class="think-label">Question 9a</div><div class="think-q">Explain why this is a redox reaction, stating what is being <strong>oxidised</strong> and what is being <strong>reduced</strong>.</div><button class="think-btn" onclick="revealModel(this)">Reveal Model Answer</button><div class="model-answer">
+    <div class="ma-head">Step 1 — Oxidation numbers in the reactants</div>
+    <div class="ma-row"><strong>N₂H₄:</strong> Neutral. H = +1, four H = +4. 2N = −4. N = <strong>−2</strong></div>
+    <div class="ma-row"><strong>N₂O₄:</strong> Neutral. O = −2, four O = −8. 2N = +8. N = <strong>+4</strong></div>
+    <div class="ma-row"><strong>N₂:</strong> Elemental. N = <strong>0</strong></div>
+    <div class="ma-head" style="margin-top:10px">Step 2 — Identify changes</div>
+    <div class="ma-row"><strong>N in N₂H₄:</strong> −2 → 0. ON increased. N₂H₄ is <strong>OXIDISED</strong>.</div>
+    <div class="ma-row"><strong>N in N₂O₄:</strong> +4 → 0. ON decreased. N₂O₄ is <strong>REDUCED</strong>.</div>
+    <div class="ma-row" style="color:#c4b5fd;margin-top:4px">Since one species is oxidised and another is reduced, this is a <strong>redox reaction</strong>.</div>
+  </div></div>
+
+  <div class="think-box"><div class="think-label">Question 9b</div><div class="think-q">Write a <strong>balanced equation</strong> for this reaction.</div><button class="think-btn" onclick="revealModel(this)">Reveal Model Answer</button><div class="model-answer">
+    <div class="ma-head">Balanced equation</div>
+    <span class="ma-formula">2N<sub>2</sub>H<sub>4</sub> + N<sub>2</sub>O<sub>4</sub> → 3N<sub>2</sub> + 4H<sub>2</sub>O</span>
+    <div class="ma-head" style="margin-top:8px">Atom check</div>
+    <div class="ma-row"><strong>N:</strong> 4 + 2 = 6 left · 3×2 = 6 right ✓</div>
+    <div class="ma-row"><strong>H:</strong> 2×4 = 8 left · 4×2 = 8 right ✓</div>
+    <div class="ma-row"><strong>O:</strong> 4 left · 4×1 = 4 right ✓</div>
+    <div class="ma-row" style="color:#6b7280;font-size:.72rem;margin-top:4px">Electron check: N in N₂H₄ loses 2e⁻ per atom (×4 = 8e⁻ lost). N in N₂O₄ gains 4e⁻ per atom (×2 = 8e⁻ gained). Balanced ✓</div>
+  </div></div>
+
+  <div class="think-box"><div class="think-label">Question 9c</div><div class="think-q">It has been suggested this reaction is a very <strong>'environmentally friendly' source of energy</strong>. Explain this claim.</div><button class="think-btn" onclick="revealModel(this)">Reveal Model Answer</button><div class="model-answer">
+    <div class="ma-head">Model Answer</div>
+    <div class="ma-text">The only products are <strong>nitrogen gas (N<sub>2</sub>)</strong> and <strong>water (H<sub>2</sub>O)</strong> — both of which are non-toxic and non-polluting. N<sub>2</sub> makes up ~78% of the atmosphere and is inert, so releasing more of it has no significant environmental impact.<br><br>Unlike fossil fuels, there are <strong>no CO<sub>2</sub> or other greenhouse gases</strong> produced, and no toxic by-products such as nitrogen oxides or soot particulates.<br><br>The reaction also releases a large amount of energy per unit mass (used as rocket propellant, e.g. in the Apollo lunar module).<br><br><strong>Counterpoint:</strong> N<sub>2</sub>H<sub>4</sub> itself is toxic and carcinogenic — so production, storage and handling create environmental risks not reflected in the products alone.</div>
+  </div></div>
+</div>
+
+<!-- PAGE 7: SUMMARY -->
+<div class="page" id="pg7">
+  <div class="sec-tag open">Summary</div>
+  <h1>Your Score</h1>
+  <p class="subtitle">Results from the scored sections (Q1–5 and Q6).</p>
+  <div class="score-box"><div class="score-big" id="sum-total">—</div><div class="score-sub">correct out of 15 scored questions</div></div>
+  <div class="score-breakdown">
+    <div class="score-cell"><div class="sc-val" id="sum-mcq">—</div><div class="sc-label">MCQs correct (Q1–5)</div></div>
+    <div class="score-cell"><div class="sc-val" id="sum-q6">—</div><div class="sc-label">Q6 correct (ON calculations)</div></div>
+    <div class="score-cell"><div class="sc-val" id="sum-pct">—</div><div class="sc-label">Percentage</div></div>
+  </div>
+  <div class="rating" id="sum-rating"></div>
+  <div class="key-fact" style="margin-top:14px">Questions 7, 8, and 9 used Think → Reveal model answers — make sure you compared your own answers carefully to the model answers shown.</div>
+  <h2>Key Reminders</h2>
+  <div class="rule-grid">
+    <div class="rule-card"><div class="rule-num">Identifying redox</div><div class="rule-text">Check whether any element <strong>changes its oxidation number</strong>. If none change — it is NOT redox.</div></div>
+    <div class="rule-card"><div class="rule-num">Oxidising agent</div><div class="rule-text">Causes another to be oxidised. To do so, it must itself be <strong>reduced</strong> (ON decreases).</div></div>
+    <div class="rule-card"><div class="rule-num">Reducing agent</div><div class="rule-text">Causes another to be reduced. To do so, it must itself be <strong>oxidised</strong> (ON increases).</div></div>
+    <div class="rule-card"><div class="rule-num">Disproportionation</div><div class="rule-text">The <em>same species</em> is simultaneously oxidised AND reduced. e.g. 2Cu<sup>+</sup> → Cu<sup>2+</sup> + Cu</div></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="navbar">
+  <button class="nbtn bck" id="btn-prev" onclick="nav(-1)" disabled>← Prev</button>
+  <span class="pg-ind" id="pg-bot">Page 1 of 8</span>
+  <button class="nbtn fwd" id="btn-next" onclick="nav(1)">Next →</button>
+</div>
+
+<script>
+const MCQS=[
+  {correct:1,ok:'✓ Correct! <strong>B</strong> is not redox. In CuO + H₂SO₄ → CuSO₄ + H₂O, every element keeps the same oxidation number (Cu stays +2, S stays +6, O stays −2, H stays +1). This is an acid-base reaction.',no:['A is redox — C in CH₄ goes from −4 to +4, and O₂ goes from 0 to −2. The correct answer is <strong>B</strong>: CuO + H₂SO₄ → CuSO₄ + H₂O, where no element changes oxidation number.','✓ Correct!','C is redox — Al goes from 0 to +3, and Fe goes from +3 to 0. The correct answer is <strong>B</strong>.','D is redox — Pb goes from +2 to 0, and C in CO goes from +2 to +4. The correct answer is <strong>B</strong>.']},
+  {correct:3,ok:'✓ Correct! <strong>D</strong>: CO₂ + C → 2CO. The first reagent is CO₂. Carbon in CO₂ has ON = +4. In CO, carbon has ON = +2. The ON decreased — CO₂ has been <strong>reduced</strong>.',no:['In A, Fe (0) → Fe²⁺ (+2). ON increased — Fe is <strong>oxidised</strong>, not reduced. The answer is D.','B (NaOH + HNO₃) is not a redox reaction at all — no oxidation numbers change. The answer is D.','In C, H₂ (0) → H₂O (+1). ON increased — H₂ is <strong>oxidised</strong>, not reduced. The answer is D: CO₂ + C → 2CO, where C in CO₂ goes from +4 to +2 (reduced).','✓ Correct!']},
+  {correct:1,ok:'✓ Correct! <strong>B</strong>: H₂S → S₈. In H₂S, S = −2. In S₈, S = 0 (elemental). The ON increased from −2 to 0 — sulfur has been oxidised.',no:['In A (H₂SO₄ → SO₂): S goes +6 → +4. The ON <em>decreased</em> — sulfur was reduced. The answer is B.','✓ Correct!','In C (SO₂ → H₂S): S goes +4 → −2. The ON <em>decreased</em>. The answer is B.','In D (SO₂ → S₈): S goes +4 → 0. The ON <em>decreased</em>. The answer is B: H₂S → S₈, where S goes from −2 to 0.']},
+  {correct:2,ok:'✓ Correct! <strong>C</strong>: Reaction I = neither · Reaction II = reduction · Reaction III = oxidation.<br>• Reaction I: FeCl₂ (Fe²⁺) → FeSO₄ (Fe²⁺). No change — <em>neither</em>.<br>• Reaction II: Fe₂(SO₄)₃ (Fe³⁺) → FeSO₄ (Fe²⁺). ON decreases — <em>reduced</em>.<br>• Reaction III: Fe (0) → FeSO₄ (Fe²⁺). ON increases — <em>oxidised</em>.',no:['Reaction I: FeCl₂ (Fe²⁺) → FeSO₄ (Fe²⁺). No change in iron — it is <em>neither</em>. The answer is C.','Check Reaction I: Fe²⁺ → Fe²⁺. No change — <em>neither</em>. The answer is C: neither, reduction, oxidation.','✓ Correct!','Reaction I: FeCl₂ (Fe²⁺) → FeSO₄ (Fe²⁺). No change — neither oxidised nor reduced. The answer is C.']},
+  {correct:2,ok:'✓ Correct! <strong>C</strong>: H⁺ (+1) → H₂ (0). H⁺ gains electrons (ON decreases) — it is <strong>reduced</strong>. A species that is reduced is the <strong>oxidising agent</strong>.',no:['In A, FeCl₃ + AgNO₃ is a precipitation reaction — no oxidation numbers change at all. FeCl₃ is not acting as an oxidising agent. The answer is C.','In B, Fe (0) → Fe²⁺ (+2). Fe is <strong>oxidised</strong> — so it is the <em>reducing</em> agent, not the oxidising agent. The answer is C.','✓ Correct!','In D, Fe²⁺ (+2) → Fe³⁺ (+3). Fe²⁺ is <strong>oxidised</strong> — so it is the <em>reducing</em> agent. The answer is C: H⁺ is reduced (gains electrons) so it is the oxidising agent.']}
+];
+const mcqSt=MCQS.map(()=>({sel:null,done:false}));
+let mcqScore=0;
+
+function selMcq(q,i){
+  if(mcqSt[q].done)return;
+  mcqSt[q].sel=i;
+  for(let j=0;j<4;j++){const el=document.getElementById(`mcq${q}-o${j}`);if(el)el.className='mcq-opt'+(j===i?' selected':'');}
+  document.getElementById(`mcq${q}-btn`).disabled=false;
+}
+
+function chkMcq(q){
+  const s=mcqSt[q];if(s.sel===null||s.done)return;
+  s.done=true;const correct=s.sel===MCQS[q].correct;
+  if(correct)mcqScore++;updateChips();
+  for(let j=0;j<4;j++){const el=document.getElementById(`mcq${q}-o${j}`);if(!el)continue;el.disabled=true;el.className='mcq-opt';if(j===MCQS[q].correct)el.classList.add(correct?'correct':'show-correct');if(!correct&&j===s.sel)el.classList.add('wrong');}
+  const fb=document.getElementById(`mcq${q}-fb`);fb.style.display='block';fb.className='mcq-fb '+(correct?'correct':'wrong');
+  fb.innerHTML=correct?MCQS[q].ok:'<strong>✗ Not quite.</strong> '+MCQS[q].no[s.sel];
+  document.getElementById(`mcq${q}-btn`).style.display='none';
+}
+
+const Q6={
+  a:{ans:2, ok:'✓ Fe²⁺ is a single ion, charge +2. Fe = +2.', wk:'Ion charge = +2 · only Fe present · Fe = +2'},
+  b:{ans:0, ok:'✓ P₄ is the elemental form of phosphorus. All pure elements have ON = 0.', wk:'Elemental form · pure element · ON = 0'},
+  c:{ans:4, ok:'✓ Neutral (sum = 0). O = −2, two O = −4. Si + (−4) = 0. Si = +4.', wk:'Neutral → sum = 0 · O = −2 · 2(−2) + Si = 0 · Si = +4'},
+  d:{ans:4, ok:'✓ Neutral (sum = 0). Cl = −1, four Cl = −4. S + (−4) = 0. S = +4.', wk:'Neutral → sum = 0 · Cl = −1 · 4(−1) + S = 0 · S = +4'},
+  e:{ans:1, ok:'✓ Neutral (sum = 0). O = −2. 2N + (−2) = 0. 2N = +2. N = +1.', wk:'Neutral → sum = 0 · O = −2 · 2N + (−2) = 0 · N = +1'},
+  f:{ans:-2, ok:'✓ Neutral. H = +1 (×3 = +3), O = −2, H on O = +1. C + 3 + (−2) + 1 = 0. C = −2.', wk:'Neutral → sum = 0 · 3H = +3 · O = −2 · H on O = +1 · C + 2 = 0 · C = −2'},
+  g:{ans:4, ok:'✓ Ion charge = +2. O = −2. V + (−2) = +2. V = +4.', wk:'Ion charge = +2 · O = −2 · V + (−2) = +2 · V = +4'},
+  h:{ans:1, ok:'✓ Ion charge = −1. O = −2. Br + (−2) = −1. Br = +1.', wk:'Ion charge = −1 · O = −2 · Br + (−2) = −1 · Br = +1'},
+  i:{ans:5, ok:'✓ Ion charge = −1. F = −1, six F = −6. I + (−6) = −1. I = +5.', wk:'Ion charge = −1 · F = −1 · 6(−1) + I = −1 · I = +5'},
+  j:{ans:6, ok:'✓ Ion charge = −2. O = −2, seven O = −14. 2Cr + (−14) = −2. 2Cr = +12. Cr = +6.', wk:'Ion charge = −2 · 7(−2) = −14 · 2Cr − 14 = −2 · 2Cr = +12 · Cr = +6'}
+};
+let q6Score=0;const q6Done={};
+
+function parseON(str){if(!str)return NaN;return parseFloat(str.trim().replace(/−/g,'-').replace(/\s/g,''));}
+
+function chkQ6(k){
+  if(q6Done[k])return;
+  const inp=document.getElementById(`q6${k}-inp`);
+  const val=parseON(inp.value);const correct=val===Q6[k].ans;
+  q6Done[k]=true;inp.disabled=true;inp.className='q6-input '+(correct?'correct':'wrong');
+  document.getElementById(`q6${k}-btn`).disabled=true;
+  const fb=document.getElementById(`q6${k}-fb`);fb.style.display='block';
+  if(correct){fb.className='q6-fb correct';fb.innerHTML=Q6[k].ok;q6Score++;}
+  else{fb.className='q6-fb wrong';fb.innerHTML=`✗ Not quite — correct answer: <strong>${Q6[k].ans>0?'+':''}${Q6[k].ans}</strong>`;const wk=document.getElementById(`q6${k}-wk`);wk.innerHTML='📐 '+Q6[k].wk;wk.classList.add('show');}
+  updateChips();
+}
+
+function updateChips(){
+  document.getElementById('chip-mcq').textContent=mcqScore+' / 5';
+  document.getElementById('chip-q6').textContent=q6Score+' / 10';
+  document.getElementById('q6-score-display').textContent=q6Score+' / 10';
+}
+
+function revealModel(btn){btn.nextElementSibling.style.display='block';btn.style.display='none';}
+
+const PAGES=['pg0','pg1','pg2','pg3','pg4','pg5','pg6','pg7'];
+const TOTAL=PAGES.length;let cur=0;
+
+function buildProg(){const c=document.getElementById('prog');c.innerHTML=PAGES.map((_,i)=>`<div class="ps" id="ps${i}"></div>`).join('');}
+
+function nav(d){const np=cur+d;if(np<0||np>=TOTAL)return;if(np===TOTAL-1)updateSummary();cur=np;render();}
+
+function render(){
+  PAGES.forEach((id,i)=>document.getElementById(id).classList.toggle('active',i===cur));
+  for(let i=0;i<TOTAL;i++){const el=document.getElementById('ps'+i);if(el)el.className='ps'+(i<cur?' done':i===cur?' active':'');}
+  const lbl=`Page ${cur+1} of ${TOTAL}`;
+  document.getElementById('pg-tag').textContent=lbl;document.getElementById('pg-bot').textContent=lbl;
+  document.getElementById('btn-prev').disabled=cur===0;document.getElementById('btn-next').disabled=cur===TOTAL-1;
+  window.scrollTo&&window.scrollTo(0,0);
+}
+
+function updateSummary(){
+  const total=mcqScore+q6Score,pct=Math.round(total/15*100);
+  document.getElementById('sum-total').textContent=total+' / 15';
+  document.getElementById('sum-mcq').textContent=mcqScore+' / 5';
+  document.getElementById('sum-q6').textContent=q6Score+' / 10';
+  document.getElementById('sum-pct').textContent=pct+'%';
+  const r=document.getElementById('sum-rating');
+  if(pct>=80){r.className='rating excellent';r.innerHTML='🌟 Excellent! Strong understanding of redox and oxidation numbers.';}
+  else if(pct>=60){r.className='rating good';r.innerHTML='👍 Good effort. Review the questions you got wrong and re-read the working.';}
+  else{r.className='rating ok';r.innerHTML='📖 Keep practising — re-read the rules on page 1 and work through the model answers carefully.';}
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'&&cur<TOTAL-1)nav(1);
+  if(e.key==='ArrowLeft'&&cur>0)nav(-1);
+});
+
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.q6-input').forEach(inp=>{
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter'){const k=inp.id.replace('q6','').replace('-inp','');if(!q6Done[k])chkQ6(k);}});
+  });
+});
+
+buildProg();render();
+</script>
+</body>
+</html>

@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Process – Interactive Flowsheet</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #0d1117; color: #e6edf3;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  display: flex; flex-direction: column; align-items: center; padding-bottom: 30px;
+}
+h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.08em; color: #58a6ff;
+  padding: 12px 0 2px; text-transform: uppercase; }
+.subtitle { font-size: 0.7rem; color: #8b949e; margin-bottom: 6px; letter-spacing: 0.04em; }
+
+.main { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 12px; }
+
+/* ---- LEFT CONTROLS ---- */
+.controls {
+  background: #161b22; border: 1px solid #30363d; border-radius: 10px;
+  padding: 14px 12px; width: 215px; flex-shrink: 0; font-size: 0.73rem;
+}
+.controls h3 { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #8b949e; margin-bottom: 10px; }
+.ctrl-block { margin-bottom: 14px; }
+.ctrl-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+.ctrl-label span:first-child { color: #c9d1d9; font-weight: 600; }
+.ctrl-value { font-size: 0.95rem; font-weight: 700; color: #58a6ff; font-variant-numeric: tabular-nums; }
+.ctrl-unit  { font-size: 0.62rem; color: #8b949e; margin-left: 2px; }
+input[type=range] { -webkit-appearance: none; width: 100%; height: 5px; border-radius: 3px; outline: none; cursor: pointer; }
+input[type=range].temp-slider { background: linear-gradient(to right,#1e4a8a,#ff6600); }
+input[type=range].pres-slider { background: linear-gradient(to right,#1a3a2a,#00c853); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px;
+  border-radius:50%; background:#e6edf3; border:2px solid #58a6ff; cursor:pointer; box-shadow:0 0 5px #58a6ff77; }
+.range-marks { display:flex; justify-content:space-between; font-size:0.58rem; color:#484f58; margin-top:2px; }
+
+.basis-badge {
+  background: #0d1117; border: 1px solid #21262d; border-radius: 6px;
+  padding: 6px 9px; margin-bottom: 12px; font-size: 0.68rem; color: #8b949e;
+}
+.basis-badge b { color: #ffa657; }
+
+.eq-panel { background: #0d1117; border: 1px solid #21262d; border-radius: 7px; padding: 9px 10px; margin-top: 2px; }
+.eq-title { font-size: 0.62rem; color: #8b949e; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+.eq-rxn { font-family: monospace; font-size: 0.68rem; color: #ffa657; background: #161b22;
+  padding: 4px 7px; border-radius: 4px; border-left: 3px solid #f78166; margin-bottom: 7px; line-height: 1.5; }
+.eq-row { display:flex; justify-content:space-between; font-size:0.68rem; padding:2px 0; border-bottom:1px solid #21262d; }
+.eq-row:last-child { border-bottom:none; }
+.eq-row .k { color:#8b949e; } .eq-row .v { color:#e6edf3; font-weight:600; font-variant-numeric:tabular-nums; }
+
+.conv-meter { margin-top: 10px; }
+.conv-header { font-size: 0.68rem; color: #8b949e; margin-bottom: 3px; }
+.conv-bar-bg { background: #21262d; border-radius: 4px; height: 12px; overflow: hidden; }
+.conv-bar { height:100%; border-radius:4px; transition: width 0.4s ease, background 0.4s ease; }
+.conv-pct { text-align:center; font-size:0.78rem; font-weight:700; margin-top:3px;
+  transition:color 0.4s; font-variant-numeric:tabular-nums; }
+
+.le-chat { background:#161b22; border:1px solid #30363d; border-radius:7px;
+  padding:8px 10px; margin-top:8px; font-size:0.67rem; line-height:1.5; color:#c9d1d9; min-height:55px; }
+.le-chat .lc-icon { font-size:0.9rem; margin-bottom:3px; display:block; }
+.shift-right { color:#4caf50; font-weight:700; }
+.shift-left  { color:#f44336; font-weight:700; }
+
+/* ---- CANVAS ---- */
+.canvas-wrap { position:relative; width:730px; height:530px; flex-shrink:0; }
+canvas { position:absolute; top:0; left:0; }
+.hotspot { position:absolute; cursor:pointer; border-radius:6px; transition:box-shadow 0.15s; }
+.hotspot:hover { box-shadow:0 0 0 2px #58a6ff77; }
+
+/* ---- GAS / FLOW TAGS ---- */
+.stream-tag {
+  position: absolute; pointer-events: none;
+  background: rgba(13,17,23,0.88); border: 1px solid #30363d;
+  border-radius: 6px; padding: 4px 7px; font-size: 0.62rem;
+  line-height: 1.4; white-space: nowrap; backdrop-filter: blur(3px);
+  transition: all 0.35s ease;
+}
+.stream-tag .st-head {
+  font-size: 0.59rem; color: #8b949e; margin-bottom: 2px;
+  display: flex; justify-content: space-between; gap: 8px;
+}
+.stream-tag .st-total { color: #c9d1d9; font-weight: 700; }
+.stream-tag .st-rows { display: flex; flex-direction: column; gap: 1px; }
+.stream-tag .st-row {
+  display: flex; align-items: center; gap: 4px; font-size: 0.6rem;
+}
+.st-name { font-weight: 700; min-width: 28px; }
+.st-pct  { color: #8b949e; min-width: 32px; font-variant-numeric: tabular-nums; }
+.st-kg   { color: #c9d1d9; min-width: 68px; font-variant-numeric: tabular-nums; }
+.st-mol  { color: #6e7681; min-width: 58px; font-variant-numeric: tabular-nums; }
+
+/* pill colours */
+.cn2  { color: #8b949e; } .co2  { color: #79c0ff; } .cso2 { color: #ffe066; }
+.cso3 { color: #ffa657; } .ch2so4 { color: #ff7b72; } .ch2o { color: #a8d8ea; }
+.cs   { color: #ffe066; }
+
+/* ---- STREAM TABLE ---- */
+.stream-table-wrap {
+  width: 960px; max-width: 98vw;
+  background: #161b22; border: 1px solid #30363d; border-radius: 10px;
+  overflow: hidden;
+}
+.stream-table-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 16px; border-bottom: 1px solid #30363d;
+}
+.stream-table-header h3 { font-size: 0.78rem; color: #58a6ff; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em; }
+.toggle-btn {
+  background: #21262d; border: 1px solid #30363d; border-radius: 6px;
+  color: #c9d1d9; font-size: 0.7rem; padding: 4px 12px; cursor: pointer;
+  transition: background 0.2s;
+}
+.toggle-btn:hover { background: #30363d; }
+.stream-table-body { padding: 12px 16px; display: none; overflow-x: auto; }
+.stream-table-body.open { display: block; }
+
+table.st {
+  border-collapse: collapse; width: 100%; font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+}
+table.st th {
+  background: #21262d; color: #8b949e; padding: 5px 8px;
+  text-align: right; font-weight: 600; font-size: 0.65rem;
+  text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 2px solid #30363d;
+  white-space: nowrap;
+}
+table.st th:first-child { text-align: left; }
+table.st td { padding: 4px 8px; border-bottom: 1px solid #21262d; color: #c9d1d9; text-align: right; }
+table.st td:first-child { text-align: left; color: #8b949e; white-space: nowrap; }
+table.st td.chem { font-weight: 700; }
+table.st tr.group-head td { background: #0d1117; color: #58a6ff; font-weight: 700; font-size: 0.68rem;
+  text-transform: uppercase; letter-spacing: 0.05em; padding-top: 8px; }
+table.st td.zero { color: #484f58; }
+table.st tr:last-child td { border-bottom: none; }
+table.st tr.total-row td { border-top: 2px solid #30363d; font-weight: 700; color: #e6edf3; }
+
+/* ---- INFO PANEL ---- */
+#info-panel {
+  position:fixed; bottom:16px; right:16px;
+  background:#161b22; border:1px solid #30363d; border-radius:10px;
+  padding:13px 16px; width:330px; max-width:95vw;
+  box-shadow:0 8px 28px #0008; z-index:200; display:none;
+}
+#info-panel h2 { font-size:0.85rem; color:#58a6ff; margin-bottom:7px; }
+#info-panel .rxn { background:#0d1117; border-left:3px solid #f78166;
+  padding:5px 9px; font-family:monospace; font-size:0.75rem; border-radius:4px;
+  margin-bottom:7px; color:#ffa657; line-height:1.5; }
+#info-panel table { width:100%; border-collapse:collapse; font-size:0.72rem; }
+#info-panel td { padding:3px 6px; border-bottom:1px solid #21262d; }
+#info-panel td:first-child { color:#8b949e; width:42%; }
+#info-panel td:last-child { color:#e6edf3; font-weight:600; font-variant-numeric:tabular-nums; }
+#info-panel .close-btn { position:absolute; top:8px; right:12px; background:none;
+  border:none; color:#8b949e; font-size:1rem; cursor:pointer; }
+#info-panel .close-btn:hover { color:#e6edf3; }
+
+.legend { display:flex; gap:12px; flex-wrap:wrap; justify-content:center;
+  margin-bottom:6px; font-size:0.66rem; color:#8b949e; }
+.legend-item { display:flex; align-items:center; gap:4px; }
+.legend-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.hint { font-size:0.66rem; color:#484f58; margin-bottom:8px; }
+</style>
+</head>
+<body>
+<h1>The Contact Process — H₂SO₄ Manufacture</h1>
+<p class="subtitle">Interactive Equilibrium Flowsheet &nbsp;|&nbsp; Basis: 1,000 kg/hr liquid sulfur feed</p>
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#8b949e"></div>N₂</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#79c0ff"></div>O₂</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ffe066"></div>SO₂ / S</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ffa657"></div>SO₃</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ff7b72"></div>H₂SO₄</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#a8d8ea"></div>H₂O</div>
+</div>
+<p class="hint">Click any unit or pipe label for details &nbsp;·&nbsp; Drag sliders to shift the equilibrium</p>
+
+<div class="main">
+
+<!-- ===== CONTROLS ===== -->
+<div class="controls">
+  <div class="basis-badge">Basis: <b>1,000 kg/hr</b> liquid sulfur<br>= <b>31.25 kmol/hr</b> S</div>
+  <h3>Process Controls</h3>
+
+  <div class="ctrl-block">
+    <div class="ctrl-label">
+      <span>🌡 Converter Temp</span>
+      <span><span class="ctrl-value" id="t-val">450</span><span class="ctrl-unit">°C</span></span>
+    </div>
+    <input type="range" class="temp-slider" id="temp-slider" min="350" max="700" value="450" step="5">
+    <div class="range-marks"><span>350°C</span><span>450°C ★</span><span>700°C</span></div>
+  </div>
+
+  <div class="ctrl-block">
+    <div class="ctrl-label">
+      <span>⬆ Pressure</span>
+      <span><span class="ctrl-value" id="p-val">1.0</span><span class="ctrl-unit">atm</span></span>
+    </div>
+    <input type="range" class="pres-slider" id="pres-slider" min="0.5" max="5" value="1" step="0.1">
+    <div class="range-marks"><span>0.5</span><span>1.0 ★</span><span>5.0 atm</span></div>
+  </div>
+
+  <div class="eq-panel">
+    <div class="eq-title">2SO₂ + O₂ ⇌ 2SO₃  ΔH=−197 kJ/mol</div>
+    <div class="eq-rxn">ΔH = −197 kJ/mol (exothermic)<br>Δn(gas) = −1  (fewer gas moles)</div>
+    <div class="eq-row"><span class="k">Kp</span><span class="v" id="eq-Kp">—</span></div>
+    <div class="eq-row"><span class="k">SO₂ conversion α</span><span class="v" id="eq-conv">—</span></div>
+    <div class="eq-row"><span class="k">SO₃ produced</span><span class="v" id="eq-so3kg">—</span></div>
+    <div class="eq-row"><span class="k">H₂SO₄ made</span><span class="v" id="eq-h2so4kg">—</span></div>
+    <div class="eq-row"><span class="k">Reaction rate</span><span class="v" id="eq-rate">—</span></div>
+  </div>
+
+  <div class="conv-meter">
+    <div class="conv-header">SO₂ → SO₃ Conversion</div>
+    <div class="conv-bar-bg"><div class="conv-bar" id="conv-bar" style="width:92%"></div></div>
+    <div class="conv-pct" id="conv-pct">92.0%</div>
+  </div>
+
+  <div class="le-chat" id="le-chat">
+    <span class="lc-icon">⚗️</span>
+    Adjust sliders to explore Le Chatelier's Principle.
+  </div>
+</div>
+
+<!-- ===== CANVAS ===== -->
+<div class="canvas-wrap" id="wrap">
+  <canvas id="bg"   width="730" height="530"></canvas>
+  <canvas id="anim" width="730" height="530"></canvas>
+</div>
+
+</div><!-- end .main -->
+
+<!-- ===== STREAM TABLE ===== -->
+<div class="stream-table-wrap">
+  <div class="stream-table-header">
+    <h3>📊 Stream Data Table — all flows in kg/hr and kmol/hr</h3>
+    <button class="toggle-btn" id="table-toggle" onclick="toggleTable()">Show Table ▼</button>
+  </div>
+  <div class="stream-table-body" id="stream-table-body">
+    <table class="st" id="stream-table"></table>
+  </div>
+</div>
+
+<!-- ===== INFO PANEL ===== -->
+<div id="info-panel">
+  <button class="close-btn" onclick="closePanel()">✕</button>
+  <h2 id="ip-title"></h2>
+  <div class="rxn" id="ip-rxn" style="display:none"></div>
+  <table id="ip-table"></table>
+</div>
+
+<script>
+// ============================================================
+// LAYOUT
+// ============================================================
+const U = {
+  furnace:   { x:140, y:175, w:80,  h:52  },
+  converter: { x:360, y:175, w:95,  h:80  },
+  absorbers: { x:580, y:165, w:70,  h:120 },
+  diluter:   { x:580, y:380, w:60,  h:60  },
+  storage:   { x:210, y:405, w:120, h:85  },
+};
+
+const PIPES = [
+  { id:'air',      pts:[[30,148],[100,148],[100,170]],            baseColor:'#79c0ff' },
+  { id:'sulfur',   pts:[[30,205],[100,205],[100,182]],            baseColor:'#ffe066' },
+  { id:'so2',      pts:[[180,175],[360,175]],                     baseColor:'#ffe066' },
+  { id:'so3',      pts:[[407,175],[545,175]],                     baseColor:'#ffa657' },
+  { id:'h2so4_99', pts:[[580,225],[580,350]],                     baseColor:'#ff7b72' },
+  { id:'recycle',  pts:[[550,380],[490,380],[490,240],[545,240]], baseColor:'#ff7b72' },
+  { id:'water',    pts:[[641,380],[700,380]],                     baseColor:'#a8d8ea' },
+  { id:'product',  pts:[[550,405],[270,405]],                     baseColor:'#aaaaaa' },
+];
+
+// ============================================================
+// CHEMISTRY & MASS BALANCE
+// Basis: 1000 kg/hr liquid sulfur = 31.25 kmol/hr S
+// Furnace: S + O₂ → SO₂ (complete)
+// Air: 21% O₂, 79% N₂
+// Feed to converter: 10% SO₂, 10% O₂, 80% N₂ (by mol)
+// Converter: 2SO₂ + O₂ ⇌ 2SO₃ at conversion α
+// Absorber: SO₃ + 98% H₂SO₄ → product acid (SO₃ 100% absorbed)
+// Net: SO₃ + H₂O → H₂SO₄ ; product drawn as 98% H₂SO₄
+// ============================================================
+const R=8.314, dH=-197000, Tref=723, KpRef=190;
+
+function calcKp(Tk) {
+  return KpRef * Math.exp((dH/R)*(1/Tref - 1/Tk));
+}
+function solveAlpha(Kp, P) {
+  let lo=0, hi=0.9999;
+  for (let i=0;i<80;i++) {
+    const a=(lo+hi)/2, tot=1-0.05*a;
+    const ySO2=0.1*(1-a)/tot, yO2=(0.1-0.05*a)/tot, ySO3=0.1*a/tot;
+    const Kc=(ySO3*ySO3)/(ySO2*ySO2*yO2)/P;
+    if (Kc<Kp) lo=a; else hi=a;
+  }
+  return (lo+hi)/2;
+}
+function rateQual(Tk) {
+  const r=Math.exp((Tk-Tref)/80);
+  if(r<0.25) return 'Very slow ⚠';
+  if(r<0.6)  return 'Slow';
+  if(r<1.5)  return 'Moderate ✓';
+  if(r<3)    return 'Fast';
+  return 'Very fast (catalyst risk!)';
+}
+
+// MW table
+const MW = {S:32,O2:32,N2:28,SO2:64,SO3:80,H2SO4:98,H2O:18};
+
+function calcStreams(a) {
+  // Molar flows kmol/hr
+  const nS    = 31.25;
+  // Air provides O₂ for furnace (31.25) + excess to converter (31.25)
+  const nO2_air = 62.5;
+  const nN2_air = nO2_air * (79/21);   // = 235.1 kmol/hr
+  // Converter inlet
+  const nSO2_ci = nS;                  // 31.25
+  const nO2_ci  = 31.25;              // excess O₂
+  const nN2_ci  = nN2_air;            // 235.1
+  // Converter outlet
+  const nSO2_co = nS*(1-a);
+  const nO2_co  = nO2_ci - 0.5*nS*a;
+  const nSO3_co = nS*a;
+  const nN2_co  = nN2_air;
+  // Absorber/Diluter
+  const nSO3_abs = nSO3_co;           // all SO₃ absorbed
+  const nH2O_add = nSO3_abs;          // net H₂O consumed: SO₃+H₂O→H₂SO₄
+  const nH2SO4_prod = nSO3_abs;       // kmol/hr H₂SO₄ produced
+  // Gas leaving absorbers (unreacted SO₂ + O₂ + N₂ vent)
+  const nSO2_vent = nSO2_co;
+  const nO2_vent  = nO2_co;
+  const nN2_vent  = nN2_co;
+  // Recycle 98% H₂SO₄ — design value (circulating loop)
+  const mRecycle = 5000; // kg/hr (nominal design)
+
+  // Build stream objects {components:[{name,color,n,m}], totalN, totalM}
+  function stream(comps) {
+    let totalN=0, totalM=0;
+    comps = comps.filter(c=>c.n>0.001);
+    comps.forEach(c=>{ totalN+=c.n; totalM+=c.m; });
+    return { comps, totalN, totalM };
+  }
+
+  const S = {
+    air: stream([
+      {name:'O₂',  color:'co2',  n:nO2_air,  m:nO2_air*MW.O2  },
+      {name:'N₂',  color:'cn2',  n:nN2_air,  m:nN2_air*MW.N2  },
+    ]),
+    sulfur: stream([
+      {name:'S',   color:'cs',   n:nS,       m:nS*MW.S        },
+    ]),
+    so2: stream([   // Furnace → Converter
+      {name:'SO₂', color:'cso2', n:nSO2_ci,  m:nSO2_ci*MW.SO2 },
+      {name:'O₂',  color:'co2',  n:nO2_ci,   m:nO2_ci*MW.O2   },
+      {name:'N₂',  color:'cn2',  n:nN2_ci,   m:nN2_ci*MW.N2   },
+    ]),
+    so3: stream([   // Converter → Absorbers
+      {name:'SO₃', color:'cso3', n:nSO3_co,  m:nSO3_co*MW.SO3 },
+      {name:'SO₂', color:'cso2', n:nSO2_co,  m:nSO2_co*MW.SO2 },
+      {name:'O₂',  color:'co2',  n:nO2_co,   m:nO2_co*MW.O2   },
+      {name:'N₂',  color:'cn2',  n:nN2_co,   m:nN2_co*MW.N2   },
+    ]),
+    h2so4_99: stream([  // Absorbers → Diluter (99% H₂SO₄)
+      {name:'H₂SO₄',color:'ch2so4',n:nH2SO4_prod, m:nH2SO4_prod*MW.H2SO4 },
+    ]),
+    recycle: stream([   // Diluter → Absorbers recycle (nominal)
+      {name:'H₂SO₄',color:'ch2so4', n:mRecycle/MW.H2SO4*0.98, m:mRecycle*0.98 },
+      {name:'H₂O',  color:'ch2o',   n:mRecycle/MW.H2O*0.02,   m:mRecycle*0.02 },
+    ]),
+    water: stream([
+      {name:'H₂O', color:'ch2o', n:nH2O_add, m:nH2O_add*MW.H2O },
+    ]),
+    product: stream([
+      {name:'H₂SO₄',color:'ch2so4', n:nH2SO4_prod*0.98, m:nH2SO4_prod*MW.H2SO4*0.98/MW.H2SO4 },
+      {name:'H₂O',  color:'ch2o',   n:nH2SO4_prod*MW.H2SO4*0.02/MW.H2O, m:nH2SO4_prod*MW.H2SO4*0.02 },
+    ]),
+    vent: stream([  // off-gas from absorbers
+      {name:'SO₂', color:'cso2', n:nSO2_vent, m:nSO2_vent*MW.SO2 },
+      {name:'O₂',  color:'co2',  n:nO2_vent,  m:nO2_vent*MW.O2   },
+      {name:'N₂',  color:'cn2',  n:nN2_vent,  m:nN2_vent*MW.N2   },
+    ]),
+  };
+  return S;
+}
+
+// ============================================================
+// FORMATTING HELPERS
+// ============================================================
+function fmt(v, unit='kg/hr') {
+  const n = Math.abs(v);
+  let s;
+  if (n === 0)    s = '0';
+  else if (n < 0.01)  s = v.toExponential(2);
+  else if (n < 10)    s = v.toFixed(2);
+  else if (n < 100)   s = v.toFixed(1);
+  else s = Math.round(v).toLocaleString();
+  return s + ' ' + unit;
+}
+function pct(comp, totalN) {
+  return totalN > 0 ? (comp.n/totalN*100).toFixed(1)+'%' : '—';
+}
+
+// ============================================================
+// STATE
+// ============================================================
+let T_C=450, P_atm=1.0, alpha=0.92, streams=null;
+let prevT=450, prevP=1.0;
+
+// ============================================================
+// TAG DEFINITIONS  (position, stream key, title)
+// ============================================================
+const TAG_DEFS = [
+  { id:'tag-air',     l:2,   t:98,  skey:'air',      title:'① Air Feed' },
+  { id:'tag-sulfur',  l:2,   t:195, skey:'sulfur',   title:'② Sulfur Feed' },
+  { id:'tag-so2',     l:182, t:135, skey:'so2',      title:'③ Furnace → Converter' },
+  { id:'tag-so3',     l:412, t:135, skey:'so3',      title:'④ Converter → Absorbers' },
+  { id:'tag-99',      l:592, t:265, skey:'h2so4_99', title:'⑤ To Diluter (99% H₂SO₄)' },
+  { id:'tag-recycle', l:395, t:362, skey:'recycle',  title:'⑥ Recycle (98% H₂SO₄)' },
+  { id:'tag-water',   l:642, t:358, skey:'water',    title:'⑦ Water Feed' },
+  { id:'tag-product', l:295, t:413, skey:'product',  title:'⑧ Product (98% H₂SO₄)' },
+];
+
+function buildTags() {
+  const wrap = document.getElementById('wrap');
+  TAG_DEFS.forEach(t => {
+    if (document.getElementById(t.id)) return;
+    const el = document.createElement('div');
+    el.className = 'stream-tag';
+    el.id = t.id;
+    el.style.left = t.l+'px'; el.style.top = t.t+'px';
+    el.style.pointerEvents = 'all';
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', () => showStreamInfo(t.skey, t.title));
+    wrap.appendChild(el);
+  });
+}
+
+function updateTags() {
+  TAG_DEFS.forEach(t => {
+    const el = document.getElementById(t.id); if (!el) return;
+    const s = streams[t.skey]; if (!s) return;
+    // Compute mol fractions
+    const rows = s.comps.map(c => {
+      const molFrac = (c.n/s.totalN*100).toFixed(1);
+      const kghr    = fmt(c.m);
+      const kmolhr  = fmt(c.n,'kmol/hr');
+      return `<div class="st-row">
+        <span class="st-name ${c.color}">${c.name}</span>
+        <span class="st-pct">${molFrac}%</span>
+        <span class="st-kg">${kghr}</span>
+        <span class="st-mol">${kmolhr}</span>
+      </div>`;
+    }).join('');
+    el.innerHTML = `
+      <div class="st-head">
+        <span>${t.title}</span>
+        <span class="st-total">${Math.round(s.totalM).toLocaleString()} kg/hr</span>
+      </div>
+      <div class="st-rows">
+        <div class="st-row" style="font-size:0.57rem;color:#484f58;margin-bottom:1px">
+          <span class="st-name">Comp.</span><span class="st-pct">mol%</span>
+          <span class="st-kg">kg/hr</span><span class="st-mol">kmol/hr</span>
+        </div>
+        ${rows}
+        <div class="st-row" style="border-top:1px solid #21262d;margin-top:2px;padding-top:2px;font-weight:700">
+          <span class="st-name" style="color:#c9d1d9">Total</span>
+          <span class="st-pct"></span>
+          <span class="st-kg" style="color:#e6edf3">${Math.round(s.totalM).toLocaleString()} kg/hr</span>
+          <span class="st-mol" style="color:#e6edf3">${s.totalN.toFixed(1)} kmol/hr</span>
+        </div>
+      </div>`;
+  });
+}
+
+// ============================================================
+// STREAM TABLE
+// ============================================================
+let tableOpen = false;
+function toggleTable() {
+  tableOpen = !tableOpen;
+  document.getElementById('stream-table-body').classList.toggle('open', tableOpen);
+  document.getElementById('table-toggle').textContent = tableOpen ? 'Hide Table ▲' : 'Show Table ▼';
+  if (tableOpen) renderStreamTable();
+}
+function renderStreamTable() {
+  if (!streams) return;
+  const streamOrder = [
+    { key:'air',      label:'① Air feed',              note:'to Furnace' },
+    { key:'sulfur',   label:'② Sulfur feed',            note:'to Furnace' },
+    { key:'so2',      label:'③ Furnace → Converter',    note:'~1000°C cooled to 450°C' },
+    { key:'so3',      label:'④ Converter → Absorbers',  note:'mixed gas after catalyst' },
+    { key:'h2so4_99', label:'⑤ Absorbers → Diluter',   note:'~99% H₂SO₄' },
+    { key:'recycle',  label:'⑥ Recycle acid',           note:'98% H₂SO₄ (design: 5 000 kg/hr)' },
+    { key:'water',    label:'⑦ Water addition',         note:'to Diluter' },
+    { key:'product',  label:'⑧ Product H₂SO₄',         note:'98% concentration' },
+    { key:'vent',     label:'⑨ Absorber off-gas',       note:'vent / SO₂ scrubber' },
+  ];
+  // Gather all component names
+  const allComps = ['S','O₂','N₂','SO₂','SO₃','H₂SO₄','H₂O'];
+  // Map display name to stream component name
+  const compMap  = {'S':'S','O₂':'O₂','N₂':'N₂','SO₂':'SO₂','SO₃':'SO₃','H₂SO₄':'H₂SO₄','H₂O':'H₂O'};
+
+  let html = `<tr>
+    <th style="text-align:left">Stream</th>
+    ${allComps.map(c=>`<th>${c}<br><span style="color:#484f58;font-weight:400">kg/hr</span></th>`).join('')}
+    <th>Total<br><span style="color:#484f58;font-weight:400">kg/hr</span></th>
+    <th>Total<br><span style="color:#484f58;font-weight:400">kmol/hr</span></th>
+    <th style="min-width:130px;text-align:left">Notes</th>
+  </tr>`;
+
+  streamOrder.forEach(({key,label,note}) => {
+    const s = streams[key]; if (!s) return;
+    const compByName = {};
+    s.comps.forEach(c => compByName[c.name] = c);
+    html += `<tr>
+      <td>${label}</td>
+      ${allComps.map(c => {
+        const co = compByName[c];
+        if (!co) return `<td class="zero">—</td>`;
+        return `<td class="chem">${Math.round(co.m).toLocaleString()}</td>`;
+      }).join('')}
+      <td style="font-weight:700;color:#e6edf3">${Math.round(s.totalM).toLocaleString()}</td>
+      <td style="font-weight:700;color:#e6edf3">${s.totalN.toFixed(1)}</td>
+      <td style="text-align:left;color:#8b949e">${note}</td>
+    </tr>`;
+  });
+
+  // Also add a kmol/hr section
+  html += `<tr><td colspan="${allComps.length+4}" style="padding-top:14px;color:#58a6ff;font-weight:700;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.05em">Molar flows (kmol/hr)</td></tr>`;
+  html += `<tr>
+    <th style="text-align:left">Stream</th>
+    ${allComps.map(c=>`<th>${c}<br><span style="color:#484f58;font-weight:400">kmol/hr</span></th>`).join('')}
+    <th>Total<br><span style="color:#484f58;font-weight:400">kmol/hr</span></th>
+    <th>mol%<br><span style="color:#484f58;font-weight:400">check</span></th>
+    <th style="text-align:left">Notes</th>
+  </tr>`;
+
+  streamOrder.forEach(({key,label,note}) => {
+    const s = streams[key]; if (!s) return;
+    const compByName = {};
+    s.comps.forEach(c => compByName[c.name] = c);
+    html += `<tr>
+      <td>${label}</td>
+      ${allComps.map(c => {
+        const co = compByName[c];
+        if (!co) return `<td class="zero">—</td>`;
+        return `<td class="chem">${co.n.toFixed(2)}</td>`;
+      }).join('')}
+      <td style="font-weight:700;color:#e6edf3">${s.totalN.toFixed(2)}</td>
+      <td style="color:#8b949e">${s.comps.map(c=>`${c.name} ${(c.n/s.totalN*100).toFixed(1)}%`).join(', ')}</td>
+      <td style="text-align:left;color:#8b949e">${note}</td>
+    </tr>`;
+  });
+
+  document.getElementById('stream-table').innerHTML = html;
+}
+
+// ============================================================
+// INFO PANEL — units
+// ============================================================
+const unitInfo = {
+  furnace: {
+    title:'Furnace (Sulphur Burner)',
+    rxn:'S(l) + O₂(g) → SO₂(g)   ΔH = −297 kJ/mol',
+    rows:[['Temperature','~1000 °C'],['Pressure','Atmospheric'],
+          ['Inlet','Air + molten sulfur (130–145°C)'],
+          ['Outlet','SO₂ 10 mol%, O₂ 10 mol%, N₂ 80 mol%'],
+          ['Heat recovery','Waste-heat steam boiler on outlet']]
+  },
+  converter: {
+    title:'Converter (Catalytic Reactor)',
+    rxn:'2SO₂(g) + O₂(g) ⇌ 2SO₃(g)   ΔH = −197 kJ/mol',
+    rows:[['Catalyst','V₂O₅ + K₂SO₄ promoter on silica'],
+          ['Inlet T','~450 °C (adjust slider)'],
+          ['Beds','4–5 with inter-bed cooling'],
+          ['Pressure','1–2 atm (adjust slider)'],
+          ['Double absorption','SO₃ removed mid-converter → higher overall conversion']]
+  },
+  absorbers: {
+    title:'Absorption Towers',
+    rxn:'SO₃(g) + H₂SO₄(l) → H₂S₂O₇ → 2H₂SO₄ (on dilution)',
+    rows:[['T','~60–80 °C (cooled)'],['Absorbent','98% H₂SO₄ (recycle)'],
+          ['Why not water?','Water forms acid mist (fog), not liquid acid'],
+          ['Outlet','~99% H₂SO₄ to diluter; vent gas treated']]
+  },
+  diluter: {
+    title:'Diluter / Acid Blending',
+    rxn:'SO₃ + H₂O → H₂SO₄  (net reaction)',
+    rows:[['Input','99% H₂SO₄ + water'],['Output','98% H₂SO₄'],
+          ['Exothermic!','Always add acid to water — dilution releases ~88 kJ/mol H₂O'],
+          ['Cooled by','External heat exchangers']]
+  },
+  storage: {
+    title:'Product Storage',
+    rxn:null,
+    rows:[['Product','98% H₂SO₄ commercial grade'],['Density','1.84 g/cm³'],
+          ['Boiling point','337 °C'],
+          ['Global use','~230 Mt/year — largest-volume chemical by mass']]
+  }
+};
+
+function showStreamInfo(key, title) {
+  const s = streams[key]; if (!s) return;
+  document.getElementById('ip-title').textContent = title;
+  document.getElementById('ip-rxn').style.display = 'none';
+  const rows = s.comps.map(c =>
+    `<tr><td class="${c.color}">${c.name}</td><td>${fmt(c.m)} &nbsp; / &nbsp; ${fmt(c.n,'kmol/hr')} &nbsp; (${(c.n/s.totalN*100).toFixed(1)} mol%)</td></tr>`
+  ).join('') +
+  `<tr style="border-top:2px solid #30363d"><td><b>Total</b></td><td><b>${Math.round(s.totalM).toLocaleString()} kg/hr &nbsp; / &nbsp; ${s.totalN.toFixed(2)} kmol/hr</b></td></tr>`;
+  document.getElementById('ip-table').innerHTML = rows;
+  document.getElementById('info-panel').style.display = 'block';
+}
+
+function showUnitInfo(id) {
+  const d = unitInfo[id]; if (!d) return;
+  document.getElementById('ip-title').textContent = d.title;
+  const rxnEl = document.getElementById('ip-rxn');
+  if (d.rxn) { rxnEl.textContent = d.rxn; rxnEl.style.display='block'; }
+  else rxnEl.style.display='none';
+  document.getElementById('ip-table').innerHTML = d.rows.map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+  document.getElementById('info-panel').style.display='block';
+}
+function closePanel() { document.getElementById('info-panel').style.display='none'; }
+
+// ============================================================
+// DRAWING
+// ============================================================
+const bgCtx   = document.getElementById('bg').getContext('2d');
+const animCtx = document.getElementById('anim').getContext('2d');
+
+function lighten(hex,amt) {
+  if(!hex.startsWith('#')) return hex;
+  let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return '#'+[r,g,b].map(v=>Math.min(255,Math.round(v+amt*255)).toString(16).padStart(2,'0')).join('');
+}
+function interpColor(c1,c2,t) {
+  const r1=parseInt(c1.slice(1,3),16),g1=parseInt(c1.slice(3,5),16),b1=parseInt(c1.slice(5,7),16);
+  const r2=parseInt(c2.slice(1,3),16),g2=parseInt(c2.slice(3,5),16),b2=parseInt(c2.slice(5,7),16);
+  return '#'+[r1+(r2-r1)*t,g1+(g2-g1)*t,b1+(b2-b1)*t].map(v=>Math.round(v).toString(16).padStart(2,'0')).join('');
+}
+function drawPipe(c,pts,color) {
+  c.beginPath(); c.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length;i++) c.lineTo(pts[i][0],pts[i][1]);
+  c.strokeStyle=color+'44'; c.lineWidth=8; c.lineCap='round'; c.lineJoin='round'; c.stroke();
+  c.lineWidth=2; c.strokeStyle=color+'bb'; c.stroke();
+}
+function drawArrow(c,from,to,color) {
+  const dx=to[0]-from[0],dy=to[1]-from[1],ang=Math.atan2(dy,dx);
+  c.beginPath();
+  c.moveTo(to[0],to[1]);
+  c.lineTo(to[0]-Math.cos(ang)*9+Math.sin(ang)*4, to[1]-Math.sin(ang)*9-Math.cos(ang)*4);
+  c.lineTo(to[0]-Math.cos(ang)*9-Math.sin(ang)*4, to[1]-Math.sin(ang)*9+Math.cos(ang)*4);
+  c.closePath(); c.fillStyle=color+'cc'; c.fill();
+}
+function drawCylinder(c,x,y,w,h,fill,stroke) {
+  const ry=h*0.13;
+  c.beginPath(); c.moveTo(x-w/2,y-h/2+ry); c.lineTo(x-w/2,y+h/2-ry);
+  c.arc(x,y+h/2-ry,w/2,Math.PI,0); c.lineTo(x+w/2,y-h/2+ry);
+  c.fillStyle=fill; c.fill(); c.strokeStyle=stroke; c.lineWidth=1.5; c.stroke();
+  c.beginPath(); c.ellipse(x,y-h/2+ry,w/2,ry,0,0,Math.PI*2);
+  c.fillStyle=lighten(fill,0.18); c.fill(); c.stroke();
+  c.beginPath(); c.ellipse(x,y+h/2-ry,w/2,ry,0,0,Math.PI*2);
+  c.fillStyle=lighten(fill,0.06); c.fill(); c.stroke();
+}
+function drawStackedDiscs(c,x,y,w,h,fill) {
+  const n=4,dh=h/n;
+  for(let i=n-1;i>=0;i--) drawCylinder(c,x,y-h/2+dh*i+dh/2,w,dh*0.88,fill,'#3a5a3a');
+}
+function drawAbsorbers(c,x,y) {
+  [-26,0,26].forEach(dx=>drawCylinder(c,x+dx,y,18,110,'#2a3a4a','#6699aa'));
+}
+function drawStorageTanks(c,x,y) {
+  [[-26,-18],[26,-18],[0,18]].forEach(([dx,dy])=>drawCylinder(c,x+dx,y+dy,52,50,'#3a4455','#7788aa'));
+}
+
+function rebuildBg() {
+  bgCtx.clearRect(0,0,730,530);
+  bgCtx.fillStyle='#0d1117'; bgCtx.fillRect(0,0,730,530);
+  const so3Color = interpColor('#ffe066','#ffa657',alpha);
+  const pipeColors = { air:'#79c0ff',sulfur:'#ffe066',so2:'#ffe066',so3:so3Color,
+    h2so4_99:'#ff7b72',recycle:'#ff7b72',water:'#a8d8ea',product:'#aaaaaa' };
+  PIPES.forEach(p => {
+    const col = pipeColors[p.id]||p.baseColor;
+    drawPipe(bgCtx,p.pts,col);
+    const pts=p.pts; drawArrow(bgCtx,pts[pts.length-2],pts[pts.length-1],col);
+  });
+  drawCylinder(bgCtx,U.furnace.x,U.furnace.y,U.furnace.w,U.furnace.h,'#4a2810','#c0793c');
+  drawStackedDiscs(bgCtx,U.converter.x,U.converter.y,U.converter.w,U.converter.h,'#1e3a1e');
+  drawAbsorbers(bgCtx,U.absorbers.x,U.absorbers.y);
+  drawCylinder(bgCtx,U.diluter.x,U.diluter.y,U.diluter.w,U.diluter.h,'#12304a','#4488aa');
+  drawStorageTanks(bgCtx,U.storage.x,U.storage.y);
+
+  bgCtx.textAlign='center'; bgCtx.font='bold 10px Segoe UI,Arial'; bgCtx.fillStyle='#8b949e';
+  [['FURNACE',140,98],['CONVERTER',360,98],['ABSORBERS',580,82],['DILUTER',580,302],['STORAGE',210,330]]
+    .forEach(([t,x,y])=>bgCtx.fillText(t,x,y));
+
+  bgCtx.font='9px monospace'; bgCtx.fillStyle='#4caf5099';
+  bgCtx.fillText('V₂O₅',U.converter.x,U.converter.y+4);
+
+  bgCtx.font='7.5px Segoe UI,Arial';
+  bgCtx.fillStyle='#ffe06688'; bgCtx.fillText('S + O₂ → SO₂',U.furnace.x,U.furnace.y+U.furnace.h/2+13);
+  bgCtx.fillStyle='#ffa65788'; bgCtx.fillText('2SO₂+O₂ ⇌ 2SO₃',U.converter.x,U.converter.y+U.converter.h/2+13);
+  bgCtx.fillStyle='#ff7b7288'; bgCtx.fillText('SO₃→H₂SO₄',U.absorbers.x,U.absorbers.y+72);
+}
+
+// ============================================================
+// PARTICLES
+// ============================================================
+class Particle {
+  constructor(pipe,color,sm) {
+    this.pipe=pipe; this.color=color; this.t=Math.random();
+    this.speed=(0.0028+Math.random()*0.003)*sm; this.r=3+Math.random()*2; this.alpha=0.5+Math.random()*0.45;
+  }
+  update(){this.t+=this.speed; if(this.t>1)this.t=0;}
+  pos(){
+    const pts=this.pipe.pts; let segs=[],total=0;
+    for(let i=1;i<pts.length;i++){const dx=pts[i][0]-pts[i-1][0],dy=pts[i][1]-pts[i-1][1];const l=Math.sqrt(dx*dx+dy*dy);segs.push(l);total+=l;}
+    let d=this.t*total;
+    for(let i=0;i<segs.length;i++){if(d<=segs[i]){const f=d/segs[i];return[pts[i][0]+f*(pts[i+1][0]-pts[i][0]),pts[i][1]+f*(pts[i+1][1]-pts[i][1])];}d-=segs[i];}
+    return pts[pts.length-1];
+  }
+}
+
+let particles=[];
+function buildParticles() {
+  particles=[];
+  const cfg={air:{n:5,c:'#79c0ff',s:1},sulfur:{n:4,c:'#ffe066',s:0.8},
+    so2:{n:0,c:'#ffe066',s:1},so3:{n:0,c:'#ffa657',s:1.1},
+    h2so4_99:{n:5,c:'#ff7b72',s:0.8},recycle:{n:4,c:'#ff7b72',s:0.7},
+    water:{n:3,c:'#a8d8ea',s:0.9},product:{n:5,c:'#aaaaaa',s:0.7}};
+  PIPES.forEach(p=>{
+    const c=cfg[p.id]; if(!c) return;
+    let n = c.n;
+    if (p.id==='so3') n = Math.round(4 + alpha*9);
+    if (p.id==='so2') n = Math.round(3 + (1-alpha)*8);
+    for(let i=0;i<n;i++) particles.push(new Particle(p,c.c,c.s));
+  });
+}
+
+let glowT=0;
+function animate(){
+  animCtx.clearRect(0,0,730,530);
+  glowT+=0.033;
+  const gl=12+Math.sin(glowT)*8;
+  animCtx.shadowColor='#ff6600'; animCtx.shadowBlur=gl;
+  animCtx.beginPath(); animCtx.ellipse(U.furnace.x,U.furnace.y,22,13,0,0,Math.PI*2);
+  animCtx.fillStyle=`rgba(255,100,0,${0.1+Math.sin(glowT)*0.05})`; animCtx.fill();
+  animCtx.shadowBlur=0;
+  for(let i=0;i<4;i++){
+    const ph=glowT*1.3+i*1.57;
+    animCtx.beginPath(); animCtx.arc(U.converter.x+(Math.sin(ph)*30),U.converter.y+(Math.cos(ph*0.7)*25),1.8,0,Math.PI*2);
+    animCtx.fillStyle=`rgba(80,200,80,${0.22+Math.sin(ph)*0.15})`; animCtx.fill();
+  }
+  particles.forEach(p=>{
+    p.update(); const [x,y]=p.pos();
+    animCtx.globalAlpha=p.alpha;
+    animCtx.shadowColor=p.color; animCtx.shadowBlur=9;
+    animCtx.beginPath(); animCtx.arc(x,y,p.r,0,Math.PI*2);
+    animCtx.fillStyle=p.color; animCtx.fill();
+    animCtx.shadowBlur=0; animCtx.globalAlpha=1;
+  });
+  requestAnimationFrame(animate);
+}
+
+// ============================================================
+// HOTSPOTS — units
+// ============================================================
+function addHotspot(id,x,y,w,h,type) {
+  const el=document.createElement('div'); el.className='hotspot';
+  el.style.cssText=`left:${x-w/2}px;top:${y-h/2}px;width:${w}px;height:${h}px`;
+  el.addEventListener('click',()=> type==='unit' ? showUnitInfo(id) : null);
+  document.getElementById('wrap').appendChild(el);
+}
+[['furnace',U.furnace.x,U.furnace.y,U.furnace.w+24,U.furnace.h+24,'unit'],
+ ['converter',U.converter.x,U.converter.y,U.converter.w+24,U.converter.h+24,'unit'],
+ ['absorbers',U.absorbers.x,U.absorbers.y,110,130,'unit'],
+ ['diluter',U.diluter.x,U.diluter.y,U.diluter.w+24,U.diluter.h+24,'unit'],
+ ['storage',U.storage.x,U.storage.y,U.storage.w+24,U.storage.h+24,'unit'],
+].forEach(a=>addHotspot(...a));
+
+// ============================================================
+// UPDATE — equilibrium + all derived quantities
+// ============================================================
+function updateAll() {
+  const Tk=T_C+273.15;
+  const Kp=calcKp(Tk);
+  alpha=solveAlpha(Kp,P_atm);
+  streams=calcStreams(alpha);
+
+  // Sidebar equilibrium panel
+  document.getElementById('eq-Kp').textContent = Kp<0.01?Kp.toExponential(2):Kp<1000?Kp.toFixed(1):Kp.toExponential(2);
+  document.getElementById('eq-conv').textContent = (alpha*100).toFixed(1)+'%';
+  const mSO3=streams.so3.comps.find(c=>c.name==='SO₃');
+  const mH2SO4=streams.product.comps.find(c=>c.name==='H₂SO₄');
+  document.getElementById('eq-so3kg').textContent  = mSO3   ? fmt(mSO3.m)   : '—';
+  document.getElementById('eq-h2so4kg').textContent= mH2SO4 ? fmt(mH2SO4.m) : '—';
+  document.getElementById('eq-rate').textContent   = rateQual(Tk);
+
+  // Conversion bar
+  const pct2=alpha*100, hue=Math.round(pct2*1.2);
+  const bar=document.getElementById('conv-bar');
+  bar.style.width=pct2+'%'; bar.style.background=`hsl(${hue},75%,45%)`;
+  document.getElementById('conv-pct').textContent=pct2.toFixed(1)+'%';
+  document.getElementById('conv-pct').style.color=`hsl(${hue},75%,60%)`;
+
+  // Le Chatelier
+  updateLeChat();
+  prevT=T_C; prevP=P_atm;
+
+  // Tags + table
+  updateTags();
+  if (tableOpen) renderStreamTable();
+  rebuildBg();
+}
+
+function updateLeChat() {
+  const el=document.getElementById('le-chat');
+  let msgs=[];
+  const dT=T_C-prevT, dP=P_atm-prevP;
+  if(Math.abs(dT)>2){
+    if(dT>0) msgs.push(`<b>↑ Temperature:</b> reaction is exothermic → shifts <span class="shift-left">← LEFT</span>. Less SO₃, more SO₂. Rate increases.`);
+    else msgs.push(`<b>↓ Temperature:</b> shifts <span class="shift-right">→ RIGHT</span> to release heat. More SO₃. But rate slows; catalyst inactive below ~400 °C.`);
+  }
+  if(Math.abs(dP)>0.05){
+    if(dP>0) msgs.push(`<b>↑ Pressure:</b> 3 mol gas → 2 mol gas, so shifts <span class="shift-right">→ RIGHT</span>. More SO₃. Higher P always favours conversion here.`);
+    else msgs.push(`<b>↓ Pressure:</b> shifts <span class="shift-left">← LEFT</span> — more gas moles favoured. Less SO₃.`);
+  }
+  if(!msgs.length) msgs.push(`α = ${(alpha*100).toFixed(1)}% &nbsp;|&nbsp; ${Math.round(streams.product.totalM).toLocaleString()} kg/hr H₂SO₄ product &nbsp;|&nbsp; Rate: ${rateQual(T_C+273.15)}`);
+  el.innerHTML='<span class="lc-icon">⚗️</span>'+msgs.join('<br>');
+}
+
+// ============================================================
+// SLIDERS
+// ============================================================
+document.getElementById('temp-slider').addEventListener('input',e=>{
+  T_C=parseFloat(e.target.value);
+  document.getElementById('t-val').textContent=T_C;
+  updateAll(); buildParticles();
+});
+document.getElementById('pres-slider').addEventListener('input',e=>{
+  P_atm=parseFloat(e.target.value);
+  document.getElementById('p-val').textContent=P_atm.toFixed(1);
+  updateAll(); buildParticles();
+});
+
+// ============================================================
+// INIT
+// ============================================================
+buildTags();
+buildParticles();
+updateAll();
+animate();
+</script>
+</body>
+</html>

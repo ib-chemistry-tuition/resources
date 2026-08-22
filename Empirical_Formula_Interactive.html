@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Empirical Formula from % Composition by Mass</title>
+<style>
+  :root{
+    --blue:#1d5c9e; --blue-dark:#123b66; --green:#1f8a52; --red:#c0392b;
+    --bg:#f4f7fb; --card:#ffffff; --border:#d7e0ea; --amber:#b8860b;
+  }
+  *{box-sizing:border-box;}
+  body{
+    font-family:"Segoe UI", Arial, Helvetica, sans-serif;
+    background:var(--bg); color:#1b2733; margin:0; padding:0 0 60px 0;
+    line-height:1.5;
+  }
+  header{
+    background:linear-gradient(120deg,var(--blue-dark),var(--blue));
+    color:#fff; padding:26px 5% 30px 5%;
+  }
+  header h1{margin:0 0 6px 0; font-size:1.7em;}
+  header p{margin:0; opacity:.92; font-size:.98em;}
+  .wrap{max-width:980px; margin:0 auto; padding:0 5%;}
+  section.card{
+    background:var(--card); border:1px solid var(--border); border-radius:10px;
+    padding:22px 26px; margin-top:26px; box-shadow:0 1px 3px rgba(20,40,70,.06);
+  }
+  h2{color:var(--blue-dark); font-size:1.25em; margin-top:0; border-bottom:2px solid #eaf0f7; padding-bottom:8px;}
+  h3{color:var(--blue); font-size:1.05em; margin-bottom:6px;}
+  .step-box{
+    background:#f0f6fc; border-left:4px solid var(--blue); border-radius:6px;
+    padding:10px 14px; margin:10px 0;
+  }
+  table{border-collapse:collapse; width:100%; margin:10px 0;}
+  th,td{border:1px solid var(--border); padding:8px 10px; text-align:center; font-size:.95em;}
+  th{background:#eaf1fa; color:var(--blue-dark);}
+  .formula{font-weight:600; letter-spacing:.5px;}
+  sub{font-size:.75em;}
+  details{
+    background:#fbf7ec; border:1px solid #e8d9ad; border-radius:8px; padding:12px 16px; margin-top:14px;
+  }
+  details summary{cursor:pointer; font-weight:600; color:var(--amber); font-size:1.05em;}
+  details[open] summary{margin-bottom:10px;}
+  .cheat-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:10px;}
+  @media(max-width:700px){.cheat-grid{grid-template-columns:1fr;}}
+  .cheat-block h4{margin:0 0 6px 0; color:var(--blue-dark);}
+  .cheat-block ul{margin:4px 0 0 18px; padding:0;}
+  .mass-table{font-size:.85em;}
+  .controls{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:14px 0;}
+  select, button, input[type=text], input[type=number]{
+    font-size:.95em; padding:7px 10px; border-radius:6px; border:1px solid #bcd; font-family:inherit;
+  }
+  button{
+    background:var(--blue); color:#fff; border:none; cursor:pointer; font-weight:600;
+    transition:background .15s;
+  }
+  button:hover{background:var(--blue-dark);}
+  button.secondary{background:#8b98a8;}
+  button.secondary:hover{background:#6d7885;}
+  .question-box{
+    background:#eef6ff; border:1px solid #cfe2f5; border-radius:8px; padding:16px 18px; margin:14px 0;
+  }
+  .practice-table input{width:90px; text-align:center;}
+  .feedback{font-weight:700; margin-left:8px;}
+  .ok{color:var(--green);}
+  .bad{color:var(--red);}
+  .hint-list{background:#fffbe8; border:1px dashed #e2c94f; border-radius:6px; padding:10px 14px; margin-top:8px; font-size:.93em;}
+  .score-badge{
+    position:fixed; top:14px; right:18px; background:#fff; border:2px solid var(--blue);
+    border-radius:20px; padding:6px 16px; font-weight:700; color:var(--blue-dark); font-size:.9em;
+    box-shadow:0 2px 6px rgba(0,0,0,.12); z-index:50;
+  }
+  .overall-msg{margin-top:12px; padding:10px 14px; border-radius:8px; font-weight:600;}
+  .overall-msg.pass{background:#e5f6ec; color:var(--green); border:1px solid #b9e6c9;}
+  .overall-msg.fail{background:#fdecec; color:var(--red); border:1px solid #f5c2c2;}
+  .solution-panel{background:#f2fbf5; border:1px solid #bfe6cc; border-radius:8px; padding:14px 18px; margin-top:12px;}
+  .svg-wrap{width:100%; overflow-x:auto;}
+  .tag{display:inline-block; font-size:.75em; padding:2px 9px; border-radius:12px; background:#dce8f7; color:var(--blue-dark); margin-left:8px;}
+  .report-panel textarea{
+    width:100%; min-height:260px; font-family:"Consolas","Courier New",monospace; font-size:.85em;
+    padding:12px; border-radius:8px; border:1px solid #bcd; resize:vertical;
+  }
+  .copy-msg{margin-left:10px; font-weight:600; color:var(--green);}
+  #studentName{width:220px;}
+</style>
+</head>
+<body>
+
+<div class="score-badge">Score: <span id="scoreCorrect">0</span> / <span id="scoreTotal">0</span></div>
+
+<header>
+  <h1>Finding an Empirical Formula from % Composition by Mass</h1>
+  <p>Percentage composition &rarr; moles &rarr; simplest ratio &rarr; empirical formula. Atomic masses from the Cambridge Periodic Table (integers, Cl = 35.5).</p>
+</header>
+
+<div class="wrap">
+
+<!-- 1. BIG IDEA / GRAPHICAL OUTLINE -->
+<section class="card">
+  <h2>1. The Big Idea</h2>
+  <p>An <strong>empirical formula</strong> shows the simplest whole-number ratio of atoms of each element in a compound. If you know what percentage of the compound's mass comes from each element, you can work backwards to that ratio.</p>
+  <div class="svg-wrap">
+  <svg viewBox="0 0 980 190" xmlns="http://www.w3.org/2000/svg" style="min-width:820px;">
+    <defs>
+      <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#1d5c9e"/>
+      </marker>
+    </defs>
+    <!-- boxes -->
+    <g font-family="Segoe UI, Arial" font-size="13.5">
+      <rect x="10" y="60" width="140" height="70" rx="10" fill="#eaf1fa" stroke="#1d5c9e"/>
+      <text x="80" y="90" text-anchor="middle" fill="#123b66" font-weight="700">% by mass</text>
+      <text x="80" y="108" text-anchor="middle" fill="#333">of each element</text>
+
+      <line x1="150" y1="95" x2="185" y2="95" stroke="#1d5c9e" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <rect x="190" y="60" width="150" height="70" rx="10" fill="#eaf1fa" stroke="#1d5c9e"/>
+      <text x="265" y="83" text-anchor="middle" fill="#123b66" font-weight="700">Assume 100 g</text>
+      <text x="265" y="100" text-anchor="middle" fill="#333">mass (g) = % value</text>
+      <text x="265" y="116" text-anchor="middle" fill="#333">for each element</text>
+
+      <line x1="340" y1="95" x2="375" y2="95" stroke="#1d5c9e" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <rect x="380" y="60" width="150" height="70" rx="10" fill="#eaf1fa" stroke="#1d5c9e"/>
+      <text x="455" y="83" text-anchor="middle" fill="#123b66" font-weight="700">Moles</text>
+      <text x="455" y="100" text-anchor="middle" fill="#333">mass &divide; Ar</text>
+      <text x="455" y="116" text-anchor="middle" fill="#333">(Ar = atomic mass)</text>
+
+      <line x1="530" y1="95" x2="565" y2="95" stroke="#1d5c9e" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <rect x="570" y="60" width="160" height="70" rx="10" fill="#eaf1fa" stroke="#1d5c9e"/>
+      <text x="650" y="83" text-anchor="middle" fill="#123b66" font-weight="700">Divide by smallest</text>
+      <text x="650" y="100" text-anchor="middle" fill="#333">mole value</text>
+      <text x="650" y="116" text-anchor="middle" fill="#333">&rarr; a ratio</text>
+
+      <line x1="730" y1="95" x2="765" y2="95" stroke="#1d5c9e" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <rect x="770" y="60" width="200" height="70" rx="10" fill="#e5f6ec" stroke="#1f8a52"/>
+      <text x="870" y="83" text-anchor="middle" fill="#1f8a52" font-weight="700">Whole numbers</text>
+      <text x="870" y="100" text-anchor="middle" fill="#1f6e42">multiply if needed</text>
+      <text x="870" y="116" text-anchor="middle" fill="#1f6e42">&rarr; Empirical formula</text>
+    </g>
+  </svg>
+  </div>
+</section>
+
+<!-- 2. WORKED EXAMPLE -->
+<section class="card">
+  <h2>2. Worked Example &mdash; a simple binary compound</h2>
+  <p>A compound is found to contain <strong>60.0% magnesium</strong> and <strong>40.0% oxygen</strong> by mass. Find its empirical formula. (Ar: Mg = 24, O = 16)</p>
+
+  <div class="step-box"><strong>Step 1 &mdash; Assume 100 g of compound.</strong><br>
+    Mass of Mg = 60.0 g &nbsp;&nbsp; Mass of O = 40.0 g</div>
+
+  <div class="step-box"><strong>Step 2 &mdash; Convert mass to moles (moles = mass &divide; Ar).</strong><br>
+    Moles of Mg = 60.0 &divide; 24 = 2.5 &nbsp;&nbsp; Moles of O = 40.0 &divide; 16 = 2.5</div>
+
+  <div class="step-box"><strong>Step 3 &mdash; Divide every value by the smallest number of moles.</strong><br>
+    Mg: 2.5 &divide; 2.5 = 1 &nbsp;&nbsp; O: 2.5 &divide; 2.5 = 1</div>
+
+  <div class="step-box"><strong>Step 4 &mdash; Ratio is already whole numbers &rarr; write the empirical formula.</strong><br>
+    Mg : O = 1 : 1 &nbsp;&nbsp;&rarr;&nbsp;&nbsp; <span class="formula">MgO</span></div>
+
+  <table>
+    <tr><th></th><th>Magnesium (Mg)</th><th>Oxygen (O)</th></tr>
+    <tr><td>% by mass</td><td>60.0</td><td>40.0</td></tr>
+    <tr><td>Ar</td><td>24</td><td>16</td></tr>
+    <tr><td>Moles (% &divide; Ar)</td><td>2.5</td><td>2.5</td></tr>
+    <tr><td>&divide; smallest</td><td>1</td><td>1</td></tr>
+  </table>
+  <p><em>Note:</em> if the ratio isn't a whole number (e.g. 1 : 1.5), multiply <strong>every</strong> value by the same small number (2, 3, or 4) until they all become whole numbers &mdash; you'll practise this below.</p>
+
+  <div class="controls">
+    <button id="moreExamplesBtn" class="secondary">Please show me some more difficult examples</button>
+  </div>
+
+  <div id="moreExamplesArea" style="display:none; margin-top:14px;">
+
+    <h3>Extra worked example 1 &mdash; Sodium oxide (Na<sub>2</sub>O)</h3>
+    <p>Ar: Na = 23, O = 16</p>
+    <table>
+      <tr><th></th><th>Sodium (Na)</th><th>Oxygen (O)</th></tr>
+      <tr><td>% by mass</td><td>74.2</td><td>25.8</td></tr>
+      <tr><td>Moles (% &divide; Ar)</td><td>74.2 &divide; 23 = 3.23</td><td>25.8 &divide; 16 = 1.61</td></tr>
+      <tr><td>&divide; smallest (1.61)</td><td>3.23 &divide; 1.61 &asymp; 2.0</td><td>1.61 &divide; 1.61 = 1.0</td></tr>
+    </table>
+    <p>Ratio Na : O = 2 : 1 &nbsp;&rarr;&nbsp; <span class="formula">Na₂O</span></p>
+    <p style="font-size:.9em;color:#555;">This one shows that the smallest mole value doesn't have to give a ratio of 1 : 1 &mdash; here it comes out as 2 : 1 straight away.</p>
+
+    <h3 style="margin-top:20px;">Extra worked example 2 &mdash; Potassium hydrogencarbonate (KHCO<sub>3</sub>)</h3>
+    <p>Ar: K = 39, H = 1, C = 12, O = 16</p>
+    <table>
+      <tr><th></th><th>K</th><th>H</th><th>C</th><th>O</th></tr>
+      <tr><td>% by mass</td><td>39</td><td>1</td><td>12</td><td>48</td></tr>
+      <tr><td>Moles (% &divide; Ar)</td><td>39&divide;39=1</td><td>1&divide;1=1</td><td>12&divide;12=1</td><td>48&divide;16=3</td></tr>
+      <tr><td>&divide; smallest (1)</td><td>1</td><td>1</td><td>1</td><td>3</td></tr>
+    </table>
+    <p>Ratio K : H : C : O = 1 : 1 : 1 : 3 &nbsp;&rarr;&nbsp; <span class="formula">KHCO₃</span></p>
+    <p style="font-size:.9em;color:#555;">With four elements the method is exactly the same &mdash; just one extra column in the table.</p>
+
+    <h3 style="margin-top:20px;">Extra worked example 3 &mdash; Ammonium chloride (NH<sub>4</sub>Cl)</h3>
+    <p>Ar: N = 14, H = 1, Cl = 35.5. Ammonium compounds contain the NH<sub>4</sub> group, so hydrogen has a bigger share of the mass than you might expect.</p>
+    <table>
+      <tr><th></th><th>N</th><th>H</th><th>Cl</th></tr>
+      <tr><td>% by mass</td><td>26.2</td><td>7.5</td><td>66.4</td></tr>
+      <tr><td>Moles (% &divide; Ar)</td><td>26.2&divide;14=1.87</td><td>7.5&divide;1=7.5</td><td>66.4&divide;35.5=1.87</td></tr>
+      <tr><td>&divide; smallest (1.87)</td><td>1.0</td><td>4.0</td><td>1.0</td></tr>
+    </table>
+    <p>Ratio N : H : Cl = 1 : 4 : 1 &nbsp;&rarr;&nbsp; <span class="formula">NH₄Cl</span></p>
+    <p style="font-size:.9em;color:#555;">Ammonium compounds (formulas containing NH₄) appear in the practice questions below too &mdash; look out for a high % of hydrogen as a clue.</p>
+  </div>
+</section>
+
+<!-- 3. CHEAT SHEET -->
+<section class="card">
+  <details>
+    <summary>📋 Cheat Sheet &mdash; click to open/close</summary>
+    <div class="cheat-grid">
+      <div class="cheat-block">
+        <h4>The Method (memorise this)</h4>
+        <ul>
+          <li>Assume you have <strong>100 g</strong> of the compound &rarr; % becomes grams.</li>
+          <li><strong>Moles = mass &divide; Ar</strong> for each element.</li>
+          <li>Divide all mole values by the <strong>smallest</strong> one.</li>
+          <li>If not whole numbers, multiply all by the same factor:
+            <ul>
+              <li>.5 &rarr; &times;2</li>
+              <li>.33 or .67 &rarr; &times;3</li>
+              <li>.25 or .75 &rarr; &times;4</li>
+            </ul>
+          </li>
+          <li>Write symbols with these whole numbers as subscripts.</li>
+        </ul>
+        <h4>Common mistakes</h4>
+        <ul>
+          <li>Dividing by Ar the wrong way round (it's mass &divide; Ar, not Ar &divide; mass).</li>
+          <li>Forgetting Cl has Ar = 35.5, not 36 or 35.</li>
+          <li>Rounding too early &mdash; keep 2&ndash;3 decimal places until the final ratio.</li>
+          <li>Stopping at a decimal ratio instead of scaling up to whole numbers.</li>
+        </ul>
+      </div>
+      <div class="cheat-block">
+        <h4>Atomic masses used here (Ar)</h4>
+        <table class="mass-table">
+          <tr><th>H</th><td>1</td><th>N</th><td>14</td><th>S</th><td>32</td><th>Fe</th><td>56</td></tr>
+          <tr><th>Li</th><td>7</td><th>O</th><td>16</td><th>Cl</th><td>35.5</td><th>Cu</th><td>64</td></tr>
+          <tr><th>C</th><td>12</td><th>F</th><td>19</td><th>K</th><td>39</td><th>Zn</th><td>65</td></tr>
+          <tr><th></th><td></td><th>Na</th><td>23</td><th>Ca</th><td>40</td><th>Br</th><td>80</td></tr>
+          <tr><th></th><td></td><th>Mg</th><td>24</td><th></th><td></td><th>I</th><td>127</td></tr>
+          <tr><th></th><td></td><th>Al</th><td>27</td><th></th><td></td><th></th><td></td></tr>
+          <tr><th></th><td></td><th>Si</th><td>28</td><th></th><td></td><th></th><td></td></tr>
+        </table>
+        <p style="font-size:.85em;color:#555;">All masses are the integer values from the Cambridge Periodic Table, except chlorine (35.5), as used in the questions below.</p>
+      </div>
+    </div>
+  </details>
+</section>
+
+<!-- 4. INTERACTIVE PRACTICE -->
+<section class="card">
+  <h2>3. Your Turn &mdash; Practice Questions</h2>
+  <div class="controls">
+    <label for="studentName"><strong>Your name:</strong></label>
+    <input type="text" id="studentName" placeholder="Type your name here">
+  </div>
+  <div class="controls">
+    <label for="levelSelect"><strong>Choose difficulty:</strong></label>
+    <select id="levelSelect">
+      <option value="2">Binary compounds (2 elements) &mdash; easier</option>
+      <option value="3">Compounds with 3 elements &mdash; harder</option>
+      <option value="ammonium">Ammonium compounds &mdash; hardest</option>
+      <option value="any">Any</option>
+    </select>
+    <button id="newQBtn">New Question</button>
+    <button id="hintBtn" class="secondary">Show next hint</button>
+    <button id="solutionBtn" class="secondary">Show full solution</button>
+  </div>
+
+  <div class="question-box" id="questionBox">
+    <p>Click <strong>"New Question"</strong> to begin.</p>
+  </div>
+
+  <div id="hintsArea" class="hint-list" style="display:none;"></div>
+
+  <div id="workArea"></div>
+
+  <div class="controls">
+    <button id="checkBtn">Check my answer</button>
+  </div>
+  <div id="overallMsg"></div>
+  <div id="solutionArea"></div>
+</section>
+
+<!-- 5. FINAL REPORT FOR CANVAS SUBMISSION -->
+<section class="card">
+  <h2>4. Finish &amp; Submit</h2>
+  <p>When you have answered all the questions you plan to attempt, click <strong>"Generate Report"</strong>. Then click <strong>"Copy to clipboard"</strong> and paste the text into the Canvas submission box for this task.</p>
+  <div class="controls">
+    <button id="reportBtn">Generate Report</button>
+    <button id="copyBtn" class="secondary">Copy to clipboard</button>
+    <button id="downloadBtn" class="secondary">Download as .txt</button>
+    <span id="copyMsg" class="copy-msg"></span>
+  </div>
+  <div class="report-panel">
+    <textarea id="reportText" readonly placeholder="Your report will appear here once you click 'Generate Report'."></textarea>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* ---------- Data ---------- */
+const AR = {H:1, Li:7, C:12, N:14, O:16, F:19, Na:23, Mg:24, Al:27, Si:28,
+            S:32, Cl:35.5, K:39, Ca:40, Fe:56, Cu:64, Zn:65, Br:80, I:127};
+
+const COMPOUNDS = [
+  // binary (level 2)
+  {name:"Magnesium chloride", comp:{Mg:1,Cl:2}, level:2},
+  {name:"Carbon dioxide", comp:{C:1,O:2}, level:2},
+  {name:"Nitrogen dioxide", comp:{N:1,O:2}, level:2},
+  {name:"Ammonia", comp:{N:1,H:3}, level:2},
+  {name:"Calcium oxide", comp:{Ca:1,O:1}, level:2},
+  {name:"Sodium chloride", comp:{Na:1,Cl:1}, level:2},
+  {name:"Potassium chloride", comp:{K:1,Cl:1}, level:2},
+  {name:"Potassium oxide", comp:{K:2,O:1}, level:2},
+  {name:"Aluminium oxide", comp:{Al:2,O:3}, level:2},
+  {name:"Iron(III) oxide", comp:{Fe:2,O:3}, level:2},
+  {name:"Iron(II) oxide", comp:{Fe:1,O:1}, level:2},
+  {name:"Copper(II) oxide", comp:{Cu:1,O:1}, level:2},
+  {name:"Copper(I) oxide", comp:{Cu:2,O:1}, level:2},
+  {name:"Zinc oxide", comp:{Zn:1,O:1}, level:2},
+  {name:"Zinc chloride", comp:{Zn:1,Cl:2}, level:2},
+  {name:"Calcium chloride", comp:{Ca:1,Cl:2}, level:2},
+  {name:"Sodium bromide", comp:{Na:1,Br:1}, level:2},
+  {name:"Potassium bromide", comp:{K:1,Br:1}, level:2},
+  {name:"Calcium bromide", comp:{Ca:1,Br:2}, level:2},
+  {name:"Potassium iodide", comp:{K:1,I:1}, level:2},
+  {name:"Sodium iodide", comp:{Na:1,I:1}, level:2},
+  {name:"Calcium iodide", comp:{Ca:1,I:2}, level:2},
+  {name:"Sodium fluoride", comp:{Na:1,F:1}, level:2},
+  {name:"Calcium fluoride", comp:{Ca:1,F:2}, level:2},
+  {name:"Magnesium fluoride", comp:{Mg:1,F:2}, level:2},
+  {name:"Magnesium nitride", comp:{Mg:3,N:2}, level:2},
+  {name:"Calcium nitride", comp:{Ca:3,N:2}, level:2},
+  {name:"Lithium nitride", comp:{Li:3,N:1}, level:2},
+  {name:"Silicon dioxide", comp:{Si:1,O:2}, level:2},
+  {name:"Aluminium chloride", comp:{Al:1,Cl:3}, level:2},
+  {name:"Iron(III) chloride", comp:{Fe:1,Cl:3}, level:2},
+  {name:"Iron(II) chloride", comp:{Fe:1,Cl:2}, level:2},
+  // ternary (level 3)
+  {name:"Sodium hydroxide", comp:{Na:1,O:1,H:1}, level:3},
+  {name:"Calcium hydroxide", comp:{Ca:1,O:2,H:2}, level:3},
+  {name:"Sodium carbonate", comp:{Na:2,C:1,O:3}, level:3},
+  {name:"Sodium sulfate", comp:{Na:2,S:1,O:4}, level:3},
+  {name:"Magnesium sulfate", comp:{Mg:1,S:1,O:4}, level:3},
+  {name:"Copper(II) sulfate", comp:{Cu:1,S:1,O:4}, level:3},
+  {name:"Potassium nitrate", comp:{K:1,N:1,O:3}, level:3},
+  {name:"Sodium nitrate", comp:{Na:1,N:1,O:3}, level:3},
+  {name:"Calcium nitrate", comp:{Ca:1,N:2,O:6}, level:3},
+  {name:"Magnesium nitrate", comp:{Mg:1,N:2,O:6}, level:3},
+  {name:"Potassium hydroxide", comp:{K:1,O:1,H:1}, level:3},
+  {name:"Lithium hydroxide", comp:{Li:1,O:1,H:1}, level:3},
+  {name:"Sodium hydrogencarbonate", comp:{Na:1,H:1,C:1,O:3}, level:3},
+  {name:"Potassium hydrogencarbonate", comp:{K:1,H:1,C:1,O:3}, level:3},
+  {name:"Magnesium carbonate", comp:{Mg:1,C:1,O:3}, level:3},
+  {name:"Potassium carbonate", comp:{K:2,C:1,O:3}, level:3},
+  {name:"Iron(II) sulfate", comp:{Fe:1,S:1,O:4}, level:3},
+  {name:"Calcium carbonate", comp:{Ca:1,C:1,O:3}, level:3},
+  {name:"Sodium oxide", comp:{Na:2,O:1}, level:2},
+  // ammonium compounds (hardest tier)
+  {name:"Ammonium chloride", comp:{N:1,H:4,Cl:1}, level:3, ammonium:true},
+  {name:"Ammonium nitrate", comp:{N:2,H:4,O:3}, level:3, ammonium:true},
+  {name:"Ammonium sulfate", comp:{N:2,H:8,S:1,O:4}, level:4, ammonium:true},
+  {name:"Ammonium carbonate", comp:{N:2,H:8,C:1,O:3}, level:4, ammonium:true},
+  {name:"Ammonium hydrogencarbonate", comp:{N:1,H:5,C:1,O:3}, level:4, ammonium:true},
+];
+
+/* ---------- State ---------- */
+let current = null;      // current compound object
+let percents = {};       // element -> percent (rounded 1dp)
+let elementsOrder = [];
+let hintLevel = 0;
+let scoreCorrect = 0, scoreTotal = 0;
+let lastIndex = -1;
+let questionCounter = 0;
+let sessionLog = [];   // one entry per question asked
+
+/* ---------- Helpers ---------- */
+function subscript(str){
+  const map = {'0':'₀','1':'₁','2':'₂','3':'₃','4':'₄','5':'₅','6':'₆','7':'₇','8':'₈','9':'₉'};
+  return str.split('').map(c => map[c] !== undefined ? map[c] : c).join('');
+}
+function formulaHTML(comp){
+  return Object.entries(comp).map(([el,n]) => n===1 ? el : el+subscript(String(n))).join('');
+}
+function calcPercents(comp){
+  const masses = {}; let total = 0;
+  for (const el in comp){ masses[el] = AR[el]*comp[el]; total += masses[el]; }
+  const pct = {};
+  for (const el in comp){ pct[el] = Math.round((masses[el]/total*100)*10)/10; }
+  return pct;
+}
+function pickCompound(level){
+  let pool = COMPOUNDS.map((c,i)=>({...c,idx:i}));
+  if (level === "ammonium") pool = pool.filter(c => c.ammonium);
+  else if (level !== "any") pool = pool.filter(c => c.level === Number(level));
+  let idx;
+  do { idx = Math.floor(Math.random()*pool.length); } while (pool.length>1 && pool[idx].idx===lastIndex);
+  lastIndex = pool[idx].idx;
+  return pool[idx];
+}
+function parseFormula(str){
+  const re = /([A-Z][a-z]?)(\d*)/g;
+  let m, result = {};
+  str = str.replace(/\s+/g,'');
+  while ((m = re.exec(str)) !== null){
+    if (!m[1]) continue;
+    const el = m[1];
+    const n = m[2] ? parseInt(m[2],10) : 1;
+    result[el] = (result[el]||0) + n;
+  }
+  return result;
+}
+function compEqual(a,b){
+  const ak = Object.keys(a).filter(k=>a[k]!==0), bk = Object.keys(b).filter(k=>b[k]!==0);
+  if (ak.length !== bk.length) return false;
+  for (const k of ak){ if (a[k] !== b[k]) return false; }
+  return true;
+}
+
+/* ---------- Question generation ---------- */
+function newQuestion(){
+  const level = document.getElementById('levelSelect').value;
+  current = pickCompound(level);
+  percents = calcPercents(current.comp);
+  elementsOrder = Object.keys(current.comp);
+  hintLevel = 0;
+
+  questionCounter++;
+  sessionLog.push({
+    qNum: questionCounter,
+    compoundName: current.name,
+    correctFormula: formulaHTML(current.comp),
+    percentsGiven: elementsOrder.map(el => `${el}: ${percents[el].toFixed(1)}%`).join(', '),
+    attempts: 0,
+    lastAnswer: null,
+    correct: false,
+    answered: false
+  });
+
+  const pctText = elementsOrder.map(el => `${el}: ${percents[el].toFixed(1)}%`).join(', ');
+  document.getElementById('questionBox').innerHTML =
+    `<p><strong>Question:</strong> A compound contains only the elements below.
+     Analysis gives the following percentage composition by mass:</p>
+     <p style="font-size:1.05em;"><strong>${pctText}</strong></p>
+     <p>Find the empirical formula. (Element order in your answer doesn't matter.)</p>`;
+
+  document.getElementById('hintsArea').style.display = 'none';
+  document.getElementById('hintsArea').innerHTML = '';
+  document.getElementById('overallMsg').innerHTML = '';
+  document.getElementById('solutionArea').innerHTML = '';
+
+  let rows = '';
+  elementsOrder.forEach(el=>{
+    rows += `<tr>
+      <td>${el} (Ar = ${AR[el]})</td>
+      <td>${percents[el].toFixed(1)}</td>
+      <td><input type="number" step="0.01" id="moles_${el}" placeholder="?"></td>
+      <td><input type="number" step="0.01" id="ratio_${el}" placeholder="?"></td>
+      <td><input type="number" step="1" id="whole_${el}" placeholder="?"></td>
+    </tr>`;
+  });
+
+  document.getElementById('workArea').innerHTML = `
+    <table class="practice-table">
+      <tr><th>Element</th><th>% by mass (= g in 100 g)</th><th>Moles (mass &divide; Ar)</th>
+          <th>&divide; smallest</th><th>Whole-number ratio</th></tr>
+      ${rows}
+    </table>
+    <div class="controls">
+      <label for="finalFormula"><strong>Empirical formula:</strong></label>
+      <input type="text" id="finalFormula" placeholder="e.g. CO2 or MgCl2">
+    </div>
+  `;
+}
+
+/* ---------- Hints ---------- */
+const HINT_TEXTS = [
+  "Assume you have 100 g of the compound &mdash; then each percentage becomes a mass in grams.",
+  "Moles = mass &divide; Ar. Use the atomic masses shown in brackets next to each element.",
+  "Divide every mole value by the smallest mole value in the table.",
+  "If the ratio has a decimal like .5, .33/.67, or .25/.75, multiply ALL values by 2, 3, or 4 until every number is a whole number.",
+  "Write the whole numbers as subscripts after each element symbol to give the empirical formula."
+];
+function showNextHint(){
+  const area = document.getElementById('hintsArea');
+  area.style.display = 'block';
+  if (hintLevel < HINT_TEXTS.length){
+    const p = document.createElement('div');
+    p.innerHTML = `<strong>Hint ${hintLevel+1}:</strong> ${HINT_TEXTS[hintLevel]}`;
+    area.appendChild(p);
+    hintLevel++;
+  }
+}
+
+/* ---------- Checking ---------- */
+function closeEnough(val, target, relTol, absTol){
+  if (isNaN(val)) return false;
+  return Math.abs(val-target) <= Math.max(absTol, Math.abs(target)*relTol);
+}
+
+function checkAnswer(){
+  if (!current){ return; }
+  let allOk = true;
+  const counts = Object.values(current.comp);
+  const minCount = Math.min(...counts);
+
+  elementsOrder.forEach(el=>{
+    const molesTrue = percents[el] / AR[el];
+    const ratioTrue = current.comp[el] / minCount; // theoretical ratio before rounding
+    const wholeTrue = current.comp[el];
+
+    const molesInput = parseFloat(document.getElementById(`moles_${el}`).value);
+    const ratioInput = parseFloat(document.getElementById(`ratio_${el}`).value);
+    const wholeInput = parseFloat(document.getElementById(`whole_${el}`).value);
+
+    const molesOk = closeEnough(molesInput, molesTrue, 0.04, 0.03);
+    const ratioOk = closeEnough(ratioInput, ratioTrue, 0.06, 0.05);
+    const wholeOk = (Math.round(wholeInput) === wholeTrue);
+
+    markField(`moles_${el}`, molesOk);
+    markField(`ratio_${el}`, ratioOk);
+    markField(`whole_${el}`, wholeOk);
+
+    if (!(molesOk && ratioOk && wholeOk)) allOk = false;
+  });
+
+  const finalVal = document.getElementById('finalFormula').value;
+  const parsed = parseFormula(finalVal);
+  const formulaOk = finalVal.trim().length>0 && compEqual(parsed, current.comp);
+  markField('finalFormula', formulaOk);
+  if (!formulaOk) allOk = false;
+
+  scoreTotal++;
+  if (allOk) scoreCorrect++;
+  document.getElementById('scoreCorrect').textContent = scoreCorrect;
+  document.getElementById('scoreTotal').textContent = scoreTotal;
+
+  // record this attempt against the current question's log entry (latest attempt overwrites)
+  const logEntry = sessionLog[sessionLog.length - 1];
+  if (logEntry){
+    logEntry.attempts++;
+    logEntry.lastAnswer = finalVal.trim().length ? finalVal.trim() : '(no answer entered)';
+    logEntry.correct = allOk;
+    logEntry.answered = true;
+  }
+
+  const msgDiv = document.getElementById('overallMsg');
+  if (allOk){
+    msgDiv.innerHTML = `<div class="overall-msg pass">✅ All correct! The empirical formula is <span class="formula">${formulaHTML(current.comp)}</span>. Well done.</div>`;
+  } else {
+    msgDiv.innerHTML = `<div class="overall-msg fail">❌ Not quite right yet &mdash; check the red boxes above. Try the hints, or click "Show full solution" if you're stuck.</div>`;
+  }
+}
+
+/* ---------- End-of-session report ---------- */
+function generateReport(){
+  const name = (document.getElementById('studentName').value || '').trim() || '(name not entered)';
+  const now = new Date();
+  const dateStr = now.toLocaleString();
+  const numCorrect = sessionLog.filter(q => q.correct).length;
+  const numAnswered = sessionLog.filter(q => q.answered).length;
+
+  let lines = [];
+  lines.push('EMPIRICAL FORMULA PRACTICE - SESSION REPORT');
+  lines.push('Student: ' + name);
+  lines.push('Date: ' + dateStr);
+  lines.push('Questions attempted: ' + sessionLog.length + '   Answered: ' + numAnswered + '   Correct: ' + numCorrect);
+  lines.push('Total answer checks clicked: ' + scoreTotal);
+  lines.push('----------------------------------------------------');
+
+  sessionLog.forEach(q=>{
+    lines.push('Q' + q.qNum + '.  Compound: ' + q.compoundName);
+    lines.push('    Given composition: ' + q.percentsGiven);
+    if (q.answered){
+      lines.push('    Student answer: ' + q.lastAnswer + '   (attempts: ' + q.attempts + ')');
+      lines.push('    Correct formula: ' + stripHtmlSub(q.correctFormula));
+      lines.push('    Result: ' + (q.correct ? 'CORRECT' : 'INCORRECT'));
+    } else {
+      lines.push('    Student answer: (not attempted / not checked)');
+      lines.push('    Correct formula: ' + stripHtmlSub(q.correctFormula));
+      lines.push('    Result: NOT ATTEMPTED');
+    }
+    lines.push('');
+  });
+
+  lines.push('----------------------------------------------------');
+  lines.push('End of report.');
+
+  document.getElementById('reportText').value = lines.join('\n');
+  document.getElementById('copyMsg').textContent = '';
+}
+
+// convert the subscript unicode used for display back into plain digits for the plain-text report
+function stripHtmlSub(str){
+  const map = {'₀':'0','₁':'1','₂':'2','₃':'3','₄':'4','₅':'5','₆':'6','₇':'7','₈':'8','₉':'9'};
+  return str.split('').map(c => map[c] !== undefined ? map[c] : c).join('');
+}
+
+function copyReport(){
+  const ta = document.getElementById('reportText');
+  if (!ta.value.trim()){ generateReport(); }
+  ta.select();
+  ta.setSelectionRange(0, 999999);
+  const msg = document.getElementById('copyMsg');
+  navigator.clipboard.writeText(ta.value).then(()=>{
+    msg.textContent = 'Copied! You can now paste it into Canvas.';
+  }).catch(()=>{
+    try { document.execCommand('copy'); msg.textContent = 'Copied! You can now paste it into Canvas.'; }
+    catch(e){ msg.textContent = 'Could not auto-copy — please select the text and copy manually.'; }
+  });
+}
+
+function downloadReport(){
+  const ta = document.getElementById('reportText');
+  if (!ta.value.trim()){ generateReport(); }
+  const name = (document.getElementById('studentName').value || 'student').trim().replace(/\s+/g,'_') || 'student';
+  const blob = new Blob([document.getElementById('reportText').value], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'EmpiricalFormula_Report_' + name + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function markField(id, ok){
+  const el = document.getElementById(id);
+  el.style.borderColor = ok ? '#1f8a52' : '#c0392b';
+  el.style.background = ok ? '#eafaf0' : '#fdecec';
+}
+
+/* ---------- Full solution ---------- */
+function showSolution(){
+  if (!current) return;
+  const counts = Object.values(current.comp);
+  const minCount = Math.min(...counts);
+  let rows = '';
+  elementsOrder.forEach(el=>{
+    const moles = (percents[el]/AR[el]).toFixed(2);
+    const ratio = (current.comp[el]/minCount).toFixed(2);
+    rows += `<tr><td>${el}</td><td>${percents[el].toFixed(1)}</td><td>${AR[el]}</td>
+      <td>${moles}</td><td>${ratio}</td><td>${current.comp[el]}</td></tr>`;
+  });
+  document.getElementById('solutionArea').innerHTML = `
+    <div class="solution-panel">
+      <h3>Full worked solution</h3>
+      <table>
+        <tr><th>Element</th><th>%</th><th>Ar</th><th>Moles (%÷Ar)</th><th>÷ smallest</th><th>Whole number</th></tr>
+        ${rows}
+      </table>
+      <p>Empirical formula: <span class="formula">${formulaHTML(current.comp)}</span> &mdash; ${current.name}</p>
+    </div>`;
+}
+
+/* ---------- Extra worked examples toggle ---------- */
+function toggleMoreExamples(){
+  const area = document.getElementById('moreExamplesArea');
+  const btn = document.getElementById('moreExamplesBtn');
+  const isHidden = (area.style.display === 'none' || area.style.display === '');
+  area.style.display = isHidden ? 'block' : 'none';
+  btn.textContent = isHidden ? 'Hide extra examples' : 'Please show me some more difficult examples';
+}
+
+/* ---------- Wire up ---------- */
+document.getElementById('moreExamplesBtn').addEventListener('click', toggleMoreExamples);
+document.getElementById('newQBtn').addEventListener('click', newQuestion);
+document.getElementById('hintBtn').addEventListener('click', showNextHint);
+document.getElementById('checkBtn').addEventListener('click', checkAnswer);
+document.getElementById('solutionBtn').addEventListener('click', showSolution);
+document.getElementById('reportBtn').addEventListener('click', generateReport);
+document.getElementById('copyBtn').addEventListener('click', copyReport);
+document.getElementById('downloadBtn').addEventListener('click', downloadReport);
+</script>
+
+</body>
+</html>

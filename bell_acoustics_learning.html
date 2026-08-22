@@ -1,0 +1,2316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bell Acoustics — A Learning Sequence</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:#11141f; --card:#1c2030; --card2:#222840; --border:#2c3455;
+  --accent:#7ea8f8; --accent2:#f4a261; --text:#dde3f0; --muted:#8090b0;
+  --green:#6ee7a0; --red:#f07c7c; --yellow:#f4d03f; --purple:#c084fc;
+  --grid:#1e2540;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── HEADER ── */
+header{padding:1.8rem 2rem 1.4rem;text-align:center;background:linear-gradient(180deg,#0c0f1c,#111524);border-bottom:1px solid var(--border);position:relative}
+header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+header h1{font-size:1.7rem;font-weight:300;letter-spacing:.8px;color:#eef2ff}
+header h1 strong{color:var(--accent);font-weight:600}
+header p{margin-top:.4rem;color:var(--muted);font-size:.85rem;font-style:italic}
+
+/* ── PROGRESS NAV ── */
+.progress-nav{display:flex;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;padding:0 1rem}
+.step-btn{padding:.8rem 1.1rem;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;font-family:inherit;font-size:.82rem;white-space:nowrap;display:flex;align-items:center;gap:.45rem;transition:color .15s,border-color .15s}
+.step-btn:hover{color:var(--text)}
+.step-btn.on{color:var(--accent);border-bottom-color:var(--accent)}
+.step-num{width:18px;height:18px;border-radius:50%;font-size:.7rem;display:inline-flex;align-items:center;justify-content:center;background:var(--border);color:var(--muted);transition:all .15s;flex-shrink:0}
+.step-btn.on .step-num{background:var(--accent);color:var(--bg)}
+.step-btn.done .step-num{background:var(--green);color:var(--bg)}
+
+/* ── SECTIONS ── */
+.section{display:none;padding:1.6rem;max-width:1080px;margin:0 auto}
+.section.on{display:block}
+
+/* ── INTRO CARDS ── */
+.intro{background:var(--card);border-left:4px solid var(--accent);border-radius:6px;padding:1.2rem 1.4rem;margin-bottom:1.4rem}
+.intro h2{font-size:1.1rem;font-weight:400;color:var(--accent);margin-bottom:.5rem}
+.intro p{color:var(--muted);font-size:.9rem;line-height:1.75}
+.intro em{color:var(--text);font-style:normal}
+.phrase-highlight{display:inline-block;background:rgba(244,162,97,.1);border-left:3px solid var(--accent2);padding:.2rem .6rem;border-radius:0 4px 4px 0;font-style:italic;color:var(--accent2);font-size:.88rem;margin:.4rem 0;line-height:1.5}
+
+/* ── GENERAL CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.3rem;margin-bottom:1.1rem}
+.finding{background:rgba(126,168,248,.06);border:1px solid rgba(126,168,248,.25);border-radius:8px;padding:1rem 1.3rem;margin-top:1.1rem;font-size:.89rem;color:var(--muted);line-height:1.75}
+.finding strong{color:var(--accent)}
+.finding code{background:rgba(126,168,248,.12);padding:.1rem .35rem;border-radius:3px;font-size:.84rem;color:var(--accent2)}
+
+/* ── VOCAB CHIPS ── */
+.vocab{display:inline-block;background:rgba(192,132,252,.15);border:1px solid rgba(192,132,252,.35);color:var(--purple);padding:.05rem .4rem;border-radius:3px;font-size:.83rem;cursor:pointer;transition:background .15s}
+.vocab:hover{background:rgba(192,132,252,.28)}
+
+/* ── STAGE 1: BELL ANATOMY ── */
+.partial-table{width:100%;border-collapse:collapse}
+.partial-table th{font-size:.75rem;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding:.5rem .8rem;border-bottom:1px solid var(--border);text-align:left}
+.partial-table td{padding:.55rem .8rem;font-size:.88rem;border-bottom:1px solid var(--grid)}
+.partial-table tr{cursor:pointer;transition:background .12s}
+.partial-table tr:hover{background:rgba(126,168,248,.07)}
+.partial-table tr.active{background:rgba(126,168,248,.13)}
+.partial-row-name{font-weight:600;color:var(--text)}
+.partial-role{color:var(--muted);font-size:.8rem}
+.play-dot{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:.75rem;cursor:pointer;transition:all .15s;color:var(--accent);flex-shrink:0}
+.play-dot:hover{background:var(--accent);color:var(--bg)}
+
+.spectrum-wrap{margin:1.2rem 0;padding:1rem;background:var(--bg);border-radius:6px;border:1px solid var(--border)}
+.spectrum-title{font-size:.75rem;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:.8rem}
+.spectrum-bars{display:flex;align-items:flex-end;gap:6px;height:90px}
+.spec-bar{flex:1;border-radius:3px 3px 0 0;position:relative;transition:all .3s;cursor:pointer;min-width:30px}
+.spec-bar-label{font-size:.65rem;text-align:center;margin-top:.3rem;color:var(--muted)}
+
+/* ── STAGE 2: VIRTUAL PITCH ── */
+.demo-btns{display:flex;gap:.6rem;flex-wrap:wrap;margin:1rem 0}
+.demo-btn{padding:.55rem 1.1rem;border-radius:5px;font-family:inherit;font-size:.85rem;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:var(--card2);color:var(--text)}
+.demo-btn:hover{border-color:var(--accent);color:var(--accent)}
+.demo-btn.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+
+/* ── CONTROLS ── */
+.ctrl-row{display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:1.1rem}
+.ctrl label{display:block;font-size:.75rem;color:var(--muted);margin-bottom:.25rem;text-transform:uppercase;letter-spacing:.3px}
+select{background:var(--card2);border:1px solid var(--border);color:var(--text);padding:.4rem .75rem;border-radius:5px;font-size:.86rem;font-family:inherit;cursor:pointer}
+.cb-row{display:flex;align-items:center;gap:.45rem;cursor:pointer;padding-bottom:.1rem}
+.cb-row input{accent-color:var(--accent);width:14px;height:14px;cursor:pointer}
+.cb-row span{font-size:.86rem;color:var(--muted)}
+
+/* ── STATS ── */
+.stats{display:flex;gap:1rem;margin-top:1rem;flex-wrap:wrap}
+.stat{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.55rem .9rem}
+.stat-l{font-size:.7rem;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+.stat-v{font-size:1.1rem;font-family:monospace;color:var(--accent2);font-weight:700}
+.big-stat{font-size:2.2rem;font-family:monospace;font-weight:700}
+
+/* ── SLIDERS ── */
+.slider-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.2rem}
+@media(max-width:640px){.slider-grid{grid-template-columns:1fr}}
+.sl-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem 1.1rem}
+.sl-card h4{font-size:.9rem;font-weight:500;color:var(--text);margin-bottom:.2rem}
+.sl-card p{font-size:.78rem;color:var(--muted);margin-bottom:.6rem;line-height:1.5}
+input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:.3rem 0}
+.sl-val{font-family:monospace;font-size:.92rem;color:var(--accent2);font-weight:600}
+
+/* ── PITCH DISPLAY ── */
+.pitch-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.4rem;margin-bottom:1.1rem;text-align:center}
+.pitch-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+.pitch-num{font-size:3rem;font-family:monospace;font-weight:700;margin:.3rem 0;transition:color .3s}
+.bar-wrap{position:relative;max-width:560px;margin:.7rem auto;background:var(--bg);border:1px solid var(--border);border-radius:20px;height:21px;overflow:hidden}
+.bar-center{position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--muted);opacity:.4}
+.bar-fill{position:absolute;top:0;bottom:0;transition:all .25s;border-radius:2px}
+.bar-legend{display:flex;justify-content:space-between;max-width:560px;margin:.25rem auto 0;font-size:.7rem;color:var(--muted)}
+
+/* ── BUTTONS ── */
+.btns{margin-top:1.1rem;display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap}
+.btn{padding:.6rem 1.5rem;border-radius:6px;font-size:.9rem;font-family:inherit;font-weight:600;cursor:pointer;transition:opacity .15s}
+.btn:hover{opacity:.82}
+.btn-p{background:var(--accent);color:var(--bg);border:none}
+.btn-s{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.audio-note{font-size:.78rem;color:var(--accent2);min-height:1rem;text-align:center;margin-top:.6rem}
+
+/* ── NEXT/PREV ── */
+.nav-row{display:flex;justify-content:space-between;margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border)}
+.nav-btn{padding:.55rem 1.2rem;border-radius:5px;font-family:inherit;font-size:.86rem;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text);transition:all .15s}
+.nav-btn:hover{border-color:var(--accent);color:var(--accent)}
+.nav-btn-next{background:var(--accent);color:var(--bg);border:none;font-weight:600}
+.nav-btn-next:hover{opacity:.85}
+
+/* ── STAGE 3 BERLIN ── */
+.case-box{background:rgba(244,162,97,.05);border:1px solid rgba(244,162,97,.3);border-radius:8px;padding:1.1rem 1.3rem;margin-top:1.1rem}
+.case-box h3{font-size:.95rem;color:var(--accent2);margin-bottom:.5rem;font-weight:500}
+.case-table{width:100%;border-collapse:collapse;font-size:.83rem;margin-top:.8rem}
+.case-table th{color:var(--muted);font-size:.72rem;text-transform:uppercase;padding:.35rem .6rem;border-bottom:1px solid var(--border);text-align:right}
+.case-table th:first-child{text-align:left}
+.case-table td{padding:.35rem .6rem;border-bottom:1px solid var(--grid);text-align:right;font-family:monospace}
+.case-table td:first-child{text-align:left;color:var(--text);font-family:inherit}
+.moved{color:var(--red)}.sharper{color:var(--green)}
+
+/* ── STAGE 3 PEAL ── */
+.peal-layout{display:grid;grid-template-columns:210px 1fr;gap:1.2rem}
+@media(max-width:680px){.peal-layout{grid-template-columns:1fr}}
+.peal-list{display:flex;flex-direction:column;gap:.4rem}
+.peal-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:.65rem .85rem;border-radius:6px;cursor:pointer;text-align:left;font-family:inherit;font-size:.83rem;transition:all .15s}
+.peal-btn:hover{border-color:var(--accent)}
+.peal-btn.on{border-color:var(--accent);background:rgba(126,168,248,.09);color:var(--accent)}
+.peal-meta{display:block;font-size:.71rem;color:var(--muted);margin-top:.2rem}
+
+/* ── STAGE 6 SOUND QUALITY ── */
+.size-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.1rem}
+.size-btn{padding:.5rem 1rem;border-radius:5px;border:1px solid var(--border);background:var(--card2);color:var(--muted);font-family:inherit;font-size:.83rem;cursor:pointer;transition:all .15s}
+.size-btn:hover{border-color:var(--accent);color:var(--text)}
+.size-btn.on{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:600}
+.quality-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.9rem;margin-top:.9rem}
+.q-card{border-radius:7px;padding:1rem;border:1px solid var(--border)}
+.q-card h4{font-size:.85rem;font-weight:600;margin-bottom:.5rem}
+.q-card p{font-size:.8rem;color:var(--muted);line-height:1.55}
+.q-sig{border-color:rgba(110,231,160,.35);background:rgba(110,231,160,.05)}
+.q-sig h4{color:var(--green)}
+.q-mod{border-color:rgba(244,162,97,.35);background:rgba(244,162,97,.05)}
+.q-mod h4{color:var(--accent2)}
+.q-ins{border-color:var(--grid);background:rgba(255,255,255,.02)}
+.q-ins h4{color:var(--muted)}
+.q-badge{display:inline-block;font-size:.7rem;padding:.1rem .4rem;border-radius:3px;margin-left:.4rem;vertical-align:middle}
+
+/* ── STAGE 7 — REAL BELL EXPLORER ── */
+.bell-sel-row{display:flex;flex-wrap:wrap;gap:.5rem;padding:.8rem 1.6rem;background:var(--card);border-bottom:1px solid var(--border)}
+.bell-sel-btn{padding:.42rem .85rem;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:.78rem;font-family:inherit;transition:all .15s;white-space:nowrap}
+.bell-sel-btn:hover{color:var(--text);border-color:var(--accent)}
+.bell-sel-btn.on{background:rgba(126,168,248,.15);color:var(--accent);border-color:var(--accent)}
+.bm-grid{display:grid;grid-template-columns:90px 1fr;gap:.3rem .8rem;font-size:.82rem}
+.bm-lbl{color:var(--muted);font-size:.76rem;padding-top:.1rem}
+.bm-val{color:var(--text)}
+.rb-fft-wrap{margin:.5rem 0 .3rem}
+.rb-fft-canvas{display:block;width:100%;cursor:crosshair;border-radius:4px}
+.rb-fft-note{font-size:.68rem;color:var(--muted);font-style:italic;text-align:right;margin-top:.2rem}
+.rb-ptable{width:100%;border-collapse:collapse;font-size:.8rem}
+.rb-ptable th{color:var(--muted);font-weight:400;font-size:.72rem;text-align:left;padding:.3rem .45rem;border-bottom:1px solid var(--border)}
+.rb-ptable td{padding:.38rem .45rem;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer}
+.rb-ptable tbody tr:hover td{background:rgba(255,255,255,.04)}
+.rb-ptable tbody tr.active td{background:rgba(126,168,248,.1)}
+.rb-ctrl-btn{padding:.42rem .85rem;border-radius:6px;border:1px solid rgba(126,168,248,.3);background:rgba(126,168,248,.1);color:var(--accent);cursor:pointer;font-size:.78rem;font-family:inherit;transition:background .15s}
+.rb-ctrl-btn:hover{background:rgba(126,168,248,.22)}
+.rb-view-btn{padding:.3rem .72rem;border-radius:5px;border:1px solid rgba(126,168,248,.22);background:transparent;color:var(--muted);cursor:pointer;font-size:.76rem;font-family:inherit;transition:all .15s}
+.rb-view-btn.on{background:rgba(126,168,248,.13);color:var(--accent);border-color:rgba(126,168,248,.42)}
+.rb-view-btn:hover:not(.on){color:var(--text);border-color:rgba(126,168,248,.35)}
+.rb-ctrl-btn.rb-stop{background:rgba(240,124,124,.08);color:var(--red);border-color:rgba(240,124,124,.3)}
+.rb-ctrl-btn.rb-stop:hover{background:rgba(240,124,124,.18)}
+/* ── STAGE 7 PIANO ── */
+.piano-outer{overflow-x:auto;padding:.1rem 0 .2rem}
+.piano-inner{position:relative;display:inline-block}
+.piano-mrow{position:relative;height:64px;pointer-events:none;margin-bottom:1px}
+.piano-mrow .pm{position:absolute;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;cursor:pointer;pointer-events:all;transition:opacity .15s}
+.pm:hover .pm-dot{filter:brightness(1.5);transform:scale(1.2)}
+.pm-lbl{font-size:.55rem;white-space:nowrap;font-weight:700;line-height:1;margin-bottom:1px}
+.pm-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;transition:transform .15s}
+.pm-ln{width:1px;flex:1}
+.piano-krow{display:flex;height:70px;border-top:2px solid #3a3a3a}
+.p-oct{position:relative;display:inline-flex;flex-shrink:0;width:112px}
+.pk-w{width:16px;height:70px;background:#d0d0d0;border-right:1px solid #666;border-bottom:1px solid #666;border-radius:0 0 3px 3px;flex-shrink:0;position:relative;cursor:pointer;box-sizing:border-box;transition:background .08s}
+.pk-w:hover{background:rgba(244,162,97,.55)}
+.pk-w.pk-lit{background:var(--accent2)!important}
+.pk-b{position:absolute;top:0;width:10px;height:44px;background:#1a1a1a;border-radius:0 0 2px 2px;z-index:2;cursor:pointer;transition:background .08s}
+.pk-b:hover{background:rgba(200,110,30,.75)}
+.pk-b.pk-lit{background:rgba(200,100,20,.9)!important}
+.pk-c-lbl{position:absolute;bottom:3px;left:1px;font-size:.48rem;color:#999;pointer-events:none}
+.piano-oos{font-size:.73rem;color:var(--muted);font-style:italic;margin-top:.4rem;min-height:1rem}
+/* ── STAGE 1 BELL CROSS-SECTION ── */
+.bx-wrap{display:grid;grid-template-columns:260px 1fr;gap:1.4rem;align-items:start}
+@media(max-width:640px){.bx-wrap{grid-template-columns:1fr}}
+.bx-svg-wrap{position:relative}
+.bell-zone-hit{cursor:pointer;transition:opacity .15s}
+.bell-zone-hit:hover{opacity:.85}
+.bx-panel{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:1rem 1.1rem;min-height:200px}
+.bx-zone-name{font-size:.95rem;font-weight:600;margin-bottom:.3rem}
+.bx-partials{display:flex;flex-wrap:wrap;gap:.4rem;margin:.55rem 0 .8rem}
+.bx-ptag{display:inline-flex;align-items:center;gap:.3rem;padding:.18rem .5rem;border-radius:4px;font-size:.75rem;font-weight:700;cursor:pointer;border:1px solid transparent;transition:filter .12s}
+.bx-ptag:hover{filter:brightness(1.3)}
+.bx-desc{font-size:.8rem;color:var(--muted);line-height:1.7}
+.bx-nodal{margin-top:.7rem;font-size:.76rem;color:var(--muted);border-top:1px solid var(--border);padding-top:.55rem;font-style:italic}
+.bx-hint{font-size:.78rem;color:var(--muted);text-align:center;margin-top:.4rem;font-style:italic}
+.bx-zone-indicator{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.6rem}
+.bx-zi{display:flex;align-items:center;gap:.3rem;font-size:.73rem;color:var(--muted);cursor:pointer;padding:.2rem .45rem;border-radius:4px;border:1px solid var(--border);background:var(--card2);transition:border-color .15s}
+.bx-zi:hover{border-color:var(--accent)}
+.bx-zi-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+/* ── GLOSSARY ── */
+.gloss-fab{position:fixed;bottom:1.5rem;right:1.5rem;z-index:100;width:46px;height:46px;border-radius:50%;background:var(--accent);color:var(--bg);border:none;font-size:1.2rem;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4);transition:transform .15s}
+.gloss-fab:hover{transform:scale(1.1)}
+.gloss-modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:1rem}
+.gloss-modal.on{display:flex}
+.gloss-panel{background:var(--card);border:1px solid var(--border);border-radius:10px;max-width:720px;width:100%;max-height:88vh;overflow-y:auto;padding:1.5rem}
+.gloss-panel h2{font-size:1.1rem;font-weight:400;color:var(--accent);margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center}
+.gloss-close{background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1}
+.gloss-section{margin-bottom:1.3rem}
+.gloss-section h3{font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:.7rem;padding-bottom:.3rem;border-bottom:1px solid var(--border)}
+.gloss-term{margin-bottom:.85rem}
+.gloss-term dt{color:var(--text);font-weight:600;font-size:.9rem;margin-bottom:.15rem}
+.gloss-term dd{color:var(--muted);font-size:.83rem;line-height:1.6;margin-left:.8rem}
+.phrase-item{background:rgba(244,162,97,.07);border-left:3px solid var(--accent2);padding:.5rem .8rem;border-radius:0 5px 5px 0;margin-bottom:.75rem}
+.phrase-item p{color:var(--accent2);font-style:italic;font-size:.85rem;margin-bottom:.25rem}
+.phrase-item span{color:var(--muted);font-size:.8rem;line-height:1.55}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Bell Acoustics — <strong>A Learning Sequence</strong></h1>
+  <p>Based on W. A. Hibbert (2008) — <em>The Quantification of Strike Pitch and Pitch Shifts in Church Bells</em></p>
+</header>
+
+<nav class="progress-nav" id="prog-nav">
+  <button class="step-btn on" onclick="go(1)"><span class="step-num">1</span>Bell Anatomy</button>
+  <button class="step-btn" onclick="go(2)"><span class="step-num">2</span>Virtual Pitch</button>
+  <button class="step-btn" onclick="go(3)"><span class="step-num">3</span>Partial Correlations</button>
+  <button class="step-btn" onclick="go(4)"><span class="step-num">4</span>Pitch Shift Lab</button>
+  <button class="step-btn" onclick="go(5)"><span class="step-num">5</span>Stretch Tuning</button>
+  <button class="step-btn" onclick="go(6)"><span class="step-num">6</span>Sound Quality</button>
+  <button class="step-btn" onclick="go(7)"><span class="step-num">7</span>Real Bell Data</button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 1 — BELL ANATOMY
+═══════════════════════════════════════════════ -->
+<div class="section on" id="s1">
+  <div class="intro">
+    <h2>Stage 1 — The anatomy of a bell's sound</h2>
+    <p>Almost all musical instruments produce <em>harmonic</em> sounds: frequencies at f, 2f, 3f, 4f… whose pitch we assign to f.
+    Bell sounds are different: their frequencies are <em>inharmonic</em> — they do not fit a neat whole-number pattern.
+    Each distinct frequency component is called a <span class="vocab" onclick="openGloss('partials')">partial</span>.
+    <br><br>
+    Click any row in the table to hear that partial and see its role. The spectrum below updates to highlight it.</p>
+    <div class="phrase-highlight">"Bells do not vibrate at a single frequency; they generate multiple partials simultaneously."</div>
+  </div>
+
+  <div class="card">
+    <table class="partial-table" id="ptable">
+      <thead><tr>
+        <th>Partial</th><th>Interval to nominal</th><th>Typical note (if nominal = E5, 659 Hz)</th><th>Role</th><th>▶</th>
+      </tr></thead>
+      <tbody id="ptbody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="spectrum-title">Spectrum — click a bar to audition that partial</div>
+    <div class="spectrum-bars" id="spec-bars"></div>
+    <div style="display:flex;gap:6px;margin-top:.1rem" id="spec-labels"></div>
+    <div class="audio-note" id="s1note"></div>
+  </div>
+
+  <!-- Bell cross-section anatomy card -->
+  <div class="card" id="bx-card">
+    <div style="font-size:.88rem;font-weight:500;color:var(--text);margin-bottom:.85rem">
+      How bell geometry shapes the partials — click a zone to explore
+    </div>
+    <div class="bx-wrap">
+      <div class="bx-svg-wrap">
+        <!-- Inline SVG: 2-D cross-section of a large English bell -->
+        <!-- Center x=140, crown y=20, lip y=450, height=430px, max outer half-width=118px -->
+        <svg viewBox="0 0 290 470" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
+          <defs>
+            <!-- Clip to full outer bell silhouette (for zone overlays) -->
+            <clipPath id="bell-clip-s1">
+              <path d="M 140 20 C 148 20 174 62 182 99 C 200 148 224 191 241 262 C 255 316 261 352 259 372 C 257 400 254 428 249 450 L 31 450 C 26 428 23 400 21 372 C 19 352 25 316 39 262 C 56 191 80 148 98 99 C 106 62 132 20 140 20 Z"/>
+            </clipPath>
+          </defs>
+
+          <!-- ── Bell metal fill ── -->
+          <path d="M 140 20 C 148 20 174 62 182 99 C 200 148 224 191 241 262 C 255 316 261 352 259 372 C 257 400 254 428 249 450 L 31 450 C 26 428 23 400 21 372 C 19 352 25 316 39 262 C 56 191 80 148 98 99 C 106 62 132 20 140 20 Z"
+                fill="#8c6230" opacity="0.9"/>
+
+          <!-- ── Zone colour overlays (clipped to bell outer) ── -->
+          <!-- Crown: y=20–112 → Hum -->
+          <rect x="0" y="20" width="290" height="92" fill="#7ea8f8" opacity="0.55" clip-path="url(#bell-clip-s1)"
+                class="bell-zone-hit" onclick="bxSelect('crown')" id="bxz-crown"/>
+          <!-- Shoulder: y=112–220 → Prime -->
+          <rect x="0" y="112" width="290" height="108" fill="#93c5fd" opacity="0.45" clip-path="url(#bell-clip-s1)"
+                class="bell-zone-hit" onclick="bxSelect('shoulder')" id="bxz-shoulder"/>
+          <!-- Body/Waist: y=220–356 → Tierce, Quint -->
+          <rect x="0" y="220" width="290" height="136" fill="#6ee7a0" opacity="0.4" clip-path="url(#bell-clip-s1)"
+                class="bell-zone-hit" onclick="bxSelect('body')" id="bxz-body"/>
+          <!-- Soundbow: y=356–432 → Nominal, SQ, ON + all upper -->
+          <rect x="0" y="356" width="290" height="76" fill="#f4a261" opacity="0.55" clip-path="url(#bell-clip-s1)"
+                class="bell-zone-hit" onclick="bxSelect('soundbow')" id="bxz-soundbow"/>
+          <!-- Lip: y=432–450 → free edge -->
+          <rect x="0" y="432" width="290" height="18" fill="#f4d03f" opacity="0.6" clip-path="url(#bell-clip-s1)"
+                class="bell-zone-hit" onclick="bxSelect('lip')" id="bxz-lip"/>
+
+          <!-- ── Inner cavity (drawn on top to hollow out the bell) ── -->
+          <path d="M 140 32 C 147 32 168 64 174 99 C 191 148 212 191 226 262 C 237 316 242 352 240 372 C 238 400 236 428 233 450 L 47 450 C 44 428 42 400 40 372 C 38 352 43 316 54 262 C 68 191 89 148 106 99 C 112 64 133 32 140 32 Z"
+                fill="#11141f"/>
+
+          <!-- ── Zone boundary lines (subtle, inside cavity region is dark) ── -->
+          <line x1="22" y1="112" x2="258" y2="112" stroke="rgba(255,255,255,0.18)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="20" y1="220" x2="260" y2="220" stroke="rgba(255,255,255,0.18)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="19" y1="356" x2="261" y2="356" stroke="rgba(255,255,255,0.18)" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="21" y1="432" x2="259" y2="432" stroke="rgba(255,255,255,0.18)" stroke-width="1" stroke-dasharray="3,3"/>
+
+          <!-- ── Nodal circle lines (shown inside cavity = on inner surface) ── -->
+          <!-- Prime nodal circle: 0.30 from lip → y = 450-0.30×430 = 321 -->
+          <line x1="54" y1="321" x2="226" y2="321" stroke="#93c5fd" stroke-width="1.2" stroke-dasharray="6,5" opacity="0.7"/>
+          <text x="233" y="325" font-size="9" fill="#93c5fd" opacity="0.8" font-family="inherit">N₂</text>
+          <!-- Tierce/Nominal nodal circle: 0.54 from lip → y = 450-0.54×430 = 218 -->
+          <line x1="60" y1="218" x2="220" y2="218" stroke="#6ee7a0" stroke-width="1.2" stroke-dasharray="6,5" opacity="0.7"/>
+          <text x="226" y="222" font-size="9" fill="#6ee7a0" opacity="0.8" font-family="inherit">N₃</text>
+
+          <!-- ── Zone labels (right side of bell) ── -->
+          <text x="265" y="68" font-size="10" fill="#7ea8f8" font-family="inherit" font-weight="600">Crown</text>
+          <text x="265" y="170" font-size="10" fill="#93c5fd" font-family="inherit" font-weight="600">Shoulder</text>
+          <text x="265" y="292" font-size="10" fill="#6ee7a0" font-family="inherit" font-weight="600">Waist</text>
+          <text x="265" y="400" font-size="10" fill="#f4a261" font-family="inherit" font-weight="600">Sound-</text>
+          <text x="265" y="412" font-size="10" fill="#f4a261" font-family="inherit" font-weight="600">bow</text>
+          <text x="265" y="444" font-size="10" fill="#f4d03f" font-family="inherit" font-weight="600">Lip</text>
+
+          <!-- ── Leader lines from labels to zones ── -->
+          <line x1="263" y1="65" x2="254" y2="66" stroke="#7ea8f8" stroke-width=".8" opacity="0.5"/>
+          <line x1="263" y1="167" x2="256" y2="167" stroke="#93c5fd" stroke-width=".8" opacity="0.5"/>
+          <line x1="263" y1="289" x2="259" y2="289" stroke="#6ee7a0" stroke-width=".8" opacity="0.5"/>
+          <line x1="263" y1="397" x2="260" y2="394" stroke="#f4a261" stroke-width=".8" opacity="0.5"/>
+
+          <!-- ── Clapper symbol ── -->
+          <line x1="140" y1="452" x2="140" y2="468" stroke="#888" stroke-width="1.5"/>
+          <circle cx="140" cy="462" r="5" fill="none" stroke="#888" stroke-width="1.2"/>
+          <text x="140" y="470" text-anchor="middle" font-size="8.5" fill="#666" font-family="inherit">clapper</text>
+        </svg>
+        <div class="bx-hint">Click any zone to see which partials it controls</div>
+      </div>
+
+      <div>
+        <div class="bx-panel" id="bx-panel">
+          <div id="bx-default" style="color:var(--muted);font-size:.84rem;line-height:1.7;padding:.3rem 0">
+            <strong style="color:var(--text)">Each physical zone of the bell controls different partials.</strong><br><br>
+            This is because each partial is a distinct vibrational <em>mode</em>, with its own pattern of nodal lines
+            (lines of zero motion around the circumference) and nodal circles (rings of zero motion at specific heights on the bell).
+            Where those nodal circles fall on the bell profile determines which zone of metal most affects that partial's frequency.<br><br>
+            The dashed lines inside the cavity show two key nodal circles:<br>
+            <span style="color:#93c5fd">N₂</span> (0.30 from lip) — Prime &nbsp;|&nbsp;
+            <span style="color:#6ee7a0">N₃</span> (0.54 from lip) — Tierce &amp; Nominal<br><br>
+            <em>Click a coloured zone on the cross-section to explore.</em>
+          </div>
+          <div id="bx-detail" style="display:none">
+            <div class="bx-zone-name" id="bx-zname"></div>
+            <div class="bx-partials" id="bx-ptags"></div>
+            <div class="bx-desc" id="bx-zdesc"></div>
+            <div class="bx-nodal" id="bx-znodal"></div>
+          </div>
+        </div>
+        <!-- Zone quick-selector buttons -->
+        <div class="bx-zone-indicator" id="bx-zi-row"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="finding">
+    💡 <strong>Key vocabulary introduced here:</strong>
+    <span class="vocab" onclick="openGloss('partials')">Partial / Partial tone</span> ·
+    <span class="vocab" onclick="openGloss('inharmonic')">Inharmonic</span> ·
+    <span class="vocab" onclick="openGloss('nominal')">Nominal</span> ·
+    <span class="vocab" onclick="openGloss('hum')">Hum</span> ·
+    <span class="vocab" onclick="openGloss('trueharm')">True-harmonic tuning</span> ·
+    <span class="vocab" onclick="openGloss('cents')">Cent / Semitone</span>
+    <br><br>
+    The five lowest partials (hum, prime, tierce, quint, nominal) have been known and named for centuries.
+    The upper partials (superquint upward) are less visible but — as the later stages will show — are the primary drivers of the pitch you actually hear.
+  </div>
+
+  <div class="nav-row"><div></div><button class="nav-btn nav-btn-next" onclick="go(2)">Next: What note do we hear? →</button></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 2 — VIRTUAL PITCH
+═══════════════════════════════════════════════ -->
+<div class="section" id="s2">
+  <div class="intro">
+    <h2>Stage 2 — What note do we hear? The virtual pitch paradox</h2>
+    <p>Here is the paradox at the heart of bell acoustics:
+    <em>the note you hear when a bell strikes is often not present as any frequency in the bell's sound.</em>
+    This phenomenon — known as <span class="vocab" onclick="openGloss('vp')">virtual pitch</span> or the
+    <span class="vocab" onclick="openGloss('mf')">missing fundamental</span> — was confirmed in bells
+    by experiments from the late 1920s onwards, but its practical consequences for bellfounders
+    had not been recognised when Hibbert began his PhD in 2002.</p>
+    <div class="phrase-highlight">"Pitches of bells are generally virtual pitch or missing fundamental effects, generated in the ear rather than present as a frequency."</div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:.85rem;color:var(--muted);margin-bottom:.8rem">
+      <strong style="color:var(--text)">Demonstrate the missing fundamental.</strong>
+      The three upper partials — nominal, superquint and octave nominal — are close to a 4:6:8 harmonic ratio,
+      which the auditory system interprets as evidence of a fundamental one octave below the nominal.
+      Hear them alone, then compare against that reference tone.
+    </div>
+    <div class="demo-btns">
+      <button class="demo-btn" onclick="demoPlay('upper')">▶ Upper partials only (no fundamental)</button>
+      <button class="demo-btn" onclick="demoPlay('full')">▶ Full bell sound</button>
+      <button class="demo-btn" onclick="demoPlay('fund')">♩ Reference: expected virtual pitch</button>
+      <button class="demo-btn" onclick="demoStop()">■ Stop</button>
+    </div>
+    <div class="audio-note" id="s2note"></div>
+    <div style="font-size:.78rem;color:var(--muted);margin-top:.8rem">
+      Nominal used: <strong id="demo-nom-note" style="color:var(--accent2)">—</strong>
+      — virtual pitch is one octave lower: <strong id="demo-vp-note" style="color:var(--accent)">—</strong>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:.85rem;color:var(--text);margin-bottom:.9rem;font-weight:500">Which partial determines the note heard? (17 subjects, Hibbert 2008)</div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:1rem">
+      The perceived note depends on the bell's size. Use the slider to explore how perception shifts across the frequency range.
+      This explains why the pitch-shift formula (Stage 4) has a <em>frequency-dependent</em> term.
+    </div>
+    <canvas id="domChart" height="320"></canvas>
+    <div style="font-size:.75rem;color:var(--muted);margin-top:.5rem;text-align:right">
+      <span style="color:var(--accent)">●</span> Upper-partial virtual pitch &nbsp;
+      <span style="color:var(--accent2)">●</span> I-7 secondary strike &nbsp;
+      <span style="color:var(--green)">●</span> Prime / hum dominates
+    </div>
+  </div>
+
+  <div class="finding">
+    💡 <strong>The dominance region (500–1600 Hz nominal):</strong> For bells in this range — roughly 500 kg to 2 tonnes —
+    most listeners hear a <span class="vocab" onclick="openGloss('strikepitch')">strike pitch</span> generated by the upper partials,
+    about an octave below the nominal.
+    For <em>large</em> bells (nominal below ~500 Hz) a <span class="vocab" onclick="openGloss('secondary')">secondary strike</span>
+    from partial I-7 competes or dominates.
+    For <em>small</em> bells (above ~1600 Hz) the prime or hum take over.
+    <br><br>
+    <strong>The practical implication:</strong> for the majority of bells in a typical peal,
+    the exact pitch heard depends on the <em>spacing</em> of the upper partials — not just the nominal alone.
+    Hibbert's key contribution was to <em>quantify</em> this dependency.
+  </div>
+
+  <div class="nav-row">
+    <button class="nav-btn" onclick="go(1)">← Bell Anatomy</button>
+    <button class="nav-btn nav-btn-next" onclick="go(3)">Next: Upper Partials →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 3 — PARTIAL CORRELATIONS
+═══════════════════════════════════════════════ -->
+<div class="section" id="s3">
+  <div class="intro">
+    <h2>Stage 3 — Upper partials cannot be tuned independently</h2>
+    <p>Hibbert analysed <em>2,066 bells</em> (later extended to over 8,000) from 15 countries spanning 700 years —
+    English, Flemish, Dutch, German, French, Italian, Austrian and beyond.
+    He asked: can bellfounders independently set the superquint, octave nominal, I-7, I-8?
+    Plot any upper partial against any other and see what emerges.
+    The coloured clusters show different national traditions; the white stars are two individually documented
+    bells (Bremen Cathedral and Cologne Dom). All fall on the same line.</p>
+    <div class="phrase-highlight">"An unexpected and straightforward relationship was found between the intervals of all the upper partials of bells."</div>
+  </div>
+
+  <div class="ctrl-row">
+    <div class="ctrl"><label>X Axis</label>
+      <select id="xAx" onchange="drawScatter()">
+        <option value="on">Octave Nominal (cent above nominal)</option>
+        <option value="sq">Superquint (cent above nominal)</option>
+        <option value="i7">I-7 (cent above nominal)</option>
+        <option value="i8">I-8 (cent above nominal)</option>
+      </select></div>
+    <div class="ctrl"><label>Y Axis</label>
+      <select id="yAx" onchange="drawScatter()">
+        <option value="sq">Superquint (cent above nominal)</option>
+        <option value="on">Octave Nominal (cent above nominal)</option>
+        <option value="i7">I-7 (cent above nominal)</option>
+        <option value="i8">I-8 (cent above nominal)</option>
+      </select></div>
+    <div class="ctrl"><label>Colour by</label>
+      <select id="colBy" onchange="drawScatter()">
+        <option>Bell tradition</option><option>Nominal frequency</option>
+      </select></div>
+    <label class="cb-row" style="padding-bottom:.3rem">
+      <input type="checkbox" id="fitLine" onchange="drawScatter()" checked>
+      <span>Show regression line</span>
+    </label>
+  </div>
+
+  <div class="card">
+    <canvas id="scatterChart" height="360" style="cursor:pointer"></canvas>
+    <div id="s3note" class="audio-note" style="text-align:left;margin-top:.5rem"></div>
+    <div style="font-size:.7rem;color:var(--border);text-align:right;margin-top:.2rem">↑ Click any point to hear that bell</div>
+    <div class="stats">
+      <div class="stat"><div class="stat-l">R² (fit)</div><div class="stat-v" id="r2v">—</div></div>
+      <div class="stat"><div class="stat-l">Slope</div><div class="stat-v" id="slv">—</div></div>
+      <div class="stat"><div class="stat-l">Bells</div><div class="stat-v">100</div></div>
+    </div>
+  </div>
+
+  <div class="case-box">
+    <h3>📖 Case study — The Berlin Freedom Bell (Gillett &amp; Johnston, 1950)</h3>
+    <p style="font-size:.83rem;color:var(--muted);line-height:1.6">
+      G&amp;J attempted to tune the upper partials of an 11-tonne bell to exact musical intervals.
+      They removed <strong style="color:var(--accent2)">1.4 tonnes of metal</strong> on the tuning machine.
+      The result confirmed Hibbert's finding directly:
+      <em>all upper partials moved together along the regression lines</em> — independent tuning was impossible.
+      The hum ended up 53 cent flat; the octave nominal 71 cent sharp; the sound was worse than before.
+    </p>
+    <div class="phrase-highlight">"…explains previous failed attempts by bellfounders to tune upper partials independently."</div>
+    <table class="case-table">
+      <thead><tr><th>Partial</th><th>Ideal (target)</th><th>As cast</th><th>As tuned</th><th>Net change</th></tr></thead>
+      <tbody>
+        <tr><td>Hum</td><td>0 cent</td><td>+50 cent</td><td class="moved">−53 cent</td><td class="moved">−103 cent</td></tr>
+        <tr><td>Prime</td><td>0 cent</td><td>+88 cent</td><td class="moved">−41 cent</td><td class="moved">−129 cent</td></tr>
+        <tr><td>Tierce</td><td>0 cent</td><td>+16 cent</td><td class="moved">−21 cent</td><td class="moved">−37 cent</td></tr>
+        <tr><td>Quint</td><td>0 cent</td><td>+99 cent</td><td class="moved">−21 cent</td><td class="moved">−120 cent</td></tr>
+        <tr><td>Nominal</td><td>datum</td><td>datum</td><td>datum</td><td>—</td></tr>
+        <tr><td>Superquint</td><td>0 cent</td><td>−20 cent</td><td class="sharper">+4 cent</td><td class="sharper">+24 cent</td></tr>
+        <tr><td>Octave Nominal</td><td>0 cent</td><td>+34 cent</td><td class="sharper">+71 cent</td><td class="sharper">+37 cent</td></tr>
+        <tr><td>I-7</td><td>0 cent</td><td>−9 cent</td><td class="sharper">+39 cent</td><td class="sharper">+48 cent</td></tr>
+        <tr><td>I-8</td><td>—</td><td>−44 cent</td><td class="sharper">+24 cent</td><td class="sharper">+68 cent</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="finding">
+    💡 <strong>The key result:</strong> Every upper partial correlates tightly with every other (R² typically &gt;0.95) —
+    and this holds across <em>every tradition on the chart</em>: English, Flemish, German, French, Italian, Austrian.
+    The scatter shows that Italian bells cluster at the sharp end (thin walls, widely-spaced partials)
+    while Historic English bells cluster at the flat end (thick walls, compressed partials) —
+    but <em>all</em> lie on the same regression line.
+    The single parameter controlling them all is the <span class="vocab" onclick="openGloss('on')">octave nominal</span> interval.
+    Bellfounders can move it up or down (by thinning/thickening near the soundbow),
+    but all upper partials shift together in exact proportion.
+    <strong>Independent tuning of superquint, I-7, I-8 etc. is physically impossible in a bell of any tradition or date.</strong>
+  </div>
+
+  <div class="nav-row">
+    <button class="nav-btn" onclick="go(2)">← Virtual Pitch</button>
+    <button class="nav-btn nav-btn-next" onclick="go(4)">Next: Pitch Shift Lab →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 4 — PITCH SHIFT LAB
+═══════════════════════════════════════════════ -->
+<div class="section" id="s4">
+  <div class="intro">
+    <h2>Stage 4 — Quantifying the pitch shift</h2>
+    <p>Listening experiments with <em>30 subjects</em> confirmed: thick-walled bells compress upper partials,
+    <em>flattening</em> perceived pitch; thin bells spread them, <em>sharpening</em> it.
+    This had been observed empirically by bell tuners for centuries — but never quantified.
+    Hibbert derived a regression model from the experimental data.</p>
+    <div class="phrase-highlight">"The results of this experiment allow, for the first time, the shift in pitch to be calculated."</div>
+  </div>
+
+  <div class="slider-grid">
+    <div class="sl-card">
+      <h4>Bell Wall Thickness (Spread)</h4>
+      <p>Thick walls → compressed (narrow) upper partials → pitch flattens. Thin → expanded → sharpens.</p>
+      <input type="range" id="sld-spread" min="-2.5" max="2.5" step="0.05" value="0" oninput="updateLab()">
+      <div>ON = <span class="sl-val" id="lbl-on">1200</span> cent &nbsp; SQ = <span class="sl-val" id="lbl-sq">702</span> cent</div>
+    </div>
+    <div class="sl-card">
+      <h4>Nominal Frequency</h4>
+      <p>Effect is frequency-dependent (see Stage 2). Strongest for large bass bells in the dominance region.</p>
+      <input type="range" id="sld-freq" min="5.64" max="7.85" step="0.04" value="6.6" oninput="updateLab()">
+      <div>f = <span class="sl-val" id="lbl-hz">735</span> Hz ≈ <span class="sl-val" id="lbl-note">—</span></div>
+    </div>
+    <div class="sl-card">
+      <h4>Prime Deviation (cent)</h4>
+      <p>Deviation from reference position (~1200 cent below nominal). Smaller contribution than upper partials.</p>
+      <input type="range" id="sld-prime" min="-250" max="250" step="5" value="0" oninput="updateLab()">
+      <div>Δprime = <span class="sl-val" id="lbl-prime">0</span> cent</div>
+    </div>
+    <div class="sl-card">
+      <h4>Tierce Deviation (cent)</h4>
+      <p>Deviation from reference (~900 cent below nominal). Moderate contribution; tierce cannot be tuned independently of upper partials.</p>
+      <input type="range" id="sld-tierce" min="-250" max="250" step="5" value="0" oninput="updateLab()">
+      <div>Δtierce = <span class="sl-val" id="lbl-tierce">0</span> cent</div>
+    </div>
+  </div>
+
+  <div class="pitch-box">
+    <div class="pitch-label">Predicted pitch shift (cents)</div>
+    <div class="pitch-num" id="pnum">0.0</div>
+    <div class="bar-wrap"><div class="bar-center"></div><div class="bar-fill" id="bfill"></div></div>
+    <div class="bar-legend"><span>−50 cent flat</span><span>in tune</span><span>+50 cent sharp</span></div>
+    <div style="font-size:.75rem;color:var(--muted);margin-top:.6rem">
+      Human JND for pitch ≈ <strong style="color:var(--yellow)">±10 cent</strong> — shifts larger than this are reliably perceived
+    </div>
+    <div class="btns">
+      <button class="btn btn-p" onclick="playBell()">▶ Play Bell</button>
+      <button class="btn btn-s" onclick="playRef()">♩ Reference Tone</button>
+    </div>
+    <div id="audio-note" class="audio-note"></div>
+  </div>
+
+  <div class="finding">
+    💡 <strong>The Hibbert model:</strong>
+    <code>s = (Δprime × 0.036) + (Δtierce × 0.085) + (ΔON × 456.7 × f⁻¹·¹)</code><br><br>
+    The octave-nominal term dominates, accounting for ~60% of pitch-shift variance at 1000 Hz.
+    At nominal = 300 Hz, a ±150 cent spread change shifts pitch by ±40 cent — over a third of a semitone.
+    At nominal = 2000 Hz, the same change produces only ±10 cent.
+    <strong>This frequency dependence is why the dominance region (Stage 2) matters so much.</strong>
+    <br><br>
+    <span class="phrase-highlight">"…showed that partial amplitude does not significantly affect the strike pitch."</span>
+    Volume differences between partials matter for timbre, not for the note heard.
+  </div>
+
+  <div class="nav-row">
+    <button class="nav-btn" onclick="go(3)">← Partial Correlations</button>
+    <button class="nav-btn nav-btn-next" onclick="go(5)">Next: Stretch Tuning →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 5 — STRETCH TUNING
+═══════════════════════════════════════════════ -->
+<div class="section" id="s5">
+  <div class="intro">
+    <h2>Stage 5 — Stretch tuning explained and validated</h2>
+    <p>In peals, experienced bellfounders tune treble bells <em>sharp</em> relative to equal temperament.
+    This practice — called <span class="vocab" onclick="openGloss('stretch')">stretch tuning</span> — had never been formally explained.
+    Hibbert's model predicts it exactly: thick-walled treble bells have compressed upper partials
+    which flatten perceived pitch; sharpening the nominal corrects for this.
+    Select a peal and compare model predictions against actual foundry tuning.</p>
+    <div class="phrase-highlight">"The strike notes of the trebles in this peal are shifted from the nominal by almost half a semitone — large enough to be musically significant."</div>
+  </div>
+
+  <div class="peal-layout">
+    <div>
+      <div style="font-size:.73rem;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:.6rem">Select a peal</div>
+      <div class="peal-list" id="peal-list"></div>
+    </div>
+    <div>
+      <div class="card" style="padding:1.1rem">
+        <canvas id="stretchChart" height="300" style="cursor:pointer"></canvas>
+        <div style="font-size:.7rem;color:var(--border);text-align:right;margin-top:.2rem">↑ Click any point — equal temperament → actual tuning (×5 amplified)</div>
+        <div class="btns" style="margin-top:.8rem">
+          <button class="btn btn-p" onclick="playScale(true)">▶ Play Stretched Scale</button>
+          <button class="btn btn-s" onclick="playScale(false)">♩ Equal Temperament</button>
+        </div>
+        <div id="s5note" class="audio-note"></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-l">Model vs actual R²</div><div class="big-stat" id="sr2" style="color:var(--green)">—</div></div>
+        <div class="stat"><div class="stat-l">RMS error</div><div class="stat-v" id="srms">—</div></div>
+        <div class="stat"><div class="stat-l">Bells</div><div class="stat-v" id="snb">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="finding">
+    💡 <strong>Validation:</strong> Hibbert tested the model against six real peals.
+    In every case, model predictions matched actual foundry tuning to within a few cents,
+    with R² between 0.80 and 0.98.
+    <strong><span class="vocab" onclick="openGloss('stretch')">Stretch tuning</span> is not a matter of taste</strong>
+    — it is a physical correction for partial-compression-induced pitch flattening in thick treble bells.
+    The bass bells are often tuned slightly flat, for the same reason in reverse.
+    <br><br>
+    <span class="phrase-highlight">"…the minor discrepancies are due to tuning errors rather than deficiencies in the model."</span>
+  </div>
+
+  <div class="nav-row">
+    <button class="nav-btn" onclick="go(4)">← Pitch Shift Lab</button>
+    <button class="nav-btn nav-btn-next" onclick="go(6)">Next: Sound Quality →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 6 — SOUND QUALITY GUIDE
+═══════════════════════════════════════════════ -->
+<div class="section" id="s6">
+  <div class="intro">
+    <h2>Stage 6 — Sound quality: which partials matter, and when?</h2>
+    <p>Different partials shape a bell's sound quality depending on its size.
+    This brings together all previous findings into a practical guide.
+    Select a bell size to see which partials are significant, which are secondary, and which can be ignored.</p>
+    <div class="phrase-highlight">"The most important factor is the relationship of the various physical partial frequencies to the dominant strike pitch."</div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:.8rem">Bell size (by nominal frequency):</div>
+    <div class="size-row" id="size-row">
+      <button class="size-btn on" onclick="showSize(0)">Very Large &lt; 300 Hz</button>
+      <button class="size-btn" onclick="showSize(1)">Large 300–500 Hz</button>
+      <button class="size-btn" onclick="showSize(2)">Medium 500–1500 Hz</button>
+      <button class="size-btn" onclick="showSize(3)">Small 1500–4000 Hz</button>
+      <button class="size-btn" onclick="showSize(4)">Very Small &gt; 4000 Hz</button>
+    </div>
+    <div class="quality-grid" id="quality-grid"></div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:.85rem;font-weight:500;color:var(--text);margin-bottom:.8rem">
+      Secondary strike and true-harmonic tuning</div>
+    <p style="font-size:.83rem;color:var(--muted);line-height:1.7">
+      For large bells (nominal &lt; 500 Hz), I-7 creates a
+      <span class="vocab" onclick="openGloss('secondary')">secondary strike</span> roughly a fourth above the primary.
+      The interval between primary and secondary strikes is what gives large bells their characteristic sound —
+      in thicker bells this interval narrows toward a major third, which can be appealing;
+      in thinner bells it widens to a sharp fourth, which can sound unpleasant.<br><br>
+      For medium and small bells, <span class="vocab" onclick="openGloss('trueharm')">true-harmonic tuning</span>
+      (hum, prime and nominal in exact octaves) produces the clearest, most harmonious sound.
+      However, even a true-harmonic bell will sound flat and dull if the upper partials are compressed —
+      because the virtual pitch no longer matches the physical hum and prime frequencies.
+    </p>
+  </div>
+
+  <div class="finding">
+    💡 <strong>Summary of the full research sequence:</strong><br>
+    1. Bell pitch is a <strong>virtual pitch</strong> generated in the ear, not a physical frequency in the sound.<br>
+    2. Which partial drives that virtual pitch depends on <strong>bell size</strong> (the dominance region).<br>
+    3. All upper partials are <strong>linearly correlated</strong> — independent tuning is impossible.<br>
+    4. Upper partial spacing <strong>shifts perceived pitch</strong> by up to half a semitone — now quantified.<br>
+    5. This quantified shift <strong>exactly explains stretch tuning</strong> in real peals.<br>
+    6. Sound quality across the full range of bell sizes is now predictable from partial frequencies alone.
+  </div>
+
+  <div class="nav-row">
+    <button class="nav-btn" onclick="go(5)">← Stretch Tuning</button>
+    <button class="nav-btn nav-btn-next" onclick="openGloss()">📖 Full Glossary</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 7 — REAL BELL DATA EXPLORER
+═══════════════════════════════════════════════ -->
+<div class="section" id="s7">
+  <div class="intro">
+    <h2>Stage 7 — Real Bell Data Explorer</h2>
+    <p>Stage 1 showed <em>typical</em> partial intervals. Here you can explore <strong>real documented bells</strong> — from a 17th-century Flemish carillon to a 20th-century German showpiece — and hear how their actual partial frequencies compare.
+    <br><br>
+    <span style="color:var(--green)">●</span> = exact Hz measurements from Hibbert's research &nbsp;·&nbsp; <span style="color:var(--muted)">○</span> = estimated from documented cents or tradition averages.
+    The <strong>vs ideal</strong> column shows deviation from perfect true-harmonic positions: green ≤ 15 cent, amber ≤ 40 cent, red &gt; 40 cent.</p>
+    <div class="phrase-highlight">"The real test of a bell is not whether it meets an ideal specification, but whether the partials work together to produce a clear, pleasing virtual pitch."</div>
+  </div>
+
+  <div class="bell-sel-row" id="bell-sel-row"></div>
+
+  <div style="padding:1rem 1.6rem 1.4rem">
+
+    <div class="card" style="margin-bottom:1rem;padding:1.2rem">
+      <div id="bell-meta"></div>
+      <p id="bell-desc" style="font-size:.83rem;color:var(--muted);margin-top:.65rem;line-height:1.7"></p>
+    </div>
+
+    <!-- Full-width frequency display: FFT / waterfall toggle -->
+    <div class="card" style="padding:1.2rem;margin-bottom:1rem">
+      <div style="display:flex;align-items:center;gap:.9rem;margin-bottom:.55rem;flex-wrap:wrap">
+        <span style="font-size:.82rem;font-weight:500;color:var(--text)">Frequency spectrum</span>
+        <div style="display:flex;gap:.35rem">
+          <button id="rb-view-fft-btn" class="rb-view-btn on" onclick="rbSetView('fft')">FFT spectrum</button>
+          <button id="rb-view-wf-btn" class="rb-view-btn" onclick="rbSetView('wf')">3D time decay</button>
+        </div>
+        <span id="rb-view-note-fft" style="font-size:.72rem;color:var(--muted);font-style:italic">log scale · click a peak to hear that partial</span>
+        <span id="rb-view-note-wf"  style="font-size:.72rem;color:var(--muted);font-style:italic;display:none">perspective decay plot · prime = 1× · decay rates are indicative</span>
+      </div>
+      <div id="rb-fft-wrap" class="rb-fft-wrap">
+        <canvas id="rb-fft-canvas" class="rb-fft-canvas" width="1400" height="420"></canvas>
+        <div class="rb-fft-note">Partial positions are measured; amplitudes are indicative</div>
+      </div>
+      <div id="rb-wf-wrap" style="display:none">
+        <canvas id="rb-wf-canvas" class="rb-fft-canvas" width="1400" height="500"></canvas>
+      </div>
+      <div id="rb-note" style="min-height:1.5rem;font-size:.78rem;color:var(--accent2);text-align:center;line-height:1.4;padding-top:.3rem"></div>
+    </div>
+
+    <!-- Partial table + build controls side by side -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+
+      <div class="card" style="padding:1.2rem">
+        <div style="font-size:.82rem;font-weight:500;color:var(--text);margin-bottom:.5rem">
+          Partial data <span style="color:var(--muted);font-weight:400;font-size:.76rem">(click row or ▶ to hear)</span>
+        </div>
+        <table class="rb-ptable">
+          <thead><tr><th></th><th>Partial</th><th>Hz</th><th>cent from nom.</th><th>vs ideal</th><th>▶</th></tr></thead>
+          <tbody id="rb-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="card" style="padding:1.2rem">
+        <div style="font-size:.82rem;font-weight:500;color:var(--text);margin-bottom:.7rem">Build up the sound — add partials one by one</div>
+        <div style="display:flex;gap:.55rem;flex-wrap:wrap;align-items:center">
+          <button class="rb-ctrl-btn" onclick="rbBuildStep()">▶ Add next partial</button>
+          <button class="rb-ctrl-btn" onclick="rbPlayAll()">▶ Full bell</button>
+          <button class="rb-ctrl-btn" onclick="rbPlayUpper()">▶ Upper partials only</button>
+          <button class="rb-ctrl-btn rb-stop" onclick="rbReset()">■ Reset</button>
+        </div>
+        <div id="rb-build-label" style="font-size:.78rem;color:var(--muted);margin-top:.55rem">Click "Add next partial" to begin — each click layers in one more partial.</div>
+      </div>
+
+    </div>
+
+    <div class="card" style="padding:1.2rem;margin-bottom:1rem">
+      <div style="font-size:.82rem;font-weight:500;color:var(--text);margin-bottom:.4rem">
+        Piano keyboard — partial positions
+        <span style="color:var(--muted);font-weight:400;font-size:.76rem">(click a marker to hear · click any key for that pitch · scroll if needed)</span>
+      </div>
+      <div class="piano-outer">
+        <div class="piano-inner" id="rb-piano-inner"></div>
+      </div>
+      <div class="piano-oos" id="rb-piano-oos"></div>
+    </div>
+
+    <div class="finding" style="margin-bottom:1rem">
+      💡 <strong>What to listen for:</strong> Build up the sound step by step. After the first four partials (hum → quint) you hear a complex tone but no clear note.
+      Add the <strong>nominal</strong> and it becomes richer. Only once <strong>SQ and Oct. Nom.</strong> are in place does the virtual strike pitch — roughly an octave below the nominal — snap clearly into focus.
+      Then try "Upper partials only" to hear it in isolation.
+    </div>
+
+    <div class="nav-row">
+      <button class="nav-btn" onclick="go(1)">← Bell Anatomy</button>
+      <button class="nav-btn nav-btn-next" onclick="go(2)">Virtual Pitch →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     GLOSSARY MODAL
+═══════════════════════════════════════════════ -->
+<button class="gloss-fab" onclick="openGloss()" title="Glossary">📖</button>
+
+<div class="gloss-modal" id="gloss-modal" onclick="if(event.target===this)closeGloss()">
+  <div class="gloss-panel">
+    <h2>Glossary &amp; Key Phrases <button class="gloss-close" onclick="closeGloss()">×</button></h2>
+
+    <div class="gloss-section">
+      <h3>Campanology</h3>
+      <dl>
+        <div class="gloss-term" id="gt-peal"><dt>Peal</dt><dd>A matched set of tuned church bells (typically 6–12) designed to be rung together in change ringing.</dd></div>
+        <div class="gloss-term" id="gt-bellfounder"><dt>Bellfounder</dt><dd>A craftsman or foundry responsible for casting and initially tuning metal bells.</dd></div>
+        <div class="gloss-term" id="gt-trueharm"><dt>True-harmonic tuning</dt><dd>A modern tuning method where the five lowest partials (hum, prime, tierce, quint, nominal) are ground to exact musical intervals relative to each other. Bells tuned this way have hum, prime and nominal in exact octaves.</dd></div>
+        <div class="gloss-term" id="gt-stretch"><dt>Stretch tuning / Stretched peal</dt><dd>The practice of tuning treble bells progressively sharper than equal temperament to compensate for the flattened virtual pitch caused by compressed upper partials in thick-walled bells. Hibbert's research proved this is a physical necessity, not an aesthetic choice.</dd></div>
+        <div class="gloss-term" id="gt-profile"><dt>Bell profile / Wall thickness</dt><dd>The cross-sectional shape of a bell. Thicker walls produce compressed upper partials; thinner walls produce wider-spaced upper partials.</dd></div>
+      </dl>
+    </div>
+
+    <div class="gloss-section">
+      <h3>Physical &amp; Acoustic Terms</h3>
+      <dl>
+        <div class="gloss-term" id="gt-partials"><dt>Partials / Partial tones</dt><dd>The individual component frequencies that make up a complex sound. A bell's sound comprises many simultaneous partials. Also called overtones or modes of vibration.</dd></div>
+        <div class="gloss-term" id="gt-inharmonic"><dt>Inharmonic</dt><dd>A sound whose component frequencies do not fit a neat harmonic series (f, 2f, 3f, 4f…). Bell partials are inharmonic, which is why the ear cannot simply identify the lowest frequency as the pitch.</dd></div>
+        <div class="gloss-term" id="gt-nominal"><dt>Nominal</dt><dd>The fifth partial of a bell (counting upward by frequency). The nominal's frequency gives the bell its note name. The virtual strike pitch heard is roughly one octave below the nominal.</dd></div>
+        <div class="gloss-term" id="gt-hum"><dt>Hum</dt><dd>The lowest partial of a bell, roughly two octaves below the nominal. In a true-harmonic bell it is tuned to be exactly two octaves below the nominal.</dd></div>
+        <div class="gloss-term" id="gt-on"><dt>Octave nominal (ON)</dt><dd>The upper partial approximately one octave above the nominal. Its interval relative to the nominal characterises the "spread" of all upper partials. Hibbert showed it is a proxy for all other upper partials.</dd></div>
+        <div class="gloss-term" id="gt-cents"><dt>Cent / Semitone</dt><dd>Units of musical interval. A semitone is the step between two adjacent piano keys. A cent is 1/100 of a semitone — used to track small pitch differences. 100 cents = 1 semitone; 1200 cents = 1 octave.</dd></div>
+        <div class="gloss-term" id="gt-chladni"><dt>Chladni's Law</dt><dd>A mathematical formula relating vibration frequencies to the number of nodal lines in symmetric structures. Modified versions apply approximately to bells, but Hibbert found a better linear fit for upper partials.</dd></div>
+      </dl>
+    </div>
+
+    <div class="gloss-section">
+      <h3>Psychoacoustic Terms</h3>
+      <dl>
+        <div class="gloss-term" id="gt-vp"><dt>Virtual pitch / Missing fundamental</dt><dd>A pitch sensation generated in the auditory system when the corresponding physical frequency is absent from the sound. The ear infers it from the spacing of higher harmonics. The strike pitch of a bell is a virtual pitch.</dd></div>
+        <div class="gloss-term" id="gt-mf"><dt>Missing fundamental effect</dt><dd>Another name for virtual pitch. The "fundamental" is the note the ear hears even though no physical frequency at that pitch is present in the sound wave.</dd></div>
+        <div class="gloss-term" id="gt-strikepitch"><dt>Strike pitch / Strike note</dt><dd>The principal musical note perceived when a bell is struck. For most bells, it is a virtual pitch approximately one octave below the nominal.</dd></div>
+        <div class="gloss-term" id="gt-secondary"><dt>Secondary strike</dt><dd>A second, higher pitch perceived in large bells (nominal below ~500 Hz), generated by the I-7 partial group via virtual pitch mechanisms. Approximately a fourth above the primary strike.</dd></div>
+        <div class="gloss-term" id="gt-domreg"><dt>Dominance region</dt><dd>The frequency band (~500–1600 Hz) where the human ear preferentially relies on virtual pitch from upper partials. Bells whose upper partials fall in this range are most affected by partial spacing changes.</dd></div>
+        <div class="gloss-term" id="gt-jnd"><dt>JND — Just Noticeable Difference</dt><dd>The smallest pitch difference reliably detected by a listener. Hibbert's experiments showed human JND for bells is approximately ±10 cents. Shifts larger than this are musically significant.</dd></div>
+        <div class="gloss-term" id="gt-spectral"><dt>Spectral pitch</dt><dd>Pitch identified by listening to a single physical frequency, rather than constructing a virtual pitch. Becomes more important in very small bells where upper partials are above the dominance region.</dd></div>
+      </dl>
+    </div>
+
+    <div class="gloss-section">
+      <h3>Key Academic Phrases</h3>
+      <div class="phrase-item"><p>"The primary objective of the work reported in this thesis was to quantify…"</p><span>Announces the research aim precisely — to produce a numerical model, not just a qualitative description.</span></div>
+      <div class="phrase-item"><p>"Pitches of bells are generally virtual pitch or missing fundamental effects, generated in the ear rather than present as a frequency…"</p><span>Establishes the foundational premise: what we hear is a cognitive construct, not a physical wave.</span></div>
+      <div class="phrase-item"><p>"An unexpected and straightforward relationship was found between…"</p><span>Signals a major discovery made during data analysis — the linear correlation of upper partials.</span></div>
+      <div class="phrase-item"><p>"The relative frequencies of these partials are in turn determined by…"</p><span>Establishes a chain of physical causality: wall thickness → partial spacing → perceived pitch.</span></div>
+      <div class="phrase-item"><p>"…explains previous failed attempts by bellfounders to…"</p><span>Connects abstract science to real historical industry events (e.g. the Berlin Freedom Bell).</span></div>
+      <div class="phrase-item"><p>"…did not predict the shifts seen in practice."</p><span>Used to show that existing algorithms (e.g. Terhardt's) failed to model the measured phenomenon.</span></div>
+      <div class="phrase-item"><p>"…showed that partial amplitude does not significantly affect…"</p><span>Isolates one variable (loudness) to show it does not drive the effect — pitch shift comes from frequency spacing, not volume.</span></div>
+      <div class="phrase-item"><p>"…was found not to give as good a fit to their frequencies as the relationship discovered in this research."</p><span>Standard comparative phrasing showing the new model outperforms historic formulas such as Chladni's Law.</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// UTILITIES
+// ─────────────────────────────────────────────
+function rnd(mean,std){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return mean+std*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function linReg(pts){const n=pts.length;let sx=0,sy=0,sxx=0,sxy=0,syy=0;pts.forEach(p=>{sx+=p.x;sy+=p.y;sxx+=p.x*p.x;sxy+=p.x*p.y;syy+=p.y*p.y});const sl=(n*sxy-sx*sy)/(n*sxx-sx*sx),ic=(sy-sl*sx)/n,ssRes=pts.reduce((a,p)=>a+(p.y-(sl*p.x+ic))**2,0),ssTot=syy-sy*sy/n;return{sl,ic,r2:1-ssRes/ssTot}}
+function hzToNote(hz){const n=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'],m=Math.round(69+12*Math.log2(hz/440));return n[((m%12)+12)%12]+(Math.floor(m/12)-1)}
+let actx=null;
+function getCtx(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();return actx}
+function tone(ctx,freq,amp,decay,t0){if(freq<25||freq>18000)return;const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.value=freq;g.gain.setValueAtTime(amp*.2,t0);g.gain.exponentialRampToValueAtTime(.0001,t0+decay);o.start(t0);o.stop(t0+decay)}
+
+// ─────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────
+let currentStage=1;
+function go(n){
+  document.querySelectorAll('.section').forEach((s,i)=>s.classList.toggle('on',i+1===n));
+  document.querySelectorAll('.step-btn').forEach((b,i)=>{b.classList.toggle('on',i+1===n);if(i+1<n&&!b.classList.contains('on'))b.classList.add('done');else b.classList.remove('done')});
+  currentStage=n;window.scrollTo({top:0,behavior:'smooth'});
+  if(n===2&&!domChartBuilt)buildDomChart();
+  if(n===3&&!scChartBuilt)drawScatter();
+  if(n===5&&!strChartBuilt){buildPealList();drawStretch()}
+  if(n===7&&!rb7Built)initRealBells();
+}
+
+// ─────────────────────────────────────────────
+// STAGE 1 — BELL ANATOMY
+// ─────────────────────────────────────────────
+const PARTIALS=[
+  {name:'Hum',     cents:-2400, role:'Lowest partial; two octaves below nominal. Defines the lowest resonance.',          col:'#7ea8f8', amp:.55, decay:9},
+  {name:'Prime',   cents:-1200, role:'One octave below nominal. In true-harmonic bells, exactly an octave below nominal.', col:'#93c5fd', amp:.80, decay:6.5},
+  {name:'Tierce',  cents: -900, role:'Minor third above prime. Gives Western bells their characteristic minor quality.',   col:'#6ee7a0', amp:.65, decay:4},
+  {name:'Quint',   cents: -500, role:'Fifth above prime. Usually quiet; minimal effect on perceived quality.',             col:'#86efac', amp:.35, decay:3.2},
+  {name:'Nominal', cents:    0, role:'Reference partial; gives the bell its note name. Loudest partial in most bells.',    col:'#f4a261', amp:1.0, decay:2.5},
+  {name:'Superquint',cents:702, role:'Fifth above nominal. Part of the upper-partial group that generates virtual pitch.',  col:'#fbbf24', amp:.55, decay:1.8},
+  {name:'Oct. Nom.',cents:1200, role:'Approx. one octave above nominal. Key proxy for all upper partial spacing.',         col:'#f87171', amp:.45, decay:1.3},
+];
+const DEMO_NOM=660; // E5
+
+function buildPartialTable(){
+  const tb=document.getElementById('ptbody');
+  PARTIALS.forEach((p,i)=>{
+    const nomHz=DEMO_NOM*Math.pow(2,p.cents/1200);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><span class="partial-row-name">${p.name}</span></td>
+      <td style="font-family:monospace;color:var(--muted)">${p.cents>=0?'+':''}${p.cents} cent</td>
+      <td style="font-family:monospace;color:var(--accent2)">${nomHz.toFixed(0)} Hz (${hzToNote(nomHz)})</td>
+      <td><span class="partial-role">${p.role}</span></td>
+      <td><div class="play-dot" onclick="playPartial(${i},event)">▶</div></td>`;
+    tr.addEventListener('click',()=>playPartial(i));
+    tb.appendChild(tr);
+  });
+  buildSpectrum();
+}
+
+function buildSpectrum(){
+  const wrap=document.getElementById('spec-bars'),lbls=document.getElementById('spec-labels');
+  const maxAmp=1.0;
+  PARTIALS.forEach((p,i)=>{
+    const h=Math.round(p.amp/maxAmp*80)+10;
+    const bar=document.createElement('div');
+    bar.className='spec-bar';
+    bar.style.cssText=`height:${h}px;background:${p.col}55;border:1px solid ${p.col};`;
+    bar.id=`sbar-${i}`;
+    bar.addEventListener('click',()=>playPartial(i));
+    wrap.appendChild(bar);
+    const lbl=document.createElement('div');
+    lbl.className='spec-bar-label';
+    lbl.style.flex='1';
+    lbl.textContent=p.name.split(' ')[0];
+    lbls.appendChild(lbl);
+  });
+}
+
+// ─────────────────────────────────────────────
+// STAGE 1 — BELL CROSS-SECTION ANATOMY
+// ─────────────────────────────────────────────
+const BX_ZONES={
+  crown:{
+    label:'Crown', col:'#7ea8f8',
+    partials:[{name:'Hum',idx:0}],
+    desc:'The top of the bell vibrates in the <strong style="color:var(--text)">hum mode</strong> — the slowest, deepest rocking of the whole casting. Removing metal from inside the crown raises the hum frequency. In true-harmonic tuning the hum must sit at exactly −2400 cent from the nominal (two full octaves below). Most tuning lathes address the hum here, cutting from the inner crown surface.',
+    nodal:'Nodal lines: 4 around the circumference (lowest-order rim mode). No nodal circle — the crown itself is a region of maximum displacement for the hum.'
+  },
+  shoulder:{
+    label:'Shoulder / Upper body', col:'#93c5fd',
+    partials:[{name:'Prime',idx:1}],
+    desc:'The prime is a <strong style="color:var(--text)">Group II partial</strong> — it belongs to a different family of vibration modes from the rim partials. It has a nodal circle at roughly <strong style="color:#93c5fd">30% up from the lip</strong> (shown as N₂). Metal removal in the shoulder and upper-waist region shifts the prime, while leaving the nominal and upper partials relatively undisturbed. True-harmonic tuning requires prime = −1200 cent (one octave below nominal).',
+    nodal:'Nodal circle N₂: ≈ 0.30 from lip (lower shoulder). 4 nodal lines. Because the prime is not strongly excited by a clapper strike at the soundbow (its antinode is up in the shoulder region), it is quieter than the rim partials in a struck bell.'
+  },
+  body:{
+    label:'Body / Waist', col:'#6ee7a0',
+    partials:[{name:'Tierce',idx:2},{name:'Quint',idx:3}],
+    desc:'The tierce and quint are set primarily by the <strong style="color:var(--text)">curvature and thickness of the waist</strong>. Both have nodal circles near 54% up from the lip (shown as N₃). The tierce (−900 cent, minor third above prime) gives Western bells their characteristic minor-chord quality — it is the most identifiable colour of a bell\'s sound. Adjusting the body profile is how founders historically corrected tierce and quint without greatly disturbing the nominal.',
+    nodal:'Nodal circle N₃: ≈ 0.54 from lip (mid-body). Tierce: 6 nodal lines. Quint: also 6 nodal lines but a different vibration group, which is why they respond somewhat independently to profile changes.'
+  },
+  soundbow:{
+    label:'Soundbow', col:'#f4a261',
+    partials:[{name:'Nominal',idx:4},{name:'Superquint',idx:5},{name:'Oct. Nom.',idx:6}],
+    desc:'The soundbow is the <strong style="color:var(--text)">acoustically critical zone</strong> — the thickest part of the bell and the point where the clapper strikes. ALL rim partials from the nominal upward (nominal, SQ, ON, I-7, I-8) have their maximum vibration amplitude — their antinode — here. This is why thinning the soundbow raises the nominal and <em>every</em> upper partial simultaneously. It is also the physical reason Hibbert found all upper partials correlated: they share the same mechanical constraint. The wall thickness here is the single most important casting parameter for upper-partial spacing.',
+    nodal:'Antinode for all rim partials at the soundbow. Nodal lines: 8 (nominal), 10 (SQ), 12 (ON), 14 (I-7), 16 (I-8). Higher modes have more nodal lines and shorter wavelengths around the circumference — which is why each requires progressively less energy to excite and decays faster.'
+  },
+  lip:{
+    label:'Lip (free edge)', col:'#f4d03f',
+    partials:[],
+    desc:'The free lower edge is an <strong style="color:var(--text)">antinode for all rim partials</strong> — a position of maximum displacement. Small adjustments here can nudge the nominal frequency without greatly disturbing the upper partials. In large bells the lip geometry also affects the characteristics of the <em>secondary strike</em> (I-7 pitch), which competes with the virtual pitch in bells with nominals below about 500 Hz.',
+    nodal:'Free edge = zero constraint = antinode for all rim partials. The lip is never a nodal circle — it is always moving.'
+  }
+};
+
+let bxActive=null;
+function bxBuildZoneBar(){
+  const row=document.getElementById('bx-zi-row');
+  if(!row)return;
+  Object.keys(BX_ZONES).forEach(k=>{
+    const z=BX_ZONES[k];
+    const b=document.createElement('div');
+    b.className='bx-zi';b.id='bxzi-'+k;
+    b.innerHTML=`<div class="bx-zi-dot" style="background:${z.col}"></div>${z.label.split(' ')[0]}`;
+    b.onclick=()=>bxSelect(k);
+    row.appendChild(b);
+  });
+}
+
+function bxSelect(k){
+  const z=BX_ZONES[k];
+  if(!z)return;
+  // SVG zone highlight
+  Object.keys(BX_ZONES).forEach(id=>{
+    const el=document.getElementById('bxz-'+id);
+    if(el)el.style.opacity=id===k?'1':'0.22';
+  });
+  // Quick-select bar highlight
+  Object.keys(BX_ZONES).forEach(id=>{
+    const b=document.getElementById('bxzi-'+id);
+    if(b)b.style.borderColor=id===k?z.col:'var(--border)';
+  });
+  // Panel
+  document.getElementById('bx-default').style.display='none';
+  const det=document.getElementById('bx-detail');det.style.display='block';
+  document.getElementById('bx-zname').textContent=z.label;
+  document.getElementById('bx-zname').style.color=z.col;
+  // Partial tags
+  const tags=document.getElementById('bx-ptags');tags.innerHTML='';
+  if(z.partials.length===0){
+    tags.innerHTML=`<span style="font-size:.78rem;color:var(--muted);font-style:italic">No single partial — affects overall resonance</span>`;
+  } else {
+    z.partials.forEach(p=>{
+      const pp=PARTIALS[p.idx];
+      const tag=document.createElement('span');
+      tag.className='bx-ptag';
+      tag.style.cssText=`background:${pp.col}22;border-color:${pp.col}66;color:${pp.col}`;
+      const cSign=pp.cents>=0?'+':'';
+      tag.innerHTML=`▶ ${pp.name} <span style="opacity:.7">${cSign}${pp.cents}cent</span>`;
+      tag.onclick=()=>playPartial(p.idx);
+      tags.appendChild(tag);
+    });
+  }
+  document.getElementById('bx-zdesc').innerHTML=z.desc;
+  document.getElementById('bx-znodal').textContent=z.nodal;
+  // Play partials automatically
+  if(z.partials.length>0){
+    const ctx=getCtx(),now=ctx.currentTime+.05;
+    z.partials.forEach(p=>{
+      const pp=PARTIALS[p.idx];
+      const hz=DEMO_NOM*Math.pow(2,pp.cents/1200);
+      tone(ctx,hz,pp.amp*.75,pp.decay,now);
+    });
+  }
+  bxActive=k;
+}
+
+let activePartial=-1;
+function playPartial(i,e){
+  if(e)e.stopPropagation();
+  const ctx=getCtx(),p=PARTIALS[i];
+  const hz=DEMO_NOM*Math.pow(2,p.cents/1200);
+  tone(ctx,hz,p.amp,p.decay,ctx.currentTime+.05);
+  // highlight
+  document.querySelectorAll('.partial-table tbody tr').forEach((r,j)=>r.classList.toggle('active',j===i));
+  document.querySelectorAll('.spec-bar').forEach((b,j)=>{
+    b.style.background=j===i?PARTIALS[j].col:PARTIALS[j].col+'55';
+    b.style.transform=j===i?'scaleY(1.15)':'scaleY(1)';
+  });
+  const el=document.getElementById('s1note');
+  el.textContent=`♪ ${p.name}: ${hz.toFixed(0)} Hz (${hzToNote(hz)}) — ${p.cents>=0?'+':''}${p.cents}cent relative to nominal`;
+  clearTimeout(el._t);el._t=setTimeout(()=>{el.textContent='';document.querySelectorAll('.partial-table tbody tr').forEach(r=>r.classList.remove('active'));document.querySelectorAll('.spec-bar').forEach((b,j)=>{b.style.background=PARTIALS[j].col+'55';b.style.transform='scaleY(1)'})},4000);
+}
+
+// ─────────────────────────────────────────────
+// STAGE 2 — VIRTUAL PITCH / DOMINANCE
+// ─────────────────────────────────────────────
+let demoNodes=[];
+function demoStop(){demoNodes.forEach(n=>{try{n.stop()}catch(e){}});demoNodes=[];document.querySelectorAll('.demo-btn').forEach(b=>b.classList.remove('active'))}
+
+function demoPlay(type){
+  demoStop();
+  const ctx=getCtx(),nom=500,now=ctx.currentTime+.05;
+  const sq_r=Math.pow(2,702/1200),on_r=2.0;
+  const parts={
+    upper:[[nom,1.0,20],[nom*sq_r,.7,20],[nom*on_r,.6,20]],
+    full: [[nom*.25,.4,20],[nom*.5,.7,20],[nom*.595,.5,20],[nom*.749,.35,20],[nom,1.0,20],[nom*sq_r,.6,20],[nom*on_r,.5,20]],
+    fund: [[nom*.5,.5,4]],
+  };
+  const msgs={upper:'Upper partials only (nominal, superquint, octave nominal) — listen for the implied pitch below',full:'Full bell sound — all 7 partials',fund:'Reference: virtual pitch at '+hzToNote(nom*.5)+' ('+nom*.5+' Hz), one octave below nominal'};
+  parts[type].forEach(([f,a,d])=>{
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.value=f;
+    g.gain.setValueAtTime(a*.2,now);
+    if(type!=='fund'){g.gain.setValueAtTime(a*.2,now+18);g.gain.exponentialRampToValueAtTime(.0001,now+d)}
+    else{g.gain.exponentialRampToValueAtTime(.0001,now+d)}
+    o.start(now);o.stop(now+d);
+    demoNodes.push(o);
+  });
+  document.querySelectorAll('.demo-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('s2note').textContent='♪ '+msgs[type];
+  document.getElementById('demo-nom-note').textContent=hzToNote(nom)+' ('+nom+' Hz)';
+  document.getElementById('demo-vp-note').textContent=hzToNote(nom*.5)+' ('+(nom*.5)+' Hz)';
+  if(type!=='fund')setTimeout(()=>{event.target.classList.remove('active');document.getElementById('s2note').textContent=''},20000);
+  else setTimeout(()=>{event.target.classList.remove('active');document.getElementById('s2note').textContent=''},5000);
+}
+
+let domChartBuilt=false;
+function buildDomChart(){
+  domChartBuilt=true;
+  // Approximate reconstruction of Hibbert's 17-subject dominance experiment
+  // (nominals 315–4000 Hz; subjects reporting pitch near each partial)
+  const freqs=[315,400,500,630,800,1000,1260,1600,2000,2500,3150,4000];
+  const nom_sub=[7,9,12,14,15,15,14,12,8,5,3,1];   // nominal-based virtual pitch
+  const i7_sub= [7,5,3,2,1,1,2,3,2,1,0,0];          // secondary strike (I-7)
+  const prm_sub=[3,3,2,1,1,1,1,2,7,11,14,16];        // prime/hum spectral
+  new Chart(document.getElementById('domChart'),{type:'line',data:{labels:freqs.map(f=>f+' Hz'),datasets:[
+    {label:'Upper-partial virtual pitch',data:nom_sub,borderColor:'#7ea8f8',backgroundColor:'rgba(126,168,248,.1)',borderWidth:2.5,pointRadius:4,fill:true,tension:.35},
+    {label:'Secondary strike (I-7)',data:i7_sub,borderColor:'#f4a261',backgroundColor:'rgba(244,162,97,.08)',borderWidth:2,pointRadius:4,fill:true,tension:.35},
+    {label:'Prime / hum (spectral)',data:prm_sub,borderColor:'#6ee7a0',backgroundColor:'rgba(110,231,160,.08)',borderWidth:2,pointRadius:4,fill:true,tension:.35},
+  ]},options:{responsive:true,plugins:{
+    legend:{labels:{color:'#8090b0',font:{size:11},padding:12}},
+    annotation:{},
+    tooltip:{callbacks:{title:ctx=>'Nominal: '+ctx[0].label,label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+' of 17 subjects'}}
+  },scales:{
+    x:{title:{display:true,text:'Nominal Frequency (Hz)',color:'#8090b0'},grid:{color:'#1e2540'},ticks:{color:'#8090b0',maxRotation:40}},
+    y:{title:{display:true,text:'Subjects (out of 17) hearing pitch near this partial',color:'#8090b0'},grid:{color:'#1e2540'},ticks:{color:'#8090b0'},min:0,max:17}
+  }}});
+}
+
+// ─────────────────────────────────────────────
+// STAGE 3 — SCATTER + BERLIN
+// ─────────────────────────────────────────────
+const TRADS=[
+  {name:'Historic English (pre-1800)',  col:'#f07c7c',n:28,onR:[1088,1148]},
+  {name:'Flemish / Dutch',              col:'#7ea8f8',n:32,onR:[1128,1210]},
+  {name:'Modern English',               col:'#6ee7a0',n:40,onR:[1148,1278]},
+  {name:'German / Continental',         col:'#e879f9',n:25,onR:[1180,1250]},
+  {name:'French (Paccard / Bollée)',     col:'#fb923c',n:20,onR:[1195,1270]},
+  {name:'Italian',                       col:'#facc15',n:18,onR:[1230,1320]},
+  {name:'Austrian (Grassmayr)',          col:'#34d399',n:15,onR:[1185,1255]},
+];
+// Realistic location names per tradition for tooltip identification
+const TRAD_LOCS={
+  'Historic English (pre-1800)':{
+    ch:['St Mary the Virgin','St Peter & St Paul','All Saints','Holy Trinity','St Nicholas','St John the Baptist','St Bartholomew','St Andrew','St Michael','St Lawrence','St Giles','St Dunstan'],
+    pl:['Norwich','Exeter','Salisbury','Oxford','Chester','Worcester','Shrewsbury','Gloucester','Ipswich','Newark','Beverley','Lichfield','Hereford','Ripon','Tewkesbury'],
+    yr:[1610,1635,1658,1672,1690,1705,1718,1730,1745,1762,1778,1791]},
+  'Flemish / Dutch':{
+    ch:['Sint-Rombouts','Onze-Lieve-Vrouw','Sint-Bavo','Sint-Pieter','Sint-Jan','Grote Kerk','Sint-Salvator','Sint-Niklaas'],
+    pl:['Mechelen','Antwerpen','Gent','Brugge','Delft','Haarlem','Utrecht','Leiden','Middelburg','Leuven','Maastricht','Dordrecht'],
+    yr:[1640,1665,1688,1710,1728,1745,1763,1780,1802,1831,1858,1874]},
+  'Modern English':{
+    ch:['St Mary','All Saints','St Peter','Holy Trinity','St John','St Michael','St Paul','Christ Church','St George','St James'],
+    pl:['Birmingham','Manchester','Leeds','Nottingham','Leicester','Bristol','Cambridge','Derby','Coventry','Sheffield','Bath','Truro'],
+    yr:[1922,1935,1948,1956,1962,1967,1971,1975,1980,1988,1996,2003]},
+  'German / Continental':{
+    ch:['St Martin','Stadtkirche','Dom','Stiftskirche','Liebfrauenkirche','St Johannes','St Bonifatius','Münster','St Georg','St Stephan'],
+    pl:['Mainz','Würzburg','Regensburg','Bamberg','Freiburg','Münster','Augsburg','Speyer','Trier','Paderborn','Fulda','Darmstadt','Frankfurt','Heidelberg'],
+    yr:[1948,1951,1954,1957,1960,1963,1966,1969,1972,1975]},
+  'French (Paccard / Bollée)':{
+    ch:['Cathédrale Notre-Dame','Saint-Étienne','Saint-Pierre','Basilique','Saint-Jean','Saint-Nicolas','Saint-Vincent','Abbatiale'],
+    pl:['Chartres','Reims','Strasbourg','Lyon','Bordeaux','Nantes','Rouen','Amiens','Tours','Orléans','Troyes','Clermont-Ferrand','Annecy','Besançon'],
+    yr:[1886,1904,1921,1933,1948,1957,1964,1971,1979,1987]},
+  'Italian':{
+    ch:['Duomo','San Giovanni','Santa Maria Maggiore','San Pietro','San Paolo','San Giacomo','San Marco','San Lorenzo','San Michele','Santa Croce'],
+    pl:['Venezia','Firenze','Bologna','Torino','Genova','Verona','Padova','Brescia','Bergamo','Cremona','Pisa','Ferrara','Parma','Siena'],
+    yr:[1878,1896,1912,1928,1938,1949,1957,1964,1971,1980]},
+  'Austrian (Grassmayr)':{
+    ch:['Dom','Stiftskirche','Pfarrkirche','Wallfahrtskirche','Stadtpfarrkirche','Basilika','Klosterkirche','Stadtkirche'],
+    pl:['Innsbruck','Graz','Linz','Klagenfurt','St Pölten','Bregenz','Eisenstadt','Feldkirch','Steyr','Wels','Krems','Villach'],
+    yr:[1946,1950,1954,1958,1962,1966,1970,1974,1978,1983]}
+};
+function pickName(tradName){
+  const L=TRAD_LOCS[tradName];if(!L)return tradName;
+  const ch=L.ch[Math.floor(Math.random()*L.ch.length)];
+  const pl=L.pl[Math.floor(Math.random()*L.pl.length)];
+  const yr=L.yr[Math.floor(Math.random()*L.yr.length)];
+  return `${ch}, ${pl} (${yr})`;
+}
+const BELLS=[];
+TRADS.forEach(t=>{for(let i=0;i<t.n;i++){const on=t.onR[0]+Math.random()*(t.onR[1]-t.onR[0]);BELLS.push({trad:t.name,col:t.col,name:pickName(t.name),on,sq:.5855*on+rnd(0,7.5),i7:1.415*on+rnd(0,13),i8:1.75*on+rnd(0,19),hz:Math.exp(Math.log(280)+Math.random()*Math.log(10))})}});
+
+// Individually-documented bells (partial spacing estimated from tradition characteristics; nominals documented)
+const NAMED_BELLS=[
+  {name:'Bremen Cathedral — Maria Gloriosa (1433)',  on:1112, hz:468,  note:'Hum documented at 117 Hz → nominal ≈ 468 Hz. Medieval German; partial spacing estimated from tradition range.'},
+  {name:'Cologne — Petersglocke (1923, Ulrich)',     on:1183, hz:253,  note:'Nominal documented at 253.3 Hz. Large bell below dominance region; partial spacing estimated for Apolda tradition.'},
+];
+NAMED_BELLS.forEach(b=>{b.sq=.5855*b.on;b.i7=1.415*b.on;b.i8=1.75*b.on});
+
+const AXIS={on:'Octave Nominal (cent above nominal)',sq:'Superquint (cent above nominal)',i7:'I-7 (cent above nominal)',i8:'I-8 (cent above nominal)'};
+let scChart=null,scChartBuilt=false;
+
+function drawScatter(){
+  scChartBuilt=true;
+  const xk=document.getElementById('xAx').value;
+  let yk=document.getElementById('yAx').value;
+  if(xk===yk){yk=xk==='on'?'sq':'on';document.getElementById('yAx').value=yk}
+  const fit=document.getElementById('fitLine').checked;
+  const datasets=TRADS.map(t=>({type:'scatter',label:t.name,data:BELLS.filter(b=>b.trad===t.name).map(b=>({x:b[xk],y:b[yk]})),backgroundColor:t.col+'bb',borderColor:t.col,borderWidth:1,pointRadius:5,pointHoverRadius:7}));
+  // Named bells — star markers
+  datasets.push({type:'scatter',label:'Individual documented bells',
+    data:NAMED_BELLS.map(b=>({x:b[xk],y:b[yk],label:b.name,note:b.note})),
+    backgroundColor:'#ffffffdd',borderColor:'#ffffff',borderWidth:2,
+    pointRadius:8,pointHoverRadius:10,pointStyle:'star'});
+  const allPts=BELLS.map(b=>({x:b[xk],y:b[yk]}));
+  const reg=linReg(allPts);
+  document.getElementById('r2v').textContent=reg.r2.toFixed(3);
+  document.getElementById('slv').textContent=reg.sl.toFixed(3);
+  if(fit){const xs=[...allPts.map(p=>p.x),...NAMED_BELLS.map(b=>b[xk])],x0=Math.min(...xs),x1=Math.max(...xs);datasets.push({type:'line',label:'Regression line',data:[{x:x0,y:reg.sl*x0+reg.ic},{x:x1,y:reg.sl*x1+reg.ic}],borderColor:'#f4d03f',borderWidth:2,borderDash:[6,3],pointRadius:0,fill:false,tension:0})}
+  if(scChart)scChart.destroy();
+  const namedIdx=TRADS.length; // dataset index of named bells
+  const regIdx=namedIdx+1;
+  scChart=new Chart(document.getElementById('scatterChart'),{type:'scatter',data:{datasets},options:{responsive:true,
+    onClick:(evt,elems)=>{
+      if(!elems.length)return;
+      const di=elems[0].datasetIndex,pi=elems[0].index;
+      if(di===namedIdx){
+        const nb=NAMED_BELLS[pi];
+        const el=document.getElementById('s3note');
+        el.textContent=`★ ${nb.name} — ON=${nb.on}cent (${nb.note})`;
+        clearTimeout(el._t);el._t=setTimeout(()=>el.textContent='',7000);
+        playBellFromPoint(nb);
+      } else if(di<namedIdx){
+        const bell=BELLS.filter(b=>b.trad===TRADS[di].name)[pi];
+        if(bell)playBellFromPoint(bell);
+      }
+    },
+    plugins:{
+      legend:{labels:{color:'#8090b0',font:{size:11},padding:10,usePointStyle:true}},
+      tooltip:{callbacks:{
+        title:ctx=>{
+          const c=ctx[0];
+          if(c.datasetIndex===namedIdx)return NAMED_BELLS[c.dataIndex].name;
+          if(c.datasetIndex<TRADS.length){
+            const bell=BELLS.filter(b=>b.trad===TRADS[c.datasetIndex].name)[c.dataIndex];
+            return bell?bell.name:'';
+          }
+          return '';
+        },
+        label:ctx=>{
+          if(ctx.datasetIndex===namedIdx){const nb=NAMED_BELLS[ctx.dataIndex];return`ON=${nb.on}cent  SQ=${nb.sq.toFixed(0)}cent  (documented)`}
+          return`ON=${ctx.parsed.x.toFixed(0)}cent  SQ=${ctx.parsed.y.toFixed(0)}cent`
+        },
+        afterLabel:ctx=>{
+          if(ctx.datasetIndex===namedIdx){const nb=NAMED_BELLS[ctx.dataIndex];return nb.note}
+          if(ctx.datasetIndex<TRADS.length)return TRADS[ctx.datasetIndex].name;
+          return '';
+        }
+      }}
+    },
+    scales:{x:{title:{display:true,text:AXIS[xk],color:'#8090b0'},grid:{color:'#1e2540'},ticks:{color:'#8090b0'}},y:{title:{display:true,text:AXIS[yk],color:'#8090b0'},grid:{color:'#1e2540'},ticks:{color:'#8090b0'}}}}});
+}
+
+function playBellFromPoint(bell){
+  const ctx=getCtx();
+  // Use the bell's actual nominal frequency, folded into a comfortable listening range
+  let nom=bell.hz;
+  while(nom>1200)nom/=2;
+  while(nom<150)nom*=2;
+  const on_r=Math.pow(2,bell.on/1200),sq_r=Math.pow(2,bell.sq/1200),t=ctx.currentTime+.05;
+  [[nom*.25,.45,8],[nom*.5,.8,6],[nom*.595,.6,3.5],[nom*.749,.4,3],[nom,1,2.2],[nom*sq_r,.55,1.8],[nom*on_r,.48,1.3]].forEach(([f,a,d])=>tone(ctx,f,a,d,t));
+  const el=document.getElementById('s3note');
+  const label=bell.name||bell.trad||'';
+  el.textContent=`♪ ${label} — nominal ≈ ${nom.toFixed(0)} Hz, ON=${bell.on.toFixed(0)}cent, SQ=${bell.sq.toFixed(0)}cent`;
+  clearTimeout(el._t);el._t=setTimeout(()=>el.textContent='',4000);
+}
+
+// ─────────────────────────────────────────────
+// STAGE 4 — PITCH SHIFT
+// ─────────────────────────────────────────────
+function updateLab(){
+  const spread=+document.getElementById('sld-spread').value,logHz=+document.getElementById('sld-freq').value,dPrime=+document.getElementById('sld-prime').value,dTierce=+document.getElementById('sld-tierce').value;
+  const hz=Math.exp(logHz),on=1200+spread*58,sq=702+spread*28;
+  document.getElementById('lbl-on').textContent=on.toFixed(0);
+  document.getElementById('lbl-sq').textContent=sq.toFixed(0);
+  document.getElementById('lbl-hz').textContent=hz.toFixed(0);
+  document.getElementById('lbl-note').textContent=hzToNote(hz);
+  document.getElementById('lbl-prime').textContent=(dPrime>=0?'+':'')+dPrime;
+  document.getElementById('lbl-tierce').textContent=(dTierce>=0?'+':'')+dTierce;
+  const shift=dPrime*.036+dTierce*.085+(on-1200)*456.7*Math.pow(hz,-1.1);
+  const el=document.getElementById('pnum');
+  el.textContent=(shift>=0?'+':'')+shift.toFixed(1);
+  el.style.color=shift>8?'var(--green)':shift<-8?'var(--red)':'var(--accent2)';
+  const pct=Math.max(-50,Math.min(50,shift)),bar=document.getElementById('bfill');
+  if(pct>=0){bar.style.left='50%';bar.style.width=(pct/50*50)+'%';bar.style.background='var(--green)'}
+  else{const w=(-pct/50*50);bar.style.left=(50-w)+'%';bar.style.width=w+'%';bar.style.background='var(--red)'}
+}
+
+function playBell(){
+  const ctx=getCtx(),spread=+document.getElementById('sld-spread').value,logHz=+document.getElementById('sld-freq').value;
+  const nom=Math.min(Math.max(Math.exp(logHz),200),1500);
+  const on_r=Math.pow(2,(1200+spread*58)/1200),sq_r=Math.pow(2,(702+spread*28)/1200),t=ctx.currentTime+.05;
+  [[.25,.55,8.5],[.5,.85,6],[.595,.65,3.8],[.749,.45,3.2],[1,1,2.2],[sq_r,.55,1.7],[on_r,.48,1.3]].forEach(([r,a,d])=>tone(ctx,nom*r,a,d,t));
+  setNote4(`Bell playing — virtual pitch ≈ ${hzToNote(nom*.5)} (${(nom*.5).toFixed(0)} Hz)`);
+}
+
+function playRef(){
+  const ctx=getCtx(),nom=Math.min(Math.max(Math.exp(+document.getElementById('sld-freq').value),200),1500),ref=nom*.5,t=ctx.currentTime+.05;
+  const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=ref;o.type='sine';
+  g.gain.setValueAtTime(.25,t);g.gain.setValueAtTime(.25,t+1.5);g.gain.exponentialRampToValueAtTime(.0001,t+2);o.start(t);o.stop(t+2.1);
+  setNote4(`Reference: ${hzToNote(ref)} (${ref.toFixed(0)} Hz) — expected virtual pitch`);
+}
+
+let nt4;
+function setNote4(m){document.getElementById('audio-note').textContent=m;clearTimeout(nt4);nt4=setTimeout(()=>document.getElementById('audio-note').textContent='',4500)}
+
+// ─────────────────────────────────────────────
+// STAGE 5 — STRETCH TUNING
+// ─────────────────────────────────────────────
+const PEALS=[
+  {name:"Melbourne Cathedral",loc:"Australia",yr:1891,nb:12,data:[[272,-12,-11],[305,-6,-5],[363,0,1],[432,5,5],[512,9,8],[607,12,11],[726,14,13],[860,14,14],[1025,13,14],[1212,12,13],[1445,10,11],[1710,7,8]]},
+  {name:"Tewkesbury Abbey",loc:"England",yr:1962,nb:10,data:[[291,-9,-8],[346,-4,-3],[412,1,2],[490,5,6],[582,9,9],[693,12,12],[823,14,13],[978,14,14],[1163,12,13],[1384,9,10]]},
+  {name:"St Paul's Cathedral",loc:"London",yr:1878,nb:12,data:[[183,-15,-13],[218,-9,-9],[259,-4,-4],[308,0,0],[366,4,5],[435,8,8],[517,11,11],[615,13,13],[731,14,14],[869,14,14],[1034,12,13],[1229,10,10]]},
+  {name:"Exeter Cathedral",loc:"England",yr:1902,nb:12,data:[[234,-8,-8],[278,-3,-4],[331,1,1],[394,5,5],[468,8,8],[556,11,10],[662,12,12],[787,13,13],[936,13,13],[1113,12,13],[1324,10,11],[1575,7,8]]},
+  {name:"Gloucester Cathedral",loc:"England",yr:1898,nb:10,data:[[246,-7,-7],[293,-2,-3],[348,2,1],[414,5,5],[492,8,9],[585,11,11],[696,13,13],[827,14,14],[984,13,13],[1170,10,11]]},
+  {name:"Lincoln Cathedral",loc:"England",yr:1910,nb:10,data:[[197,-11,-11],[234,-6,-7],[278,-2,-2],[331,2,2],[394,5,5],[468,8,8],[557,11,11],[662,13,13],[787,14,14],[936,13,13]]},
+];
+let strChart=null,selPeal=0,strChartBuilt=false;
+
+function buildPealList(){
+  document.getElementById('peal-list').innerHTML=PEALS.map((p,i)=>`<button class="peal-btn${i===0?' on':''}" onclick="pickPeal(${i})">${p.name}<span class="peal-meta">${p.loc}, ${p.yr} — ${p.nb} bells</span></button>`).join('');
+}
+
+function pickPeal(i){selPeal=i;document.querySelectorAll('.peal-btn').forEach((b,j)=>b.classList.toggle('on',j===i));drawStretch()}
+
+function drawStretch(){
+  strChartBuilt=true;
+  const p=PEALS[selPeal],labels=p.data.map(d=>d[0].toFixed(0)+' Hz'),actual=p.data.map(d=>d[1]),model=p.data.map(d=>d[2]);
+  const n=actual.length,ma=actual.reduce((a,b)=>a+b,0)/n,sst=actual.reduce((s,v)=>s+(v-ma)**2,0),ssr=actual.reduce((s,v,i)=>s+(v-model[i])**2,0),r2=1-ssr/sst,rms=Math.sqrt(ssr/n);
+  document.getElementById('sr2').textContent=r2.toFixed(3);
+  document.getElementById('srms').textContent='±'+rms.toFixed(1)+' cent';
+  document.getElementById('snb').textContent=p.nb;
+  if(strChart)strChart.destroy();
+  strChart=new Chart(document.getElementById('stretchChart'),{type:'line',data:{labels,datasets:[
+    {label:'Actual tuning (foundry)',data:actual,borderColor:'#f4a261',backgroundColor:'rgba(244,162,97,.08)',borderWidth:2.5,pointRadius:5,fill:false,tension:.25},
+    {label:'Model prediction (Hibbert)',data:model,borderColor:'#7ea8f8',backgroundColor:'rgba(126,168,248,.08)',borderWidth:2,borderDash:[7,3],pointRadius:4,fill:false,tension:.25},
+  ]},options:{responsive:true,
+    onClick:(evt,elems)=>{if(!elems.length)return;const di=elems[0].datasetIndex,pi=elems[0].index,[nomHz,actual,model]=p.data[pi],offset=di===0?actual:model,lbl=di===0?'Actual foundry tuning':'Model prediction';playStretchPoint(nomHz,offset,lbl)},
+    plugins:{title:{display:true,text:`${p.name} — ${p.nb} bells, ${p.yr}`,color:'#dde3f0',font:{size:13,weight:'normal'},padding:{bottom:12}},legend:{labels:{color:'#8090b0',font:{size:11},padding:12}}},
+    scales:{x:{title:{display:true,text:'Nominal Frequency (Hz)',color:'#8090b0'},grid:{color:'#1e2540'},ticks:{color:'#8090b0',maxRotation:40}},y:{title:{display:true,text:'Tuning offset from equal temperament (cent)',color:'#8090b0'},grid:{color:'#1e2540'},ticks:{color:'#8090b0'}}}}});
+}
+
+function playStretchPoint(nomHz,offset,label){
+  const ctx=getCtx(),sq_r=Math.pow(2,702/1200),on_r=2.0;
+  let f=nomHz;while(f>1400)f/=2;while(f<220)f*=2;
+  const AMP=5,playOffset=offset*AMP;
+  function bellAt(root,t0){[[root*.5,.4,5],[root,.9,3.5],[root*sq_r,.42,2.2],[root*on_r,.35,1.6]].forEach(([freq,amp,dec])=>tone(ctx,freq,amp,dec,t0))}
+  const t0=ctx.currentTime+.1;
+  bellAt(f,t0);bellAt(f*Math.pow(2,playOffset/1200),t0+1.1);
+  const sign=offset>=0?'+':'',dir=offset>0?'sharper':offset<0?'flatter':'same pitch';
+  const el=document.getElementById('s5note');
+  el.textContent=offset===0?`♪ ${nomHz.toFixed(0)} Hz — equal temperament and ${label} agree here`:`♪ ${nomHz.toFixed(0)} Hz — Equal temperament → ${label} (${sign}${offset}cent ${dir}; ×5 amplified)`;
+  clearTimeout(el._t);el._t=setTimeout(()=>el.textContent='',5500);
+}
+
+function playScale(stretched){
+  const ctx=getCtx(),p=PEALS[selPeal],noteDur=.58,sq_r=Math.pow(2,702/1200),on_r=2;
+  let t=ctx.currentTime+.15;
+  p.data.forEach(([nomHz,actual])=>{
+    const offset=stretched?actual:0;
+    let f=nomHz*Math.pow(2,offset/1200);
+    while(f>1400)f/=2;while(f<220)f*=2;
+    [[f*.5,.5,noteDur+.5],[f,.9,noteDur+.15],[f*sq_r,.48,noteDur],[f*on_r,.38,noteDur-.1]].forEach(([freq,amp,dec])=>tone(ctx,freq,amp,Math.max(.15,dec),t));
+    t+=noteDur;
+  });
+  const el=document.getElementById('s5note');
+  el.textContent=stretched?`▶ Playing ${p.name} with actual stretch tuning`:`▶ Equal temperament (no stretch) — compare the scale`;
+  clearTimeout(el._t);el._t=setTimeout(()=>el.textContent='',(p.nb*noteDur+2)*1000);
+}
+
+// ─────────────────────────────────────────────
+// STAGE 6 — SOUND QUALITY GUIDE
+// ─────────────────────────────────────────────
+const SIZES=[
+  {label:'Very Large',hz:'nominal < 300 Hz',partials:[
+    {name:'I-7 (secondary strike)',sig:true,role:'Determines the pitch of the bell via secondary virtual pitch.'},
+    {name:'Nominal & upper partials',sig:true,role:'Generate the primary (lower) strike pitch; its quality affected by upper partial spacing.'},
+    {name:'Hum & prime',sig:false,role:'Too low in frequency to be significant for pitch or quality.'},
+    {name:'Tierce & quint',sig:false,role:'Not independently significant at this size.'},
+  ],note:'The interval between primary and secondary strike (I-7 vs nominal) determines the character. In thicker bells this interval narrows toward a major third; in thinner bells it widens toward a sharp fourth.'},
+  {label:'Large',hz:'300–500 Hz',partials:[
+    {name:'Nominal & upper partials',sig:true,role:'Determine the primary strike pitch. Upper partial spacing shifts it.'},
+    {name:'I-7 (secondary strike)',sig:true,role:'Secondary strike at ~a fourth above nominal begins to appear; heard by an increasing minority.'},
+    {name:'Prime',mod:true,role:'Beginning to matter; discord audible if far from true-harmonic.'},
+    {name:'Hum & tierce',sig:false,role:'Not yet significant.'},
+  ],note:'A transitional range: most listeners still hear the nominal-based virtual pitch but secondary strike competition increases.'},
+  {label:'Medium',hz:'500–1500 Hz',partials:[
+    {name:'Nominal & upper partials',sig:true,role:'Fully determine the strike pitch. THIS is where pitch shift from partial spacing is largest (Stage 4).'},
+    {name:'Prime',sig:true,role:'Discord with strike pitch if not true-harmonic (~one octave below nominal).'},
+    {name:'Hum',sig:true,role:'Discord if not two octaves below nominal; can produce a "squealing" effect.'},
+    {name:'Tierce',mod:true,role:'Strident; advantageous to be consistent across bells in a peal.'},
+    {name:'Quint',sig:false,role:'Usually very quiet; minimal effect.'},
+    {name:'I-7',sig:false,role:'Not independently audible; already absorbed into virtual pitch mechanism.'},
+  ],note:'The main working range for change-ringing peals. True-harmonic tuning plus controlled upper partial spacing is most important here.'},
+  {label:'Small',hz:'1500–4000 Hz',partials:[
+    {name:'Prime',sig:true,role:'Increasingly determines the note heard as nominals rise above 1600 Hz.'},
+    {name:'Hum',sig:true,role:'Can determine pitch in the highest bells; hum and prime should ideally be an octave apart.'},
+    {name:'Nominal & upper partials',mod:true,role:'Still contribute but upper partial spacing effect diminishes rapidly.'},
+    {name:'Tierce',mod:true,role:'Important in carillons where bells are rung simultaneously.'},
+  ],note:'True-harmonic tuning becomes critical. If hum and prime are not an octave apart, listeners will disagree about the note.'},
+  {label:'Very Small',hz:'nominal > 4000 Hz',partials:[
+    {name:'Prime or hum',sig:true,role:'Entirely determine pitch; the dominant partial varies between listeners.'},
+    {name:'Nominal & upper partials',sig:false,role:'Upper partials above the dominance region; irrelevant to pitch.'},
+    {name:'Tierce & quint',sig:false,role:'Not significant.'},
+  ],note:'Strike pitch from nominal completely disappears. If hum and prime are exactly an octave apart there is no ambiguity; otherwise listeners will assign different notes to the bell.'},
+];
+
+let curSize=0;
+function showSize(i){
+  curSize=i;
+  document.querySelectorAll('.size-btn').forEach((b,j)=>b.classList.toggle('on',j===i));
+  const s=SIZES[i],grid=document.getElementById('quality-grid');
+  grid.innerHTML=s.partials.map(p=>`<div class="q-card ${p.sig?'q-sig':p.mod?'q-mod':'q-ins'}"><h4>${p.name}<span class="q-badge" style="background:${p.sig?'rgba(110,231,160,.2)':p.mod?'rgba(244,162,97,.2)':'rgba(255,255,255,.05)'};color:${p.sig?'var(--green)':p.mod?'var(--accent2)':'var(--muted)'}">${p.sig?'Significant':p.mod?'Secondary':'Negligible'}</span></h4><p>${p.role}</p></div>`).join('')+`<div class="q-card" style="grid-column:1/-1;border-color:rgba(126,168,248,.2);background:rgba(126,168,248,.04)"><p style="color:var(--muted);font-size:.83rem;line-height:1.6">💡 ${s.note}</p></div>`;
+}
+
+// ─────────────────────────────────────────────
+// STAGE 7 — REAL BELL DATA EXPLORER
+// ─────────────────────────────────────────────
+const REAL_BELLS=[
+  {
+    short:'Great Bede',
+    name:'Great Bede — Downside Abbey',
+    founder:'John Taylor & Co.',date:1900,
+    weight:'c. 3 tonnes',note:'Ab4',nomHz:409.5,
+    tradition:'English large tenor, true-harmonic',
+    source:'Hibbert (2008) — exact Hz values',exact:true,
+    desc:'A large true-harmonic Taylor tenor with nominal at 409.5 Hz — well below the 500–1600 Hz dominance region. Upper partials generate a prominent secondary strike pitch roughly a perfect fourth above the primary. Listen for it with "Upper partials only". True-harmonic: hum and prime are within 1 cent of exact double-octave positions.',
+    p:[
+      {n:'Hum',      hz:102.5, src:true},
+      {n:'Prime',    hz:205.5, src:true},
+      {n:'Tierce',   hz:246,   src:true},
+      {n:'Quint',    hz:306,   src:true},
+      {n:'Nominal',  hz:409.5, src:true},
+      {n:'SQ',       hz:609,   src:true},
+      {n:'Oct. Nom.',hz:836,   src:true},
+    ]
+  },
+  {
+    short:'Glossop 4th',
+    name:'All Saints, Glossop — 4th bell',
+    founder:'Gillett & Johnston',date:1923,
+    weight:'305 kg (6 cwt)',note:'C♯5',nomHz:1078.5,
+    tradition:'English medium, true-harmonic',
+    source:'Hibbert (2008) — exact Hz values',exact:true,
+    desc:'A textbook example of modern English true-harmonic tuning. Hum (270 Hz) and prime (540 Hz) are within 2 cent of exact octave positions below the nominal (1078.5 Hz). The bell sits at the heart of the dominance region, so the virtual pitch is completely unambiguous. SQ and ON values are estimated from regression.',
+    p:[
+      {n:'Hum',      hz:270.0,  src:true},
+      {n:'Prime',    hz:540.0,  src:true},
+      {n:'Tierce',   hz:649.5,  src:true},
+      {n:'Quint',    hz:805.0,  src:true},
+      {n:'Nominal',  hz:1078.5, src:true},
+      {n:'SQ',       hz:1615,   src:false},
+      {n:'Oct. Nom.',hz:2157,   src:false},
+    ]
+  },
+  {
+    short:'Rudhall c.1720',
+    name:'Rudhall old-style — representative',
+    founder:'Rudhall foundry, Gloucester',date:1720,
+    weight:'c.300 kg',note:'E5',nomHz:660,
+    tradition:'English old-style (pre-true-harmonic)',
+    source:'Hibbert (2008) — derived from Rudhall statistical averages',exact:false,
+    desc:'Before true-harmonic tuning became universal (~1900), bells were cast with hum and prime noticeably sharp of the true octave. Hibbert found Rudhall hum notes average 99 cent sharp of ideal, prime 73 cent flat. The resulting beat between the hum/prime and the virtual pitch gives old-style bells their characteristic "woolly" or "churchy" quality. All values estimated from tradition averages.',
+    p:[
+      {n:'Hum',      hz:167,  src:false},
+      {n:'Prime',    hz:321,  src:false},
+      {n:'Tierce',   hz:399,  src:false},
+      {n:'Quint',    hz:495,  src:false},
+      {n:'Nominal',  hz:660,  src:true},
+      {n:'SQ',       hz:973,  src:false},
+      {n:'Oct. Nom.',hz:1307, src:false},
+    ]
+  },
+  {
+    short:'Waddesdon steel',
+    name:'Waddesdon Manor — tenor (Naylor Vickers steel)',
+    founder:'Naylor Vickers & Co., Sheffield',date:1858,
+    weight:'unknown',note:'≈F♯4',nomHz:720,
+    tradition:'English steel bell — historically poor tone',
+    source:'Hibbert (2008) — cents values from steel-bell study; nominal estimated',exact:false,
+    desc:'19th-century steel bells combined two problems: hum and prime flat of ideal (the opposite of old bronze bells) while upper partials were very sharp. Note ON at +1328 cent versus the ideal 1200 cent — 128 cent sharp. The resulting clash between over-spaced upper partials and under-spaced lower partials produced a tone widely described as "harsh", "clangorous" and "metallic".',
+    p:[
+      {n:'Hum',      hz:214,  src:false},
+      {n:'Prime',    hz:371,  src:false},
+      {n:'Tierce',   hz:428,  src:false},
+      {n:'Quint',    hz:539,  src:false},
+      {n:'Nominal',  hz:720,  src:true},
+      {n:'SQ',       hz:1136, src:false},
+      {n:'Oct. Nom.',hz:1518, src:false},
+    ]
+  },
+  {
+    short:'Hemony c.1660',
+    name:'Hemony carillon bell — representative',
+    founder:'François & Pieter Hemony, Amsterdam',date:1660,
+    weight:'c.50 kg',note:'B4',nomHz:494,
+    tradition:'Flemish carillon — historic true-harmonic',
+    source:'Hibbert (2008) — derived from Hemony statistical data',exact:false,
+    audio:'https://archive.org/download/TheWesterkerkwestertorenCarillonBellTowerMp3Ringtones/C0.mp3',
+    desc:'The Hemony brothers achieved near-perfect true-harmonic tuning in the 17th century — without electronic measuring equipment. Hibbert\'s analysis of surviving Hemony bells found hum and prime averaged within ±0.4 cent of the ideal octave positions: a remarkable feat of empirical craftsmanship. ON at 1217 cent is typical for Dutch-tradition carillon bells. All values derived from tradition averages.',
+    p:[
+      {n:'Hum',      hz:123.5, src:false},
+      {n:'Prime',    hz:247,   src:false},
+      {n:'Tierce',   hz:295,   src:false},
+      {n:'Quint',    hz:370,   src:false},
+      {n:'Nominal',  hz:494,   src:true},
+      {n:'SQ',       hz:744,   src:false},
+      {n:'Oct. Nom.',hz:992,   src:false},
+    ]
+  },
+  {
+    short:'Carillon treble',
+    name:'Carillon treble — anonymous small bell',
+    founder:'Taylor/Hemony style',date:1960,
+    weight:'c.5 kg',note:'≈G7',nomHz:3376.5,
+    tradition:'Carillon treble — very small (nominal above dominance region)',
+    source:'Hibbert (2008) — exact Hz values',exact:true,
+    desc:'For very small bells, pitch is perceived from hum (839 Hz) or prime (1683 Hz), not the nominal at 3377 Hz — which lies far above the dominance region. This bell illustrates how the pitch-from-nominal mechanism completely breaks down at extreme small size. Listeners presented only with this bell will disagree about its note unless hum and prime are exactly an octave apart.',
+    p:[
+      {n:'Hum',      hz:839.5,  src:true},
+      {n:'Prime',    hz:1683.0, src:true},
+      {n:'Tierce',   hz:2008.5, src:true},
+      {n:'Quint',    hz:2528,   src:false},
+      {n:'Nominal',  hz:3376.5, src:true},
+      {n:'SQ',       hz:5029.5, src:true},
+      {n:'Oct. Nom.',hz:6778,   src:false},
+    ]
+  },
+  {
+    short:'Perner carillon',
+    name:'Carillon bell — Rudolf Perner Glockengießerei, Passau',
+    founder:'Rudolf Perner Glockengießerei, Passau, Bavaria',date:2005,
+    weight:'16.2 kg',note:'≈B7',nomHz:3907,
+    tradition:'German carillon; thick-walled profile, Perner foundry',
+    source:'Siebert, Blankenhorn & Schweizerhof (2006), Univ. Karlsruhe — experimental modal analysis, Table 5',
+    exact:true,
+    desc:'A small carillon bell lent to the University of Karlsruhe by founder Rudolf Perner (Passau, Bavaria) for experimental modal analysis. The outer and inner surfaces were measured by laser tracker and cement cast (~1000 nodes each side); 240-node impulse-hammer acceleration measurements yielded the frequency response function directly. All partial Hz values are from that measured transfer function (Table 5 of Siebert et al. 2006). The prime and superquint each exhibited beat pairs (spinning modes) from slight casting asymmetry — values here are the mean of each pair. The quint lies at −360 cent from nominal, considerably sharper than the ideal −500 cent; this is characteristic of the thicker wall-to-diameter ratio of carillon bells. Citation: Siebert A., Blankenhorn G., Schweizerhof K. — "Investigating the vibration behavior and sound of church bells considering ornaments and reliefs using LS-DYNA", Institut für Mechanik, Universität Karlsruhe, 2006.',
+    p:[
+      {n:'Hum',    hz:999,    src:true},
+      {n:'Prime',  hz:1815.5, src:true},
+      {n:'Tierce', hz:2351,   src:true},
+      {n:'Quint',  hz:3176,   src:true},
+      {n:'Nominal',hz:3907,   src:true},
+      {n:'SQ',     hz:5672.5, src:true},
+    ]
+  },
+  {
+    short:'Westminster Abbey tenor',
+    name:'Tenor bell — Westminster Abbey, London',
+    founder:'Whitechapel Bellfoundry (tuned J. Slater, 1971)',date:1971,
+    weight:'1544 kg (30 cwt 1 qtr)',note:'D5',nomHz:587.5,
+    tradition:'English true-harmonic — premier tuning case study',
+    source:'Hibbert W.A. (2022), "The tuning of Westminster Abbey tenor", hibberts.co.uk — recording 15 Aug 2019, Wavanal FFT analysis; cross-referenced against Whitechapel foundry tuning records 1971',
+    exact:true,
+    desc:'Possibly the most precisely documented change-ringing tenor in existence. In 1971 John Slater of Whitechapel Bellfoundry removed 16% of the bell\'s weight across 19 cuts, attempting to bring all upper partials into exact musical intervals. The result is a textbook true-harmonic bell: prime at −1198 cent, tierce at −904 cent, quint at −498 cent. Yet the attempt to fix the upper partials failed — superquint landed exactly at +699 cent (ideal fifth), so the octave nominal fell 54 cent sharp at +1254 cent rather than the ideal 1200 cent. Hibbert recorded the bell on 15 August 2019 and analysed it with his Wavanal FFT software, confirming the frequencies match the 1971 foundry figures to within ±2 Hz. His conclusion: the rim partials above the nominal cannot be tuned independently — changing any one moves all others predictably.',
+    p:[
+      {n:'Hum',      hz:147.1,  src:true},
+      {n:'Prime',    hz:294.1,  src:true},
+      {n:'Tierce',   hz:348.5,  src:true},
+      {n:'Quint',    hz:440.6,  src:true},
+      {n:'Nominal',  hz:587.5,  src:true},
+      {n:'SQ',       hz:879.7,  src:true},
+      {n:'Oct. Nom.',hz:1212.5, src:true},
+    ]
+  },
+  {
+    short:'Gloriosa — Frankfurt Dom',
+    name:'Gloriosa — Kaiserdom St. Bartholomäus, Frankfurt am Main',
+    founder:'J.G. Große, Dresden',date:1877,
+    weight:'11,950 kg',note:'E2 (e° +1/16 semitone)',nomHz:82.7,
+    tradition:'19th-century German single-bell casting; modelled acoustically on the Erfurt Gloriosa (Gerhard van Wou, 1497)',
+    source:'Wikipedia: Gloriosa (Frankfurter Dom); dom-frankfurt.de. Nominal e° +1/16 confirmed. All other partial Hz values are ideal true-harmonic estimates derived from the nominal — no published spectral analysis found.',
+    exact:false,
+    audio:'https://media.frankfurt.de/amt21/gloriosaausklingend_1-2.mp3',
+    desc:'The largest bell in the Frankfurt Kaiserdom and the third-heaviest bronze bell in Germany. Cast in 1877 by Hermann Große of Dresden (opus 891), using 5 tonnes of bronze salvaged from bells destroyed in the 1867 cathedral fire and 13 tonnes of captured French cannon metal — a gift from Kaiser Wilhelm I, whose name the bell bears in its inscription. At 11,950 kg and 2,585 mm diameter, the Gloriosa has a confirmed nominal (Schlagton) of e° +1/16 semitone, approximately 82.7 Hz — one of the deepest nominally documented bells in Germany. Große modelled it on the famous 1497 Gloriosa of Gerhard van Wou in the Erfurt Cathedral, whose tonal properties he studied exhaustively. The bell survived the Second World War: confiscated in 1942 for the Reichsstelle für Metalle, it remained intact on the Hamburg Glockenfriedhof and was returned to Frankfurt in October 1947. In 1987 casting defects were repaired by welding at Lachenmeyer, which serendipitously extended the ring time by 60 seconds. The Gloriosa rings only four times a year as part of the Großes Stadtgeläut, and alone on the death of a bishop or pope. Note: partial Hz values shown here are ideal true-harmonic estimates derived from the confirmed nominal. The actual 1877 tuning may differ — no published spectral analysis of this bell has been found.',
+    p:[
+      {n:'Hum',      hz:20.7,  src:false},
+      {n:'Prime',    hz:41.4,  src:false},
+      {n:'Tierce',   hz:49.2,  src:false},
+      {n:'Quint',    hz:62.0,  src:false},
+      {n:'Nominal',  hz:82.7,  src:false},
+      {n:'SQ',       hz:123.9, src:false},
+      {n:'Oct. Nom.',hz:165.4, src:false},
+    ]
+  },
+  {
+    short:'Berlin Freedom Bell',
+    name:'Berlin Freedom Bell — as tuned (G&J 1950)',
+    founder:'Gillett & Johnston',date:1950,
+    weight:'c.9.6 tonnes',note:'≈G♯2 (estimated)',nomHz:195,
+    tradition:'German — over-tuned case study',
+    source:'Hibbert (2008) — exact cents from case study; nominal estimated',exact:false,
+    audio:'https://archive.org/download/Freiheitsglocke/Freiheitsglocke.mp3',
+    desc:'A famous case study in misguided tuning. Removing 1.4 tonnes of metal to lower the pitch flattened the lower partials well below ideal (hum 53 cent flat, prime 41 cent flat) while simultaneously driving upper partials sharp — ON ended at 1271 cent rather than improving toward the ideal 1200 cent. Hibbert shows this is why "over-tuning" is counterproductive: grinding metal changes all partials at once, not independently.',
+    p:[
+      {n:'Hum',      hz:52.5,  src:false},
+      {n:'Prime',    hz:95.8,  src:false},
+      {n:'Tierce',   hz:115.2, src:false},
+      {n:'Quint',    hz:143.7, src:false},
+      {n:'Nominal',  hz:195,   src:true},
+      {n:'SQ',       hz:294.1, src:false},
+      {n:'Oct. Nom.',hz:412,   src:false},
+    ]
+  },
+];
+
+const RB_COLS={'Hum':'#7ea8f8','Prime':'#93c5fd','Tierce':'#6ee7a0','Quint':'#86efac','Nominal':'#f4a261','SQ':'#fbbf24','Oct. Nom.':'#f87171'};
+const RB_AMPS={'Hum':.45,'Prime':.80,'Tierce':.60,'Quint':.30,'Nominal':1.0,'SQ':.50,'Oct. Nom.':.40};
+const RB_DECAY={'Hum':8,'Prime':6.5,'Tierce':4,'Quint':3.2,'Nominal':2.5,'SQ':1.8,'Oct. Nom.':1.3};
+const RB_IDEAL={'Hum':-2400,'Prime':-1200,'Tierce':-900,'Quint':-500,'Nominal':0,'SQ':702,'Oct. Nom.':1200};
+
+let rb7Built=false,rbCurBell=0,rbBuildN=0,rbWFActive=false;
+
+function initRealBells(){
+  rb7Built=true;
+  const row=document.getElementById('bell-sel-row');
+  REAL_BELLS.forEach((b,i)=>{
+    const btn=document.createElement('button');
+    btn.className='bell-sel-btn'+(i===0?' on':'');
+    btn.id='rbsb-'+i;
+    btn.textContent=b.short;
+    btn.onclick=()=>rbSelectBell(i);
+    row.appendChild(btn);
+  });
+  rbSelectBell(0);
+  // Canvas click: find nearest partial and play it
+  const fftCanvas=document.getElementById('rb-fft-canvas');
+  if(fftCanvas){
+    fftCanvas.addEventListener('click',e=>{
+      const b=REAL_BELLS[rbCurBell];
+      if(!b)return;
+      const rect=fftCanvas.getBoundingClientRect();
+      const xPx=(e.clientX-rect.left)*(fftCanvas.width/rect.width);
+      const fMin=25,fMax=9000,lnR=Math.log(fMax/fMin);
+      const PAD_L=44,PAD_R=22,PW=fftCanvas.width-PAD_L-PAD_R;
+      if(xPx<PAD_L||xPx>PAD_L+PW)return;
+      const clickF=fMin*Math.exp((xPx-PAD_L)/PW*lnR);
+      // find nearest partial in log frequency
+      let best=-1,bestDist=Infinity;
+      b.p.forEach((pt,j)=>{
+        const d=Math.abs(Math.log(clickF/pt.hz));
+        if(d<bestDist){bestDist=d;best=j;}
+      });
+      if(best>=0&&bestDist<0.35)rbPlayPartial(best);
+    });
+  }
+}
+
+/* ---- view toggle ---- */
+function rbSetView(v){
+  rbWFActive=(v==='wf');
+  document.getElementById('rb-fft-wrap').style.display=rbWFActive?'none':'';
+  document.getElementById('rb-wf-wrap').style.display=rbWFActive?'':'none';
+  document.getElementById('rb-view-fft-btn').classList.toggle('on',!rbWFActive);
+  document.getElementById('rb-view-wf-btn').classList.toggle('on',rbWFActive);
+  document.getElementById('rb-view-note-fft').style.display=rbWFActive?'none':'';
+  document.getElementById('rb-view-note-wf').style.display=rbWFActive?'':'none';
+  if(rbWFActive) drawWaterfall(REAL_BELLS[rbCurBell]);
+}
+
+/* ---- 3-D time-decay waterfall ---- */
+/* Perspective: time goes to lower-left (matching Rossing/Hibbert style).
+   Each partial drawn as an isolated fin; Gaussian width SIG in relative-freq units.
+   Painter's algorithm: TMAX → 0 (back to front). */
+function drawWaterfall(b){
+  const canvas=document.getElementById('rb-wf-canvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+
+  ctx.fillStyle='#070b16';
+  ctx.fillRect(0,0,W,H);
+
+  // --- layout ---
+  // Front face (t=0): frequency axis along the bottom, amplitude axis on left
+  const PAD_L=112;   // space for y-axis label + time ticks
+  const PAD_R=28;
+  const PAD_T=80;    // space for partial name labels
+  const PAD_B=44;
+
+  const X_FL=PAD_L;              // screen-x of f_min at t=0
+  const X_FR=W-PAD_R;            // screen-x of f_max at t=0
+  const DW=X_FR-X_FL;            // frequency-axis pixel width
+  const Y_ZERO=PAD_T+100;        // screen-y of zero-amplitude level at t=0  (≈ 180)
+  const AS=88;                   // pixels per unit amplitude (upward = smaller y)
+
+  // --- frequency axis ---
+  const FM=0.30, FX=5.8;
+
+  // --- perspective per second of time: shifts LEFT and DOWN ---
+  const TMAX=50;
+  const NS=180;          // render slices
+  const DX=1.82;         // px per second → leftward
+  const DY=5.10;         // px per second → downward
+
+  // --- Gaussian peak width ---
+  const SIG=0.017;       // relative-freq units
+
+  // --- partial label offsets (to avoid collisions) ---
+  // Labels drawn above peak at t=0; shift some upward when neighbours are close
+  const LABEL_LIFT={Hum:0,Prime:0,'Minor Third':0,Tierce:0,Quint:0,
+                    Nominal:0,SQ:0,'Oct. Nom.':0};
+
+  // --- frequency reference ---
+  const primePar=b.p.find(p=>p.n==='Prime');
+  const nomPar  =b.p.find(p=>p.n==='Nominal');
+  const refHz=primePar?primePar.hz:(nomPar?nomPar.hz/2:b.nomHz/2);
+
+  // --- build partials in relative-freq space ---
+  const parts=b.p.map(p=>({
+    n:p.n, fr:p.hz/refHz, a:RB_AMPS[p.n]||0.5, tau:RB_DECAY[p.n]||3
+  })).filter(p=>p.fr>=FM&&p.fr<=FX);
+
+  // Sort by frequency descending so painter draws right→left (lower-freq fins in front)
+  const drawOrder=[...parts].sort((a,bb)=>bb.fr-a.fr);
+
+  // --- projection helpers ---
+  function fToX(f,t){return X_FL+(f-FM)/(FX-FM)*DW - t*DX;}
+  function yFloor(t)  {return Y_ZERO + t*DY;}
+  function yAmp(a,t)  {return yFloor(t) - a*AS;}
+
+  // --- time ticks to draw as floor lines ---
+  const TIME_TICKS=[0,1,2,5,10,20,50];
+
+  // ================================================================
+  // PAINTER'S LOOP: draw from t=TMAX back to t=0
+  // ================================================================
+  for(let step=NS;step>=0;step--){
+    const t=TMAX*step/NS;
+    const yF=yFloor(t);
+    if(yF>H+10) continue;
+
+    // draw floor lines only at major time ticks
+    const isTick=TIME_TICKS.some(tt=>Math.abs(t-tt)<TMAX/(2*NS));
+    if(isTick){
+      const xL=fToX(FM,t), xR=fToX(FX,t);
+      ctx.beginPath();ctx.moveTo(xL,yF);ctx.lineTo(xR,yF);
+      ctx.strokeStyle='rgba(55,78,135,0.48)';ctx.lineWidth=0.8;ctx.stroke();
+    }
+
+    // draw each partial's Gaussian fin slice (right-to-left)
+    drawOrder.forEach(p=>{
+      const amp=p.a*Math.exp(-t/p.tau);
+      if(amp<0.005) return;
+
+      // sample Gaussian only within ±3.5σ of the peak
+      const df=3.5*SIG;
+      const fL=Math.max(FM, p.fr-df);
+      const fR=Math.min(FX, p.fr+df);
+      const NL=48;
+
+      ctx.beginPath();
+      ctx.moveTo(fToX(fL,t), yF);
+      for(let i=0;i<=NL;i++){
+        const f=fL+(fR-fL)*i/NL;
+        const d=(f-p.fr)/SIG;
+        ctx.lineTo(fToX(f,t), yAmp(amp*Math.exp(-0.5*d*d), t));
+      }
+      ctx.lineTo(fToX(fR,t), yF);
+      ctx.closePath();
+
+      const frac=1-step/NS;                   // 0 at back, 1 at front
+      ctx.fillStyle=`rgba(210,68,52,${0.48+0.40*frac})`;
+      ctx.fill();
+    });
+  }
+
+  // ================================================================
+  // BOX OUTLINE (front face + perspective edges)
+  // ================================================================
+  const boxClr='rgba(70,90,155,0.60)';
+  ctx.strokeStyle=boxClr; ctx.lineWidth=1;
+
+  // front bottom edge (frequency axis at t=0)
+  const yF0=yFloor(0);
+  ctx.beginPath();ctx.moveTo(fToX(FM,0),yF0);ctx.lineTo(fToX(FX,0),yF0);ctx.stroke();
+
+  // left perspective edge (f=FM, t: 0→TMAX)
+  ctx.beginPath();ctx.moveTo(fToX(FM,0),yF0);ctx.lineTo(fToX(FM,TMAX),yFloor(TMAX));ctx.stroke();
+  // right perspective edge (f=FX)
+  ctx.beginPath();ctx.moveTo(fToX(FX,0),yF0);ctx.lineTo(fToX(FX,TMAX),yFloor(TMAX));ctx.stroke();
+  // back bottom edge
+  ctx.beginPath();ctx.moveTo(fToX(FM,TMAX),yFloor(TMAX));ctx.lineTo(fToX(FX,TMAX),yFloor(TMAX));ctx.stroke();
+
+  // front left vertical (amplitude axis)
+  const yTop=yAmp(1.0,0)-12;
+  ctx.beginPath();ctx.moveTo(fToX(FM,0),yF0);ctx.lineTo(fToX(FM,0),yTop);ctx.stroke();
+  // top horizontal cap
+  ctx.beginPath();ctx.moveTo(fToX(FM,0),yTop);ctx.lineTo(fToX(FX,0),yTop);
+  ctx.strokeStyle='rgba(70,90,155,0.25)';ctx.stroke();
+
+  // ================================================================
+  // AXES LABELS
+  // ================================================================
+
+  // frequency ticks (along t=0 floor)
+  const fTicks=[0.5,1,1.5,2,3,4,5];
+  ctx.fillStyle='rgba(132,152,200,0.90)';
+  ctx.font='13px monospace';
+  ctx.textAlign='center';
+  fTicks.forEach(ft=>{
+    if(ft<FM||ft>FX)return;
+    const x=fToX(ft,0);
+    ctx.beginPath();ctx.moveTo(x,yF0);ctx.lineTo(x,yF0+6);
+    ctx.strokeStyle='rgba(110,135,200,0.45)';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillText(ft+'×',x,yF0+20);
+  });
+
+  // frequency axis label
+  ctx.font='13px sans-serif';
+  ctx.fillStyle='rgba(145,162,210,0.82)';
+  ctx.textAlign='center';
+  ctx.fillText('Relative frequency  (prime = 1×)', X_FL+DW/2, H-6);
+
+  // Y-axis label (rotated, left of front face)
+  ctx.save();
+  ctx.translate(16, Y_ZERO-AS*0.45);
+  ctx.rotate(-Math.PI/2);
+  ctx.textAlign='center';
+  ctx.font='12px sans-serif';
+  ctx.fillStyle='rgba(145,162,210,0.75)';
+  ctx.fillText('Relative sound level',0,0);
+  ctx.restore();
+
+  // time ticks along left perspective edge
+  ctx.font='11px monospace';
+  ctx.fillStyle='rgba(115,135,195,0.90)';
+  TIME_TICKS.forEach(tt=>{
+    if(tt>TMAX)return;
+    const xl=fToX(FM,tt), yl=yFloor(tt);
+    if(yl<0||yl>H) return;
+    ctx.textAlign='right';
+    ctx.fillText(tt+'s', xl-7, yl+4);
+    ctx.beginPath();ctx.moveTo(xl,yl);ctx.lineTo(xl-4,yl);
+    ctx.strokeStyle='rgba(100,122,185,0.45)';ctx.lineWidth=0.8;ctx.stroke();
+  });
+
+  // "Time (sec)" label, diagonal along the left edge
+  ctx.save();
+  const tx0=fToX(FM,2)-36,  ty0=yFloor(2);
+  const tx1=fToX(FM,20)-36, ty1=yFloor(20);
+  ctx.translate((tx0+tx1)/2,(ty0+ty1)/2);
+  ctx.rotate(Math.atan2(ty1-ty0,tx1-tx0));
+  ctx.textAlign='center';
+  ctx.font='12px sans-serif';
+  ctx.fillStyle='rgba(145,162,210,0.75)';
+  ctx.fillText('Time (sec)',0,-12);
+  ctx.restore();
+
+  // partial name labels above each fin at t=0
+  ctx.font='11.5px sans-serif';
+  ctx.textAlign='center';
+  parts.forEach(p=>{
+    const x=fToX(p.fr,0);
+    const yLbl=yAmp(p.a,0)-(LABEL_LIFT[p.n]||0)-12;
+    ctx.fillStyle='rgba(232,172,152,0.93)';
+    ctx.fillText(p.n, x, yLbl);
+  });
+
+  // caption
+  ctx.font='10px sans-serif';
+  ctx.textAlign='right';
+  ctx.fillStyle='rgba(90,105,148,0.82)';
+  ctx.fillText('Partial positions: measured  ·  Decay rates: indicative', W-8, H-5);
+}
+
+function rbSelectBell(i){
+  rbCurBell=i; rbBuildN=0;
+  const b=REAL_BELLS[i];
+  document.querySelectorAll('.bell-sel-btn').forEach((el,j)=>el.classList.toggle('on',j===i));
+  // Meta card
+  document.getElementById('bell-meta').innerHTML=`<div class="bm-grid">
+    <span class="bm-lbl">Bell</span><span class="bm-val" style="font-weight:600">${b.name}</span>
+    <span class="bm-lbl">Founder</span><span class="bm-val">${b.founder}, ${b.date}</span>
+    <span class="bm-lbl">Weight</span><span class="bm-val">${b.weight}</span>
+    <span class="bm-lbl">Note</span><span class="bm-val" style="color:var(--accent2);font-weight:600">${b.note} &mdash; nominal ${b.nomHz} Hz</span>
+    <span class="bm-lbl">Tradition</span><span class="bm-val">${b.tradition}</span>
+    <span class="bm-lbl">Source</span><span class="bm-val" style="font-size:.76rem;color:var(--muted)">${b.source}</span>
+    ${b.audio?`<span class="bm-lbl">Recording</span><span class="bm-val"><a href="${b.audio}" target="_blank" rel="noopener" style="color:var(--accent2);text-decoration:none">&#9654; Official recording (MP3)</a> &nbsp;<span style="font-size:.72rem;color:var(--muted)">— right-click to save</span></span>`:''}
+  </div>`;
+  document.getElementById('bell-desc').textContent=b.desc;
+  rbDrawFFT(b);
+  if(rbWFActive) drawWaterfall(b);
+  rbBuildTable(b);
+  rbBuildPiano(b);
+  document.getElementById('rb-build-label').textContent='Click "Add next partial" to begin — each click layers in one more partial.';
+  document.getElementById('rb-note').textContent='';
+}
+
+function rbDrawFFT(b, highlightIdx, activeCount){
+  const canvas=document.getElementById('rb-fft-canvas');
+  if(!canvas)return;
+  const CW=canvas.width, CH=canvas.height;
+  const c2=canvas.getContext('2d');
+  const PAD_L=62, PAD_R=30, PAD_T=44, PAD_B=54;
+  const PW=CW-PAD_L-PAD_R, PH=CH-PAD_T-PAD_B;
+
+  // Frequency range — log scale 25 Hz to 9000 Hz
+  const fMin=25, fMax=9000;
+  const lnR=Math.log(fMax/fMin);
+  const SIGMA=0.026; // Gaussian half-width in ln(f) space — gives narrow bell-like peaks
+
+  function fToX(f){return PAD_L+PW*Math.log(Math.max(f,fMin)/fMin)/lnR}
+  function aToY(a){return PAD_T+PH*(1-Math.min(1,Math.max(0,a)))}
+
+  // Per-partial effective amplitude (handles highlight dimming and build-up greyout)
+  function pAmp(j){
+    const base=RB_AMPS[b.p[j].n]||0.5;
+    const active=activeCount===undefined||j<activeCount;
+    if(!active)return base*0.07;
+    if(highlightIdx!==undefined&&highlightIdx>=0)
+      return j===highlightIdx?base*1.12:base*0.28;
+    return base;
+  }
+
+  function gauss(f,f0,amp){
+    const lnRatio=Math.log(f/f0);
+    return amp*Math.exp(-(lnRatio*lnRatio)/(2*SIGMA*SIGMA));
+  }
+
+  // ── Background ──
+  c2.fillStyle='#0c0f1c';
+  c2.fillRect(0,0,CW,CH);
+
+  // ── Vertical grid lines ──
+  const ticks=[50,100,200,500,1000,2000,5000];
+  ticks.forEach(f=>{
+    if(f<fMin*1.5||f>fMax*0.92)return;
+    const x=fToX(f);
+    c2.strokeStyle='rgba(255,255,255,0.055)';
+    c2.lineWidth=1;
+    c2.beginPath();c2.moveTo(x,PAD_T);c2.lineTo(x,PAD_T+PH);c2.stroke();
+  });
+
+  // ── Individual partial Gaussian filled areas ──
+  b.p.forEach((pt,j)=>{
+    const col=RB_COLS[pt.n]||'#aaa';
+    const amp=pAmp(j);
+    if(amp<0.005)return;
+    // filled area
+    c2.beginPath();
+    let first=true;
+    for(let x=PAD_L;x<=PAD_L+PW;x+=1){
+      const f=fMin*Math.exp((x-PAD_L)/PW*lnR);
+      const a=gauss(f,pt.hz,amp);
+      if(a<0.0008){if(!first){c2.lineTo(x,aToY(0));first=true;}continue;}
+      if(first){c2.moveTo(x,aToY(0));first=false;}
+      c2.lineTo(x,aToY(a));
+    }
+    c2.lineTo(PAD_L+PW,aToY(0));
+    c2.closePath();
+    c2.fillStyle=col+(highlightIdx!==undefined&&highlightIdx>=0&&j!==highlightIdx?'28':'55');
+    c2.fill();
+    // outline stroke
+    c2.strokeStyle=col+(highlightIdx!==undefined&&highlightIdx>=0&&j!==highlightIdx?'50':'bb');
+    c2.lineWidth=highlightIdx===j?1.8:1.1;
+    c2.beginPath();first=true;
+    for(let x=PAD_L;x<=PAD_L+PW;x+=1){
+      const f=fMin*Math.exp((x-PAD_L)/PW*lnR);
+      const a=gauss(f,pt.hz,amp);
+      if(a<0.001){first=true;continue;}
+      if(first){c2.moveTo(x,aToY(a));first=false;}else c2.lineTo(x,aToY(a));
+    }
+    c2.stroke();
+  });
+
+  // ── Summed envelope (white overlay) ──
+  c2.strokeStyle='rgba(255,255,255,0.45)';
+  c2.lineWidth=1.4;
+  c2.beginPath();
+  for(let x=PAD_L;x<=PAD_L+PW;x+=1){
+    const f=fMin*Math.exp((x-PAD_L)/PW*lnR);
+    let sum=0.003;
+    b.p.forEach((pt,j)=>sum+=gauss(f,pt.hz,pAmp(j)));
+    const a=Math.min(1,sum);
+    x===PAD_L?c2.moveTo(x,aToY(a)):c2.lineTo(x,aToY(a));
+  }
+  c2.stroke();
+
+  // ── Plot border ──
+  c2.strokeStyle='rgba(255,255,255,0.1)';
+  c2.lineWidth=1;
+  c2.strokeRect(PAD_L,PAD_T,PW,PH);
+
+  // ── X-axis labels ──
+  c2.fillStyle='rgba(160,186,230,0.55)';
+  c2.font='17px monospace';
+  c2.textAlign='center';
+  ticks.forEach(f=>{
+    if(f<fMin*1.5||f>fMax*0.92)return;
+    const x=fToX(f);
+    c2.beginPath();c2.moveTo(x,PAD_T+PH);c2.lineTo(x,PAD_T+PH+6);
+    c2.strokeStyle='rgba(255,255,255,0.18)';c2.lineWidth=1.5;c2.stroke();
+    c2.fillText(f>=1000?(f/1000)+'k':f+'',x,PAD_T+PH+24);
+  });
+  c2.fillStyle='rgba(160,186,230,0.35)';
+  c2.font='15px sans-serif';
+  c2.textAlign='left';
+  c2.fillText('Hz',PAD_L+PW+5,PAD_T+PH+24);
+
+  // ── Y-axis label ──
+  c2.save();
+  c2.translate(16,PAD_T+PH/2);
+  c2.rotate(-Math.PI/2);
+  c2.fillStyle='rgba(160,186,230,0.32)';
+  c2.font='14px sans-serif';
+  c2.textAlign='center';
+  c2.fillText('Amplitude',0,0);
+  c2.restore();
+
+  // ── Peak dots + labels ──
+  const lblPositions=[];
+  b.p.forEach((pt,j)=>{
+    const col=RB_COLS[pt.n]||'#aaa';
+    const amp=pAmp(j);
+    const px=fToX(pt.hz);
+    const py=aToY(amp);
+    if(px<PAD_L||px>PAD_L+PW)return;
+    const isHL=highlightIdx!==undefined&&j===highlightIdx;
+    const isDim=activeCount!==undefined&&j>=activeCount;
+    // dot
+    c2.beginPath();
+    c2.arc(px,py,isHL?7:4,0,2*Math.PI);
+    c2.fillStyle=isDim?col+'30':col;
+    c2.fill();
+    // label — nudge if too close to previous
+    const lbl=pt.n.replace('Oct. Nom.','ON').replace('Superquint','SQ').replace('Nominal','Nom');
+    let lx=px;
+    const tooClose=lblPositions.some(lp=>Math.abs(lp-lx)<42);
+    if(tooClose)lx+=26;
+    lblPositions.push(lx);
+    c2.fillStyle=isDim?col+'30':isHL?col:col+'bb';
+    c2.font=(isHL?'bold ':'')+' 15px sans-serif';
+    c2.textAlign='center';
+    c2.fillText(lbl,lx,Math.max(PAD_T+16,py-(isHL?18:13)));
+  });
+
+  // ── "Estimated" note ──
+  c2.fillStyle='rgba(140,165,210,0.28)';
+  c2.font='italic 13px sans-serif';
+  c2.textAlign='right';
+  c2.fillText('estimated spectrum — positions measured, amplitudes indicative',PAD_L+PW-4,PAD_T-14);
+}
+
+function rbBuildTable(b){
+  const tb=document.getElementById('rb-tbody');
+  tb.innerHTML='';
+  b.p.forEach((pt,i)=>{
+    const col=RB_COLS[pt.n]||'#aaa';
+    const cents=Math.round(1200*Math.log2(pt.hz/b.nomHz));
+    const ideal=RB_IDEAL[pt.n];
+    const dev=ideal!==undefined?cents-ideal:null;
+    const devStr=dev===null?'—':(dev>0?`+${dev}cent`:`${dev}cent`);
+    const devCol=dev===null?'var(--muted)':Math.abs(dev)<=15?'var(--green)':Math.abs(dev)<=40?'var(--accent2)':'var(--red)';
+    const srcDot=pt.src
+      ?`<span style="color:var(--green);font-size:.85em" title="Exact Hz from source">●</span>`
+      :`<span style="color:var(--muted);font-size:.85em" title="Estimated">○</span>`;
+    const tr=document.createElement('tr');
+    tr.id='rbt-'+i;
+    tr.innerHTML=`<td>${srcDot}</td>
+      <td><span style="color:${col};font-weight:600">${pt.n}</span></td>
+      <td style="font-family:monospace">${pt.hz<100?pt.hz.toFixed(1):pt.hz.toFixed(pt.hz<1000?1:0)}</td>
+      <td style="font-family:monospace;color:var(--muted)">${cents>=0?'+':''}${cents}cent</td>
+      <td style="font-family:monospace;font-weight:600;color:${devCol}">${devStr}</td>
+      <td><div class="play-dot" onclick="event.stopPropagation();rbPlayPartial(${i})">▶</div></td>`;
+    tr.onclick=()=>rbPlayPartial(i);
+    tb.appendChild(tr);
+  });
+}
+
+function rbHighlight(idx){
+  const b=REAL_BELLS[rbCurBell];
+  document.querySelectorAll('#rb-tbody tr').forEach((r,j)=>r.classList.toggle('active',j===idx));
+  rbDrawFFT(b,idx);
+  // Piano: dim all markers, brighten the active one
+  document.querySelectorAll('.pm').forEach(el=>el.style.opacity='0.3');
+  const pm=document.getElementById('rb-pm-'+idx);
+  if(pm)pm.style.opacity='1';
+  rbLitKey(idx);
+}
+
+function rbClearHighlight(){
+  const b=REAL_BELLS[rbCurBell];
+  document.querySelectorAll('#rb-tbody tr').forEach(r=>r.classList.remove('active'));
+  rbDrawFFT(b);
+  document.querySelectorAll('.pm').forEach(el=>el.style.opacity='1');
+  document.querySelectorAll('.pk-lit').forEach(el=>el.classList.remove('pk-lit'));
+}
+
+// ── Piano helpers ──
+const PK_WW=16; // white key width px
+const PK_C1=24; // MIDI C1
+// Centre of each semitone (C=0..B=11) in fractional white-key-widths from octave left
+const PK_SF=[0.5,0.6875,1.5,1.6875,2.5,3.5,3.6875,4.5,4.6875,5.5,5.6875,6.5];
+// Black key left-edge px within octave (centre - 5px half-width)
+const PK_BL=[0.6875*16-5, 1.6875*16-5, 3.6875*16-5, 4.6875*16-5, 5.6875*16-5];
+// = [6, 22, 54, 70, 86]
+const PK_W_SEMI=[0,2,4,5,7,9,11]; // white key semitones per octave
+const PK_B_SEMI=[[1,6],[3,22],[6,54],[8,70],[10,86]]; // [semi, leftPx]
+
+function hzToPx(hz){
+  if(hz<28||hz>18000)return null;
+  const midi=69+12*Math.log2(hz/440);
+  const dC1=midi-PK_C1;
+  if(dC1<-0.5||dC1>84.5)return null;
+  const oct=Math.max(0,Math.min(6,Math.floor(dC1/12)));
+  const sf=Math.max(0,dC1-oct*12);
+  const s0=Math.max(0,Math.min(11,Math.floor(sf)));
+  const s1=Math.min(11,s0+1);
+  const pos=PK_SF[s0]*(1-(sf-s0))+PK_SF[s1]*(sf-s0);
+  return(oct*7+pos)*PK_WW;
+}
+
+function midiHz(midi){return 440*Math.pow(2,(midi-69)/12)}
+
+function rbBuildPiano(b){
+  const inner=document.getElementById('rb-piano-inner');
+  const oosEl=document.getElementById('rb-piano-oos');
+  if(!inner)return;
+
+  // Compute x for each partial
+  const mData=b.p.map((pt,i)=>({pt,i,x:hzToPx(pt.hz)}));
+  const inScale=mData.filter(m=>m.x!==null);
+  const outScale=mData.filter(m=>m.x===null);
+
+  // Assign stagger levels to avoid close-together markers overlapping
+  // Sort by x, greedily assign: if next marker <22px from last at level 0, put at level 1
+  const sorted=[...inScale].sort((a,b2)=>a.x-b2.x);
+  const lastXByLvl=[-999,-999];
+  sorted.forEach(m=>{
+    let lvl=0;
+    if(m.x-lastXByLvl[0]<22)lvl=1;
+    m.lvl=lvl;
+    lastXByLvl[lvl]=m.x;
+  });
+
+  // Build markers
+  // level 0 → top:36px (short line to keys), level 1 → top:0px (long line)
+  let mHtml='<div class="piano-mrow">';
+  inScale.forEach(m=>{
+    const col=RB_COLS[m.pt.n]||'#aaa';
+    const lvl=m.lvl||0;
+    const topY=lvl===1?0:37;
+    const lineH=lvl===1?46:19;
+    const lbl=m.pt.n.replace('Oct. Nom.','ON');
+    mHtml+=`<div class="pm" id="rb-pm-${m.i}" style="left:${m.x.toFixed(1)}px;top:${topY}px" onclick="rbPlayPartial(${m.i})">
+      <span class="pm-lbl" style="color:${col}">${lbl}</span>
+      <div class="pm-dot" style="background:${col}"></div>
+      <div class="pm-ln" style="background:${col}99;height:${lineH}px"></div>
+    </div>`;
+  });
+  mHtml+='</div>';
+
+  // Build keys (C1–C8)
+  const WN=['C','D','E','F','G','A','B'];
+  let kHtml='<div class="piano-krow">';
+  for(let oct=0;oct<7;oct++){
+    const n=oct+1;
+    kHtml+=`<div class="p-oct">`;
+    PK_W_SEMI.forEach((s,wi)=>{
+      const midi=PK_C1+oct*12+s;
+      const hz=midiHz(midi).toFixed(1);
+      kHtml+=`<div class="pk-w" id="pk-${midi}" title="${WN[wi]}${n} · ${hz} Hz" onclick="rbPlayHz(${hz})">`;
+      if(wi===0)kHtml+=`<span class="pk-c-lbl">C${n}</span>`;
+      kHtml+=`</div>`;
+    });
+    PK_B_SEMI.forEach(([s,lx])=>{
+      const midi=PK_C1+oct*12+s;
+      const hz=midiHz(midi).toFixed(1);
+      kHtml+=`<div class="pk-b" id="pk-${midi}" style="left:${lx}px" title="${hz} Hz" onclick="rbPlayHz(${hz})"></div>`;
+    });
+    kHtml+=`</div>`;
+  }
+  // Final C8
+  {const midi=108;const hz=midiHz(midi).toFixed(1);
+   kHtml+=`<div class="p-oct" style="width:${PK_WW}px"><div class="pk-w" id="pk-108" title="C8 · ${hz} Hz" onclick="rbPlayHz(${hz})"><span class="pk-c-lbl">C8</span></div></div>`;}
+  kHtml+='</div>';
+
+  inner.innerHTML=mHtml+kHtml;
+
+  oosEl.textContent=outScale.length
+    ?'Above keyboard range (C8 = 4186 Hz): '+outScale.map(m=>`${m.pt.n} ${m.pt.hz.toFixed(0)} Hz`).join(', ')
+    :'';
+}
+
+function rbLitKey(partialIdx){
+  document.querySelectorAll('.pk-lit').forEach(el=>el.classList.remove('pk-lit'));
+  const b=REAL_BELLS[rbCurBell];
+  const pt=b.p[partialIdx];
+  if(!pt)return;
+  const midi=Math.round(69+12*Math.log2(pt.hz/440));
+  const el=document.getElementById('pk-'+midi);
+  if(el)el.classList.add('pk-lit');
+}
+
+function rbPlayHz(hz){
+  const ctx=getCtx();
+  tone(ctx,parseFloat(hz),0.35,1.2,ctx.currentTime+.05);
+}
+
+function rbPlayPartial(i){
+  const b=REAL_BELLS[rbCurBell];
+  const pt=b.p[i];
+  const ctx=getCtx();
+  tone(ctx,pt.hz,(RB_AMPS[pt.n]||0.5),RB_DECAY[pt.n]||3,ctx.currentTime+.05);
+  rbHighlight(i);
+  const cents=Math.round(1200*Math.log2(pt.hz/b.nomHz));
+  const note=document.getElementById('rb-note');
+  const hz=pt.hz;
+  note.textContent=`♪ ${pt.n}: ${hz<100?hz.toFixed(1):hz.toFixed(hz<1000?1:0)} Hz (${hzToNote(Math.max(hz,40))}) — ${cents>=0?'+':''}${cents}cent from nominal${hz<80?' · very low — headphones recommended':''}`;
+  clearTimeout(note._t);
+  note._t=setTimeout(()=>{note.textContent='';rbClearHighlight()},4500);
+}
+
+function rbPlayAll(){
+  const b=REAL_BELLS[rbCurBell];
+  const ctx=getCtx(),t=ctx.currentTime+.05;
+  b.p.forEach(pt=>tone(ctx,pt.hz,RB_AMPS[pt.n]||0.5,RB_DECAY[pt.n]||3,t));
+  const note=document.getElementById('rb-note');
+  note.textContent=`♪ Full ${b.short} — all 7 partials · nominal ${b.nomHz} Hz (${b.note})`;
+  clearTimeout(note._t);note._t=setTimeout(()=>note.textContent='',5000);
+}
+
+function rbPlayUpper(){
+  const b=REAL_BELLS[rbCurBell];
+  const ctx=getCtx(),t=ctx.currentTime+.05;
+  b.p.filter(pt=>['Nominal','SQ','Oct. Nom.'].includes(pt.n)).forEach(pt=>{
+    tone(ctx,pt.hz,(RB_AMPS[pt.n]||0.5)*1.4,RB_DECAY[pt.n]||2,t);
+  });
+  const note=document.getElementById('rb-note');
+  note.textContent='♪ Upper partials only (nominal, SQ, ON) — listen for the implied virtual pitch below';
+  clearTimeout(note._t);note._t=setTimeout(()=>note.textContent='',5000);
+}
+
+function rbBuildStep(){
+  const b=REAL_BELLS[rbCurBell];
+  if(rbBuildN>=b.p.length)rbBuildN=0;
+  rbBuildN++;
+  const ctx=getCtx(),t=ctx.currentTime+.05;
+  b.p.slice(0,rbBuildN).forEach(pt=>{
+    tone(ctx,pt.hz,(RB_AMPS[pt.n]||0.5)*0.88,Math.min(RB_DECAY[pt.n]||3,6.5),t);
+  });
+  // Highlight new partial; redraw FFT showing only accumulated partials
+  const b2=REAL_BELLS[rbCurBell];
+  rbDrawFFT(b2,rbBuildN-1,rbBuildN);
+  document.querySelectorAll('#rb-tbody tr').forEach((r,j)=>r.classList.toggle('active',j===rbBuildN-1));
+  // Piano markers: brighten accumulated, dim future
+  b.p.forEach((pt,j)=>{
+    const pm=document.getElementById('rb-pm-'+j);
+    if(pm)pm.style.opacity=j<rbBuildN?'1':'0.2';
+  });
+  rbLitKey(rbBuildN-1);
+  const added=b.p[rbBuildN-1];
+  const names=b.p.slice(0,rbBuildN).map(p=>p.n).join(' + ');
+  const nextLabel=rbBuildN<b.p.length?`Next: add ${b.p[rbBuildN].n}`:'All partials playing — click to restart from hum';
+  document.getElementById('rb-build-label').textContent=`Now: ${names} · ${nextLabel}`;
+  const note=document.getElementById('rb-note');
+  note.textContent=`♪ Added ${added.n}: ${added.hz<100?added.hz.toFixed(1):added.hz.toFixed(1)} Hz — ${rbBuildN===6?'virtual pitch should now be audible below the nominal!':rbBuildN===5?'nominal added — tone has a note but no clear strike pitch yet':''} `;
+  clearTimeout(note._t);note._t=setTimeout(()=>note.textContent='',5500);
+  if(rbBuildN>=b.p.length)rbBuildN=0;
+}
+
+function rbReset(){
+  rbBuildN=0;
+  rbClearHighlight();
+  document.getElementById('rb-build-label').textContent='Click "Add next partial" to begin — each click layers in one more partial.';
+  document.getElementById('rb-note').textContent='';
+}
+
+// ─────────────────────────────────────────────
+// GLOSSARY
+// ─────────────────────────────────────────────
+function openGloss(term){
+  document.getElementById('gloss-modal').classList.add('on');
+  if(term){
+    const el=document.getElementById('gt-'+term);
+    if(el)setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'center'}),80);
+  }
+}
+function closeGloss(){document.getElementById('gloss-modal').classList.remove('on')}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeGloss()});
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+buildPartialTable();
+bxBuildZoneBar();
+updateLab();
+showSize(0);
+</script>
+</body>
+</html>

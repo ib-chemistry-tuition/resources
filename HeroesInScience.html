@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heroes in Science</title>
+    <style>
+        :root {
+            --primary: #1b5e20;
+            --primary-light: #e8f5e9;
+            --accent: #d97706;
+            --text: #1f2937;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 24px;
+            line-height: 1.6;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 24px;
+            background: linear-gradient(135deg, #0f3912, #2e7d32);
+            color: white;
+            border-radius: 16px;
+            margin-bottom: 32px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin: 0 0 12px 0;
+            font-size: 2.5rem;
+            letter-spacing: -0.025em;
+        }
+
+        p.subtitle {
+            font-size: 1.05rem;
+            opacity: 0.95;
+            margin: 0;
+            max-width: 850px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .controls {
+            max-width: 1200px;
+            margin: 0 auto 40px auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .search-bar {
+            width: 100%;
+            max-width: 600px;
+            padding: 14px 24px;
+            font-size: 1.05rem;
+            border: 2px solid var(--border);
+            border-radius: 30px;
+            outline: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .search-bar:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+        }
+
+        .category-section {
+            max-width: 1200px;
+            margin: 0 auto 50px auto;
+        }
+
+        .section-header {
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: #0f3912;
+            margin: 0 0 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-intro {
+            font-size: 1.05rem;
+            color: #4b5563;
+            margin: 0;
+            font-style: italic;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.12);
+            border-color: var(--primary);
+        }
+
+        .card-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #111827;
+            margin: 0 0 4px 0;
+        }
+
+        .card-name a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .card-name a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        .wiki-icon {
+            font-size: 0.8em;
+            opacity: 0.4;
+            margin-left: 5px;
+            font-weight: normal;
+            transition: opacity 0.2s;
+        }
+
+        .card-name a:hover .wiki-icon {
+            opacity: 1;
+        }
+
+        .card-meta {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #2e7d32;
+            margin-bottom: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .location-tag {
+            color: #4b5563;
+            font-weight: 400;
+        }
+
+        .card-desc {
+            font-size: 0.95rem;
+            color: #374151;
+            margin: 0;
+        }
+
+        .click-prompt {
+            margin-top: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-align: right;
+            opacity: 0.8;
+        }
+
+        .extra-cards {
+            display: none;
+        }
+
+        .extra-cards.open {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .toggle-btn-container {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .toggle-btn {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 10px 24px;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Modal Overlay Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: 16px;
+            max-width: 750px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 32px;
+            position: relative;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+            border: 2px solid var(--primary);
+            transform: scale(0.95);
+            transition: transform 0.25s ease;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            color: #0f3912;
+            margin: 0 0 6px 0;
+        }
+
+        .modal-subtitle {
+            font-size: 0.9rem;
+            color: #2e7d32;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .modal-body {
+            font-size: 1.05rem;
+            color: #1f2937;
+            line-height: 1.7;
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+        }
+
+        .modal-body p {
+            margin-bottom: 16px;
+        }
+
+        .modal-wiki-btn {
+            display: inline-block;
+            margin-top: 12px;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 8px 18px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .modal-wiki-btn:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 12px; }
+            h1 { font-size: 1.8rem; }
+            .grid { grid-template-columns: 1fr; }
+            .modal-card { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Heroes in Science</h1>
+        <p class="subtitle">In the 19th Century, science was known as <strong>"Natural History"</strong> for the biological sciences, and <strong>"Natural Philosophy"</strong> for the physical sciences: Chemistry, Physics, Engineering, and Geology.</p>
+    </header>
+
+    <div class="controls">
+        <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Search by name, town, river, country, or discovery...">
+    </div>
+
+    <div id="sectionsContainer">
+        <!-- Dynamic sections populate here -->
+    </div>
+
+    <!-- Expanded Card Modal Overlay -->
+    <div class="modal-overlay" id="cardModal" onclick="closeModalOnOuterClick(event)">
+        <div class="modal-card">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h2 class="modal-title" id="mName"></h2>
+            <div class="modal-subtitle">
+                <span id="mDates"></span> • <span id="mLocation"></span>
+            </div>
+            <div class="modal-body" id="mBody">
+                <!-- Deep dive content dynamically loads here -->
+            </div>
+            <a id="mWiki" href="" target="_blank" rel="noopener noreferrer" class="modal-wiki-btn">Read on Wikipedia ↗</a>
+        </div>
+    </div>
+
+    <script>
+        const categories = [
+            {
+                id: "adventurers",
+                title: "🧭 The Intrepid Explorers & Jungle Adventurers",
+                intro: "These field naturalists survived shipwrecks, malaria, freezing mountain passes, and alligator attacks—all to ship pressings, skins, and maps back to European libraries.",
+                headliners: [
+                    { 
+                        name: "Alexander von Humboldt", 
+                        dates: "1769–1859 (Peak: 1799–1804)", 
+                        location: "Schloss Tegel, Berlin (Havel River) & Freiberg Mining District, Germany | Orinoco & Amazon Basins", 
+                        desc: "Climbed Mount Chimborazo in Ecuador without oxygen gear. He mapped the entire Orinoco River network and proved all natural systems are interconnected.",
+                        expanded: `
+                            <p><strong>The Ultimate Scientific Daredevil:</strong> Humboldt didn't just study nature; he subjected himself to it. To test the physics of electricity, he shocked himself with electric eels until he almost passed out. When climbing Ecuador's Mount Chimborazo (over 19,000 feet up without modern oxygen equipment or rubber-soled boots), he and his companions were bleeding from their eyes and gums, yet he still paused every hundred steps to measure atmospheric pressure and altitude.</p>
+                            <p><strong>The Concept of Isotherms & Biomes:</strong> He was the first to draw <em>isotherms</em>—those wavy lines on weather maps that connect points of equal temperature. By comparing the plant life on South American mountainsides to the peaks of the Swiss Alps, he realized that global vegetation changes systematically with altitude and climate, founding the field of <strong>biogeography</strong>.</p>
+                            <p><strong>The Original Environmental Prophet:</strong> Long before global warming was a buzzword, Humboldt warned in 1800 that human activities—specifically deforestation, heavy irrigation, and industrial emissions—were destroying global ecosystems. When he returned to Europe, he was so famous that people thronged the streets of Paris just to catch a glimpse of him.</p>
+                        `
+                    },
+                    { 
+                        name: "Alfred Russel Wallace", 
+                        dates: "1823–1913 (Peak: 1848–1862)", 
+                        location: "Usk, Monmouthshire (River Usk, Wales) | Amazon & Rio Negro Rivers, Malay Archipelago", 
+                        desc: "Lost four years of Amazon collections in a mid-ocean ship fire. He recovered, explored Indonesia, and independently derived evolution by natural selection.",
+                        expanded: `
+                            <p><strong>The Unluckiest Man in Exploration:</strong> In 1852, after spending four agonizing years in the Amazon collecting thousands of rare insect, bird, and plant specimens, Wallace's ship back to England caught fire in the middle of the Atlantic. He watched four years of hard labor burn to ashes, surviving ten days in a leaky wooden lifeboat with barely any freshwater. His reaction? He packed his bags and headed to Indonesia for eight more years!</p>
+                            <p><strong>Fever, Malaria, and Epiphany:</strong> While shivering with a violent malarial fever on the remote island of Ternate, Wallace had a stroke of genius. He realized that only the fittest individuals in any population survive environmental pressures. He scribbled down his essay on <em>natural selection</em> and mailed it directly to Charles Darwin. Darwin panicked—Wallace had independently invented his life's masterwork!</p>
+                            <p><strong>The Wallace Line:</strong> While trekking through the Malay Archipelago, Wallace noticed a sharp, invisible biological boundary between the islands of Bali and Lombok. Deep deep-water trenches separated them: organisms west of the line were strictly Asian (elephants, tigers), while organisms east were Australian (marsupials, cockatoos). This boundary is officially named the <strong>Wallace Line</strong> in his honor.</p>
+                        `
+                    },
+                    { 
+                        name: "William Dampier", 
+                        dates: "1651–1715 (Peak: 1686–1711)", 
+                        location: "East Coker, Somerset (River Yeo, England) | Shark Bay, Western Australia", 
+                        desc: "A buccaneer and pirate who became the first person to sail around the world three times, recording detailed meteorological maps and describing Australia's unique wildlife.",
+                        expanded: `
+                            <p><strong>The Scientific Pirate:</strong> Dampier was literally a pirate with a notebook. While raiding Spanish galleons and plundering coastal towns in the Caribbean and Pacific, he kept a custom wax-sealed bamboo tube to protect his hydrographic charts and biological journals when jumping overboard into surf.</p>
+                            <p><strong>Linguistic & Culinary Pioneer:</strong> Dampier introduced over 1,000 words to the English dictionary, including <em>chopsticks</em>, <em>barbecue</em>, <em>avocado</em>, <em>tortilla</em>, and <em>sub-tropical</em>. He was the first Englishman to taste and document guacamole and flamingos!</p>
+                            <p><strong>Wind Patterns & Navigation:</strong> Dampier published the world’s first accurate map of trade winds and equatorial currents (<em>Discourse of Winds</em>), which revolutionized global navigation. His incredible bestseller, <em>A New Voyage Round the World</em>, made him a celebrity scientist back in London, eventually inspiring Jonathan Swift to write <em>Gulliver's Travels</em>.</p>
+                        `
+                    },
+                    { 
+                        name: "Fridtjof Nansen", 
+                        dates: "1861–1930 (Peak: 1888–1896)", 
+                        location: "Store Frøen, Oslo (Oslofjord, Norway) | Arctic Ocean & Greenland Ice Sheet", 
+                        desc: "Skied across frozen Greenland and intentionally froze his ship *Fram* into Arctic pack ice for three years to measure polar ocean currents.",
+                        expanded: `
+                            <p><strong>The Mad Frozen Experiment:</strong> Everyone thought Nansen was suicidal. To prove that a polar ocean current flowed across the North Pole, he designed a rounded wooden boat named <em>Fram</em> and deliberately rammed it directly into the thick Arctic pack ice, allowing it to freeze solid for three straight years.</p>
+                            <p><strong>A 15-Month Skiing Nightmare:</strong> Realizing the ship would drift slightly south of the pole, Nansen and a partner left the ship on foot, equipped only with skis, sled dogs, and sleeping bags. They set a record for reaching the farthest North (86°13.6′N). When winter set in, they survived by building a tiny stone hut, hunting polar bears, and sleeping together for months in a single fur bag for body heat.</p>
+                            <p><strong>Humanitarian Greatness:</strong> Later in life, Nansen transitioned from oceanographer to diplomat. He created the <strong>Nansen Passport</strong>, allowing thousands of stateless refugees after World War I to travel and escape persecution, earning him the Nobel Peace Prize in 1922.</p>
+                        `
+                    },
+                    { 
+                        name: "Charles Waterton", 
+                        dates: "1782–1865 (Peak: 1812–1824)", 
+                        location: "Walton Hall, Wakefield (River Calder, Yorkshire, England) | Demerara River, Guyana", 
+                        desc: "Eccentric explorer who wrestled a live 10-foot caiman alligator in Guyana to capture it, then transformed his Yorkshire estate into the world's first walled wild bird sanctuary.",
+                        expanded: `
+                            <p><strong>The Original Eccentric Naturalist:</strong> Waterton was wealthy, barefoot, and utterly unhinged. While exploring the jungles of Guyana, he captured a live 10-foot caiman alligator by leaping onto its back, grabbing its front legs like reins, and riding it like a wild pony out of the mud while his indigenous guides cheered.</p>
+                            <p><strong>Taxidermy & Curare Poison:</strong> He mastered the indigenous arrow poison <em>curare</em>, conducting experiments that proved it could paralyze muscles without stopping heart action—a breakthrough that led directly to modern surgical anesthetics. He also invented a hollow taxidermy technique that allowed him to preserve animal specimens without using heavy plaster.</p>
+                            <p><strong>The First Nature Reserve:</strong> Waterton returned to Yorkshire and built a three-mile-long, nine-foot-high stone wall around his entire estate, prohibiting all hunting and guns. It became the world's very first enclosed nature reserve and bird sanctuary!</p>
+                        `
+                    },
+                    { 
+                        name: "Georg Wilhelm Steller", 
+                        dates: "1709–1746 (Peak: 1741)", 
+                        location: "Bad Windsheim, Franconia (Aisch River, Germany) | Bering Island, Kamchatka", 
+                        desc: "Joined Vitus Bering's Great Northern Expedition to Alaska. Shipwrecked on an icy, uninhabited island, he cataloged the giant 30-foot Steller’s Sea Cow before it went extinct.",
+                        expanded: `
+                            <p><strong>A Desperate Ten Hours in Alaska:</strong> Steller was the first European scientist to step foot on Alaskan soil in 1741. Captain Vitus Bering gave him a stingy ten hours on Kayak Island to collect water and explore. In those brief hours, Steller spotted a brilliant blue jay (now called Steller's Jay), proving North America was connected biologically to Asian ecosystems.</p>
+                            <p><strong>Shipwrecked on Bering Island:</strong> On the return voyage, their ship was destroyed on a desolate, frozen island. While half the crew—including Captain Bering—died of scurvy, Steller saved the rest by hunting seals and gathering arctic greens rich in Vitamin C. He spent his freezing months taking detailed anatomical measurements of a giant marine mammal: the 30-foot, kelp-munching <strong>Steller’s Sea Cow</strong> (which went extinct just 27 years later from overhunting).</p>
+                        `
+                    }
+                ],
+                others: [
+                    { name: "Aimé Bonpland", dates: "1773–1858", location: "La Rochelle, Charente-Maritime (Atlantic Coast, France) | Orinoco River & Andes Mountains", desc: "Botanist who trekked through South American jungles alongside Humboldt, collecting 6,000 unknown plant species." },
+                    { name: "David Douglas", dates: "1799–1834", location: "Scone, Perthshire (River Tay, Scotland) | Columbia River, Pacific Northwest", desc: "Trekker through the dense forests of Oregon and Washington, introducing the massive Douglas-fir tree to Europe." },
+                    { name: "David Livingstone", dates: "1813–1873", location: "Blantyre, Lanarkshire (River Clyde, Scotland) | Zambezi River & Lake Tanganyika", desc: "Walked thousands of miles across Central Africa mapping major rivers and waterfalls while documenting native flora." },
+                    { name: "Odoardo Beccari", dates: "1843–1920", location: "Florence, Tuscany (Arno River, Italy) | Rainforests of Sumatra & Borneo", desc: "Discovered the *Titan Arum* in the Sumatran jungle—the world's largest (and foulest-smelling) flower structure." },
+                    { name: "Pehr Kalm", dates: "1716–1779", location: "Svalov, Ostrobothnia (Kemi River Basin, Finland/Sweden) | St. Lawrence & Hudson Rivers", desc: "Sent to North America by Linnaeus; wrote detailed accounts of Niagara Falls, local trees, and surviving swarms of black flies." },
+                    { name: "Richard Spruce", dates: "1817–1893", location: "Ganthorpe, North Yorkshire (River Derwent, England) | Amazon & Andes Mountains", desc: "Spent 15 years mapping Amazonian tributaries, collecting over 30,000 moss, liverwort, and tree specimens." }
+                ]
+            },
+            {
+                id: "theorists",
+                title: "🧠 The Wild Thinkers, Big Theorists, & Eccentric Minds",
+                intro: "These philosophers, dreamers, and radical observers synthesized mountains of field data into unified laws of life, geology, and time.",
+                headliners: [
+                    { name: "Charles Darwin", dates: "1809–1882 (Peak: 1831–1859)", location: "Shrewsbury (River Severn) & Down House, Kent, England | Galápagos Islands", desc: "Five-year voyage aboard HMS *Beagle* observing island species led him to formulate the mechanism of natural selection, shattering Victorian science." },
+                    { name: "Gregor Mendel", dates: "1822–1884 (Peak: 1856–1863)", location: "Hynčice, Silesia & St. Thomas Abbey, Brno (Svratka River, Czechia)", desc: "Augustinian monk who systematically cultivated and analyzed 28,000 pea plants to discover the fundamental laws of genetic inheritance." },
+                    { name: "Thomas Henry Huxley", dates: "1825–1895 (Peak: 1860–1880)", location: "Ealing, Middlesex (River Thames) & South Kensington, London, England", desc: "Nicknamed 'Darwin’s Bulldog' for aggressively championing evolutionary theory in high-profile public debates against conservative theologians." },
+                    { name: "Jean-Baptiste Lamarck", dates: "1744–1829 (Peak: 1801–1809)", location: "Bazentin, Picardy & Jardin des Plantes, Paris (Seine River, France)", desc: "Early evolutionist who theorized that organisms pass down traits acquired during their lifetimes (e.g., giraffes stretching their necks)." },
+                    { name: "Ernst Haeckel", dates: "1834–1919 (Peak: 1866–1899)", location: "Potsdam (Havel River) & Jena, Thuringia (Saale River, Germany) | Gulf of Naples", desc: "Coined the word 'Ecology', produced breathtaking artistic illustrations of microscopic sea life, and popularized evolution across Europe." },
+                    { name: "Philip Lutley Sclater", dates: "1829–1913 (Peak: 1858–1899)", location: "Teffont Magna, Wiltshire (River Nadder) & Regent's Park, London, England", desc: "Divided the entire terrestrial world into 6 major zoogeographic regions (e.g., Neotropical, Palearctic) that scientists still use today." }
+                ],
+                others: [
+                    { name: "August Weismann", dates: "1834–1914", location: "Frankfurt am Main (Main River) & Freiburg im Breisgau (Dreisam River, Germany)", desc: "Proved experimentally that body injuries or acquired changes are not inherited, proposing the 'germ plasm' theory of genetics." },
+                    { name: "Fritz Müller", dates: "1822–1897", location: "Windischholzhausen, Thuringia, Germany | Santa Catarina Coast, Blumenau, Brazil", desc: "Discovered 'Müllerian Mimicry' by showing why two distasteful butterfly species evolve identical warning patterns to scare birds." },
+                    { name: "Robert Chambers", dates: "1802–1871", location: "Peebles, Scottish Borders (River Tweed) & Edinburgh, Scotland", desc: "Anonymously published a sensational 1844 bestseller on evolution that primed the public for Darwin 15 years later." },
+                    { name: "Thomas Robert Malthus", dates: "1766–1834", location: "Rookery, Surrey (River Tillingbourne) & Bath, Somerset, England", desc: "Economist whose essay showing populations outgrow their food supply provided Darwin and Wallace with the key mechanism for natural selection." }
+                ]
+            },
+            {
+                id: "fossils",
+                title: "🦖 The Bone Hunters & Prehistoric Pioneers",
+                intro: "Armed with pickaxes and keen sight, these pioneers chipped away at coastal cliffs and muddy quarries to prove that ancient Earth was dominated by monstrous, extinct beasts.",
+                headliners: [
+                    { name: "Mary Anning", dates: "1799–1847 (Peak: 1811–1830)", location: "Lyme Regis, Dorset (River Char & Jurassic Coast, England)", desc: "Self-taught, working-class fossil hunter who excavated the first complete Ichthyosaur and Plesiosaur skeletons from collapsing seaside cliffs." },
+                    { name: "Georges Cuvier", dates: "1769–1832 (Peak: 1796–1822)", location: "Montbéliard, Franche-Comté & Paris Basin (Seine River, France)", desc: "The 'Father of Paleontology' who compared elephant skeletons to mammoths, proving to a skeptical world that species can go extinct." },
+                    { name: "Edward Drinker Cope", dates: "1840–1897 (Peak: 1870–1892)", location: "Philadelphia, Pennsylvania (Schuylkill River, USA) | Wyoming & Colorado Badlands", desc: "Aggressive paleontologist who waged the infamous 'Bone Wars' against Marsh, discovering over 1,000 extinct fossil species." },
+                    { name: "Othniel Charles Marsh", dates: "1831–1899 (Peak: 1870–1892)", location: "Lockport, New York (Erie Canal, USA) | Morrison Formation, Rocky Mountains", desc: "Cope’s bitter rival who named iconic dinosaurs like *Triceratops*, *Stegosaurus*, and *Brontosaurus* using trainloads of western fossils." },
+                    { name: "Richard Owen", dates: "1804–1892 (Peak: 1841–1881)", location: "Lancaster, Lancashire (River Lune) & Natural History Museum, London, England", desc: "Coined the word 'Dinosaur' ('Terrible Lizard') in 1842 and led the drive to establish London’s famous Natural History Museum." },
+                    { name: "Gideon Mantell", dates: "1790–1852 (Peak: 1822–1834)", location: "Lewes, East Sussex (River Ouse) & South Downs, England", desc: "Sussex physician who, with his wife Mary Ann, discovered fossil teeth in limestone and described *Iguanodon*, the second dinosaur named." }
+                ],
+                others: [
+                    { name: "Charles Lyell", dates: "1797–1875", location: "Kinnordy, Angus (River Isla, Scotland) | Mount Etna, Sicily, Italy", desc: "Geologist who proved Earth's landscape is shaped by slow, uniform processes over millions of years, breaking biblical timelines." },
+                    { name: "William Buckland", dates: "1784–1856", location: "Axminster, Devon (River Axe) & Kirkdale Cave, North Yorkshire, England", desc: "Described *Megalosaurus* (the first named dinosaur) and proved fossil-filled British caves were once ancient hyena dens." },
+                    { name: "William Smith", dates: "1769–1839", location: "Churchill, Oxfordshire & Somerset Coal Canal, Bath, England", desc: "Canal surveyor who realized rock layers are ordered by unique fossils, creating the first nationwide geological map of Britain." }
+                ]
+            },
+            {
+                id: "microscope",
+                title: "🔬 The Microscope Masters & Cell Detectives",
+                intro: "Armed with hand-ground glass lenses, these observers peered into water drops and bodily tissues to uncover the unseen cellular worlds driving life and disease.",
+                headliners: [
+                    { name: "Antonie van Leeuwenhoek", dates: "1632–1723 (Peak: 1674–1683)", location: "Delft, South Holland (Oude Delft Canal, Netherlands)", desc: "Draper who ground micro-lenses to become the first human to observe bacteria, blood cells, and swimming microscopic organisms ('animalcules')." },
+                    { name: "Matthias Jakob Schleiden", dates: "1804–1881 (Peak: 1838)", location: "Hamburg (Elbe River) & University of Jena (Saale River, Germany)", desc: "Co-founded cell theory by demonstrating that all plant tissues are composed of individual, organized microscopic cells." },
+                    { name: "Theodor Schwann", dates: "1810–1882 (Peak: 1839)", location: "Neuss, Rhineland (Rhine River, Germany) & University of Louvain (Dyle River, Belgium)", desc: "Extended Schleiden's plant work to animals, proving all living structures—from nerve fibers to muscle—are constructed from cells." },
+                    { name: "Marcello Malpighi", dates: "1628–1694 (Peak: 1661–1686)", location: "Crevalcore, Emilia-Romagna & University of Bologna (Reno River, Italy)", desc: "Pioneered microscopic anatomy, discovering the microscopic capillaries that connect arteries to veins in lungs." },
+                    { name: "Élie Metchnikoff", dates: "1845–1916 (Peak: 1882–1908)", location: "Ivanovka, Kharkiv Region (Dnieper Basin, Ukraine) | Strait of Messina, Sicily, Italy", desc: "Stuck thorn splinters into starfish embryos under a microscope, discovering phagocytes (white blood cells that eat infection)." },
+                    { name: "Jan Swammerdam", dates: "1637–1680 (Peak: 1668–1675)", location: "Amsterdam, North Holland (Amstel River, Netherlands)", desc: "Used ultra-fine micro-dissection tools under magnification to prove insects metamorphose from existing structures, rather than spontaneous generation." }
+                ],
+                others: [
+                    { name: "Anton de Bary", dates: "1831–1888", location: "Frankfurt am Main (Main River, Germany) & Strasbourg, Alsace (Ill/Rhine Rivers, France)", desc: "The father of plant pathology, who used microscopes to prove that parasitic fungi caused the catastrophic Irish Potato Famine." },
+                    { name: "Julius von Sachs", dates: "1832–1897", location: "Breslau (Oder River, now Wrocław, Poland) & Würzburg, Bavaria (Main River, Germany)", desc: "Showed through microscopic plant tests that chlorophyll inside plant cells transforms sunlight into starch." },
+                    { name: "Lazzaro Spallanzani", dates: "1729–1799", location: "Scandiano, Reggio Emilia & University of Pavia (Ticino/Po Rivers, Italy)", desc: "Boiled broths in sealed flasks to prove microbes do not generate spontaneously from air, laying the groundwork for Pasteur." }
+                ]
+            },
+            {
+                id: "artists",
+                title: "🎨 The Illustrators & Precision Visual Artists",
+                intro: "Before cameras, these master painters and printmakers braved tropical rot and harsh field conditions to paint high-precision visual records of global biodiversity.",
+                headliners: [
+                    { name: "Maria Sibylla Merian", dates: "1647–1717 (Peak: 1699–1705)", location: "Frankfurt am Main (Main River) & Nuremberg (Pegnitz River, Germany) | Surinam River", desc: "At age 52, she sailed to Suriname to paint live insect metamorphosis in wild rainforests, revolutionizing entomological art." },
+                    { name: "John James Audubon", dates: "1785–1851 (Peak: 1827–1838)", location: "Les Cayes, Saint-Domingue & Mill Grove, Pennsylvania (Perkiomen Creek, USA) | Mississippi River", desc: "Traveled frontier American rivers painting life-sized, dramatic portraits of birds for his monumental copperplate book *Birds of America*." },
+                    { name: "Pierre-Joseph Redouté", dates: "1759–1840 (Peak: 1798–1824)", location: "Saint-Hubert, Ardennes (Belgium) & Château de Malmaison, Paris (Seine River, France)", desc: "Official court painter to Empress Joséphine, famed worldwide for his velvety, scientifically accurate watercolor paintings of roses and lilies." },
+                    { name: "Marianne North", dates: "1830–1900 (Peak: 1871–1885)", location: "Hastings, East Sussex (English Channel, England) | Global Voyages (Brazil, India, Borneo)", desc: "Unaccompanied Victorian artist who traveled the globe painting over 800 oil landscapes of tropical plants in their native settings." },
+                    { name: "Ferdinand Bauer", dates: "1760–1826 (Peak: 1801–1814)", location: "Feldsberg, Moravia (Thaya River, Czechia) & Hietzing, Vienna (Danube Canal, Austria) | Australian Coast", desc: "Sailed around Australia sketching plants and animals using a complex 1,000-number color-coding system to paint later with perfect fidelity." },
+                    { name: "Edward Lear", dates: "1812–1888 (Peak: 1830–1837)", location: "Holloway, London (River Thames, England) | Sanremo, Ligurian Coast, Italy", desc: "Before writing nonsense poems, he published breathtaking, highly accurate lithographs of living parrots and toucans." }
+                ],
+                others: [
+                    { name: "Anna Atkins", dates: "1799–1871", location: "Tonbridge, Kent (River Medway, England)", desc: "Created the world's first photographically illustrated book using light-sensitive blue cyanotype impressions of seaweeds." },
+                    { name: "Mark Catesby", dates: "1683–1749", location: "Castle Hedingham, Essex (River Colne, England) | Savannah & James Rivers, USA", desc: "Explored colonial Virginia and the Carolinas, producing the first comprehensive illustrated work on North American wildlife." },
+                    { name: "Sydney Parkinson", dates: "1745–1771", location: "Edinburgh (Firth of Forth, Scotland) | Pacific Ocean (HMS Endeavour)", desc: "Botanical illustrator on Captain Cook's first Pacific voyage who drew hundreds of rare species before dying at sea." }
+                ]
+            },
+            {
+                id: "insect",
+                title: "🦋 The Insect Inspectors & Bug Collectors",
+                intro: "Obsessive, meticulous, and sharp-eyed, these inspectors amassed millions of beetles, butterflies, and ants to decode the hyper-diverse world of arthropods.",
+                headliners: [
+                    { name: "Jean-Henri Fabre", dates: "1823–1915 (Peak: 1879–1907)", location: "Saint-Léons, Aveyron & Harmas de Sérignan, Vaucluse (Rhône Valley, France)", desc: "Spent decades in an arid Provençal garden observing living wasps, dung beetles, and spiders, capturing their instincts in poetic detail." },
+                    { name: "Thomas Say", dates: "1787–1834 (Peak: 1819–1828)", location: "Philadelphia, Pennsylvania | Wabash River, New Harmony, Indiana, USA", desc: "The 'Father of American Entomology', who described thousands of North American insects during hazardous western frontier expeditions." },
+                    { name: "Charles Valentine Riley", dates: "1843–1895 (Peak: 1868–1889)", location: "London (River Thames, England) | Mississippi River Valley & Washington D.C., USA", desc: "Pioneered biological pest control by importing Australian Vedalia ladybugs to destroy scales threatening California citrus groves." },
+                    { name: "Johan Christian Fabricius", dates: "1745–1808 (Peak: 1775–1804)", location: "Tønder, Duchy of Schleswig (Denmark) & University of Kiel (Kiel Fjord, Germany)", desc: "Linnaeus's star insect pupil who categorized over 10,000 arthropod species based strictly on the structures of their mouthparts." },
+                    { name: "Pierre André Latreille", dates: "1762–1833 (Peak: 1796–1825)", location: "Brive-la-Gaillarde, Corrèze (Corrèze River) & Jardin des Plantes, Paris (Seine River, France)", desc: "Saved from execution during the French Revolution when he found a rare beetle (*Necrobia*) in his prison cell, impressing the prison doctor." },
+                    { name: "Eleanor Ormerod", dates: "1828–1901 (Peak: 1877–1898)", location: "Sedbury Park, Gloucestershire (River Severn & Wye Estuary, England)", desc: "Self-taught economic entomologist who published massive annual reports educating farmers on controlling destructive agricultural pests." }
+                ],
+                others: [
+                    { name: "Auguste Forel", dates: "1848–1931", location: "La Sagne, Vaud & Burghölzli, Zurich (Lake Zurich/Limmat River, Switzerland)", desc: "World expert on ant brain structure, ant colony organization, and complex social insect behaviors." },
+                    { name: "Eugène Simon", dates: "1848–1924", location: "Paris (Seine River Basin, France)", desc: "The premier spider authority in history, personally describing over 4,000 species of arachnids from around the globe." },
+                    { name: "William Morton Wheeler", dates: "1865–1937", location: "Milwaukee, Wisconsin (Lake Michigan, USA) | Harvard University", desc: "Pioneered the study of social insects, demonstrating that ant colonies function like unified 'superorganisms'." }
+                ]
+            },
+            {
+                id: "zoologist",
+                title: "🦅 The Animal Experts & Systematic Zoologists",
+                intro: "Working in sprawling national museums, these naturalists organized thousands of bird skins, fish jars, and mammal bones into structured scientific orders.",
+                headliners: [
+                    { name: "Georges-Louis Leclerc, Comte de Buffon", dates: "1707–1788 (Peak: 1749–1788)", location: "Montbard, Burgundy (Brenne River) & Jardin du Roi, Paris (Seine River, France)", desc: "Wrote *Histoire Naturelle*, a massive 36-volume encyclopedia describing the entire animal kingdom with lively style." },
+                    { name: "John Gould", dates: "1804–1881 (Peak: 1837–1881)", location: "Lyme Regis, Dorset & Zoological Society of London (Regent's Park, England)", desc: "Ornithologist and publisher who identified Darwin's Galápagos finches as distinct species and created giant illustrated bird folios." },
+                    { name: "Alexander Wilson", dates: "1766–1813 (Peak: 1808–1813)", location: "Paisley, Renfrewshire (White Cart Water, Scotland) | Delaware River, Philadelphia, USA", desc: "The 'Father of American Ornithology', who walked thousands of miles sketching wild birds before Audubon entered the field." },
+                    { name: "Henry Walter Bates", dates: "1825–1892 (Peak: 1848–1859)", location: "Leicester (River Soar, England) | Amazon & Tapajós Rivers, Brazil", desc: "Spent 11 years in Amazonian forests collecting 14,000 species and discovering 'Batesian Mimicry' (harmless species imitating toxic ones)." },
+                    { name: "Coenraad Jacob Temminck", dates: "1778–1858 (Peak: 1820–1844)", location: "Amsterdam & Rijksmuseum van Natuurlijke Historie, Leiden (Old Rhine River, Netherlands)", desc: "First director of the National Museum of Natural History in Leiden, classifying vast animal shipments from Japan and the East Indies." },
+                    { name: "Alfred Brehm", dates: "1829–1884 (Peak: 1863–1869)", location: "Renthendorf, Thuringia (Roda River Valley, Germany) | Danube & Nile River Basins", desc: "Author of *Brehm's Life of Animals*, the premier illustrated animal encyclopedia that shaped popular zoology across 19th-century Europe." }
+                ],
+                others: [
+                    { name: "Marcus Elieser Bloch", dates: "1723–1799", location: "Ansbach, Franconia & Berlin (Spree River, Germany)", desc: "Berlin physician who published a world-famous 12-volume illustrated study of world fish species with metallic prints." },
+                    { name: "Richard Bowdler Sharpe", dates: "1847–1909", location: "London (River Thames) & British Museum (Natural History), South Kensington, England", desc: "Curated and cataloged over 300,000 bird specimens at the British Museum, producing a massive 27-volume reference." }
+                ]
+            },
+            {
+                id: "botanist",
+                title: "🌿 The Plant Protectors & Botanical Masters",
+                intro: "From royal glasshouses to high mountain meadows, these botanists mapped plant families, discovered essential medicines, and proved how flora feeds the world.",
+                headliners: [
+                    { name: "Carl Linnaeus", dates: "1707–1778 (Peak: 1735–1753)", location: "Råshult, Småland (Lake Möckeln) & Uppsala University (Fyris River, Sweden)", desc: "The 'Father of Taxonomy' who simplified global biology by creating two-part Latin names (*binomial nomenclature*) for all known living species." },
+                    { name: "Joseph Dalton Hooker", dates: "1817–1911 (Peak: 1847–1885)", location: "Halesworth, Suffolk & Kew Gardens, London (River Thames, England) | Sikkim Himalayas", desc: "Darwin’s closest friend; trekked hazardous Himalayan passes to introduce wild rhododendrons and later directed Kew Gardens." },
+                    { name: "Robert Brown", dates: "1773–1858 (Peak: 1801–1827)", location: "Montrose, Angus (River South Esk, Scotland) | Australian Coasts & Soho Square, London, England", desc: "Botany genius who collected thousands of Australian plants and used microscopic lenses to discover 'Brownian Motion' and the cell nucleus." },
+                    { name: "Carl Friedrich Philipp von Martius", dates: "1794–1868 (Peak: 1817–1853)", location: "Erlangen, Franconia (Regnitz River) & Munich (Isar River, Germany) | Amazon Basin", desc: "Explored 6,000 miles of Brazilian rivers to publish *Historia Naturalis Palmarum*, the ultimate masterwork on palm trees." },
+                    { name: "Asa Gray", dates: "1810–1888 (Peak: 1848–1879)", location: "Paris, Oneida County, New York & Harvard Botanic Garden (Charles River, USA)", desc: "The leading 19th-century American botanist who cataloged North American flora and acted as Darwin’s primary advocate in the US." },
+                    { name: "Alice Eastwood", dates: "1859–1953 (Peak: 1892–1936)", location: "Toronto (Lake Ontario, Canada) & California Academy of Sciences, San Francisco, USA", desc: "Heroic botanist who entered the burning California Academy of Sciences during the 1906 earthquake to rescue nearly 1,500 rare plant type specimens." }
+                ],
+                others: [
+                    { name: "Antoine-Laurent de Jussieu", dates: "1748–1836", location: "Lyon (Rhône/Saône Confluence) & Jardin des Plantes, Paris (Seine River, France)", desc: "Created the first natural classification system grouping plants into logical families (like lilies or roses) rather than arbitrary traits." },
+                    { name: "Christiaan Hendrik Persoon", dates: "1761–1836", location: "Cape of Good Hope | Latin Quarter, Paris (Seine River, France)", desc: "Pioneered modern mycology by publishing the foundational classification systems for mushrooms and parasitic fungi." },
+                    { name: "Wilhelm Hofmeister", dates: "1824–1877", location: "Leipzig, Saxony (White Elster River) & University of Tübingen (Neckar River, Germany)", desc: "Self-taught clerk turned professor who discovered the alternation of generations in ferns and mosses, linking seedless plants to seed plants." }
+                ]
+            }
+        ];
+
+        function createCardHTML(p, catId, index, isOther) {
+            const wikiUrl = `https://en.wikipedia.org/w/index.php?search=${encodeURIComponent(p.name)}`;
+            const listType = isOther ? 'others' : 'headliners';
+            return `
+                <div class="card" onclick="openModal('${catId}', '${listType}', ${index})">
+                    <div>
+                        <h3 class="card-name">
+                            <a href="${wikiUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" title="View Wikipedia page for ${p.name}">
+                                ${p.name}<span class="wiki-icon">↗</span>
+                            </a>
+                        </h3>
+                        <div class="card-meta">
+                            <span>🗓️ ${p.dates}</span>
+                        </div>
+                        <div class="card-meta">
+                            <span class="location-tag">📍 ${p.location}</span>
+                        </div>
+                        <p class="card-desc">${p.desc}</p>
+                    </div>
+                    <div class="click-prompt">Click to expand story 📖</div>
+                </div>
+            `;
+        }
+
+        function renderSections() {
+            const container = document.getElementById('sectionsContainer');
+            container.innerHTML = '';
+
+            categories.forEach(cat => {
+                const section = document.createElement('section');
+                section.className = 'category-section';
+                section.id = `section-${cat.id}`;
+
+                const headlinersHTML = cat.headliners.map((p, idx) => createCardHTML(p, cat.id, idx, false)).join('');
+                const othersHTML = cat.others.map((p, idx) => createCardHTML(p, cat.id, idx, true)).join('');
+
+                let toggleButtonHTML = '';
+                if (cat.others.length > 0) {
+                    toggleButtonHTML = `
+                        <div class="toggle-btn-container">
+                            <button class="toggle-btn" onclick="toggleCategory('${cat.id}')" id="btn-${cat.id}">
+                                Show More (${cat.others.length} more figures) ▼
+                            </button>
+                        </div>
+                    `;
+                }
+
+                section.innerHTML = `
+                    <div class="section-header">
+                        <h2 class="section-title">${cat.title}</h2>
+                        <p class="section-intro">${cat.intro}</p>
+                    </div>
+                    <div class="grid">
+                        ${headlinersHTML}
+                    </div>
+                    <div class="extra-cards" id="extra-${cat.id}">
+                        ${othersHTML}
+                    </div>
+                    ${toggleButtonHTML}
+                `;
+
+                container.appendChild(section);
+            });
+        }
+
+        function openModal(catId, listType, index) {
+            const cat = categories.find(c => c.id === catId);
+            const person = cat[listType][index];
+
+            document.getElementById('mName').textContent = person.name;
+            document.getElementById('mDates').textContent = '🗓️ ' + person.dates;
+            document.getElementById('mLocation').textContent = '📍 ' + person.location;
+            
+            const wikiUrl = `https://en.wikipedia.org/w/index.php?search=${encodeURIComponent(person.name)}`;
+            document.getElementById('mWiki').href = wikiUrl;
+
+            const bodyElem = document.getElementById('mBody');
+            if (person.expanded) {
+                bodyElem.innerHTML = person.expanded;
+            } else {
+                bodyElem.innerHTML = `<p>${person.desc}</p><p><em>(More expanded detail for this figure coming soon!)</em></p>`;
+            }
+
+            const modal = document.getElementById('cardModal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Stop background scrolling
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('cardModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function closeModalOnOuterClick(e) {
+            if (e.target.id === 'cardModal') {
+                closeModal();
+            }
+        }
+
+        // Close modal on Escape key press
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        function toggleCategory(catId) {
+            const extraContainer = document.getElementById(`extra-${catId}`);
+            const btn = document.getElementById(`btn-${catId}`);
+            
+            if (extraContainer.classList.contains('open')) {
+                extraContainer.classList.remove('open');
+                btn.innerHTML = `Show More (${categories.find(c => c.id === catId).others.length} more figures) ▼`;
+            } else {
+                extraContainer.classList.add('open');
+                btn.innerHTML = `Show Less ▲`;
+            }
+        }
+
+        function handleSearch() {
+            const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            categories.forEach(cat => {
+                const section = document.getElementById(`section-${cat.id}`);
+                const extraContainer = document.getElementById(`extra-${cat.id}`);
+                const btnContainer = section.querySelector('.toggle-btn-container');
+
+                if (searchVal === '') {
+                    section.style.display = 'block';
+                    if (extraContainer) extraContainer.classList.remove('open');
+                    if (btnContainer) {
+                        btnContainer.style.display = 'block';
+                        document.getElementById(`btn-${cat.id}`).innerHTML = `Show More (${cat.others.length} more figures) ▼`;
+                    }
+                    section.querySelector('.grid').style.display = 'grid';
+                    return;
+                }
+
+                let matchesCount = 0;
+                
+                if (extraContainer) extraContainer.classList.add('open');
+                if (btnContainer) btnContainer.style.display = 'none';
+
+                const allCards = section.querySelectorAll('.card');
+                allCards.forEach(card => {
+                    const text = card.textContent.toLowerCase();
+                    if (text.includes(searchVal)) {
+                        card.style.display = 'flex';
+                        matchesCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                if (matchesCount > 0) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', handleSearch);
+
+        // Initial render
+        renderSections();
+    </script>
+</body>
+</html>

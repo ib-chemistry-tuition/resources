@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ammonia Equilibrium Simulator — Particle-Level Le Chatelier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/rough.js/2.1.1/rough.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#f4f2ec;
+    --paper:#fffdf8;
+    --card:#fffdf8;
+    --ink:#232323;
+    --border:#232323;
+    --text:#232323;
+    --muted:#5b5b52;
+    --teal:#2AA9A0;
+    --teal-light:#dff3f1;
+    --coral:#E8524B;
+    --coral-light:#fbe2e0;
+    --amber:#E8924B;
+    --amber-light:#fcebdc;
+    --green:#3E9B5C;
+    --green-light:#e2f3e6;
+    --n2:#4a72d6;
+    --h2:#9aa5b1;
+    --nh3:#3E9B5C;
+    --hand: 'Architects Daughter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --clean: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family: var(--hand);
+    line-height:1.55;
+    font-size:16px;
+  }
+  .app{ max-width:1260px; margin:0 auto; padding:22px 20px 60px; }
+  h1{ font-size:30px; margin:0 0 6px; color:var(--ink); font-weight:400; }
+  h2{ font-size:20px; margin:0 0 10px; color:var(--ink); font-weight:400; }
+  h3{ font-size:17px; margin:0 0 8px; color:var(--ink); font-weight:400; }
+  .subtitle{ color:var(--muted); font-size:16px; margin:0 0 18px; max-width:920px;}
+  .rxn-banner{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    background:var(--paper);
+    border:2.5px solid var(--ink); border-radius:255px 15px 225px 15px/15px 225px 15px 255px;
+    padding:12px 20px; margin-bottom:18px; font-size:20px;
+    box-shadow:4px 4px 0 rgba(35,35,35,0.10);
+  }
+  .rxn-banner .eq{ color:var(--muted); font-size:14px; margin-left:auto; font-family:var(--clean);}
+  .grid{ display:flex; gap:18px; flex-wrap:wrap; margin-bottom:18px; align-items:stretch;}
+  .card{
+    background:var(--card); border:2.5px solid var(--ink);
+    border-radius:22px 8px 22px 8px/8px 22px 8px 22px;
+    padding:16px 18px; box-shadow:4px 4px 0 rgba(35,35,35,0.10);
+  }
+  .col-main{ flex:1 1 660px; min-width:0; }
+  .col-side{ flex:1 1 340px; min-width:280px; }
+  canvas#particleCanvas{ width:100%; max-width:620px; height:auto; display:block; margin:0 auto; background:var(--paper); border-radius:12px; }
+  .vessel-wrap{ position:relative; }
+  .legend{ display:flex; gap:16px; flex-wrap:wrap; margin-top:10px; font-size:14px; justify-content:center;}
+  .legend-item{ display:flex; align-items:center; gap:6px; }
+  .dot{ width:15px; height:15px; border-radius:50%; display:inline-block; border:1.5px solid var(--ink);}
+  .dot.n2{ background:var(--n2);} .dot.h2{ background:var(--h2);} .dot.nh3{ background:var(--nh3);}
+  .counts{ display:flex; gap:10px; justify-content:center; margin-top:10px; flex-wrap:wrap;}
+  .count-pill{ background:var(--paper); border:1.5px solid var(--ink); border-radius:20px; padding:5px 12px; font-size:13px; display:flex; gap:6px; align-items:center; font-family:var(--clean); font-weight:600;}
+  .status-badge{ text-align:center; margin-top:10px; }
+  .status-badge span{ display:inline-block; padding:6px 16px; border-radius:20px; font-size:15px; border:1.5px solid var(--ink);}
+  .status-eq{ background:var(--green-light); color:#1f5c34; }
+  .status-fwd{ background:var(--teal-light); color:#125f58; }
+  .status-rev{ background:var(--amber-light); color:#8a4a17; }
+
+  .control-group{ margin-bottom:18px; }
+  .control-group label{ font-size:16px; display:flex; justify-content:space-between; margin-bottom:6px;}
+  .control-group label .val{ color:var(--teal); font-family:var(--clean); font-weight:700;}
+  input[type=range]{ width:100%; accent-color:var(--teal); }
+  .hint{ font-size:13px; color:var(--muted); margin-top:3px; font-family:var(--clean); line-height:1.4;}
+  .btn-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;}
+  button{
+    font-family: var(--hand); font-size:15px; cursor:pointer;
+    border-radius:14px 6px 14px 6px/6px 14px 6px 14px; border:2px solid var(--ink); background:var(--paper); color:var(--ink);
+    padding:8px 12px; transition:transform .1s; box-shadow:2px 2px 0 rgba(35,35,35,0.12);
+  }
+  button:hover{ transform:translate(-1px,-1px); box-shadow:3px 3px 0 rgba(35,35,35,0.16); }
+  button:active{ transform:translate(1px,1px); box-shadow:1px 1px 0 rgba(35,35,35,0.12); }
+  button.primary{ background:var(--teal); color:white; }
+  button.toggle-on{ background:var(--coral); color:white; }
+  button.small{ padding:6px 10px; font-size:14px; }
+  .species-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; padding:6px 10px; background:var(--paper); border:1.5px solid var(--ink); border-radius:12px 6px 12px 6px/6px 12px 6px 12px;}
+  .species-row .name{ font-size:15px; display:flex; align-items:center; gap:6px;}
+  .species-controls{ display:flex; gap:6px; }
+  hr.sep{ border:none; border-top:2px dashed var(--ink); opacity:0.35; margin:16px 0; }
+  .diagram-row{ display:flex; gap:18px; flex-wrap:wrap; }
+  .chart-box{ flex:1 1 320px; min-width:0; }
+  canvas#energyCanvas{ width:100%; max-width:900px; height:auto; display:block; margin:0 auto; }
+  canvas#concChart, canvas#rateChart{ width:100%; max-width:460px; height:auto; display:block; margin:0 auto; }
+  canvas#mbCanvas{ width:100%; max-width:1000px; height:auto; display:block; margin:0 auto; }
+  .explain-panel{ background:var(--teal-light); border:2.5px solid var(--ink); border-radius:20px 8px 20px 8px/8px 20px 8px 20px; padding:14px 18px; margin-bottom:18px; }
+  .explain-panel p{ margin:0; font-size:16px; }
+  .why-panel{ background:var(--card); border:2.5px solid var(--ink); border-radius:20px 8px 20px 8px/8px 20px 8px 20px; padding:16px 18px;}
+  .why-panel summary{ cursor:pointer; font-size:18px; color:var(--ink); }
+  .why-panel .body{ font-size:15.5px; margin-top:10px; font-family:var(--clean); line-height:1.6; }
+  .why-panel .body p{ margin:0 0 10px; }
+  .why-panel .body strong{ color:var(--teal); }
+  .legend-eq{ text-align:center; font-size:13px; color:var(--muted); margin-top:6px; font-family:var(--clean);}
+  .footnote{ font-size:12.5px; color:var(--muted); margin-top:16px; text-align:center; font-family:var(--clean);}
+  .rate-readout{ display:flex; justify-content:space-around; margin-top:8px; font-size:13px; font-family:var(--clean);}
+  .rate-readout div{ text-align:center; }
+  .rate-readout .num{ font-size:19px; font-weight:700; }
+  .fwd-color{ color:var(--teal); } .rev-color{ color:var(--amber); }
+  .piston-label{ position:absolute; top:4px; right:8px; font-size:12px; color:var(--muted); background:rgba(255,253,248,0.9); padding:2px 8px; border-radius:6px; font-family:var(--clean); border:1px solid var(--ink);}
+  .mb-readout{ display:flex; gap:28px; justify-content:center; margin-top:10px; flex-wrap:wrap; font-size:14px; font-family:var(--clean);}
+  .mb-readout .block{ text-align:center; }
+  .mb-readout .block .ttl{ font-family:var(--hand); font-size:17px; margin-bottom:2px;}
+  .mb-legend-line{ display:inline-block; width:18px; height:0; border-top:3px solid; vertical-align:middle; margin-right:6px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <h1>Ammonia Equilibrium Simulator</h1>
+  <p class="subtitle">A particle-level model of the Haber process equilibrium, N₂(g) + 3H₂(g) ⇌ 2NH₃(g), built on collision theory: molecules only react when they collide with enough energy (≥ activation energy) and the right orientation. Use the controls to change temperature, pressure, concentration, and catalyst, and watch <em>why</em> the equilibrium shifts — not just that it does.</p>
+
+  <div class="rxn-banner">
+    <span>N₂(g) + 3H₂(g) ⇌ 2NH₃(g)</span>
+    <span class="eq">forward reaction is exothermic (releases energy) &nbsp;·&nbsp; ΔH &lt; 0</span>
+  </div>
+
+  <div class="explain-panel">
+    <p id="explainText">Welcome! Press <strong>Play</strong> and try changing a control on the right — the explanation here will update to describe what's happening at the particle level.</p>
+  </div>
+
+  <div class="grid">
+    <div class="card col-main">
+      <h2>Reaction Vessel <span style="font-size:13px;color:var(--muted);font-family:var(--clean);">(particle view)</span></h2>
+      <div class="vessel-wrap">
+        <canvas id="particleCanvas" width="620" height="400"></canvas>
+        <div class="piston-label" id="pistonLabel">Volume: 100%</div>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><span class="dot n2"></span> N₂ (nitrogen)</div>
+        <div class="legend-item"><span class="dot h2"></span> H₂ (hydrogen)</div>
+        <div class="legend-item"><span class="dot nh3"></span> NH₃ (ammonia)</div>
+      </div>
+      <div class="counts">
+        <div class="count-pill"><span class="dot n2"></span> N₂: <span id="countN2">0</span></div>
+        <div class="count-pill"><span class="dot h2"></span> H₂: <span id="countH2">0</span></div>
+        <div class="count-pill"><span class="dot nh3"></span> NH₃: <span id="countNH3">0</span></div>
+      </div>
+      <div class="status-badge"><span id="statusBadge" class="status-eq">Press Play to begin</span></div>
+      <div class="rate-readout">
+        <div><div class="num fwd-color" id="rateFwd">0.00</div><div>forward events/s</div></div>
+        <div><div class="num rev-color" id="rateRev">0.00</div><div>reverse events/s</div></div>
+      </div>
+    </div>
+
+    <div class="card col-side">
+      <h2>Controls</h2>
+
+      <div class="control-group">
+        <label>Temperature <span class="val"><span id="tempVal">400</span> K</span></label>
+        <input type="range" id="tempSlider" min="250" max="800" step="10" value="400">
+        <div class="hint">Higher T → faster-moving particles → more frequent collisions AND a larger share of collisions exceed the activation energy.</div>
+      </div>
+
+      <div class="control-group">
+        <label>Container Volume (pressure) <span class="val"><span id="volVal">100</span>%</span></label>
+        <input type="range" id="volSlider" min="40" max="100" step="2" value="100">
+        <div class="hint">Compressing the piston raises pressure/concentration → molecules are packed closer together → collision frequency rises.</div>
+      </div>
+
+      <div class="control-group">
+        <label style="margin-bottom:2px;">Catalyst (iron surface)</label>
+        <button id="catalystBtn" style="width:100%;">Catalyst: Removed</button>
+        <div class="hint">Without the catalyst, forward synthesis is essentially blocked at any temperature — matching why the real Haber process can't run without one. Decomposition (reverse) still works on its own, especially at high T.</div>
+      </div>
+
+      <hr class="sep">
+      <h3>Adjust concentration</h3>
+      <div class="species-row">
+        <span class="name"><span class="dot n2"></span> N₂</span>
+        <div class="species-controls">
+          <button class="small" data-add="N2" data-n="6">+6</button>
+          <button class="small" data-add="N2" data-n="-6">−6</button>
+        </div>
+      </div>
+      <div class="species-row">
+        <span class="name"><span class="dot h2"></span> H₂</span>
+        <div class="species-controls">
+          <button class="small" data-add="H2" data-n="9">+9</button>
+          <button class="small" data-add="H2" data-n="-9">−9</button>
+        </div>
+      </div>
+      <div class="species-row">
+        <span class="name"><span class="dot nh3"></span> NH₃</span>
+        <div class="species-controls">
+          <button class="small" data-add="NH3" data-n="6">+6</button>
+          <button class="small" data-add="NH3" data-n="-6">−6</button>
+        </div>
+      </div>
+
+      <hr class="sep">
+      <h3>Simulation</h3>
+      <div class="btn-row">
+        <button class="primary" id="playPauseBtn">Pause</button>
+        <button id="resetBtn">Reset</button>
+      </div>
+      <div class="control-group" style="margin-top:12px;">
+        <label>Speed <span class="val"><span id="speedVal">1</span>×</span></label>
+        <input type="range" id="speedSlider" min="1" max="6" step="1" value="1">
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px;">
+    <h2>Energy Profile (Reaction Coordinate)</h2>
+    <canvas id="energyCanvas" width="900" height="380"></canvas>
+    <div class="legend-eq">Solid = current pathway &nbsp;·&nbsp; Dashed grey = uncatalyzed pathway for comparison &nbsp;·&nbsp; units are illustrative, not kJ/mol</div>
+  </div>
+
+  <div class="grid diagram-row">
+    <div class="card chart-box">
+      <h2>Concentration vs. Time</h2>
+      <canvas id="concChart" width="460" height="260"></canvas>
+    </div>
+    <div class="card chart-box">
+      <h2>Reaction Rate vs. Time</h2>
+      <canvas id="rateChart" width="460" height="260"></canvas>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <h2>Maxwell–Boltzmann Distribution: Effect of Temperature on Reactive Collisions</h2>
+    <p style="font-size:14.5px;color:var(--muted);margin:0 0 10px;max-width:900px;font-family:var(--clean);">
+      Every molecule doesn't move at the same speed — collision energies are spread across a distribution. The activation energies below are <strong>fixed</strong> (they only move if you toggle the catalyst); what changes with temperature is the <em>shape</em> of the curve, and therefore the shaded area beyond each Eₐ line — the fraction of collisions energetic enough to react.
+    </p>
+    <canvas id="mbCanvas" width="1000" height="320" style="width:100%;max-width:1000px;display:block;margin:0 auto;"></canvas>
+    <div class="legend" style="margin-top:6px;">
+      <div class="legend-item"><span class="mb-legend-line" style="border-color:var(--teal);"></span> Eₐ(forward)</div>
+      <div class="legend-item"><span class="mb-legend-line" style="border-color:var(--amber);"></span> Eₐ(reverse)</div>
+      <div class="legend-item"><span class="mb-legend-line" style="border-color:#94a3b8;border-top-style:dashed;"></span> 298 K reference curve</div>
+      <div class="legend-item"><span class="mb-legend-line" style="border-color:var(--ink);"></span> Current-temperature curve</div>
+    </div>
+    <div class="mb-readout">
+      <div class="block">
+        <div class="ttl" id="mbCurTempLabel" style="color:var(--ink);">Current: 400 K</div>
+        <div>Eₐ(fwd) exceeded by <strong id="mbCurFwdPct">—</strong></div>
+        <div>Eₐ(rev) exceeded by <strong id="mbCurRevPct">—</strong></div>
+      </div>
+      <div class="block" style="color:var(--muted);">
+        <div class="ttl">Reference: 298 K</div>
+        <div>Eₐ(fwd) exceeded by <strong id="mbRefFwdPct">—</strong></div>
+        <div>Eₐ(rev) exceeded by <strong id="mbRefRevPct">—</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <details class="why-panel" open style="margin-top:16px;">
+    <summary>Why does Le Chatelier's Principle actually work? (particle-level explanation)</summary>
+    <div class="body">
+      <p><strong>Equilibrium is dynamic, not static.</strong> At equilibrium, N₂, H₂ and NH₃ molecules are still colliding and reacting constantly — the forward rate (N₂ + H₂ → NH₃) and reverse rate (NH₃ → N₂ + H₂) are simply <em>equal</em>, so concentrations stop changing on average even though individual reactions never stop.</p>
+      <p><strong>Collision theory says a reaction needs two things:</strong> a collision, and enough energy in that collision to exceed the activation energy (Eₐ), plus the correct molecular orientation. The fraction of collisions with enough energy is set by the Boltzmann distribution at a given temperature — this is exactly what the "success probability" in this simulation represents.</p>
+      <p><strong>Temperature ↑:</strong> particles move faster, so collisions happen more often <em>and</em> a bigger fraction of them clear the energy barrier — both rates increase. But because the reverse reaction (endothermic here) has a <em>higher</em> activation energy than the forward reaction (exothermic), the reverse rate is more sensitive to temperature and grows proportionally more. Net effect: the reverse rate temporarily exceeds the forward rate, NH₃ is consumed faster than it forms, and the system shifts left — until a new, lower-NH₃ balance point is reached where the rates are equal again. This is the particle-level reason "increasing T shifts an exothermic equilibrium toward reactants."</p>
+      <p><strong>Pressure ↑ (volume ↓):</strong> squeezing the same number of molecules into a smaller space increases the local density of every species. The forward reaction needs a chance encounter of 1 N₂ with 3 H₂ molecules close together — a much less probable event than the 2-NH₃ encounter needed for the reverse reaction. Compression raises the odds of these crowded, multi-molecule encounters much more steeply for the forward direction, so the forward rate rises faster than the reverse rate. The system shifts right (more NH₃) — consistent with Le Chatelier, but here it emerges directly from collision statistics rather than being a rule to memorize: the side with fewer gas molecules (2 NH₃ vs. 4 total reactant molecules) is favored by compression because it requires a less demanding simultaneous encounter.</p>
+      <p><strong>Adding/removing a species:</strong> add more H₂, and N₂ molecules simply encounter enough nearby H₂ far more often — the forward rate jumps immediately while the reverse rate hasn't changed yet, so net production of NH₃ occurs until the rates re-equalize. Remove NH₃, and reverse collisions become rarer, so forward reaction dominates until balance is restored. In every case, the "shift" you see is just the forward and reverse rates temporarily going out of balance and then re-equalizing at a new set of concentrations.</p>
+      <p><strong>Catalyst:</strong> a catalyst provides an alternative reaction pathway with a lower activation energy for both directions (see the energy diagram) — but for this specific reaction, its bigger job is making the forward encounter <em>geometrically achievable</em> in the first place. Synthesizing NH₃ means breaking N₂'s very strong triple bond, which needs 1 N₂ and 3 H₂ to meet in just the right orientation at once — without a catalyst surface to hold and align them, that almost never happens, no matter how hot you make it, so forward synthesis is essentially switched off. Decomposition (2NH₃ → N₂ + 3H₂) doesn't need that same precise alignment, so it keeps happening — slowly at low temperature, faster as T rises — with or without a catalyst. Insert the catalyst and forward synthesis becomes possible again, so equilibrium (with a real NH₃ concentration) is reached quickly. This is a simplification: true thermodynamics (ΔH and the equilibrium constant K) never depends on a catalyst — but without one, this reaction's kinetics are so lopsided that the forward direction is, for all practical purposes, unreachable, so you won't see the system settle into the same equilibrium at all within any observable time.</p>
+    </div>
+  </details>
+
+  <p class="footnote">Educational model. Reaction probabilities follow an Arrhenius-style e^(−Eₐ/kT) relationship with realistic relative trends (reverse Eₐ &gt; forward Eₐ by |ΔH|; catalyst lowers both Eₐ values equally). Without the catalyst, forward synthesis is additionally modeled as needing a near-impossible molecular alignment (a very low orientation/steric factor), keeping it negligible at every simulated temperature, while reverse decomposition uses a fixed, more forgiving orientation factor whether or not the catalyst is present — reflecting that only synthesis strictly requires the catalytic surface to proceed at any observable rate. Energy values are in arbitrary simulation units, not real kJ/mol. Real Haber-process ΔH ≈ −92 kJ/mol; real uncatalyzed Eₐ is very high due to the strong N≡N triple bond, which is why an iron catalyst is essential industrially.</p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============== CONSTANTS ============== */
+  const EA_F_BASE = 140, EA_F_CAT = 25;
+  const DELTA_H = 35; // magnitude; forward exothermic by this much (relative units)
+  const EA_R_BASE = EA_F_BASE + DELTA_H; // 175
+  const EA_R_CAT  = EA_F_CAT + DELTA_H;  // 60
+  const K_CONST = 0.15; // scales T into an effective "kT" for the exponential
+  // Steric/orientation factors. Forward synthesis needs a demanding, precisely-aligned
+  // encounter (1 N2 + 3 H2, breaking N≡N) that a catalyst surface provides — without a
+  // catalyst this is modeled as almost never geometrically achievable, so forward stays
+  // negligible at every simulated temperature. Reverse (decomposition) doesn't need that
+  // catalytic alignment, so it stays kinetically accessible on its own, growing with T.
+  const ORIENT_F_CAT = 0.45;   // forward, catalyst inserted
+  const ORIENT_F_UNCAT = 0.001; // forward, catalyst removed — synthesis is essentially blocked
+  const ORIENT_R = 0.75;       // reverse, same with or without catalyst
+  const SPEED_SCALE = 0.15;
+  const MASS = { N2: 14, H2: 1, NH3: 8.5 };
+  const RADIUS = { N2: 9, H2: 6, NH3: 10 };
+  const COLOR = { N2: '#4a72d6', H2: '#9aa5b1', NH3: '#3E9B5C' };
+  const INK = '#232323';
+  const SEARCH_R = 70; // radius to find "nearby" extra H2 for forward reaction
+  const REACT_COOLDOWN = 20; // frames
+  const MAX_PARTICLES = 1440;
+  const BOX = { w: 620, h: 400, margin: 12 };
+  const REF_TEMP = 298; // fixed comparison temperature for the Maxwell-Boltzmann diagram
+  const MB_XMAX = 480;  // energy axis range for the MB diagram (relative units)
+  const MB_STEPS = 240;
+  const HAND_FONT = '"Architects Daughter", sans-serif';
+
+  /* ============== STATE ============== */
+  const state = {
+    temperature: 400,
+    volumeFraction: 1.0,
+    catalyst: false,
+    speedMult: 1,
+    running: true,
+    elapsed: 0
+  };
+
+  let particles = [];
+  const forwardEvents = []; // timestamps (state.elapsed) of successful forward reactions
+  const reverseEvents = [];
+  const chartData = { t: [], N2: [], H2: [], NH3: [], rateF: [], rateR: [] };
+  const MAXPOINTS = 60;
+
+  /* ============== UTIL ============== */
+  function gaussianRandom(mean, std){
+    let u = Math.max(1e-9, 1 - Math.random());
+    let v = Math.random();
+    let z = Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+    return mean + z*std;
+  }
+  function sampleVelocity(mass){
+    const std = SPEED_SCALE * Math.sqrt(state.temperature / mass);
+    let vx = gaussianRandom(0, std);
+    let vy = gaussianRandom(0, std);
+    const maxV = 12;
+    const sp = Math.hypot(vx, vy);
+    if (sp > maxV){ vx = vx/sp*maxV; vy = vy/sp*maxV; }
+    return {vx, vy};
+  }
+  function rightBound(){
+    return BOX.margin + state.volumeFraction * (BOX.w - 2*BOX.margin);
+  }
+  function randomPosInBox(r){
+    const rb = rightBound();
+    const x = BOX.margin + r + Math.random()*Math.max(1,(rb - BOX.margin - 2*r));
+    const y = BOX.margin + r + Math.random()*Math.max(1,(BOX.h - 2*BOX.margin - 2*r));
+    return {x,y};
+  }
+
+  /* ============== PARTICLE FACTORY ============== */
+  function makeWobble(){
+    const segs = 10;
+    const arr = [];
+    for (let k=0;k<segs;k++) arr.push(0.86 + Math.random()*0.28);
+    return arr;
+  }
+  function makeParticle(type, x, y){
+    const r = RADIUS[type];
+    const mass = MASS[type];
+    let pos;
+    if (x === undefined) pos = randomPosInBox(r);
+    else pos = {x,y};
+    const v = sampleVelocity(mass);
+    return { type, x: pos.x, y: pos.y, vx: v.vx, vy: v.vy, r, mass, cooldown: 0, wob: makeWobble() };
+  }
+
+  function initParticles(){
+    particles = [];
+    for (let i=0;i<160;i++) particles.push(makeParticle('N2'));
+    for (let i=0;i<480;i++) particles.push(makeParticle('H2'));
+  }
+
+  function addParticles(type, n){
+    if (n > 0){
+      const room = MAX_PARTICLES - particles.length;
+      const toAdd = Math.min(n, Math.max(0, room));
+      for (let i=0;i<toAdd;i++) particles.push(makeParticle(type));
+      return toAdd;
+    } else {
+      let toRemove = Math.min(-n, particles.length);
+      let removed = 0;
+      for (let i = particles.length - 1; i >= 0 && removed < toRemove; i--){
+        if (particles[i].type === type){ particles.splice(i,1); removed++; }
+      }
+      return -removed;
+    }
+  }
+
+  /* ============== PHYSICS ============== */
+  function integrate(){
+    const rb = rightBound();
+    for (const p of particles){
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.cooldown > 0) p.cooldown--;
+
+      if (p.x - p.r < BOX.margin){ p.x = BOX.margin + p.r; p.vx = Math.abs(p.vx); }
+      if (p.x + p.r > rb){ p.x = rb - p.r; p.vx = -Math.abs(p.vx); }
+      if (p.y - p.r < BOX.margin){ p.y = BOX.margin + p.r; p.vy = Math.abs(p.vy); }
+      if (p.y + p.r > BOX.h - BOX.margin){ p.y = BOX.h - BOX.margin - p.r; p.vy = -Math.abs(p.vy); }
+    }
+  }
+
+  function resolveElastic(a, b, dx, dy, dist){
+    const nx = dx/dist, ny = dy/dist;
+    const overlap = (a.r + b.r) - dist;
+    if (overlap > 0){
+      const totalMass = a.mass + b.mass;
+      const pushA = overlap * (b.mass/totalMass);
+      const pushB = overlap * (a.mass/totalMass);
+      a.x -= nx*pushA; a.y -= ny*pushA;
+      b.x += nx*pushB; b.y += ny*pushB;
+    }
+    const rvx = a.vx - b.vx, rvy = a.vy - b.vy;
+    const rvn = rvx*nx + rvy*ny;
+    // rv is defined as vA-vB with n pointing A->B, so a positive rvn means A is
+    // closing the distance to B (approaching) — that is exactly the case that needs
+    // an impulse. Only skip when rvn is negative (already separating).
+    if (rvn < 0) return;
+    const m1 = a.mass, m2 = b.mass;
+    const impulse = (2*rvn) / (m1+m2);
+    a.vx -= impulse * m2 * nx; a.vy -= impulse * m2 * ny;
+    b.vx += impulse * m1 * nx; b.vy += impulse * m1 * ny;
+  }
+
+  function reactionProb(Ea, orient){
+    const kT = K_CONST * state.temperature;
+    return Math.exp(-Ea/kT) * orient;
+  }
+
+  function findNearestOfType(type, x, y, excludeSet, count, maxDist){
+    const cands = [];
+    for (let i=0;i<particles.length;i++){
+      const p = particles[i];
+      if (p.type !== type) continue;
+      if (excludeSet.has(p)) continue;
+      const d = Math.hypot(p.x-x, p.y-y);
+      if (d <= maxDist) cands.push({p, d});
+    }
+    cands.sort((a,b)=>a.d-b.d);
+    return cands.slice(0, count).map(c=>c.p);
+  }
+
+  function stepReactionsAndCollisions(){
+    const toRemove = new Set();
+    const toAdd = [];
+    const n = particles.length;
+    for (let i=0;i<n;i++){
+      const a = particles[i];
+      if (toRemove.has(a)) continue;
+      for (let j=i+1;j<n;j++){
+        const b = particles[j];
+        if (toRemove.has(b)) continue;
+        const dx = b.x-a.x, dy=b.y-a.y;
+        const dist = Math.hypot(dx,dy);
+        if (dist === 0 || dist > a.r+b.r) continue;
+
+        resolveElastic(a,b,dx,dy,dist);
+
+        if (a.cooldown>0 || b.cooldown>0) continue;
+        let n2p=null, h2p=null, nh3a=null, nh3b=null;
+        if (a.type==='N2' && b.type==='H2'){ n2p=a; h2p=b; }
+        else if (a.type==='H2' && b.type==='N2'){ n2p=b; h2p=a; }
+        else if (a.type==='NH3' && b.type==='NH3'){ nh3a=a; nh3b=b; }
+        else continue;
+
+        a.cooldown = REACT_COOLDOWN; b.cooldown = REACT_COOLDOWN;
+
+        if (n2p){
+          const Ea = state.catalyst ? EA_F_CAT : EA_F_BASE;
+          const orientF = state.catalyst ? ORIENT_F_CAT : ORIENT_F_UNCAT;
+          const P = reactionProb(Ea, orientF);
+          if (Math.random() < P){
+            const extra = findNearestOfType('H2', (n2p.x+h2p.x)/2, (n2p.y+h2p.y)/2,
+              new Set([...toRemove, n2p, h2p]), 2, SEARCH_R);
+            if (extra.length === 2){
+              toRemove.add(n2p); toRemove.add(h2p);
+              toRemove.add(extra[0]); toRemove.add(extra[1]);
+              // Spawn products at a fresh random position (not at the reactant site) — spawning
+              // "in place" repeatedly biases new particles toward whichever region happens to have
+              // slightly higher local collision frequency (typically the box interior), which
+              // self-reinforces over many reaction cycles and causes particles to visibly clump
+              // toward the center over time. A well-mixed reactor shouldn't do that.
+              const p1 = randomPosInBox(RADIUS.NH3);
+              toAdd.push({type:'NH3', x: p1.x, y: p1.y});
+              const p2 = randomPosInBox(RADIUS.NH3);
+              toAdd.push({type:'NH3', x: p2.x, y: p2.y});
+              forwardEvents.push(state.elapsed);
+            }
+          }
+        } else if (nh3a){
+          const Ea = state.catalyst ? EA_R_CAT : EA_R_BASE;
+          const P = reactionProb(Ea, ORIENT_R);
+          if (Math.random() < P){
+            toRemove.add(nh3a); toRemove.add(nh3b);
+            const pN2 = randomPosInBox(RADIUS.N2);
+            toAdd.push({type:'N2', x: pN2.x, y: pN2.y});
+            for (let hk=0; hk<3; hk++){
+              const pH = randomPosInBox(RADIUS.H2);
+              toAdd.push({type:'H2', x: pH.x, y: pH.y});
+            }
+            reverseEvents.push(state.elapsed);
+          }
+        }
+      }
+    }
+    if (toRemove.size){
+      particles = particles.filter(p => !toRemove.has(p));
+    }
+    for (const spec of toAdd){
+      if (particles.length >= MAX_PARTICLES) break;
+      const rb = rightBound();
+      const r = RADIUS[spec.type];
+      const x = Math.min(Math.max(spec.x, BOX.margin+r), rb-r);
+      const y = Math.min(Math.max(spec.y, BOX.margin+r), BOX.h-BOX.margin-r);
+      particles.push(makeParticle(spec.type, x, y));
+    }
+  }
+
+  function physicsTick(){
+    integrate();
+    stepReactionsAndCollisions();
+    state.elapsed += 1/60;
+  }
+
+  /* ============== ROUGH.JS HELPERS ============== */
+  function setupHiDPI(canvas, ctx, cssW, cssH){
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = cssW*dpr; canvas.height = cssH*dpr;
+    canvas.style.width = cssW+'px'; canvas.style.height = cssH+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  function roughArrow(rc, x1,y1,x2,y2,opts){
+    rc.line(x1,y1,x2,y2,opts);
+    const ang = Math.atan2(y2-y1, x2-x1);
+    const alen = 9, aang = 0.48;
+    rc.line(x2,y2, x2-alen*Math.cos(ang-aang), y2-alen*Math.sin(ang-aang), opts);
+    rc.line(x2,y2, x2-alen*Math.cos(ang+aang), y2-alen*Math.sin(ang+aang), opts);
+  }
+  function roughDashed(rc, x1,y1,x2,y2,opts,dashLen,gapLen){
+    dashLen = dashLen||7; gapLen = gapLen||6;
+    const dist = Math.hypot(x2-x1,y2-y1);
+    if (dist < 1) return;
+    const ux=(x2-x1)/dist, uy=(y2-y1)/dist;
+    let d=0;
+    while (d < dist){
+      const sx=x1+ux*d, sy=y1+uy*d;
+      const ed=Math.min(d+dashLen,dist);
+      const ex2=x1+ux*ed, ey2=y1+uy*ed;
+      rc.line(sx,sy,ex2,ey2,opts);
+      d += dashLen+gapLen;
+    }
+  }
+
+  /* ============== DRAWING: particle vessel ============== */
+  const pCanvas = document.getElementById('particleCanvas');
+  const pCtx = pCanvas.getContext('2d');
+  setupHiDPI(pCanvas, pCtx, BOX.w, BOX.h);
+
+  const wallLayer = document.createElement('canvas');
+  const wallCtx = wallLayer.getContext('2d');
+  setupHiDPI(wallLayer, wallCtx, BOX.w, BOX.h);
+  const rcWall = rough.canvas(wallLayer);
+
+  function redrawWallLayer(){
+    wallCtx.clearRect(0,0,BOX.w,BOX.h);
+    const rb = rightBound();
+    rcWall.rectangle(BOX.margin, BOX.margin, rb-BOX.margin, BOX.h-2*BOX.margin,
+      {stroke:INK, strokeWidth:2.5, roughness:1.8, seed:11});
+    if (rb < BOX.w - BOX.margin - 2){
+      rcWall.rectangle(rb, BOX.margin-4, 10, BOX.h-2*BOX.margin+8,
+        {stroke:INK, strokeWidth:2, roughness:2, fill:'#8b95a3', fillStyle:'hachure', hachureGap:3, seed:23});
+    }
+  }
+
+  function sketchyCircle(ctx, cx, cy, r, wob, fillColor){
+    const segs = wob.length;
+    ctx.beginPath();
+    for (let k=0;k<=segs;k++){
+      const idx = k % segs;
+      const ang = (k/segs)*Math.PI*2;
+      const rr = r*wob[idx];
+      const x = cx+Math.cos(ang)*rr, y = cy+Math.sin(ang)*rr;
+      if (k===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = fillColor; ctx.fill();
+    ctx.strokeStyle = INK; ctx.lineWidth = 1.4; ctx.stroke();
+  }
+
+  function drawMolecule(ctx, p){
+    const {type,x,y,r,wob} = p;
+    if (type === 'N2'){
+      sketchyCircle(ctx, x-r*0.45, y, r*0.72, wob, COLOR.N2);
+      sketchyCircle(ctx, x+r*0.45, y, r*0.72, wob, COLOR.N2);
+    } else if (type === 'H2'){
+      sketchyCircle(ctx, x-r*0.5, y, r*0.62, wob, COLOR.H2);
+      sketchyCircle(ctx, x+r*0.5, y, r*0.62, wob, COLOR.H2);
+    } else {
+      for (let k=0;k<3;k++){
+        const ang = (Math.PI*2/3)*k - Math.PI/2;
+        const hx = x + Math.cos(ang)*r*0.85, hy = y + Math.sin(ang)*r*0.85;
+        sketchyCircle(ctx, hx, hy, r*0.4, wob, '#eafff0');
+      }
+      sketchyCircle(ctx, x, y, r*0.62, wob, COLOR.NH3);
+    }
+  }
+
+  function drawVessel(){
+    pCtx.clearRect(0,0,BOX.w,BOX.h);
+    pCtx.fillStyle = '#fffdf8';
+    pCtx.fillRect(0,0,BOX.w,BOX.h);
+    pCtx.drawImage(wallLayer, 0, 0, BOX.w, BOX.h);
+    for (const p of particles) drawMolecule(pCtx, p);
+  }
+
+  /* ============== DRAWING: energy diagram ============== */
+  const eCanvas = document.getElementById('energyCanvas');
+  const eCtx = eCanvas.getContext('2d');
+  const ED = {w:900,h:380};
+  setupHiDPI(eCanvas, eCtx, ED.w, ED.h);
+  const rcEnergy = rough.canvas(eCanvas);
+
+  function energyAt(u, peakE, baseReact, basisProd){
+    // u in [0,1]: 0-0.28 flat reactants, 0.28-0.5 rise, 0.5-0.72 fall, 0.72-1 flat products
+    function smooth(t){ t = Math.min(1,Math.max(0,t)); return t*t*(3-2*t); }
+    if (u <= 0.28) return baseReact;
+    if (u <= 0.5) return baseReact + (peakE-baseReact)*smooth((u-0.28)/0.22);
+    if (u <= 0.72) return peakE + (basisProd-peakE)*smooth((u-0.5)/0.22);
+    return basisProd;
+  }
+
+  function drawEnergyDiagram(){
+    eCtx.clearRect(0,0,ED.w,ED.h);
+    const eaF = state.catalyst ? EA_F_CAT : EA_F_BASE;
+    const eaR = state.catalyst ? EA_R_CAT : EA_R_BASE;
+    const baseReact = 0, basisProd = -DELTA_H, peakE = eaF;
+    const maxE = Math.max(EA_F_BASE, EA_R_BASE) + 15;
+
+    const padL=76, padR=40, padT=48, padB=64;
+    const plotW = ED.w-padL-padR, plotH = ED.h-padT-padB;
+    function ex(u){ return padL + u*plotW; }
+    function ey(E){ return padT + plotH - ((E - basisProd)/(maxE - basisProd))*plotH; }
+
+    // axes with arrowheads
+    roughArrow(rcEnergy, padL, padT+plotH, padL, padT-10, {stroke:INK, strokeWidth:2, roughness:1.4, seed:1});
+    roughArrow(rcEnergy, padL, padT+plotH, padL+plotW+14, padT+plotH, {stroke:INK, strokeWidth:2, roughness:1.4, seed:2});
+    eCtx.fillStyle = INK; eCtx.font = '18px '+HAND_FONT; eCtx.textAlign='center';
+    eCtx.fillText('Progress of reaction', padL+plotW/2, ED.h-18);
+    eCtx.save();
+    eCtx.translate(24, padT+plotH/2); eCtx.rotate(-Math.PI/2);
+    eCtx.textAlign='center'; eCtx.fillText('Potential energy',0,0);
+    eCtx.restore();
+
+    // uncatalyzed dashed reference hump (only when catalyst is ON)
+    if (state.catalyst){
+      const refPeak = EA_F_BASE;
+      const pts = [];
+      for (let i=0;i<=48;i++){
+        const u=i/48;
+        pts.push([ex(u), ey(energyAt(u, refPeak, baseReact, basisProd))]);
+      }
+      rcEnergy.curve(pts, {stroke:'#9aa3ad', strokeWidth:2, roughness:1.3, seed:6});
+    }
+
+    // main hump curve
+    const pts = [];
+    for (let i=0;i<=48;i++){
+      const u=i/48;
+      pts.push([ex(u), ey(energyAt(u, peakE, baseReact, basisProd))]);
+    }
+    rcEnergy.curve(pts, {stroke: state.catalyst ? '#2f8f56' : INK, strokeWidth:2.8, roughness:1.5, seed:5});
+
+    // dashed reference baseline under the hump (reactants level extended)
+    roughDashed(rcEnergy, ex(0.28), ey(baseReact), ex(0.62), ey(baseReact), {stroke:INK, strokeWidth:1.3, roughness:1.2, seed:9});
+
+    // ΔH arrow (coral, downward) at u=0.38
+    const xDH = ex(0.38);
+    roughArrow(rcEnergy, xDH, ey(baseReact), xDH, ey(basisProd), {stroke:'#E8524B', strokeWidth:2.2, roughness:1.3, seed:12});
+    eCtx.fillStyle = '#E8524B'; eCtx.font = '18px '+HAND_FONT; eCtx.textAlign='left';
+    eCtx.fillText('ΔH = −'+DELTA_H, xDH+12, (ey(baseReact)+ey(basisProd))/2);
+
+    // Ea forward arrow (teal, upward) at peak x, with leader-line callout
+    const xEaF = ex(0.5);
+    roughArrow(rcEnergy, xEaF, ey(baseReact), xEaF, ey(peakE)+4, {stroke:'#2AA9A0', strokeWidth:2.2, roughness:1.3, seed:13});
+    const midEaF = (ey(baseReact)+ey(peakE))/2;
+    rcEnergy.line(xEaF, midEaF, xEaF+65, midEaF-28, {stroke:'#2AA9A0', strokeWidth:1.3, roughness:1, seed:14});
+    eCtx.fillStyle = '#2AA9A0'; eCtx.textAlign='left';
+    eCtx.fillText('Activation energy', xEaF+68, midEaF-30);
+    eCtx.fillText('(forward) = '+eaF, xEaF+68, midEaF-9);
+
+    // Ea reverse arrow (amber, upward) at u=0.62
+    const xEaR = ex(0.62);
+    roughArrow(rcEnergy, xEaR, ey(basisProd), xEaR, ey(peakE)+4, {stroke:'#E8924B', strokeWidth:2.2, roughness:1.3, seed:15});
+    eCtx.fillStyle = '#E8924B'; eCtx.textAlign='center'; eCtx.font='16px '+HAND_FONT;
+    eCtx.fillText('Eₐ(reverse)', xEaR, ey(peakE)-16);
+    eCtx.fillText('= '+eaR, xEaR, ey(peakE)+2);
+
+    // labels
+    eCtx.fillStyle = INK; eCtx.font = '18px '+HAND_FONT; eCtx.textAlign='center';
+    eCtx.fillText('Reactants', ex(0.14), ey(baseReact)-14);
+    eCtx.fillText('N₂ + 3H₂', ex(0.14), ey(baseReact)+24);
+    eCtx.fillText('Transition state', ex(0.5), ey(peakE)-48);
+    eCtx.fillText('Products', ex(0.86), ey(basisProd)-14);
+    eCtx.fillText('2NH₃', ex(0.86), ey(basisProd)+24);
+
+    eCtx.textAlign='left'; eCtx.font='15px '+HAND_FONT;
+    eCtx.fillStyle = state.catalyst ? '#2f8f56' : INK;
+    eCtx.fillText(state.catalyst ? 'Solid = catalyzed pathway' : 'Solid = uncatalyzed pathway', padL, 26);
+  }
+
+  /* ============== DRAWING: Maxwell-Boltzmann diagram ============== */
+  const mbCanvas = document.getElementById('mbCanvas');
+  const mbCtx = mbCanvas.getContext('2d');
+  const MB = { w: 1000, h: 320 };
+  setupHiDPI(mbCanvas, mbCtx, MB.w, MB.h);
+  const rcMB = rough.canvas(mbCanvas);
+
+  function mbF(E, kT){
+    if (E <= 0) return 0;
+    return (2/Math.sqrt(Math.PI)) * Math.pow(kT, -1.5) * Math.sqrt(E) * Math.exp(-E/kT);
+  }
+  function mbFraction(kT, Ea){
+    const dE = MB_XMAX / MB_STEPS;
+    let sum = 0;
+    for (let E = Ea; E <= MB_XMAX; E += dE) sum += mbF(E, kT) * dE;
+    return sum;
+  }
+  function fmtPct(x){
+    const v = x*100;
+    return v < 0.01 ? '<0.01%' : v.toFixed(2)+'%';
+  }
+
+  function drawMBDiagram(){
+    mbCtx.clearRect(0,0,MB.w,MB.h);
+    const kTc = K_CONST*state.temperature, kTr = K_CONST*REF_TEMP;
+    const eaF = state.catalyst ? EA_F_CAT : EA_F_BASE;
+    const eaR = state.catalyst ? EA_R_CAT : EA_R_BASE;
+    const dE = MB_XMAX/MB_STEPS;
+    const curArr=[], refArr=[];
+    let yMax = 1e-9;
+    for (let i=0;i<=MB_STEPS;i++){
+      const E = i*dE;
+      const fc = mbF(E,kTc), fr = mbF(E,kTr);
+      curArr.push(fc); refArr.push(fr);
+      if (fc>yMax) yMax=fc;
+      if (fr>yMax) yMax=fr;
+    }
+    yMax *= 1.18;
+
+    const padL=68, padR=24, padT=34, padB=48;
+    const plotW = MB.w-padL-padR, plotH = MB.h-padT-padB;
+    function ex(E){ return padL + (E/MB_XMAX)*plotW; }
+    function ey(f){ return padT + plotH - (f/yMax)*plotH; }
+
+    roughArrow(rcMB, padL, padT+plotH, padL, padT-10, {stroke:INK, strokeWidth:2, roughness:1.4, seed:31});
+    roughArrow(rcMB, padL, padT+plotH, padL+plotW+14, padT+plotH, {stroke:INK, strokeWidth:2, roughness:1.4, seed:32});
+    mbCtx.fillStyle = INK; mbCtx.font = '15px '+HAND_FONT; mbCtx.textAlign='center';
+    mbCtx.fillText('Kinetic energy of colliding pair', padL+plotW/2, MB.h-14);
+    mbCtx.save();
+    mbCtx.translate(22, padT+plotH/2); mbCtx.rotate(-Math.PI/2);
+    mbCtx.textAlign='center'; mbCtx.fillText('Fraction of collisions',0,0);
+    mbCtx.restore();
+
+    function beyondPoints(Ea){
+      const pts = [[ex(Ea), padT+plotH]];
+      for (let i=0;i<=MB_STEPS;i++){
+        const E = i*dE; if (E < Ea) continue;
+        pts.push([ex(E), ey(curArr[i])]);
+      }
+      pts.push([padL+plotW, padT+plotH]);
+      return pts;
+    }
+    rcMB.polygon(beyondPoints(eaF), {stroke:'#2AA9A0', strokeWidth:1, fill:'#2AA9A0', fillStyle:'hachure', hachureGap:4, fillWeight:1, roughness:1.2, seed:33});
+    rcMB.polygon(beyondPoints(eaR), {stroke:'#E8924B', strokeWidth:1, fill:'#E8924B', fillStyle:'hachure', hachureGap:4, fillWeight:1, roughness:1.2, seed:34});
+
+    // reference curve (dashed grey)
+    const refPts = [];
+    for (let i=0;i<=MB_STEPS;i+=2) refPts.push([ex(i*dE), ey(refArr[i])]);
+    rcMB.curve(refPts, {stroke:'#9aa3ad', strokeWidth:2, roughness:1.2, seed:35});
+    for (let i=0;i<=MB_STEPS;i+=2){
+      // small dash ticks along the reference curve to reinforce "dashed" look at sparse intervals
+    }
+
+    // current curve (solid ink)
+    const curPts = [];
+    for (let i=0;i<=MB_STEPS;i+=2) curPts.push([ex(i*dE), ey(curArr[i])]);
+    rcMB.curve(curPts, {stroke:INK, strokeWidth:2.6, roughness:1.3, seed:36});
+
+    function eaLine(Ea, color, label, labY){
+      const x = ex(Ea);
+      roughDashed(rcMB, x, padT, x, padT+plotH, {stroke:color, strokeWidth:1.6, roughness:1.1, seed:37+Math.round(Ea)}, 5, 4);
+      mbCtx.fillStyle = color; mbCtx.font = '14px '+HAND_FONT; mbCtx.textAlign='center';
+      mbCtx.fillText(label, x, labY);
+    }
+    eaLine(eaF, '#2AA9A0', 'Eₐ(fwd) = '+eaF, padT-14);
+    eaLine(eaR, '#E8924B', 'Eₐ(rev) = '+eaR, padT+18);
+
+    mbCtx.textAlign='left'; mbCtx.fillStyle = INK; mbCtx.font = '14px '+HAND_FONT;
+    mbCtx.fillText('Current: '+Math.round(state.temperature)+' K', padL+plotW-170, padT+18);
+    mbCtx.fillStyle = '#7a7a70';
+    mbCtx.fillText('Reference: 298 K', padL+plotW-170, padT+36);
+  }
+
+  function updateMBReadout(){
+    const kTc = K_CONST*state.temperature, kTr = K_CONST*REF_TEMP;
+    const eaF = state.catalyst ? EA_F_CAT : EA_F_BASE;
+    const eaR = state.catalyst ? EA_R_CAT : EA_R_BASE;
+    document.getElementById('mbCurTempLabel').textContent = 'Current: '+Math.round(state.temperature)+' K';
+    document.getElementById('mbCurFwdPct').textContent = fmtPct(mbFraction(kTc, eaF));
+    document.getElementById('mbCurRevPct').textContent = fmtPct(mbFraction(kTc, eaR));
+    document.getElementById('mbRefFwdPct').textContent = fmtPct(mbFraction(kTr, eaF));
+    document.getElementById('mbRefRevPct').textContent = fmtPct(mbFraction(kTr, eaR));
+  }
+
+  /* ============== DRAWING: hand-drawn line charts ============== */
+  const concCanvas = document.getElementById('concChart');
+  const concCtx2 = concCanvas.getContext('2d');
+  const CW=460, CH=260;
+  setupHiDPI(concCanvas, concCtx2, CW, CH);
+  const rcConc = rough.canvas(concCanvas);
+
+  const rateCanvas = document.getElementById('rateChart');
+  const rateCtx2 = rateCanvas.getContext('2d');
+  setupHiDPI(rateCanvas, rateCtx2, CW, CH);
+  const rcRate = rough.canvas(rateCanvas);
+
+  function drawRoughLineChart(ctx, rc, W, H, series, tArr, yLabel, seedBase){
+    ctx.clearRect(0,0,W,H);
+    const padL=46, padR=16, padT=30, padB=40;
+    const plotW = W-padL-padR, plotH = H-padT-padB;
+    let maxY = 0;
+    series.forEach(s => s.data.forEach(v => { if (v>maxY) maxY=v; }));
+    maxY = maxY<=0 ? 1 : maxY*1.2;
+    const n = tArr.length;
+    function ex(i){ return n<=1 ? padL : padL + (i/(n-1))*plotW; }
+    function ey(v){ return padT+plotH-(v/maxY)*plotH; }
+
+    roughArrow(rc, padL, padT+plotH, padL, padT-8, {stroke:INK, strokeWidth:1.8, roughness:1.3, seed:seedBase+1});
+    roughArrow(rc, padL, padT+plotH, padL+plotW+10, padT+plotH, {stroke:INK, strokeWidth:1.8, roughness:1.3, seed:seedBase+2});
+
+    ctx.fillStyle = '#5b5b52'; ctx.font = '12px '+HAND_FONT; ctx.textAlign='center';
+    ctx.fillText('Time (s)', padL+plotW/2, H-8);
+    ctx.save(); ctx.translate(14, padT+plotH/2); ctx.rotate(-Math.PI/2);
+    ctx.textAlign='center'; ctx.fillText(yLabel,0,0); ctx.restore();
+
+    ctx.textAlign='right'; ctx.font='11px '+HAND_FONT; ctx.fillStyle='#5b5b52';
+    ctx.fillText(maxY.toFixed(1), padL-6, padT+5);
+    ctx.fillText('0', padL-6, padT+plotH+4);
+    if (n>0){
+      ctx.textAlign='left';
+      ctx.fillText(tArr[0].toFixed(0)+'s', padL, padT+plotH+18);
+      ctx.textAlign='right';
+      ctx.fillText(tArr[n-1].toFixed(0)+'s', padL+plotW, padT+plotH+18);
+    }
+
+    series.forEach((s,idx)=>{
+      if (s.data.length < 2) return;
+      const pts = s.data.map((v,i)=>[ex(i), ey(v)]);
+      rc.curve(pts, {stroke:s.color, strokeWidth:2.4, roughness:1.2, seed: seedBase+10+idx});
+    });
+
+    ctx.textAlign='left'; ctx.font='12px '+HAND_FONT;
+    let lx = padL;
+    series.forEach(s=>{
+      ctx.fillStyle = s.color;
+      const txt = '— '+s.label;
+      ctx.fillText(txt, lx, padT-10);
+      lx += ctx.measureText(txt).width + 16;
+    });
+  }
+
+  function drawCharts(){
+    drawRoughLineChart(concCtx2, rcConc, CW, CH, [
+      {data:chartData.N2, color:'#4a72d6', label:'N₂'},
+      {data:chartData.H2, color:'#6b7683', label:'H₂'},
+      {data:chartData.NH3, color:'#3E9B5C', label:'NH₃'}
+    ], chartData.t, 'Particle count', 100);
+
+    drawRoughLineChart(rateCtx2, rcRate, CW, CH, [
+      {data:chartData.rateF, color:'#2AA9A0', label:'Forward rate'},
+      {data:chartData.rateR, color:'#E8924B', label:'Reverse rate'}
+    ], chartData.t, 'Events / s', 200);
+  }
+
+  /* ============== DATA / EXPLANATION TEXT ============== */
+  const explainEl = document.getElementById('explainText');
+  function explain(html){ explainEl.innerHTML = html; }
+
+  function updateData(){
+    const cN2 = particles.filter(p=>p.type==='N2').length;
+    const cH2 = particles.filter(p=>p.type==='H2').length;
+    const cNH3 = particles.filter(p=>p.type==='NH3').length;
+
+    const windowSec = 3.5; // wider averaging window with more molecules gives a much steadier, more readable rate signal
+    while (forwardEvents.length && state.elapsed - forwardEvents[0] > 30) forwardEvents.shift();
+    while (reverseEvents.length && state.elapsed - reverseEvents[0] > 30) reverseEvents.shift();
+    const rf = forwardEvents.filter(ts => state.elapsed - ts <= windowSec).length / windowSec;
+    const rr = reverseEvents.filter(ts => state.elapsed - ts <= windowSec).length / windowSec;
+
+    if (chartData.t.length >= MAXPOINTS){
+      chartData.t.shift(); chartData.N2.shift(); chartData.H2.shift();
+      chartData.NH3.shift(); chartData.rateF.shift(); chartData.rateR.shift();
+    }
+    chartData.t.push(state.elapsed);
+    chartData.N2.push(cN2); chartData.H2.push(cH2); chartData.NH3.push(cNH3);
+    chartData.rateF.push(rf); chartData.rateR.push(rr);
+    drawCharts();
+
+    document.getElementById('countN2').textContent = cN2;
+    document.getElementById('countH2').textContent = cH2;
+    document.getElementById('countNH3').textContent = cNH3;
+    document.getElementById('rateFwd').textContent = rf.toFixed(2);
+    document.getElementById('rateRev').textContent = rr.toFixed(2);
+
+    const badge = document.getElementById('statusBadge');
+    const diff = rf - rr;
+    if (Math.abs(diff) < 0.08){
+      badge.textContent = 'At dynamic equilibrium — forward rate ≈ reverse rate';
+      badge.className = 'status-eq';
+    } else if (diff > 0){
+      badge.textContent = 'Shifting → net production of NH₃ (forward rate > reverse rate)';
+      badge.className = 'status-fwd';
+    } else {
+      badge.textContent = 'Shifting ← net consumption of NH₃ (reverse rate > forward rate)';
+      badge.className = 'status-rev';
+    }
+    updateMBReadout();
+  }
+
+  /* ============== CONTROLS ============== */
+  const tempSlider = document.getElementById('tempSlider');
+  const tempVal = document.getElementById('tempVal');
+  tempSlider.addEventListener('input', ()=>{
+    const oldT = state.temperature;
+    const newT = parseFloat(tempSlider.value);
+    const scale = Math.sqrt(newT/oldT);
+    for (const p of particles){ p.vx*=scale; p.vy*=scale; }
+    state.temperature = newT;
+    tempVal.textContent = newT;
+    drawMBDiagram();
+    updateMBReadout();
+    if (newT > oldT){
+      explain(`<strong>Temperature increased to ${newT} K.</strong> Particles now move faster — collisions are more frequent, and (per the Boltzmann distribution) a larger fraction of collisions carry enough energy to clear the activation energy in <em>both</em> directions. Because the reverse (endothermic) step has the higher activation energy, its rate grows proportionally faster than the forward rate. Expect the reverse rate to briefly overtake the forward rate, consuming NH₃ until a new, lower-NH₃ equilibrium is reached.`);
+    } else if (newT < oldT){
+      explain(`<strong>Temperature decreased to ${newT} K.</strong> Particles slow down: fewer collisions overall, and a smaller share clear either activation energy. The reverse (higher-Eₐ) rate falls off faster than the forward rate, so forward reaction temporarily dominates, producing more NH₃ until the rates re-balance at a new equilibrium.`);
+    }
+  });
+
+  const volSlider = document.getElementById('volSlider');
+  const volVal = document.getElementById('volVal');
+  const pistonLabel = document.getElementById('pistonLabel');
+  volSlider.addEventListener('input', ()=>{
+    const oldF = state.volumeFraction;
+    const newF = parseFloat(volSlider.value)/100;
+    state.volumeFraction = newF;
+    volVal.textContent = Math.round(newF*100);
+    pistonLabel.textContent = 'Volume: '+Math.round(newF*100)+'%';
+    const rb = rightBound();
+    for (const p of particles){ if (p.x + p.r > rb) p.x = rb - p.r; }
+    redrawWallLayer();
+    if (newF < oldF){
+      explain(`<strong>Container compressed to ${Math.round(newF*100)}% volume.</strong> All molecules are now packed into a smaller space, so every particle's local concentration rises and collisions happen more often. The forward reaction needs a crowded, simultaneous encounter of 1 N₂ with 3 H₂ molecules — a much rarer event than the 2-NH₃ encounter the reverse reaction needs. Compression boosts that rare, crowded encounter's odds much more, so the forward rate rises faster than the reverse rate: the equilibrium shifts toward NH₃ (fewer gas molecules), exactly as Le Chatelier predicts for increased pressure.`);
+    } else if (newF > oldF){
+      explain(`<strong>Container expanded to ${Math.round(newF*100)}% volume.</strong> Molecules are more spread out, so all collisions become rarer. The forward reaction's crowded multi-molecule encounter becomes disproportionately rarer than the simpler 2-NH₃ reverse encounter, so the reverse rate now dominates: the equilibrium shifts back toward N₂ + H₂ (more gas molecules), matching Le Chatelier's response to lower pressure.`);
+    }
+  });
+
+  const catalystBtn = document.getElementById('catalystBtn');
+  catalystBtn.addEventListener('click', ()=>{
+    state.catalyst = !state.catalyst;
+    catalystBtn.textContent = 'Catalyst: ' + (state.catalyst ? 'Inserted' : 'Removed');
+    catalystBtn.className = state.catalyst ? 'toggle-on' : '';
+    drawEnergyDiagram();
+    drawMBDiagram();
+    updateMBReadout();
+    if (state.catalyst){
+      explain(`<strong>Catalyst inserted.</strong> Look at the energy diagram: both activation energies just dropped. Just as importantly, the catalyst surface now gives N₂ and H₂ a properly-aligned encounter, so forward synthesis becomes achievable at all — without it, the four-molecule encounter needed to break N≡N was essentially never going to happen by chance. Reverse (decomposition) speeds up too, but it didn't need the catalyst's help to happen in the first place. Equilibrium is now reached quickly, with a meaningful steady-state NH₃ concentration.`);
+    } else {
+      explain(`<strong>Catalyst removed.</strong> Forward synthesis effectively shuts down — matching real chemistry: without a catalyst, N₂'s triple bond is far too strong for N₂ + 3H₂ to combine at any practical rate, at any temperature this simulator reaches. Reverse decomposition doesn't need that catalytic help, though, so any NH₃ already present will keep slowly breaking back down into N₂ and H₂, especially as you raise the temperature.`);
+    }
+  });
+
+  document.querySelectorAll('button[data-add]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const type = btn.getAttribute('data-add');
+      const n = parseInt(btn.getAttribute('data-n'),10);
+      const result = addParticles(type, n);
+      const label = type==='N2'?'N₂':type==='H2'?'H₂':'NH₃';
+      if (n>0){
+        explain(`<strong>Added ${Math.abs(result)} ${label} molecules.</strong> The local concentration of ${label} just jumped, so collisions involving ${label} become more frequent immediately. ${type==='NH3' ? 'More NH₃-NH₃ collisions means the reverse rate rises right away' : 'More '+label+' means the forward reaction (which consumes it) speeds up right away'}, while the other rate hasn't changed yet — the system reacts net in the direction that consumes the added species, re-establishing equal rates at a new equilibrium. This is Le Chatelier's "shift away from the stress," explained by rate imbalance.`);
+      } else {
+        explain(`<strong>Removed ${Math.abs(result)} ${label} molecules.</strong> With fewer ${label} particles around, collisions that need ${label} become rarer immediately. ${type==='NH3' ? 'The reverse rate drops right away, so forward reaction now dominates, replacing some of the removed NH₃' : 'The forward rate (which needs '+label+') drops right away, so the reverse reaction now dominates, producing more '+label+' back'} — the system shifts to partially restore what was removed, until rates balance again at a new equilibrium.`);
+      }
+    });
+  });
+
+  const speedSlider = document.getElementById('speedSlider');
+  const speedVal = document.getElementById('speedVal');
+  speedSlider.addEventListener('input', ()=>{
+    state.speedMult = parseInt(speedSlider.value,10);
+    speedVal.textContent = state.speedMult;
+  });
+
+  const playPauseBtn = document.getElementById('playPauseBtn');
+  playPauseBtn.addEventListener('click', ()=>{
+    state.running = !state.running;
+    playPauseBtn.textContent = state.running ? 'Pause' : 'Play';
+  });
+
+  const resetBtn = document.getElementById('resetBtn');
+  resetBtn.addEventListener('click', ()=>{
+    initParticles();
+    forwardEvents.length = 0; reverseEvents.length = 0;
+    state.elapsed = 0;
+    chartData.t.length=0; chartData.N2.length=0; chartData.H2.length=0;
+    chartData.NH3.length=0; chartData.rateF.length=0; chartData.rateR.length=0;
+    drawCharts();
+    explain('Simulation reset to 160 N₂ and 480 H₂ molecules. Press a control to see what happens.');
+  });
+
+  /* ============== MAIN LOOP ============== */
+  let lastChartPush = 0;
+  function frame(ts){
+    requestAnimationFrame(frame);
+    if (state.running){
+      for (let s=0; s<state.speedMult; s++) physicsTick();
+    }
+    drawVessel();
+    if (!lastChartPush || ts - lastChartPush > 400){
+      lastChartPush = ts;
+      updateData();
+      drawMBDiagram();
+    }
+  }
+
+  /* ============== INIT ============== */
+  function boot(){
+    initParticles();
+    redrawWallLayer();
+    drawEnergyDiagram();
+    drawMBDiagram();
+    updateMBReadout();
+    drawCharts();
+    requestAnimationFrame(frame);
+  }
+  if (document.fonts && document.fonts.ready){
+    document.fonts.load('16px "Architects Daughter"').then(boot).catch(boot);
+  } else {
+    boot();
+  }
+
+})();
+</script>
+</body>
+</html>
